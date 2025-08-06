@@ -293,7 +293,7 @@ int main(int argc,char** argv){
     file << "| Lexeme         | Token Type               |\n";
     file << "+----------------+--------------------------+\n";
 
-    for(auto &t:tokens){
+    for(auto &t:table){
         file<<"| "<<left<<setw(15)<<t.lexeme<<"| "<<left<<setw(25)<<t.token<<"|\n";
         file<<"+----------------+--------------------------+\n";
     }
