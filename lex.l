@@ -23,7 +23,7 @@
 
 %option yylineno
 
-// Arithmetic
+/* Arithmetic */
 PLUS            "+"
 MINUS           "-"
 STAR      	    "*"
@@ -33,7 +33,7 @@ ASSIGN        	"="
 INCREMENT      	"++"
 DECREMENT      	"--"
 
-// Comparision
+/* Comparision */
 EQUAL       	"=="
 NOT_EQUAL     	"!="
 LESS_THAN      	"<"
@@ -41,7 +41,7 @@ GREATER_THAN   	">"
 LESS_EQUAL    	"<="
 GREATER_EQUAL 	">="
 
-// Bitwise
+/* Bitwise */
 BITWISE_AND    	"&"
 BITWISE_OR     	"|"
 BITWISE_XOR    	"\^"
@@ -49,12 +49,12 @@ TILDE          	"~"
 LEFT_SHIFT     	"<<"
 RIGHT_SHIFT    	">>"
 
-// Logical
+/* Logical */
 LOGICAL_NOT    	"!"
 LOGICAL_OR      "||"
 LOGICAL_AND     "&&"
 
-// With Equals
+/* With Equals */
 PLUS_EQUAL   	"+="
 MINUS_EQUAL   	"-="
 STAR_EQUAL    	"*="
@@ -66,7 +66,7 @@ XOR_EQUAL    	"^="
 LEFT_SHIFT_EQ  	"<<="
 RIGHT_SHIFT_EQ 	">>="
 
-// Brackets
+/* Brackets */
 RCURLY         	"}"
 LCURLY          "{"
 LSQUARE         "]"
@@ -74,7 +74,7 @@ RSQUARE       	"["
 LROUND       	"("
 RROUND     	    ")"
 
-// Punctuation
+/* Punctuation */
 DOT            	"\."
 COMMA          	","
 COLON          	":"
@@ -82,7 +82,7 @@ SEMICOLON      	";"
 ARROW           "->"
 QUESTION_MARK  	"?"
 
-// Extras
+/* Extras */
 DELIMITER       [ \n\t]
 WHITESPACE      {DELIMITER}+
 INCLUDE         ^#include.*\n
@@ -90,7 +90,7 @@ SCOMMENT        "\/\/.*"
 RETURN          "return"
 SIZEOF         	"sizeof"
 
-// Conditionals
+/* Conditionals */
 IF             	"if"
 ELIF            "elif"
 ELSE           	"else"
@@ -98,7 +98,7 @@ CASE           	"case"
 SWITCH         	"switch"
 DEFAULT        	"default"
 
-// Loops
+/* Loops */
 FOR            	"for"
 WHILE          	"while"
 DO             	"do"
@@ -107,7 +107,7 @@ BREAK         	"break"
 CONTINUE       	"continue"
 GOTO           	"goto"
 
-// Data Types
+/* Data Types */
 INT       	    "int"
 BOOL			"bool"
 CHAR            "char"
@@ -124,22 +124,22 @@ TRUE            "true"
 FALSE           "false"
 STATIC         	"static"
 
-// Classes and Structs
+/* Classes and Structs */
 CLASS           "class"
 STRUCT          "struct"
 PUBLIC          "public"
 PRIVATE         "private"
 PROTECTED       "protected"
 
-// IO
+/* IO */
 COUT            "cout"
 CIN             "cin"
 
-// Dynamic Allocation
+/* Dynamic Allocation */
 NEW             "new"
 DELETE          "delete"
 
-// Regex
+/* Regex */
 DIGIT               [0-9]
 LETTER              [A-Za-z]
 EXPONENT            [Ee][+-]?{DIGIT}+
