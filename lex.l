@@ -15,9 +15,12 @@
     public:
         string token;
         string lexeme;
-        entry(string lex_v,string token_v) : lexeme(lex_v), token(token_v) {}
+        int line;
+        entry(string lex_v, string token_v, int line_v) : lexeme(lex_v), token(token_v), line(line_v) {}
     };
 
+    #define pb push_back
+    
     vector<entry> table;
 %}
 
@@ -134,6 +137,7 @@ PROTECTED       "protected"
 /* IO */
 COUT            "cout"
 CIN             "cin"
+endl            "endl"
 
 /* Dynamic Allocation */
 NEW             "new"
@@ -152,120 +156,125 @@ STRING_LITERAL      \"(\\.|[^\\"])*\"
 CHARACTER_LITERAL   '((\\.)|[^'\\])'
 INVALID_IDENTIFIER  ({DIGIT}+({LETTER}|_)+({DIGIT}|{LETTER}|_)*(\.{DIGIT}*)?)
 
+
 %%
 {WHITESPACE}          {}
-{INCLUDE}             {table.push_back(entry(yytext,"INCLUDE"));}
+{INCLUDE}             {table.pb(entry(yytext,"INCLUDE",yylineno));}
 
-{PLUS}                {table.push_back(entry(yytext,"PLUS"));}
-{MINUS}               {table.push_back(entry(yytext,"MINUS"));}
-{STAR}                {table.push_back(entry(yytext,"STAR"));}
-{DIVIDE}              {table.push_back(entry(yytext,"DIVIDE"));}
-{MODULUS}             {table.push_back(entry(yytext,"MODULUS"));}
-{ASSIGN}              {table.push_back(entry(yytext,"ASSIGN"));}
-{INCREMENT}           {table.push_back(entry(yytext,"INCREMENT"));}
-{DECREMENT}           {table.push_back(entry(yytext,"DECREMENT"));}
+{PLUS}                {table.pb(entry(yytext,"PLUS",yylineno));}
+{MINUS}               {table.pb(entry(yytext,"MINUS",yylineno));}
+{STAR}                {table.pb(entry(yytext,"STAR",yylineno));}
+{DIVIDE}              {table.pb(entry(yytext,"DIVIDE",yylineno));}
+{MODULUS}             {table.pb(entry(yytext,"MODULUS",yylineno));}
+{ASSIGN}              {table.pb(entry(yytext,"ASSIGN",yylineno));}
+{INCREMENT}           {table.pb(entry(yytext,"INCREMENT",yylineno));}
+{DECREMENT}           {table.pb(entry(yytext,"DECREMENT",yylineno));}
 
-{EQUAL}               {table.push_back(entry(yytext,"EQUAL"));}
-{NOT_EQUAL}           {table.push_back(entry(yytext,"NOT_EQUAL"));}
-{LESS_THAN}           {table.push_back(entry(yytext,"LESS_THAN"));}
-{GREATER_THAN}        {table.push_back(entry(yytext,"GREATER_THAN"));}
-{LESS_EQUAL}          {table.push_back(entry(yytext,"LESS_EQUAL"));}
-{GREATER_EQUAL}       {table.push_back(entry(yytext,"GREATER_EQUAL"));}
+{EQUAL}               {table.pb(entry(yytext,"EQUAL",yylineno));}
+{NOT_EQUAL}           {table.pb(entry(yytext,"NOT_EQUAL",yylineno));}
+{LESS_THAN}           {table.pb(entry(yytext,"LESS_THAN",yylineno));}
+{GREATER_THAN}        {table.pb(entry(yytext,"GREATER_THAN",yylineno));}
+{LESS_EQUAL}          {table.pb(entry(yytext,"LESS_EQUAL",yylineno));}
+{GREATER_EQUAL}       {table.pb(entry(yytext,"GREATER_EQUAL",yylineno));}
 
-{BITWISE_AND}         {table.push_back(entry(yytext,"BITWISE_AND"));}
-{BITWISE_OR}          {table.push_back(entry(yytext,"BITWISE_OR"));}
-{BITWISE_XOR}         {table.push_back(entry(yytext,"BITWISE_XOR"));}
-{TILDE}               {table.push_back(entry(yytext,"TILDE"));}
-{LEFT_SHIFT}          {table.push_back(entry(yytext,"LEFT_SHIFT"));}
-{RIGHT_SHIFT}         {table.push_back(entry(yytext,"RIGHT_SHIFT"));} 
+{BITWISE_AND}         {table.pb(entry(yytext,"BITWISE_AND",yylineno));}
+{BITWISE_OR}          {table.pb(entry(yytext,"BITWISE_OR",yylineno));}
+{BITWISE_XOR}         {table.pb(entry(yytext,"BITWISE_XOR",yylineno));}
+{TILDE}               {table.pb(entry(yytext,"TILDE",yylineno));}
+{LEFT_SHIFT}          {table.pb(entry(yytext,"LEFT_SHIFT",yylineno));}
+{RIGHT_SHIFT}         {table.pb(entry(yytext,"RIGHT_SHIFT",yylineno));} 
 
-{LOGICAL_NOT}         {table.push_back(entry(yytext,"LOGICAL_NOT"));}
-{LOGICAL_OR}          {table.push_back(entry(yytext,"LOGICAL_OR"));}
-{LOGICAL_AND}         {table.push_back(entry(yytext,"LOGICAL_AND"));}
+{LOGICAL_NOT}         {table.pb(entry(yytext,"LOGICAL_NOT",yylineno));}
+{LOGICAL_OR}          {table.pb(entry(yytext,"LOGICAL_OR",yylineno));}
+{LOGICAL_AND}         {table.pb(entry(yytext,"LOGICAL_AND",yylineno));}
 
-{PLUS_EQUAL}          {table.push_back(entry(yytext,"PLUS_EQUAL"));}
-{MINUS_EQUAL}         {table.push_back(entry(yytext,"MINUS_EQUAL"));}
-{STAR_EQUAL}          {table.push_back(entry(yytext,"STAR_EQUAL"));}
-{DIV_EQUAL}           {table.push_back(entry(yytext,"DIV_EQUAL"));}
-{MOD_EQUAL}           {table.push_back(entry(yytext,"MOD_EQUAL"));}
-{AND_EQUAL}           {table.push_back(entry(yytext,"AND_EQUAL"));}
-{OR_EQUAL}            {table.push_back(entry(yytext,"OR_EQUAL"));}
-{XOR_EQUAL}           {table.push_back(entry(yytext,"XOR_EQUAL"));}
-{LEFT_SHIFT_EQ}       {table.push_back(entry(yytext,"LEFT_SHIFT_EQ"));}
-{RIGHT_SHIFT_EQ}      {table.push_back(entry(yytext,"RIGHT_SHIFT_EQ"));}
+{PLUS_EQUAL}          {table.pb(entry(yytext,"PLUS_EQUAL",yylineno));}
+{MINUS_EQUAL}         {table.pb(entry(yytext,"MINUS_EQUAL",yylineno));}
+{STAR_EQUAL}          {table.pb(entry(yytext,"STAR_EQUAL",yylineno));}
+{DIV_EQUAL}           {table.pb(entry(yytext,"DIV_EQUAL",yylineno));}
+{MOD_EQUAL}           {table.pb(entry(yytext,"MOD_EQUAL",yylineno));}
+{AND_EQUAL}           {table.pb(entry(yytext,"AND_EQUAL",yylineno));}
+{OR_EQUAL}            {table.pb(entry(yytext,"OR_EQUAL",yylineno));}
+{XOR_EQUAL}           {table.pb(entry(yytext,"XOR_EQUAL",yylineno));}
+{LEFT_SHIFT_EQ}       {table.pb(entry(yytext,"LEFT_SHIFT_EQ",yylineno));}
+{RIGHT_SHIFT_EQ}      {table.pb(entry(yytext,"RIGHT_SHIFT_EQ",yylineno));}
 
-{LCURLY}              {table.push_back(entry(yytext,"LEFT_CURLY"));}
-{RCURLY}              {table.push_back(entry(yytext,"RIGHT_CURLY"));}
-{LSQUARE}             {table.push_back(entry(yytext,"LEFT_SQUARE"));}
-{RSQUARE}             {table.push_back(entry(yytext,"RIGHT_SQUARE"));}
-{LROUND}              {table.push_back(entry(yytext,"LEFT_ROUND"));}
-{RROUND}              {table.push_back(entry(yytext,"RIGHT_ROUND"));}
+{LCURLY}              {table.pb(entry(yytext,"LEFT_CURLY",yylineno));}
+{RCURLY}              {table.pb(entry(yytext,"RIGHT_CURLY",yylineno));}
+{LSQUARE}             {table.pb(entry(yytext,"LEFT_SQUARE",yylineno));}
+{RSQUARE}             {table.pb(entry(yytext,"RIGHT_SQUARE",yylineno));}
+{LROUND}              {table.pb(entry(yytext,"LEFT_ROUND",yylineno));}
+{RROUND}              {table.pb(entry(yytext,"RIGHT_ROUND",yylineno));}
 
-{DOT}                 {table.push_back(entry(yytext,"DOT"));}
-{COMMA}               {table.push_back(entry(yytext,"COMMA"));}
-{COLON}               {table.push_back(entry(yytext,"COLON"));}
-{SEMICOLON}           {table.push_back(entry(yytext,"SEMICOLON"));}
-{ARROW}               {table.push_back(entry(yytext,"ARROW"));}
-{QUESTION_MARK}       {table.push_back(entry(yytext,"QUESTION_MARK"));}
+{DOT}                 {table.pb(entry(yytext,"DOT",yylineno));}
+{COMMA}               {table.pb(entry(yytext,"COMMA",yylineno));}
+{COLON}               {table.pb(entry(yytext,"COLON",yylineno));}
+{SEMICOLON}           {table.pb(entry(yytext,"SEMICOLON",yylineno));}
+{ARROW}               {table.pb(entry(yytext,"ARROW",yylineno));}
+{QUESTION_MARK}       {table.pb(entry(yytext,"QUESTION_MARK",yylineno));}
 
-{SCOMMENT}            {table.push_back(entry(yytext,"SINGLE_COMMENT"));}
-{RETURN}              {table.push_back(entry(yytext,"RETURN"));}
-{SIZEOF}              {table.push_back(entry(yytext,"SIZEOF"));}
+{SCOMMENT}            {table.pb(entry(yytext,"SINGLE_COMMENT",yylineno));}
+{RETURN}              {table.pb(entry(yytext,"RETURN",yylineno));}
+{SIZEOF}              {table.pb(entry(yytext,"SIZEOF",yylineno));}
 
-{IF}                 {table.push_back(entry(yytext,"IF"));}
-{ELIF}               {table.push_back(entry(yytext,"ELIF"));}
-{ELSE}               {table.push_back(entry(yytext,"ELSE"));}
-{CASE}               {table.push_back(entry(yytext,"CASE"));}
-{SWITCH}             {table.push_back(entry(yytext,"SWITCH"));}
-{DEFAULT}            {table.push_back(entry(yytext,"DEFAULT"));}
+{IF}                 {table.pb(entry(yytext,"IF",yylineno));}
+{ELIF}               {table.pb(entry(yytext,"ELIF",yylineno));}
+{ELSE}               {table.pb(entry(yytext,"ELSE",yylineno));}
+{CASE}               {table.pb(entry(yytext,"CASE",yylineno));}
+{SWITCH}             {table.pb(entry(yytext,"SWITCH",yylineno));}
+{DEFAULT}            {table.pb(entry(yytext,"DEFAULT",yylineno));}
 
-{FOR}                {table.push_back(entry(yytext,"FOR"));}
-{WHILE}              {table.push_back(entry(yytext,"WHILE"));}
-{DO}                 {table.push_back(entry(yytext,"DO"));}
-{UNTIL}              {table.push_back(entry(yytext,"UNTIL"));}
-{BREAK}              {table.push_back(entry(yytext,"BREAK"));}
-{CONTINUE}           {table.push_back(entry(yytext,"CONTINUE"));}
-{GOTO}               {table.push_back(entry(yytext,"GOTO"));}
+{FOR}                {table.pb(entry(yytext,"FOR",yylineno));}
+{WHILE}              {table.pb(entry(yytext,"WHILE",yylineno));}
+{DO}                 {table.pb(entry(yytext,"DO",yylineno));}
+{UNTIL}              {table.pb(entry(yytext,"UNTIL",yylineno));}
+{BREAK}              {table.pb(entry(yytext,"BREAK",yylineno));}
+{CONTINUE}           {table.pb(entry(yytext,"CONTINUE",yylineno));}
+{GOTO}               {table.pb(entry(yytext,"GOTO",yylineno));}
 
-{INT}                {table.push_back(entry(yytext,"INT"));}
-{BOOL}               {table.push_back(entry(yytext,"BOOL"));}
-{CHAR}               {table.push_back(entry(yytext,"CHAR"));}
-{DOUBLE}             {table.push_back(entry(yytext,"DOUBLE"));}
-{LONG}               {table.push_back(entry(yytext,"LONG"));}
-{STRING}             {table.push_back(entry(yytext,"STRING"));}
-{VOID}               {table.push_back(entry(yytext,"VOID"));}
-{CONST}              {table.push_back(entry(yytext,"CONST"));}
-{NULL}               {table.push_back(entry(yytext,"NULL"));}
-{NULLPTR}            {table.push_back(entry(yytext,"NULLPTR"));}
-{FUNCTION}           {table.push_back(entry(yytext,"FUNCTION"));}
-{AUTO}               {table.push_back(entry(yytext,"AUTO"));}
-{TRUE}               {table.push_back(entry(yytext,"TRUE"));}
-{FALSE}              {table.push_back(entry(yytext,"FALSE"));}
-{STATIC}             {table.push_back(entry(yytext,"STATIC"));}
+{INT}                {table.pb(entry(yytext,"INT",yylineno));}
+{BOOL}               {table.pb(entry(yytext,"BOOL",yylineno));}
+{CHAR}               {table.pb(entry(yytext,"CHAR",yylineno));}
+{DOUBLE}             {table.pb(entry(yytext,"DOUBLE",yylineno));}
+{LONG}               {table.pb(entry(yytext,"LONG",yylineno));}
+{STRING}             {table.pb(entry(yytext,"STRING",yylineno));}
+{VOID}               {table.pb(entry(yytext,"VOID",yylineno));}
+{CONST}              {table.pb(entry(yytext,"CONST",yylineno));}
+{NULL}               {table.pb(entry(yytext,"NULL",yylineno));}
+{NULLPTR}            {table.pb(entry(yytext,"NULLPTR",yylineno));}
+{FUNCTION}           {table.pb(entry(yytext,"FUNCTION",yylineno));}
+{AUTO}               {table.pb(entry(yytext,"AUTO",yylineno));}
+{TRUE}               {table.pb(entry(yytext,"TRUE",yylineno));}
+{FALSE}              {table.pb(entry(yytext,"FALSE",yylineno));}
+{STATIC}             {table.pb(entry(yytext,"STATIC",yylineno));}
 
-{CLASS}              {table.push_back(entry(yytext,"CLASS"));}
-{STRUCT}             {table.push_back(entry(yytext,"STRUCT"));}
-{PUBLIC}             {table.push_back(entry(yytext,"PUBLIC"));}
-{PRIVATE}            {table.push_back(entry(yytext,"PRIVATE"));}
-{PROTECTED}          {table.push_back(entry(yytext,"PROTECTED"));}
+{CLASS}              {table.pb(entry(yytext,"CLASS",yylineno));}
+{STRUCT}             {table.pb(entry(yytext,"STRUCT",yylineno));}
+{PUBLIC}             {table.pb(entry(yytext,"PUBLIC",yylineno));}
+{PRIVATE}            {table.pb(entry(yytext,"PRIVATE",yylineno));}
+{PROTECTED}          {table.pb(entry(yytext,"PROTECTED",yylineno));}
 
-{COUT}               {table.push_back(entry(yytext,"COUT"));}
-{CIN}                {table.push_back(entry(yytext,"CIN"));}
-{NEW}                {table.push_back(entry(yytext,"NEW"));}
-{DELETE}             {table.push_back(entry(yytext,"DELETE"));}
+{COUT}               {table.pb(entry(yytext,"COUT",yylineno));}
+{CIN}                {table.pb(entry(yytext,"CIN",yylineno));}
+{ENDL}               {table.pb(entry(yytext,"ENDL",yylineno));}
 
-{IDENTIFIER}         {table.push_back(entry(yytext,"IDENTIFIER"));}
-{DECIMAL_LITERAL}    {table.push_back(entry(yytext,"DECIMAL_LITERAL"));}
-{EXPONENT_LITERAL}   {table.push_back(entry(yytext,"EXPONENT_LITERAL"));}
-{DOUBLE_LITERAL}     {table.push_back(entry(yytext,"DOUBLE_LITERAL"));}
-{STRING_LITERAL}     {table.push_back(entry(yytext,"STRING_LITERAL"));}
-{CHARACTER_LITERAL}  {table.push_back(entry(yytext,"CHARACTER_LITERAL"));}
+{NEW}                {table.pb(entry(yytext,"NEW",yylineno));}
+{DELETE}             {table.pb(entry(yytext,"DELETE",yylineno));}
+
+{IDENTIFIER}         {table.pb(entry(yytext,"IDENTIFIER",yylineno));}
+{DECIMAL_LITERAL}    {table.pb(entry(yytext,"DECIMAL_LITERAL",yylineno));}
+{EXPONENT_LITERAL}   {table.pb(entry(yytext,"EXPONENT_LITERAL",yylineno));}
+{DOUBLE_LITERAL}     {table.pb(entry(yytext,"DOUBLE_LITERAL",yylineno));}
+{STRING_LITERAL}     {table.pb(entry(yytext,"STRING_LITERAL",yylineno));}
+{CHARACTER_LITERAL}  {table.pb(entry(yytext,"CHARACTER_LITERAL",yylineno));}
 
 %%
 
-int main(int argc,char** argv){
-    if(argc<3){
-        cerr<<"Usage: "<<argv[0]<<" <input_file> <output_file>"<<endl;
+int main(int argc, char **argv)
+{
+    if (argc < 3)
+    {
+        cerr << "Usage: " << argv[0] << " <input_file> <output_file>" << endl;
         return 1;
     }
 
@@ -273,29 +282,32 @@ int main(int argc,char** argv){
     string out_file = argv[2];
 
     ifstream inputFile(in_file);
-    if(!inputFile){
-        cerr<<"Error opening file: "<<in_file<<endl;
+    if (!inputFile)
+    {
+        cerr << "Error opening file: " << in_file << endl;
         return 1;
     }
 
-    system("mkdir -p output");
     ofstream file(out_file);
-    if(!file){
-        cerr<<"Error creating output file: "<<out_file<<endl;
+    if (!file)
+    {
+        cerr << "Error creating output file: " << out_file << endl;
         return 1;
     }
 
-    yyin = fopen(argv[1],"r");
+    yyin = fopen(argv[1], "r");
     yylex();
 
-    file<<"Tokens generated are \n\n";
-    file << "+----------------+--------------------------+\n";
-    file << "| Lexeme         | Token Type               |\n";
-    file << "+----------------+--------------------------+\n";
+    file << "+---------+---------------------+--------------------------+\n";
+    file << "| Line No | Lexeme              | Token                    |\n";
+    file << "+---------+---------------------+--------------------------+\n";
 
-    for(auto &t:table){
-        file<<"| "<<left<<setw(15)<<t.lexeme<<"| "<<left<<setw(25)<<t.token<<"|\n";
-        file<<"+----------------+--------------------------+\n";
+    for (auto &t : table)
+    {
+        file << "| " << left << setw(8) << t.line << "| "
+             << left << setw(20) << t.lexeme << "| "
+             << left << setw(25) << t.token << "|\n";
+        file << "+---------+---------------------+--------------------------+\n";
     }
 
     file.close();
