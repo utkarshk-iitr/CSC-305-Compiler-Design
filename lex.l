@@ -21,6 +21,7 @@
 
     #define pb push_back    
     vector<entry> table;
+    vector<entry> err;
 %}
 
 %option yylineno
@@ -269,7 +270,8 @@ INVALID_IDENTIFIER  ({DIGIT}+({LETTER}|_)+({DIGIT}|{LETTER}|_)*(\.{DIGIT}*)?)
 {DOUBLE_LITERAL}      {table.pb(entry(yytext,"DOUBLE_LITERAL",yylineno));}
 {STRING_LITERAL}      {table.pb(entry(yytext,"STRING_LITERAL",yylineno));}
 {CHARACTER_LITERAL}   {table.pb(entry(yytext,"CHARACTER_LITERAL",yylineno));}
-{INVALID_IDENTIFIER}  {table.pb(entry(yytext,"INVALID_IDENTIFIER",yylineno));}
+{INVALID_IDENTIFIER}  {err.pb(entry(yytext,"INVALID_IDENTIFIER",yylineno));}
+.                     {err.pb(entry(yytext,"INVALID_TOKEN",yylineno));}
 
 %%
 
@@ -292,13 +294,14 @@ int main(int argc, char **argv)
     }
 
     ofstream file(out_file);
+    ofstream err_file("error_" + out_file);
     if (!file)
     {
         cerr << "Error creating output file: " << out_file << endl;
         return 1;
     }
 
-    yyin = fopen(argv[1], "r");
+    yyin = fopen(argv[1],"r");
     yylex();
 
     file << "+---------+---------------------+--------------------------+\n";
@@ -311,6 +314,16 @@ int main(int argc, char **argv)
              << left << setw(20) << t.lexeme << "| "
              << left << setw(25) << t.token << "|\n";
         file << "+---------+---------------------+--------------------------+\n";
+    }
+
+    err_file << "+---------+---------------------+--------------------------+\n";
+    err_file << "| Line No | Lexeme              | Token                    |\n";
+    err_file << "+---------+---------------------+--------------------------+\n";
+    for(auto& x:err){
+        err_file << "| " << left << setw(8) << x.line << "| "
+             << left << setw(20) << x.lexeme << "| "
+             << left << setw(25) << x.token << "|\n";
+        err_file << "+---------+---------------------+--------------------------+\n";
     }
 
     file.close();

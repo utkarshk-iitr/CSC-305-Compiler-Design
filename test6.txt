@@ -40,5 +40,6 @@ int main(){
     char ch = 'X';
     int 123abc = 5;
     int 1foo = 9.81;
+    int a$$@5 = 8;
     return 0;
 }
