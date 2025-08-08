@@ -219,57 +219,57 @@ INVALID_IDENTIFIER  ({DIGIT}+({LETTER}|_)+({DIGIT}|{LETTER}|_)*(\.{DIGIT}*)?)
 {RETURN}              {table.pb(entry(yytext,"RETURN",yylineno));}
 {SIZEOF}              {table.pb(entry(yytext,"SIZEOF",yylineno));}
 
-{IF}                 {table.pb(entry(yytext,"IF",yylineno));}
-{ELIF}               {table.pb(entry(yytext,"ELIF",yylineno));}
-{ELSE}               {table.pb(entry(yytext,"ELSE",yylineno));}
-{CASE}               {table.pb(entry(yytext,"CASE",yylineno));}
-{SWITCH}             {table.pb(entry(yytext,"SWITCH",yylineno));}
-{DEFAULT}            {table.pb(entry(yytext,"DEFAULT",yylineno));}
-
-{FOR}                {table.pb(entry(yytext,"FOR",yylineno));}
-{WHILE}              {table.pb(entry(yytext,"WHILE",yylineno));}
-{DO}                 {table.pb(entry(yytext,"DO",yylineno));}
-{UNTIL}              {table.pb(entry(yytext,"UNTIL",yylineno));}
-{BREAK}              {table.pb(entry(yytext,"BREAK",yylineno));}
-{CONTINUE}           {table.pb(entry(yytext,"CONTINUE",yylineno));}
-{GOTO}               {table.pb(entry(yytext,"GOTO",yylineno));}
-
-{INT}                {table.pb(entry(yytext,"INT",yylineno));}
-{BOOL}               {table.pb(entry(yytext,"BOOL",yylineno));}
-{CHAR}               {table.pb(entry(yytext,"CHAR",yylineno));}
-{DOUBLE}             {table.pb(entry(yytext,"DOUBLE",yylineno));}
-{LONG}               {table.pb(entry(yytext,"LONG",yylineno));}
-{STRING}             {table.pb(entry(yytext,"STRING",yylineno));}
-{VOID}               {table.pb(entry(yytext,"VOID",yylineno));}
-{CONST}              {table.pb(entry(yytext,"CONST",yylineno));}
-{NULL}               {table.pb(entry(yytext,"NULL",yylineno));}
-{NULLPTR}            {table.pb(entry(yytext,"NULLPTR",yylineno));}
-{FUNCTION}           {table.pb(entry(yytext,"FUNCTION",yylineno));}
-{AUTO}               {table.pb(entry(yytext,"AUTO",yylineno));}
-{TRUE}               {table.pb(entry(yytext,"TRUE",yylineno));}
-{FALSE}              {table.pb(entry(yytext,"FALSE",yylineno));}
-{STATIC}             {table.pb(entry(yytext,"STATIC",yylineno));}
-
-{CLASS}              {table.pb(entry(yytext,"CLASS",yylineno));}
-{STRUCT}             {table.pb(entry(yytext,"STRUCT",yylineno));}
-{PUBLIC}             {table.pb(entry(yytext,"PUBLIC",yylineno));}
-{PRIVATE}            {table.pb(entry(yytext,"PRIVATE",yylineno));}
-{PROTECTED}          {table.pb(entry(yytext,"PROTECTED",yylineno));}
-
-{COUT}               {table.pb(entry(yytext,"COUT",yylineno));}
-{CIN}                {table.pb(entry(yytext,"CIN",yylineno));}
-{ENDL}               {table.pb(entry(yytext,"ENDL",yylineno));}
-
-{NEW}                {table.pb(entry(yytext,"NEW",yylineno));}
-{DELETE}             {table.pb(entry(yytext,"DELETE",yylineno));}
-
-{IDENTIFIER}         {table.pb(entry(yytext,"IDENTIFIER",yylineno));}
-{DECIMAL_LITERAL}    {table.pb(entry(yytext,"DECIMAL_LITERAL",yylineno));}
-{EXPONENT_LITERAL}   {table.pb(entry(yytext,"EXPONENT_LITERAL",yylineno));}
-{DOUBLE_LITERAL}     {table.pb(entry(yytext,"DOUBLE_LITERAL",yylineno));}
-{STRING_LITERAL}     {table.pb(entry(yytext,"STRING_LITERAL",yylineno));}
-{CHARACTER_LITERAL}  {table.pb(entry(yytext,"CHARACTER_LITERAL",yylineno));}
-{INVALID_IDENTIFIER}         {table.pb(entry(yytext,"INVALID_IDENTIFIER",yylineno));}
+{IF}                  {table.pb(entry(yytext,"IF",yylineno));}
+{ELIF}                {table.pb(entry(yytext,"ELIF",yylineno));}
+{ELSE}                {table.pb(entry(yytext,"ELSE",yylineno));}
+{CASE}                {table.pb(entry(yytext,"CASE",yylineno));}
+{SWITCH}              {table.pb(entry(yytext,"SWITCH",yylineno));}
+{DEFAULT}             {table.pb(entry(yytext,"DEFAULT",yylineno));}
+ 
+{FOR}                 {table.pb(entry(yytext,"FOR",yylineno));}
+{WHILE}               {table.pb(entry(yytext,"WHILE",yylineno));}
+{DO}                  {table.pb(entry(yytext,"DO",yylineno));}
+{UNTIL}               {table.pb(entry(yytext,"UNTIL",yylineno));}
+{BREAK}               {table.pb(entry(yytext,"BREAK",yylineno));}
+{CONTINUE}            {table.pb(entry(yytext,"CONTINUE",yylineno));}
+{GOTO}                {table.pb(entry(yytext,"GOTO",yylineno));}
+ 
+{INT}                 {table.pb(entry(yytext,"INT",yylineno));}
+{BOOL}                {table.pb(entry(yytext,"BOOL",yylineno));}
+{CHAR}                {table.pb(entry(yytext,"CHAR",yylineno));}
+{DOUBLE}              {table.pb(entry(yytext,"DOUBLE",yylineno));}
+{LONG}                {table.pb(entry(yytext,"LONG",yylineno));}
+{STRING}              {table.pb(entry(yytext,"STRING",yylineno));}
+{VOID}                {table.pb(entry(yytext,"VOID",yylineno));}
+{CONST}               {table.pb(entry(yytext,"CONST",yylineno));}
+{NULL}                {table.pb(entry(yytext,"NULL",yylineno));}
+{NULLPTR}             {table.pb(entry(yytext,"NULLPTR",yylineno));}
+{FUNCTION}            {table.pb(entry(yytext,"FUNCTION",yylineno));}
+{AUTO}                {table.pb(entry(yytext,"AUTO",yylineno));}
+{TRUE}                {table.pb(entry(yytext,"TRUE",yylineno));}
+{FALSE}               {table.pb(entry(yytext,"FALSE",yylineno));}
+{STATIC}              {table.pb(entry(yytext,"STATIC",yylineno));}
+ 
+{CLASS}               {table.pb(entry(yytext,"CLASS",yylineno));}
+{STRUCT}              {table.pb(entry(yytext,"STRUCT",yylineno));}
+{PUBLIC}              {table.pb(entry(yytext,"PUBLIC",yylineno));}
+{PRIVATE}             {table.pb(entry(yytext,"PRIVATE",yylineno));}
+{PROTECTED}           {table.pb(entry(yytext,"PROTECTED",yylineno));}
+ 
+{COUT}                {table.pb(entry(yytext,"COUT",yylineno));}
+{CIN}                 {table.pb(entry(yytext,"CIN",yylineno));}
+{ENDL}                {table.pb(entry(yytext,"ENDL",yylineno));}
+ 
+{NEW}                 {table.pb(entry(yytext,"NEW",yylineno));}
+{DELETE}              {table.pb(entry(yytext,"DELETE",yylineno));}
+ 
+{IDENTIFIER}          {table.pb(entry(yytext,"IDENTIFIER",yylineno));}
+{DECIMAL_LITERAL}     {table.pb(entry(yytext,"DECIMAL_LITERAL",yylineno));}
+{EXPONENT_LITERAL}    {table.pb(entry(yytext,"EXPONENT_LITERAL",yylineno));}
+{DOUBLE_LITERAL}      {table.pb(entry(yytext,"DOUBLE_LITERAL",yylineno));}
+{STRING_LITERAL}      {table.pb(entry(yytext,"STRING_LITERAL",yylineno));}
+{CHARACTER_LITERAL}   {table.pb(entry(yytext,"CHARACTER_LITERAL",yylineno));}
+{INVALID_IDENTIFIER}  {table.pb(entry(yytext,"INVALID_IDENTIFIER",yylineno));}
 
 %%
 
