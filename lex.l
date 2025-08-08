@@ -159,7 +159,7 @@ INVALID_IDENTIFIER  ({DIGIT}+({LETTER}|_)+({DIGIT}|{LETTER}|_)*(\.{DIGIT}*)?)
 %%
 {WHITESPACE}          {}
 
-{INCLUDE}             { std::string txt(yytext,yyleng);
+{INCLUDE}             { string txt(yytext,yyleng);
                         if(!txt.empty() && txt.back()=='\n') txt.pop_back();
                         table.pb(entry(txt,"INCLUDE",yylineno-1));}
 
