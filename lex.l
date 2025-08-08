@@ -1,4 +1,4 @@
-%option noyywrap
+%option noyywrap yylineno
 %{
     #include <iostream>
     #include <iomanip>
@@ -19,8 +19,7 @@
         entry(string lex_v, string token_v, int line_v) : lexeme(lex_v), token(token_v), line(line_v) {}
     };
 
-    #define pb push_back
-    
+    #define pb push_back    
     vector<entry> table;
 %}
 
@@ -137,7 +136,7 @@ PROTECTED       "protected"
 /* IO */
 COUT            "cout"
 CIN             "cin"
-endl            "endl"
+ENDL            "endl"
 
 /* Dynamic Allocation */
 NEW             "new"
@@ -159,7 +158,10 @@ INVALID_IDENTIFIER  ({DIGIT}+({LETTER}|_)+({DIGIT}|{LETTER}|_)*(\.{DIGIT}*)?)
 
 %%
 {WHITESPACE}          {}
-{INCLUDE}             {table.pb(entry(yytext,"INCLUDE",yylineno));}
+
+{INCLUDE}             { std::string txt(yytext,yyleng);
+                        if(!txt.empty() && txt.back()=='\n') txt.pop_back();
+                        table.pb(entry(txt,"INCLUDE",yylineno-1));}
 
 {PLUS}                {table.pb(entry(yytext,"PLUS",yylineno));}
 {MINUS}               {table.pb(entry(yytext,"MINUS",yylineno));}
@@ -267,6 +269,7 @@ INVALID_IDENTIFIER  ({DIGIT}+({LETTER}|_)+({DIGIT}|{LETTER}|_)*(\.{DIGIT}*)?)
 {DOUBLE_LITERAL}     {table.pb(entry(yytext,"DOUBLE_LITERAL",yylineno));}
 {STRING_LITERAL}     {table.pb(entry(yytext,"STRING_LITERAL",yylineno));}
 {CHARACTER_LITERAL}  {table.pb(entry(yytext,"CHARACTER_LITERAL",yylineno));}
+{INVALID_IDENTIFIER}         {table.pb(entry(yytext,"INVALID_IDENTIFIER",yylineno));}
 
 %%
 
