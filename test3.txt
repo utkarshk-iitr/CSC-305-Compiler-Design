@@ -28,7 +28,7 @@ class Trie{
                 temp->ch[pos] = new Node();
             }
 
-            temp = temp->ch[pos] ;
+            temp = (*temp).ch[pos] ;
         }
     }
 };
