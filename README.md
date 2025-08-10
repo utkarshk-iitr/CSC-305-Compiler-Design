@@ -40,9 +40,9 @@ A small lexer (tokenizer) implemented with **flex** and C++ that reads a source 
 
 * `flex`
 * `g++` (C++ compiler)
-* `libfl` development library (on Ubuntu: `libfl-dev`)
+* `libfl` development library (on Linux(WSL): `libfl-dev`)
 
-Example install on Ubuntu:
+Example install on Linux(WSL):
 
 ```bash
 sudo apt update
