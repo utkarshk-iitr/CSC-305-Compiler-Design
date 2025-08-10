@@ -1,16 +1,26 @@
-# CSC-305-Compiler-Design
-# Lexer
+# CSC-305 — Compiler Design
 
-A small lexer (tokenizer) implemented with **flex** and C++ that reads a source file and produces a nicely formatted token table plus a separate error file for invalid tokens/identifiers. This repo contains the lexer rules (lex.l), a makefile, a run.sh bash script, test inputs, and an output/ directory that stores results.
+## Overview
+
+This repository contains a small compiler project implemented from scratch as a learning exercise for our course **CSC-305 — Compiler Design**. The goal is to build a simple yet practical toy compiler while keeping the code and examples intentionally small and easy to extend, making this repo a useful tool for others who want to build a small scale compiler.
 
 ---
 
-## Features
+## Requirements & Dependencies
 
-* Recognizes common C/C++-like tokens (operators, punctuation, keywords, literals, identifiers).
-* Classifies invalid tokens and invalid identifiers into a separate error file.
-* Produces a human-readable ASCII table with `Line No | Lexeme | Token`.
-* Simple build with `make` and a batch-run script `run.sh`.
+To build and run the code in this repository you will need the following tools installed on your development machine (instructions assume a Linux environment):
+
+* `flex` — fast lexical analyzer generator
+* `g++` — GNU C++ compiler
+* `libfl-dev` (or equivalent) — development library for linking `flex` generated code
+* `make` — build automation utility
+
+Example installation on Debian/Ubuntu/WSL:
+
+```bash
+sudo apt update
+sudo apt install build-essential flex libfl-dev make
+```
 
 ---
 
@@ -36,22 +46,32 @@ A small lexer (tokenizer) implemented with **flex** and C++ that reads a source 
 
 ---
 
-## Requirements / Dependencies
+## Features
 
-* `flex`
-* `g++` (C++ compiler)
-* `libfl` development library (on Linux(WSL): `libfl-dev`)
-
-Example install on Linux(WSL):
-
-```bash
-sudo apt update
-sudo apt install build-essential flex libfl-dev
-```
+* A working lexer (implemented in `src/lex.l`) that recognizes C/C++-style tokens: keywords, identifiers, literals, operators, and punctuation.
+* Output of a human-readable ASCII token table with columns: `Line No | Lexeme | Token`.
+* Error reporting to a separate `error_<output_file>` showing `INVALID_IDENTIFIER` and `INVALID_TOKEN` entries.
+* Simple `Makefile` to generate `lex.yy.c` and build the executable `src/lexer`.
+* `run.sh` to run the lexer on several test input files and write results to `output/`.
 
 ---
 
-## Build
+### Phase 1 — Lexer 
+
+**Location:** `src/lex.l`
+
+**What it does:**
+
+* Tokenizes input source files into tokens such as `INT`, `FLOAT`, `IDENTIFIER`, `INCLUDE`, operators (`+`, `-`, `*`, `/`, `==`, `<=`, ...), punctuation (`;`, `,`, `{`, `}`), and string/number literals.
+* Writes a formatted ASCII table of recognized tokens to the user-specified output file.
+* Writes lexical errors (invalid tokens or malformed identifiers) to `error_<output_file>`.
+* Returns exit code `0` on success, `1` on usage or file-open errors.
+
+---
+
+## Running the project
+
+### Build
 
 From the project root:
 
@@ -63,27 +83,25 @@ make
 Makefile targets:
 
 * `lexer` — runs `flex` to generate `src/lex.yy.c` and compiles it with `g++ -lfl` to `src/lexer`.
-* `clean` — removes generated files:
+* `clean` — removes generated files (`src/lex.yy.c` and `src/lexer`).
 
 ```bash
 make clean
 # removes src/lex.yy.c and src/lexer
 ```
 
----
-
-## Usage
-
-Single run:
+### Run a single test
 
 ```bash
 # usage: ./src/lexer <input_file> <output_file>
 ./src/lexer test/test1.txt output/output1.txt
 ```
 
-This will also write errors to `error_<output_file>` (for example `error_output1.txt`).
+This will also write lexical errors to `error_output/output1.txt` (for example `error_output1.txt`).
 
-**Batch runs (pre-written):**
+### Batch runs
+
+A convenience script `run.sh` runs the lexer on multiple `test/` files and writes output to `output/`:
 
 ```bash
 chmod +x run.sh
@@ -91,19 +109,11 @@ chmod +x run.sh
 # run.sh runs the lexer on multiple test files and writes them to `output/`
 ```
 
-Return codes:
+### Output format
 
-* `0` on success
-* `1` on usage or file-open errors
+Two files per run:
 
----
-
-## Output format
-
-Each run writes two files:
-
-1. `<output_file>` — formatted ASCII table of recognized tokens:
-
+1. `<output_file>` — formatted ASCII table of recognized tokens.
 ```
 +---------+---------------------+--------------------------+
 | Line No | Lexeme              | Token                    |
@@ -114,31 +124,17 @@ Each run writes two files:
 +---------+---------------------+--------------------------+
 ...
 ```
+2. `error_<output_file>` — formatted table of lexical errors (`INVALID_IDENTIFIER`, `INVALID_TOKEN`).
 
-2. `error_<output_file>` — same header but lists tokens classified as `INVALID_IDENTIFIER` or `INVALID_TOKEN`.
+### Return codes
 
----
-
-## Example commands summary
-
-```bash
-# build
-make
-
-# run single test
-./src/lexer test/test1.txt output/output1.txt
-
-# run all tests listed in run.sh
-chmod +x run.sh
-./run.sh
-
-make clean
-```
+* `0` on success
+* `1` on usage or file-open errors
 
 ---
 
-## Conclusion
-
-This lexer is a lightweight, easy-to-extend tokenizer for C/C++-like source files — ideal as a learning tool or the first stage of a compiler toolchain. It outputs clear, human-readable token and error tables, and the code is intentionally simple so you can quickly add new tokens or improve handling.
-
----
+### Contributors 
+* Kartik Sarda - 23114047
+* Nitin Agiwal - 23114074
+* Adesh Kaduba Palkar - 23114004
+* Utkarsh Kumar - 23114101
