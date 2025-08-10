@@ -24,6 +24,10 @@ int main() {
 
     Flag_1 = true ;
     Flag_2= false;
-
+    int 122aa;
+    
+    if(a<<<b){
+        cout<<<<"Hello"<<endl;
+    }
     return 0;
 }

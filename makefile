@@ -1,5 +1,5 @@
 lexer: src/lex.yy.c
-	g++ src/lex.yy.c -lfl -o src/lexer
+	g++ src/lex.yy.c -o src/lexer
 	chmod +x run.sh
 
 src/lex.yy.c: src/lex.l

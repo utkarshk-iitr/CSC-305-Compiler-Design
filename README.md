@@ -1,9 +1,4 @@
 # CSC-305 — Compiler Design
-
-## Overview
-
-This repository contains a small compiler project implemented from scratch as a learning exercise for our course **CSC-305 — Compiler Design**. The goal is to build a simple yet practical toy compiler while keeping the code and examples intentionally small and easy to extend, making this repo a useful tool for others who want to build a small scale compiler.
-
 ---
 
 ## Requirements & Dependencies
@@ -65,7 +60,6 @@ sudo apt install build-essential flex libfl-dev make
 * Tokenizes input source files into tokens such as `INT`, `FLOAT`, `IDENTIFIER`, `INCLUDE`, operators (`+`, `-`, `*`, `/`, `==`, `<=`, ...), punctuation (`;`, `,`, `{`, `}`), and string/number literals.
 * Writes a formatted ASCII table of recognized tokens to the user-specified output file.
 * Writes lexical errors (invalid tokens or malformed identifiers) to `error_<output_file>`.
-* Returns exit code `0` on success, `1` on usage or file-open errors.
 
 ---
 

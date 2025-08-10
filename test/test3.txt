@@ -20,6 +20,7 @@ class Trie{
         root = new Node();
     }
 
+
     void insert(string& s) {
         Node* temp = root ;
         for(char c : s) {
@@ -38,6 +39,7 @@ int main() {
     string lol = "HelloWorld" ;
 
     PrefixString.insert(lol);
-    
+    coit<<"Adesh$$$"<<endl;
+    coit<<"Adesh$$$;
     return 0;
 }
