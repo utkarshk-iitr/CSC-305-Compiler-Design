@@ -1,6 +1,6 @@
 # CSC-305 — Compiler Design
 ---
-
+## ASSIGNMENT - 1
 ## Requirements & Dependencies
 
 To build and run the code in this repository you will need the following tools installed on your development machine (instructions assume a Linux environment):
