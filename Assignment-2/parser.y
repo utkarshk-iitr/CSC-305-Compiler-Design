@@ -2,7 +2,6 @@
     #include <stdio.h>
     #include <stdlib.h>
     #include <string.h>
-    #include <vector>
 
 	#define MAX_ARGS 100
     #define DATA_TYPE_LEN 64
@@ -93,9 +92,6 @@
                     symbol_table[count_symbol].datatype = data_type;
                     symbol_table[count_symbol].type = "POINTER";
                     break;
-                case 'E' :
-                    symbol_table[count_symbol].datatype = data_type;
-                    symbol_table[count_symbol].type = "ENUM";
                 }
             }
 
@@ -124,11 +120,17 @@
             case 'E' :
                 constant_table[count_const].constant_type = "EXPONENTIAL_CONST";
                 break;
+            case 'H' :
+                constant_table[count_const].constant_type = "HEXADECIMAL_CONST";
+                break;
             case 'R' :
                 constant_table[count_const].constant_type = "REAL_CONST";
                 break;
             case 'S' :
                 constant_table[count_const].constant_type = "STRING_CONST";
+                break;
+            case 'O' :
+                constant_table[count_const].constant_type = "OCTAL_CONST";
                 break;
             case 'C' :
                 constant_table[count_const].constant_type = "CHARACTER_CONST";
@@ -160,13 +162,20 @@
         else if (given_type == "struct") {
             return_type = "STRUCT";
         }
-		    else if (given_type == "unknown") {
+        else if (given_type == "enum") {
+            return_type = "ENUM";
+        }
+        else if (given_type == "union") {
+            return_type = "UNION";
+        }
+		else if (given_type == "unknown") {
             return_type = "UNKNOWN";
         }
         else {
             return_type = "UNKNOWN";
         }
     }
+
 
     void print_symbol_table() {
         printf("\nSYMBOL TABLE\n");
@@ -204,33 +213,36 @@
 }
 
 /* Literals & identifiers */
-%token <str> ID
-%token <str> DECIMAL_LITERAL HEXA_LITERAL OCTAL_LITERAL EXP_LITERAL REAL_LITERAL FLOAT_LITERAL
-%token <str> STRING_LITERAL CHARACTER_LITERAL INCLUDE INVALID_ID
-
-/* C/C++ like keywords */
-%token AUTO STRUCT BOOL BREAK CASE CONTINUE GOTO DO DEFAULT IF ELSE ELIF FOR CONST TRUE FALSE
-%token STATIC SWITCH WHILE VOID RETURN SIZEOF FLOAT INT DOUBLE EXTERN SHORT LONG CHAR ENUM
-%token REGISTER SIGNED TYPEDEF UNION UNSIGNED VOLATILE
-%token CLASS PUBLIC PRIVATE PROTECTED NULLPTR NAMESPACE VIRTUAL CATCH
-
-/* Punctuation & brackets */
-%token RBRACE LBRACE LBRACKET RBRACKET LPARENTHESES RPARENTHESES DOT COMMA COLON SEMICOLON
+%token IDENTIFIER DECIMAL_LITERAL EXPONENT_LITERAL DOUBLE_LITERAL STRING_LITERAL CHARACTER_LITERAL
 
 /* Operators */
-%token PLUS MINUS STAR DIVIDE MODULO AMPERSAND OR XOR EXCLAMATION TILDE EQUALS
-%token LESS_THAN GREATER_THAN QUESTION_MARK
+%token PLUS MINUS STAR DIVIDE MODULUS AND OR XOR 
+%token EQUAL NOT_EQUAL LESS_THAN GREATER_THAN LESS_EQUAL GREATER_EQUAL
 %token INCREMENT DECREMENT
+%token BITWISE_AND BITWISE_OR BITWISE_XOR TILDE LEFT_SHIFT RIGHT_SHIFT
 
-/* Logical / relational operators */
-%token REL_AND REL_OR REL_EQUALS REL_NOT_EQ LESS_EQUALS GREATER_EQUALS
+/* Logical */
+%token LOGICAL_AND LOGICAL_NOT LOGICAL_OR
 
 /* Assignment variants */
-%token ASSIGN_PLUS ASSIGN_MINUS ASSIGN_STAR ASSIGN_DIV ASSIGN_MOD
-%token ASSIGN_AND ASSIGN_OR ASSIGN_XOR
+%token ASSIGN PLUS_EQUAL MINUS_EQUAL STAR_EQUAL DIV_EQUAL MOD_EQUAL
+%token AND_EQUAL OR_EQUAL XOR_EQUAL LEFT_SHIFT_EQ RIGHT_SHIFT_EQ
 
-/* Shifts/arrow */
-%token LEFT_SHIFT RIGHT_SHIFT LEFT_SHIFT_EQ RIGHT_SHIFT_EQ LAMBDA_ARROW VARIABLE_ARGS
+/* Punctuation & brackets */
+%token RCURLY LCURLY RSQUARE LSQUARE RROUND LROUND
+%token DOT COMMA COLON SEMICOLON ARROW QUESTION_MARK
+
+/* extras */
+%token INCLUDE SCOMMENT SIZEOF
+%token DELIMITER WHITESPACE
+
+/* keywords */
+%token RETURN IF ELIF ELSE CASE SWITCH DEFAULT
+%token FOR WHILE DO UNTIL BREAK CONTINUE GOTO
+%token INT BOOL CHAR DOUBLE LONG STRING VOID CONST FUNCTION AUTO
+%token NULL NULLPTR STATIC CLASS STRUCT TRUE FALSE
+%token CLASS STRUCT PUBLIC PRIVATE PROTECTED 
+%token COUT CIN ENDL NEW DELETE
 
 %type <str>
     primary_expression postfix_expression argument_expression_list unary_expression
@@ -281,6 +293,7 @@ void assign_type(char *str) {
 
 int main() {
     yyparse();
+
     print_symbol_table();
     printf("\n");
     print_constant_table();
