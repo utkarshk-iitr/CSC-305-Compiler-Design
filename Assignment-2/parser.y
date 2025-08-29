@@ -168,4 +168,120 @@
         }
     }
 
+    void print_symbol_table() {
+        printf("\nSYMBOL TABLE\n");
+        printf("-----------------------------------------------------------------\n");
+        printf("| %-15s | %-20s | %-10s | Line No |\n", "Identifier", "Type", "Data Type");
+        printf("-----------------------------------------------------------------\n");
+        for (int i = 0; i < count_symbol; i++) {
+            printf("| %-15s | %-20s | %-10s | %-7d |\n",
+                   symbol_table[i].identifier_name,
+                   symbol_table[i].type,
+                   symbol_table[i].datatype,
+                   symbol_table[i].lineno);
+        }
+        printf("-----------------------------------------------------------------\n");
+    }
+
+    void print_constant_table() {
+        printf("\nConstant Symbol Table:\n");
+        printf("-----------------------------------------------------------------\n");
+        printf("| %-27s | %-20s | Line no. |\n", "Constant Value", "Constant Type");
+        printf("-----------------------------------------------------------------\n");
+        for (int i = 0; i < count_const; i++) {
+            printf("| %-27s | %-20s | %-8d |\n",
+                   constant_table[i].constant_value,
+                   constant_table[i].constant_type, 
+                   constant_table[i].lineno);
+        }
+        printf("-----------------------------------------------------------------\n");
+    }
+
 %}
+
+%union {
+    char *str;
+}
+
+/* Literals & identifiers */
+%token <str> ID
+%token <str> DECIMAL_LITERAL HEXA_LITERAL OCTAL_LITERAL EXP_LITERAL REAL_LITERAL FLOAT_LITERAL
+%token <str> STRING_LITERAL CHARACTER_LITERAL INCLUDE INVALID_ID
+
+/* C/C++ like keywords */
+%token AUTO STRUCT BOOL BREAK CASE CONTINUE GOTO DO DEFAULT IF ELSE ELIF FOR CONST TRUE FALSE
+%token STATIC SWITCH WHILE VOID RETURN SIZEOF FLOAT INT DOUBLE EXTERN SHORT LONG CHAR ENUM
+%token REGISTER SIGNED TYPEDEF UNION UNSIGNED VOLATILE
+%token CLASS PUBLIC PRIVATE PROTECTED NULLPTR NAMESPACE VIRTUAL CATCH
+
+/* Punctuation & brackets */
+%token RBRACE LBRACE LBRACKET RBRACKET LPARENTHESES RPARENTHESES DOT COMMA COLON SEMICOLON
+
+/* Operators */
+%token PLUS MINUS STAR DIVIDE MODULO AMPERSAND OR XOR EXCLAMATION TILDE EQUALS
+%token LESS_THAN GREATER_THAN QUESTION_MARK
+%token INCREMENT DECREMENT
+
+/* Logical / relational operators */
+%token REL_AND REL_OR REL_EQUALS REL_NOT_EQ LESS_EQUALS GREATER_EQUALS
+
+/* Assignment variants */
+%token ASSIGN_PLUS ASSIGN_MINUS ASSIGN_STAR ASSIGN_DIV ASSIGN_MOD
+%token ASSIGN_AND ASSIGN_OR ASSIGN_XOR
+
+/* Shifts/arrow */
+%token LEFT_SHIFT RIGHT_SHIFT LEFT_SHIFT_EQ RIGHT_SHIFT_EQ LAMBDA_ARROW VARIABLE_ARGS
+
+%type <str>
+    primary_expression postfix_expression argument_expression_list unary_expression
+    unary_operator cast_expression multiplicative_expression additive_expression
+    shift_expression relational_expression equality_expression and_expression
+    exclusive_or_expression inclusive_or_expression logical_and_expression
+    logical_or_expression conditional_expression assignment_expression
+    assignment_operator expression constant_expression declaration
+
+%type <str>
+    declaration_specifiers init_declarator_list init_declarator
+    storage_class_specifier type_specifier struct_or_union_specifier
+    struct_or_union struct_declaration_list struct_declaration
+    specifier_qualifier_list struct_declarator_list struct_declarator
+    enum_specifier enumerator_list enumerator type_qualifier declarator
+
+%type <str>
+    direct_declarator pointer type_qualifier_list parameter_type_list
+    parameter_list parameter_declaration identifier_list type_name
+    abstract_declarator direct_abstract_declarator initializer
+    initializer_list statement labeled_statement compound_statement
+
+%type <str>
+    declaration_list statement_list expression_statement
+    selection_statement iteration_statement jump_statement
+    translation_unit external_declaration function_definition
+
+
+void yyerror(const char *s) {
+    fprintf(stderr, "Error at line %d: %s\n", yylineno, s);
+}
+
+int search_symbol_table(const char *id) {
+	for(int i=count_symbol-1; i>=0; i--) {
+		if(symbol_table[i].identifier_name == id) {
+			return 1;
+			break;
+		}
+	}
+
+	return 0;
+}
+
+void assign_type(char *str) {
+	data_type = str;
+}
+
+
+int main() {
+    yyparse();
+    print_symbol_table();
+    printf("\n");
+    print_constant_table();
+}
