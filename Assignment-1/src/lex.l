@@ -72,8 +72,8 @@ RIGHT_SHIFT_EQ 	">>="
 /* Brackets */
 RCURLY         	"}"
 LCURLY          "{"
-LSQUARE         "]"
-RSQUARE       	"["
+LSQUARE         "["
+RSQUARE       	"]"
 LROUND       	"("
 RROUND     	    ")"
 

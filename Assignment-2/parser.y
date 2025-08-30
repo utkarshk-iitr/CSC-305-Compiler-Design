@@ -120,17 +120,8 @@
             case 'E' :
                 constant_table[count_const].constant_type = "EXPONENTIAL_CONST";
                 break;
-            case 'H' :
-                constant_table[count_const].constant_type = "HEXADECIMAL_CONST";
-                break;
-            case 'R' :
-                constant_table[count_const].constant_type = "REAL_CONST";
-                break;
             case 'S' :
                 constant_table[count_const].constant_type = "STRING_CONST";
-                break;
-            case 'O' :
-                constant_table[count_const].constant_type = "OCTAL_CONST";
                 break;
             case 'C' :
                 constant_table[count_const].constant_type = "CHARACTER_CONST";
@@ -208,20 +199,32 @@
 
 %}
 
-%token PLUS MINUS STAR DIVIDE MODULUS ASSIGN INCREMENT DECREMENT
-%token EQUAL NOT_EQUAL LESS_THAN GREATER_THAN LESS_EQUAL GREATER_EQUAL
-%token BITWISE_AND BITWISE_OR BITWISE_XOR TILDE LEFT_SHIFT RIGHT_SHIFT
-%token LOGICAL_NOT LOGICAL_OR LOGICAL_AND
-%token PLUS_EQUAL MINUS_EQUAL STAR_EQUAL DIV_EQUAL MOD_EQUAL
-%token AND_EQUAL OR_EQUAL XOR_EQUAL LEFT_SHIFT_EQ RIGHT_SHIFT_EQ
-%token LEFT_CURLY RIGHT_CURLY LEFT_SQUARE RIGHT_SQUARE LEFT_ROUND RIGHT_ROUND
-%token DOT COMMA COLON SEMICOLON ARROW QUESTION_MARK
-%token RETURN SIZEOF IF ELIF ELSE CASE SWITCH DEFAULT
-%token FOR WHILE DO UNTIL BREAK CONTINUE GOTO
-%token INT BOOL CHAR DOUBLE LONG STRING VOID CONST FUNCTION AUTO
-%token STATIC CLASS STRUCT PUBLIC PRIVATE PROTECTED
-%token COUT CIN ENDL NEW DELETE
-%token IDENTIFIER DECIMAL_LITERAL EXPONENT_LITERAL DOUBLE_LITERAL STRING_LITERAL CHARACTER_LITERAL
+%union{
+    char* String;
+}
+
+%token<String> PLUS MINUS STAR DIVIDE MODULUS ASSIGN INCREMENT DECREMENT
+%token<String> EQUAL NOT_EQUAL LESS_THAN GREATER_THAN LESS_EQUAL GREATER_EQUAL
+%token<String> BITWISE_AND BITWISE_OR BITWISE_XOR TILDE LEFT_SHIFT RIGHT_SHIFT
+%token<String> LOGICAL_NOT LOGICAL_OR LOGICAL_AND
+%token<String> PLUS_EQUAL MINUS_EQUAL STAR_EQUAL DIV_EQUAL MOD_EQUAL
+%token<String> AND_EQUAL OR_EQUAL XOR_EQUAL LEFT_SHIFT_EQ RIGHT_SHIFT_EQ
+%token<String> LEFT_CURLY RIGHT_CURLY LEFT_SQUARE RIGHT_SQUARE LEFT_ROUND RIGHT_ROUND
+%token<String> DOT COMMA COLON SEMICOLON ARROW QUESTION_MARK
+%token<String> RETURN SIZEOF IF ELIF ELSE CASE SWITCH DEFAULT
+%token<String> FOR WHILE DO UNTIL BREAK CONTINUE GOTO
+%token<String> INT BOOL CHAR DOUBLE LONG STRING VOID CONST FUNCTION AUTO
+%token<String> STATIC CLASS STRUCT PUBLIC PRIVATE PROTECTED
+%token<String> COUT CIN ENDL NEW DELETE
+%token<String> IDENTIFIER DECIMAL_LITERAL EXPONENT_LITERAL DOUBLE_LITERAL STRING_LITERAL CHARACTER_LITERAL
+
+%type<String> translation_unit external_declaration function_definition declaration primary_expression
+%type<String> postfix_expression argument_expression_list unary_expression cast_expression
+%type<String> multiplicative_expression additive_expression shift_expression init_declarator_list
+%type<String> init_declarator declarator parameter_list parameter_declaration type_name pointer
+%type<String> direct_declarator abstract_declarator direct_abstract_declarator
+%type<String> specifier_qualifier_list type_qualifier_list declaration_specifiers
+%type<String> statement_list statement io_statement output_statement output_chain output_item
 
 %start translation_unit
 %%
@@ -267,11 +270,11 @@ struct_declarator
     ;
 
 constant:
-        DECIMAL_LITERAL      //{ insert_symtab('L', $1); add_const($1, "INT"); }
-    |   EXPONENT_LITERAL     //{ insert_symtab('L', $1); add_const($1, "FLOAT"); }
-    |   DOUBLE_LITERAL       //{ insert_symtab('L', $1); add_const($1, "FLOAT"); }
-    |   STRING_LITERAL       //{ insert_symtab('L', $1); add_const($1, "STRING"); }
-    |   CHARACTER_LITERAL    //{ insert_symtab('L', $1); add_const($1, "CHAR"); }
+        DECIMAL_LITERAL      {insert_const_symbol_table('I',$1);}
+    |   EXPONENT_LITERAL     {insert_const_symbol_table('E',$1);}
+    |   DOUBLE_LITERAL       {insert_const_symbol_table('F',$1);}
+    |   STRING_LITERAL       {insert_const_symbol_table('S',$1);}
+    |   CHARACTER_LITERAL    {insert_const_symbol_table('C',$1);}
     ;
 
 primary_expression:
