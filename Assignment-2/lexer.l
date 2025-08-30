@@ -6,6 +6,7 @@
     #include <vector>
     #include <string>
     #include <fstream>
+    #include "parser.tab.h"
 
     extern "C" int yylex();
     using namespace std;

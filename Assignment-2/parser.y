@@ -1,7 +1,7 @@
 %{
-    #include <stdio.h>
+    #include <iostream>
     #include <stdlib.h>
-    #include <string.h>
+    #include <str.h>
 
 	#define MAX_ARGS 100
     #define DATA_TYPE_LEN 64
@@ -97,7 +97,6 @@
 
             count_symbol++;
         }
-    }
 
     void insert_const_symbol_table(char c,const char *yytext) {
         if(yytext == NULL) return;
@@ -121,7 +120,7 @@
                 constant_table[count_const].constant_type = "EXPONENTIAL_CONST";
                 break;
             case 'S' :
-                constant_table[count_const].constant_type = "STRING_CONST";
+                constant_table[count_const].constant_type = "str_CONST";
                 break;
             case 'C' :
                 constant_table[count_const].constant_type = "CHARACTER_CONST";
@@ -131,7 +130,7 @@
     }
 
     
-    void string_type(char *return_type, char *given_type) {
+    void str_type(char *return_type, char *given_type) {
         if (given_type == "int") {
             return_type = "INT";
         } 
@@ -200,31 +199,35 @@
 %}
 
 %union{
-    char* String;
+    char* str;
 }
 
-%token<String> PLUS MINUS STAR DIVIDE MODULUS ASSIGN INCREMENT DECREMENT
-%token<String> EQUAL NOT_EQUAL LESS_THAN GREATER_THAN LESS_EQUAL GREATER_EQUAL
-%token<String> BITWISE_AND BITWISE_OR BITWISE_XOR TILDE LEFT_SHIFT RIGHT_SHIFT
-%token<String> LOGICAL_NOT LOGICAL_OR LOGICAL_AND
-%token<String> PLUS_EQUAL MINUS_EQUAL STAR_EQUAL DIV_EQUAL MOD_EQUAL
-%token<String> AND_EQUAL OR_EQUAL XOR_EQUAL LEFT_SHIFT_EQ RIGHT_SHIFT_EQ
-%token<String> LEFT_CURLY RIGHT_CURLY LEFT_SQUARE RIGHT_SQUARE LEFT_ROUND RIGHT_ROUND
-%token<String> DOT COMMA COLON SEMICOLON ARROW QUESTION_MARK
-%token<String> RETURN SIZEOF IF ELIF ELSE CASE SWITCH DEFAULT
-%token<String> FOR WHILE DO UNTIL BREAK CONTINUE GOTO
-%token<String> INT BOOL CHAR DOUBLE LONG STRING VOID CONST FUNCTION AUTO
-%token<String> STATIC CLASS STRUCT PUBLIC PRIVATE PROTECTED
-%token<String> COUT CIN ENDL NEW DELETE
-%token<String> IDENTIFIER DECIMAL_LITERAL EXPONENT_LITERAL DOUBLE_LITERAL STRING_LITERAL CHARACTER_LITERAL
+%token<str> PLUS MINUS STAR DIVIDE MODULUS ASSIGN INCREMENT DECREMENT
+%token<str> EQUAL NOT_EQUAL LESS_THAN GREATER_THAN LESS_EQUAL GREATER_EQUAL
+%token<str> BITWISE_AND BITWISE_OR BITWISE_XOR TILDE LEFT_SHIFT RIGHT_SHIFT
+%token<str> LOGICAL_NOT LOGICAL_OR LOGICAL_AND
+%token<str> PLUS_EQUAL MINUS_EQUAL STAR_EQUAL DIV_EQUAL MOD_EQUAL
+%token<str> AND_EQUAL OR_EQUAL XOR_EQUAL LEFT_SHIFT_EQ RIGHT_SHIFT_EQ
+%token<str> LEFT_CURLY RIGHT_CURLY LEFT_SQUARE RIGHT_SQUARE LEFT_ROUND RIGHT_ROUND
+%token<str> DOT COMMA COLON SEMICOLON ARROW QUESTION_MARK
+%token<str> RETURN SIZEOF IF ELIF ELSE CASE SWITCH DEFAULT
+%token<str> FOR WHILE DO UNTIL BREAK CONTINUE GOTO
+%token<str> INT BOOL CHAR DOUBLE LONG str VOID CONST FUNCTION AUTO
+%token<str> STATIC CLASS STRUCT PUBLIC PRIVATE PROTECTED
+%token<str> COUT CIN ENDL NEW DELETE
+%token<str> IDENTIFIER DECIMAL_LITERAL EXPONENT_LITERAL DOUBLE_LITERAL STRING_LITERAL CHARACTER_LITERAL
 
-%type<String> translation_unit external_declaration function_definition declaration primary_expression
-%type<String> postfix_expression argument_expression_list unary_expression cast_expression
-%type<String> multiplicative_expression additive_expression shift_expression init_declarator_list
-%type<String> init_declarator declarator parameter_list parameter_declaration type_name pointer
-%type<String> direct_declarator abstract_declarator direct_abstract_declarator
-%type<String> specifier_qualifier_list type_qualifier_list declaration_specifiers
-%type<String> statement_list statement io_statement output_statement output_chain output_item
+%type<str> abstract_declarator access_specifier additive_expression and_expression argument_expression_list assignment_expression assignment_operator cast_expression
+%type<str> class_specifier compound_statement conditional_expression constant constant_expression declaration declaration_list declarator declaration_specifiers
+%type<str> direct_abstract_declarator direct_declarator equality_expression exclusive_or_expression expression expression_statement
+%type<str> external_declaration  function_definition  identifier_list if_rest init_declarator init_declarator_list
+%type<str> input_chain input_statement initializer initializer_list  io_statement jump_statement labeled_statement
+%type<str> logical_and_expression logical_or_expression multiplicative_expression new_expression
+%type<str> output_chain output_item output_statement parameter_declaration parameter_list pointer postfix_expression primary_expression
+%type<str> relational_expression selection_statement shift_expression specifier_qualifier_list statement statement_declaration_list statement_list storage struct_declarator
+%type<str> struct_declarator_list struct_or_class translation_unit type_name type_specifier type_qualifier_list unary_expression unary_operator
+%type<str> unified_member unified_member_list
+
 
 %start translation_unit
 %%
@@ -291,10 +294,10 @@ postfix_expression:
     |   postfix_expression LEFT_ROUND argument_expression_list RIGHT_ROUND
     {//printf("Function call= %s\n",$1);
 		char type_str[10];
-        get_type_string(type_str, "unknown");
+        get_type_str(type_str, "unknown");
  
         assign_type(type_str);
-        insert_symtab('F', $1);
+        insert_symbol_table('F', $1);
 		for (int i = 0; i < argList.count_arg; i++) {
             //printf("%s", argList.args[i]);
             if (i < argList.count_arg - 1){} //printf(", ");
@@ -444,7 +447,7 @@ declaration:
     {
         //printf("declaration  = %s\n", $2);
         char type_str[10];
-        get_type_string(type_str, $1);
+        get_type_str(type_str, $1);
 
         char *token = strtok($2, ",");
         while (token != NULL) {
@@ -487,7 +490,7 @@ type_specifier:
     | LONG
     | DOUBLE
     | BOOL
-    | STRING
+    | str
     | CONST
     | STRUCT
     | FUNCTION
@@ -566,7 +569,7 @@ function_definition:
     |   declaration_specifiers declarator compound_statement
     {   //printf("Function is there: %s %s\n",$1,$2);
 		char type_str[10];
-      	get_type_string(type_str,$1);
+      	get_type_str(type_str,$1);
       	assign_type(type_str);
       	insert_symtab('F',$2);
 	}
@@ -599,12 +602,12 @@ parameter_declaration:
         declaration_specifiers declarator
     {
 		// char type_str[10];
-        // get_type_string(type_str, $1);
+        // get_type_str(type_str, $1);
         // printf("Variable declaration: %s = %s\n", $1, $2); 
         // assign_type(type_str);
         // insert_symtab('V', $2);
 		char type_str[10];
-        get_type_string(type_str, $1);
+        get_type_str(type_str, $1);
 
         char *token = strtok($2, ",");
         while (token != NULL) {
@@ -735,8 +738,8 @@ selection_statement:
     ;
 
 if_rest:
-        /* empty */                                                                                  /* if without else */
-    |   ELSE statement
+    |   /* empty */                                                                                  /* if without else */
+        ELSE statement
     |   ELIF LEFT_ROUND expression RIGHT_ROUND statement if_rest                                   /* elif followed by more elif/else */
     ;
 
