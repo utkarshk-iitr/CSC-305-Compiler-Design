@@ -1,14 +1,11 @@
 %option noyywrap yylineno
 %{
     #include <iostream>
-    #include <iomanip>
-    #include <cstdio> 
-    #include <vector>
-    #include <string>
-    #include <fstream>
     #include "parser.tab.h"
 
-    extern "C" int yylex();
+    extern int yylineno;
+    extern int yylex();
+    extern YYSTYPE yylval;
     using namespace std;
 %}
 
@@ -150,51 +147,55 @@ INVALID_IDENTIFIER  ({DIGIT}+({LETTER}|_)+({DIGIT}|{LETTER}|_)*(\.{DIGIT}*)?)
 {SCOMMENT}            {}
 {INCLUDE}             {yylval.str = strdup(yytext); return INCLUDE;}
 
-{PLUS}                {return PLUS;}
-{MINUS}               {return MINUS;}
-{STAR}                {return STAR;}
-{DIVIDE}              {return DIVIDE;}
-{MODULUS}             {return MODULUS;}
-{ASSIGN}              {return ASSIGN;}
-{INCREMENT}           {return INCREMENT;}
-{DECREMENT}           {return DECREMENT;}
-{EQUAL}               {return EQUAL;}
-{NOT_EQUAL}           {return NOT_EQUAL;}
-{LESS_THAN}           {return LESS_THAN;}
-{GREATER_THAN}        {return GREATER_THAN;}
-{LESS_EQUAL}          {return LESS_EQUAL;}
-{GREATER_EQUAL}       {return GREATER_EQUAL;}
-{BITWISE_AND}         {return BITWISE_AND;}
-{BITWISE_OR}          {return BITWISE_OR;}
-{BITWISE_XOR}         {return BITWISE_XOR;}
-{TILDE}               {return TILDE;}
-{LEFT_SHIFT}          {return LEFT_SHIFT;}
-{RIGHT_SHIFT}         {return RIGHT_SHIFT;} 
-{LOGICAL_NOT}         {return LOGICAL_NOT;}
-{LOGICAL_OR}          {return LOGICAL_OR;}
-{LOGICAL_AND}         {return LOGICAL_AND;}
-{PLUS_EQUAL}          {return PLUS_EQUAL;}
-{MINUS_EQUAL}         {return MINUS_EQUAL;}
-{STAR_EQUAL}          {return STAR_EQUAL;}
-{DIV_EQUAL}           {return DIV_EQUAL;}
-{MOD_EQUAL}           {return MOD_EQUAL;}
-{AND_EQUAL}           {return AND_EQUAL;}
-{OR_EQUAL}            {return OR_EQUAL;}
-{XOR_EQUAL}           {return XOR_EQUAL;}
-{LEFT_SHIFT_EQ}       {return LEFT_SHIFT_EQ;}
-{RIGHT_SHIFT_EQ}      {return RIGHT_SHIFT_EQ;}
-{LCURLY}              {return LEFT_CURLY;}
-{RCURLY}              {return RIGHT_CURLY;}
-{LSQUARE}             {return LEFT_SQUARE;}
-{RSQUARE}             {return RIGHT_SQUARE;}
-{LROUND}              {return LEFT_ROUND;}
-{RROUND}              {return RIGHT_ROUND;}
-{DOT}                 {return DOT;}
-{COMMA}               {return COMMA;}
-{COLON}               {return COLON;}
-{SEMICOLON}           {return SEMICOLON;}
-{ARROW}               {return ARROW;}
-{QUESTION_MARK}       {return QUESTION_MARK;}
+{PLUS}                {yylval.str = strdup(yytext); return PLUS;}
+{MINUS}               {yylval.str = strdup(yytext); return MINUS;}
+{STAR}                {yylval.str = strdup(yytext); return STAR;}
+{DIVIDE}              {yylval.str = strdup(yytext); return DIVIDE;}
+{MODULUS}             {yylval.str = strdup(yytext); return MODULUS;}
+{ASSIGN}              {yylval.str = strdup(yytext); return ASSIGN;}
+
+{INCREMENT}           {yylval.str = strdup(yytext); return INCREMENT;}
+{DECREMENT}           {yylval.str = strdup(yytext); return DECREMENT;}
+{EQUAL}               {yylval.str = strdup(yytext); return EQUAL;}
+{NOT_EQUAL}           {yylval.str = strdup(yytext); return NOT_EQUAL;}
+{LESS_THAN}           {yylval.str = strdup(yytext); return LESS_THAN;}
+{GREATER_THAN}        {yylval.str = strdup(yytext); return GREATER_THAN;}
+{LESS_EQUAL}          {yylval.str = strdup(yytext); return LESS_EQUAL;}
+{GREATER_EQUAL}       {yylval.str = strdup(yytext); return GREATER_EQUAL;}
+
+{BITWISE_AND}         {yylval.str = strdup(yytext); return BITWISE_AND;}
+{BITWISE_OR}          {yylval.str = strdup(yytext); return BITWISE_OR;}
+{BITWISE_XOR}         {yylval.str = strdup(yytext); return BITWISE_XOR;}
+{TILDE}               {yylval.str = strdup(yytext); return TILDE;}
+{LEFT_SHIFT}          {yylval.str = strdup(yytext); return LEFT_SHIFT;}
+{RIGHT_SHIFT}         {yylval.str = strdup(yytext); return RIGHT_SHIFT;} 
+{LOGICAL_NOT}         {yylval.str = strdup(yytext); return LOGICAL_NOT;}
+{LOGICAL_OR}          {yylval.str = strdup(yytext); return LOGICAL_OR;}
+{LOGICAL_AND}         {yylval.str = strdup(yytext); return LOGICAL_AND;}
+
+{PLUS_EQUAL}          {yylval.str = strdup(yytext); return PLUS_EQUAL;}
+{MINUS_EQUAL}         {yylval.str = strdup(yytext); return MINUS_EQUAL;}
+{STAR_EQUAL}          {yylval.str = strdup(yytext); return STAR_EQUAL;}
+{DIV_EQUAL}           {yylval.str = strdup(yytext); return DIV_EQUAL;}
+{MOD_EQUAL}           {yylval.str = strdup(yytext); return MOD_EQUAL;}
+{AND_EQUAL}           {yylval.str = strdup(yytext); return AND_EQUAL;}
+{OR_EQUAL}            {yylval.str = strdup(yytext); return OR_EQUAL;}
+{XOR_EQUAL}           {yylval.str = strdup(yytext); return XOR_EQUAL;}
+{LEFT_SHIFT_EQ}       {yylval.str = strdup(yytext); return LEFT_SHIFT_EQ;}
+{RIGHT_SHIFT_EQ}      {yylval.str = strdup(yytext); return RIGHT_SHIFT_EQ;}
+
+{LCURLY}              {yylval.str = strdup(yytext); return LEFT_CURLY;}
+{RCURLY}              {yylval.str = strdup(yytext); return RIGHT_CURLY;}
+{LSQUARE}             {yylval.str = strdup(yytext); return LEFT_SQUARE;}
+{RSQUARE}             {yylval.str = strdup(yytext); return RIGHT_SQUARE;}
+{LROUND}              {yylval.str = strdup(yytext); return LEFT_ROUND;}
+{RROUND}              {yylval.str = strdup(yytext); return RIGHT_ROUND;}
+{DOT}                 {yylval.str = strdup(yytext); return DOT;}
+{COMMA}               {yylval.str = strdup(yytext); return COMMA;}
+{COLON}               {yylval.str = strdup(yytext); return COLON;}
+{SEMICOLON}           {yylval.str = strdup(yytext); return SEMICOLON;}
+{ARROW}               {yylval.str = strdup(yytext); return ARROW;}
+{QUESTION_MARK}       {yylval.str = strdup(yytext); return QUESTION_MARK;}
 
 {RETURN}              {yylval.str = strdup(yytext); return RETURN;}
 {SIZEOF}              {yylval.str = strdup(yytext); return SIZEOF;}
@@ -220,7 +221,7 @@ INVALID_IDENTIFIER  ({DIGIT}+({LETTER}|_)+({DIGIT}|{LETTER}|_)*(\.{DIGIT}*)?)
 {STRING}              {yylval.str = strdup(yytext); return STRING;}
 {VOID}                {yylval.str = strdup(yytext); return VOID;}
 {CONST}               {yylval.str = strdup(yytext); return CONST;}
-{NULL}                {yylval.str = strdup(yytext); return NULL;}
+{NULL}                {yylval.str = strdup(yytext); return NULLPTR;}
 {NULLPTR}             {yylval.str = strdup(yytext); return NULLPTR;}
 {FUNCTION}            {yylval.str = strdup(yytext); return FUNCTION;}
 {AUTO}                {yylval.str = strdup(yytext); return AUTO;}
@@ -245,7 +246,7 @@ INVALID_IDENTIFIER  ({DIGIT}+({LETTER}|_)+({DIGIT}|{LETTER}|_)*(\.{DIGIT}*)?)
 {DOUBLE_LITERAL}      {yylval.str = strdup(yytext); return DOUBLE_LITERAL;}
 {STRING_LITERAL}      {yylval.str = strdup(yytext); return STRING_LITERAL;}
 {CHARACTER_LITERAL}   {yylval.str = strdup(yytext); return CHARACTER_LITERAL;}
-{INVALID_IDENTIFIER}  {fprintf(stderr,"Invalid identifier: %s at line %d\n",yytext,yylineno); return INVALID_IDENTIFIER;}
-.                     {fprintf(stderr,"Invalid token: %s at line %d\n",yytext,yylineno); return yytext[0];}  
+{INVALID_IDENTIFIER}  {cerr << "Invalid identifier: " << yytext << " at line " << yylineno << endl; return INVALID_IDENTIFIER;}
+.                     {cerr << "Invalid token: " << yytext << " at line " << yylineno << endl; return yytext[0];}  
 
 %%

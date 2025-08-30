@@ -1,21 +1,14 @@
 %{
     #include <iostream>
-    #include <stdlib.h>
-    #include <str.h>
+    #include <string.h>
+    #include <iomanip>
+    #include <string>
 
 	#define MAX_ARGS 100
-    #define DATA_TYPE_LEN 64
-    #define ID_LEN 64
-    #define TYPE_LEN 32
-    #define TABLE_LEN 128
-
+    
     void yyerror(const char *s);
-    int search_symbol_table(char *);
+    int search_symtab(char *);
     void assign_type(char *str);
-    void insert_symbol_table(char c , const char* text);
-    void insert_const_symbol_table(char c , const char* text);
-    void print_symbol_table(void);
-    void print_constant_symbol_table(void);
 
     extern int yylex();
     extern int yylineno;
@@ -24,18 +17,18 @@
     int count_symbol = 0;
     int count_constant_symbol = 0;
 
-    char data_type[DATA_TYPE_LEN];
+    char data_type[64];
 
     struct symbol_table_struct {
-        char identifier_name[ID_LEN]; 
-        char datatype[DATA_TYPE_LEN];
-        char type[TYPE_LEN];
+        char identifier_name[10]; 
+        char datatype[64];
+        char type[32];
         int lineno;
     }; 
 
     struct const_table_struct {
-        char constant_value[DATA_TYPE_LEN];
-        char constant_type[TYPE_LEN];
+        char constant_value[64];
+        char constant_type[32];
         int lineno;
     };
     
@@ -44,13 +37,13 @@
         int count;
     } arg_list;
 
-    const_table_struct constant_table[TABLE_LEN];
-    symbol_table_struct symbol_table[TABLE_LEN];
+    const_table_struct constant_table[128];
+    symbol_table_struct symbol_table[128];
 
     void insert_symbol_table(char c,const char *yytext) {
         if(yytext == NULL) return;
 
-        if(count_symbol >= TABLE_LEN) {
+        if(count_symbol >= 128) {
             fprintf(stderr, "Symbol table capacity exceeded at line %d\n", yylineno);
             return;
         }
@@ -101,7 +94,7 @@
     void insert_const_symbol_table(char c,const char *yytext) {
         if(yytext == NULL) return;
 
-        if(count_constant_symbol >= TABLE_LEN) {
+        if(count_constant_symbol >= 128) {
             fprintf(stderr, "Constant symbol table capacity exceeded at line %d\n", yylineno);
             return;
         }
@@ -120,7 +113,7 @@
                 constant_table[count_const].constant_type = "EXPONENTIAL_CONST";
                 break;
             case 'S' :
-                constant_table[count_const].constant_type = "str_CONST";
+                constant_table[count_const].constant_type = "STRING_CONST";
                 break;
             case 'C' :
                 constant_table[count_const].constant_type = "CHARACTER_CONST";
@@ -129,14 +122,13 @@
         count_constant_symbol++;
     }
 
-    
     void str_type(char *return_type, char *given_type) {
         if (given_type == "int") {
             return_type = "INT";
-        } 
-        else if (given_type == "float") {
-            return_type = "FLOAT";
-        } 
+        }
+        else if (given_type == "bool") {
+            return_type = "BOOL";
+        }
         else if (given_type == "double") {
             return_type = "DOUBLE";
         }
@@ -149,17 +141,17 @@
         else if (given_type == "void") {
             return_type = "VOID";	
         }
+        else if (given_type == "string") {
+            return_type = "STRING";
+        }
         else if (given_type == "struct") {
             return_type = "STRUCT";
         }
-        else if (given_type == "enum") {
-            return_type = "ENUM";
+        else if (given_type == "class") {
+            return_type = "CLASS";
         }
-        else if (given_type == "union") {
-            return_type = "UNION";
-        }
-		else if (given_type == "unknown") {
-            return_type = "UNKNOWN";
+        else if (given_type == "function") {
+            return_type = "FUNCTION";
         }
         else {
             return_type = "UNKNOWN";
@@ -168,39 +160,47 @@
 
 
     void print_symbol_table() {
-        printf("\nSYMBOL TABLE\n");
-        printf("-----------------------------------------------------------------\n");
-        printf("| %-15s | %-20s | %-10s | Line No |\n", "Identifier", "Type", "Data Type");
-        printf("-----------------------------------------------------------------\n");
-        for (int i = 0; i < count_symbol; i++) {
-            printf("| %-15s | %-20s | %-10s | %-7d |\n",
-                   symbol_table[i].identifier_name,
-                   symbol_table[i].type,
-                   symbol_table[i].datatype,
-                   symbol_table[i].lineno);
+        cout << "\nSYMBOL TABLE\n";
+        cout << "-----------------------------------------------------------------\n";
+        cout << "| " << left << setw(15) << "Identifier"
+            << " | " << setw(20) << "Type"
+            << " | " << setw(10) << "Data Type"
+            << " | Line No |\n";
+        cout << "-----------------------------------------------------------------\n";
+
+        for (const auto &sym : symbol_table) {
+            cout << "| " << setw(15) << sym.identifier_name
+                << " | " << setw(20) << sym.type
+                << " | " << setw(10) << sym.datatype
+                << " | " << setw(7) << sym.lineno << " |\n";
         }
-        printf("-----------------------------------------------------------------\n");
+
+        cout << "-----------------------------------------------------------------\n";
     }
 
     void print_constant_table() {
-        printf("\nConstant Symbol Table:\n");
-        printf("-----------------------------------------------------------------\n");
-        printf("| %-27s | %-20s | Line no. |\n", "Constant Value", "Constant Type");
-        printf("-----------------------------------------------------------------\n");
-        for (int i = 0; i < count_const; i++) {
-            printf("| %-27s | %-20s | %-8d |\n",
-                   constant_table[i].constant_value,
-                   constant_table[i].constant_type, 
-                   constant_table[i].lineno);
+        cout << "\nConstant Symbol Table:\n";
+        cout << "-----------------------------------------------------------------\n";
+        cout << "| " << left << setw(27) << "Constant Value"
+            << " | " << setw(20) << "Constant Type"
+            << " | Line no. |\n";
+        cout << "-----------------------------------------------------------------\n";
+
+        for (const auto &con : constant_table) {
+            cout << "| " << setw(27) << con.constant_value
+                << " | " << setw(20) << con.constant_type
+                << " | " << setw(8) << con.lineno << " |\n";
         }
-        printf("-----------------------------------------------------------------\n");
+
+        cout << "-----------------------------------------------------------------\n";
     }
 
 %}
 
-%union{
-    char* str;
+%union {
+    char *str;
 }
+
 
 %token<str> PLUS MINUS STAR DIVIDE MODULUS ASSIGN INCREMENT DECREMENT
 %token<str> EQUAL NOT_EQUAL LESS_THAN GREATER_THAN LESS_EQUAL GREATER_EQUAL
@@ -212,210 +212,286 @@
 %token<str> DOT COMMA COLON SEMICOLON ARROW QUESTION_MARK
 %token<str> RETURN SIZEOF IF ELIF ELSE CASE SWITCH DEFAULT
 %token<str> FOR WHILE DO UNTIL BREAK CONTINUE GOTO
-%token<str> INT BOOL CHAR DOUBLE LONG str VOID CONST FUNCTION AUTO
+%token<str> INT BOOL CHAR DOUBLE LONG STRING VOID CONST FUNCTION AUTO
 %token<str> STATIC CLASS STRUCT PUBLIC PRIVATE PROTECTED
 %token<str> COUT CIN ENDL NEW DELETE
+%token<str> NULLPTR TRUE FALSE //INVALID_IDENTIFIER INCLUDE
 %token<str> IDENTIFIER DECIMAL_LITERAL EXPONENT_LITERAL DOUBLE_LITERAL STRING_LITERAL CHARACTER_LITERAL
 
-%type<str> abstract_declarator access_specifier additive_expression and_expression argument_expression_list assignment_expression assignment_operator cast_expression
-%type<str> class_specifier compound_statement conditional_expression constant constant_expression declaration declaration_list declarator declaration_specifiers
-%type<str> direct_abstract_declarator direct_declarator equality_expression exclusive_or_expression expression expression_statement
-%type<str> external_declaration  function_definition  identifier_list if_rest init_declarator init_declarator_list
-%type<str> input_chain input_statement initializer initializer_list  io_statement jump_statement labeled_statement
-%type<str> logical_and_expression logical_or_expression multiplicative_expression new_expression
-%type<str> output_chain output_item output_statement parameter_declaration parameter_list pointer postfix_expression primary_expression
-%type<str> relational_expression selection_statement shift_expression specifier_qualifier_list statement statement_declaration_list statement_list storage struct_declarator
-%type<str> struct_declarator_list struct_or_class translation_unit type_name type_specifier type_qualifier_list unary_expression unary_operator
-%type<str> unified_member unified_member_list
-
+%type<str> translation_unit external_declaration declaration declaration_specifiers
+%type<str> storage_specifier type_specifier type_qualifier init_declarator_list init_declarator
+%type<str> declarator direct_declarator pointer function_definition parameter_type_list_opt
+%type<str> parameter_type_list parameter_list parameter_declaration class_specifier
+%type<str> member_specification member_declaration member_declarator_list member_declarator
+%type<str> access_specifier_label compound_statement declaration_list statement_list
+%type<str> statement labelled_statement expression_statement selection_statement if_rest
+%type<str> iteration_statement for_init_statement for_cond_opt for_iter_opt jump_statement
+%type<str> expression_opt io_statement insertion_list extraction_list insertion_item
+%type<str> extraction_item expression assignment_expression assignment_operator
+%type<str> conditional_expression logical_or_expression logical_and_expression inclusive_or_expression
+%type<str> exclusive_or_expression and_expression equality_expression relational_expression
+%type<str> shift_expression additive_expression multiplicative_expression cast_expression
+%type<str> unary_expression unary_operator postfix_expression primary_expression
+%type<str> argument_expression_list_opt argument_expression_list constant_expression_opt
+%type<str> constant_expression type_name abstract_declarator_opt abstract_declarator
+%type<str> direct_abstract_declarator new_expression new_initializer_opt delete_expression
+%type<str> lambda_expression initializer initializer_list
 
 %start translation_unit
-%%
+%%  
 
-class_specifier
-    : struct_or_class IDENTIFIER LEFT_CURLY unified_member_list RIGHT_CURLY
-    | struct_or_class LEFT_CURLY unified_member_list RIGHT_CURLY
-    | struct_or_class IDENTIFIER
+translation_unit:
+    /* empty */
+    | translation_unit external_declaration
     ;
 
-struct_or_class:
-      STRUCT
-    | CLASS
+external_declaration:
+      declaration
+    | function_definition
+    | class_specifier
     ;
 
-unified_member_list:
-      /* empty */
-    | unified_member_list unified_member
+declaration:
+      declaration_specifiers SEMICOLON
+    | declaration_specifiers init_declarator_list SEMICOLON
     ;
 
-unified_member
-    : access_specifier COLON                     /* public:, private:, protected: */
-    | declaration SEMICOLON                      /* C-style field declaration */
-    | specifier_qualifier_list struct_declarator_list SEMICOLON  /* C struct-style */
-    | function_definition                        /* method definition */
+declaration_specifiers:
+      storage_specifier
+    | type_specifier
+    | type_qualifier
+    | declaration_specifiers storage_specifier
+    | declaration_specifiers type_specifier
+    | declaration_specifiers type_qualifier
     ;
 
-access_specifier
-    : PUBLIC
-    | PRIVATE
-    | PROTECTED
+storage_specifier:
+      AUTO
+    | STATIC
     ;
 
-struct_declarator_list
-    : struct_declarator
-    | struct_declarator_list COMMA struct_declarator
+type_specifier:
+      VOID
+    | CHAR
+    | INT
+    | LONG
+    | BOOL
+    | DOUBLE
+    | STRING
+    | CLASS IDENTIFIER
+    | STRUCT IDENTIFIER
+    | IDENTIFIER
     ;
 
-struct_declarator
-    : declarator
-    | COLON constant_expression
-    | declarator COLON constant_expression
+type_qualifier:
+      CONST
     ;
 
-constant:
-        DECIMAL_LITERAL      {insert_const_symbol_table('I',$1);}
-    |   EXPONENT_LITERAL     {insert_const_symbol_table('E',$1);}
-    |   DOUBLE_LITERAL       {insert_const_symbol_table('F',$1);}
-    |   STRING_LITERAL       {insert_const_symbol_table('S',$1);}
-    |   CHARACTER_LITERAL    {insert_const_symbol_table('C',$1);}
+init_declarator_list:
+      init_declarator
+    | init_declarator_list COMMA init_declarator
     ;
 
-primary_expression:
-        IDENTIFIER          { $$ = strdup($1); }
-    |   constant
-    |   STRING_LITERAL     
-    |   LEFT_ROUND expression RIGHT_ROUND
+init_declarator:
+      declarator
+    | declarator ASSIGN initializer
     ;
 
-postfix_expression:
-        primary_expression
-    |   postfix_expression LEFT_SQUARE expression RIGHT_SQUARE
-    |   postfix_expression LEFT_ROUND RIGHT_ROUND
-    |   postfix_expression LEFT_ROUND argument_expression_list RIGHT_ROUND
-    {//printf("Function call= %s\n",$1);
-		char type_str[10];
-        get_type_str(type_str, "unknown");
- 
-        assign_type(type_str);
-        insert_symbol_table('F', $1);
-		for (int i = 0; i < argList.count_arg; i++) {
-            //printf("%s", argList.args[i]);
-            if (i < argList.count_arg - 1){} //printf(", ");
-        }
-        //printf("\n");
-	}
-    |   postfix_expression DOT IDENTIFIER
-    |   postfix_expression ARROW IDENTIFIER
-    |   postfix_expression INCREMENT
-    |   postfix_expression DECREMENT
+declarator:
+      direct_declarator
+    | pointer declarator
     ;
 
-argument_expression_list:
-        assignment_expression
-        { 
-            if (argList.count_arg < MAX_ARGS) {
-                argList.args[argList.count_arg++] = strdup($1);
-            }
-        }
-    |   argument_expression_list COMMA assignment_expression
-        { 
-            if (argList.count_arg < MAX_ARGS) {
-                argList.args[argList.count_arg++] = strdup($3);
-            }
-        }
+direct_declarator:
+      IDENTIFIER
+    | LEFT_ROUND declarator RIGHT_ROUND
+    | direct_declarator LEFT_SQUARE DECIMAL_LITERAL RIGHT_SQUARE
+    | direct_declarator LEFT_ROUND parameter_type_list_opt RIGHT_ROUND
     ;
 
-unary_expression:
-        postfix_expression
-    |   INCREMENT unary_expression
-    |   DECREMENT unary_expression
-    |   unary_operator cast_expression
-    |   SIZEOF unary_expression
-    |   SIZEOF LEFT_ROUND type_name RIGHT_ROUND
-    |   new_expression
-    |   delete_expression
-    ;
-
-unary_operator:
+pointer:
       STAR
-    | PLUS
     | BITWISE_AND
-    | MINUS
-    | TILDE
-    | LOGICAL_NOT
+    | STAR pointer
     ;
 
-cast_expression:
-        unary_expression
-    |   LEFT_ROUND type_name RIGHT_ROUND cast_expression
+/* Functions and parameters */
+function_definition:
+      declaration_specifiers declarator compound_statement
+    | declaration_specifiers declarator declaration_list compound_statement
     ;
 
-multiplicative_expression:
-        cast_expression
-    |   multiplicative_expression STAR cast_expression
-    |   multiplicative_expression DIVIDE cast_expression
-    |   multiplicative_expression MODULUS cast_expression
+parameter_type_list_opt:
+      /* empty */
+    | parameter_type_list
     ;
 
-additive_expression:
-        multiplicative_expression
-    |   additive_expression PLUS multiplicative_expression
-    |   additive_expression MINUS multiplicative_expression
+parameter_type_list:
+      parameter_list
     ;
 
-shift_expression:
-        additive_expression
-    |   shift_expression LEFT_SHIFT additive_expression
-    |   shift_expression RIGHT_SHIFT additive_expression
+parameter_list:
+      parameter_declaration
+    | parameter_list COMMA parameter_declaration
     ;
 
-relational_expression:
-        shift_expression
-    |   relational_expression LESS_THAN shift_expression
-    |   relational_expression GREATER_THAN shift_expression
-    |   relational_expression LESS_EQUAL shift_expression
-    |   relational_expression GREATER_EQUAL shift_expression
+parameter_declaration:
+      declaration_specifiers declarator
+    | declaration_specifiers
     ;
 
-equality_expression:
-        relational_expression
-    |   equality_expression EQUAL relational_expression
-    |   equality_expression NOT_EQUAL relational_expression
+/* Class / Struct */
+class_specifier:
+      CLASS IDENTIFIER LEFT_CURLY member_specification RIGHT_CURLY
+    | STRUCT IDENTIFIER LEFT_CURLY member_specification RIGHT_CURLY
     ;
 
-and_expression:
-        equality_expression
-    |   and_expression BITWISE_AND equality_expression
+member_specification:
+      /* empty */
+    | member_specification member_declaration
+    | member_specification access_specifier_label
     ;
 
-exclusive_or_expression:
-        and_expression
-    |   exclusive_or_expression BITWISE_XOR and_expression
+member_declaration:
+      declaration_specifiers member_declarator_list SEMICOLON
+    | declaration_specifiers SEMICOLON
     ;
 
-inclusive_or_expression:
-        exclusive_or_expression
-    |   inclusive_or_expression BITWISE_OR exclusive_or_expression
+member_declarator_list:
+      member_declarator
+    | member_declarator_list COMMA member_declarator
     ;
 
-logical_and_expression:
-        inclusive_or_expression
-    |   logical_and_expression LOGICAL_AND inclusive_or_expression
+member_declarator:
+      declarator
+    | declarator ASSIGN constant_expression
     ;
 
-logical_or_expression:
-        logical_and_expression
-    |   logical_or_expression LOGICAL_OR logical_and_expression
+access_specifier_label:
+      PUBLIC COLON
+    | PRIVATE COLON
+    | PROTECTED COLON
     ;
 
-conditional_expression:
-        logical_or_expression
-    |   logical_or_expression QUESTION_MARK expression COLON conditional_expression
+/* Statements */
+compound_statement:
+      LEFT_CURLY RIGHT_CURLY
+    | LEFT_CURLY statement_list RIGHT_CURLY
+    | LEFT_CURLY declaration_list RIGHT_CURLY
+    | LEFT_CURLY declaration_list statement_list RIGHT_CURLY
+    ;
+
+declaration_list:
+      declaration
+    | declaration_list declaration
+    ;
+
+statement_list:
+      statement
+    | statement_list statement
+    ;
+
+statement:
+      expression_statement
+    | compound_statement
+    | selection_statement
+    | iteration_statement
+    | jump_statement
+    | io_statement
+    | labelled_statement
+    ;
+
+labelled_statement:
+      CASE constant_expression COLON statement
+    | DEFAULT COLON statement
+    ;
+
+expression_statement:
+      SEMICOLON
+    | expression SEMICOLON
+    ;
+
+selection_statement:
+      IF LEFT_ROUND expression RIGHT_ROUND statement if_rest
+    | SWITCH LEFT_ROUND expression RIGHT_ROUND statement
+    ;
+
+if_rest:
+        /* empty */
+    | ELIF LEFT_ROUND expression RIGHT_ROUND statement if_rest
+    | ELSE statement
+    ;
+
+iteration_statement:
+      WHILE LEFT_ROUND expression RIGHT_ROUND statement
+    | UNTIL LEFT_ROUND expression RIGHT_ROUND statement
+    | DO statement WHILE LEFT_ROUND expression RIGHT_ROUND SEMICOLON
+    | FOR LEFT_ROUND for_init_statement for_cond_opt for_iter_opt RIGHT_ROUND statement
+    ;
+
+for_init_statement:
+      SEMICOLON
+    | expression_statement
+    | declaration
+    ;
+
+for_cond_opt:
+      /* empty */
+    | expression
+    ;
+
+for_iter_opt:
+      /* empty */
+    | expression
+    ;
+
+jump_statement:
+      GOTO IDENTIFIER SEMICOLON
+    | CONTINUE SEMICOLON
+    | BREAK SEMICOLON
+    | RETURN expression_opt SEMICOLON
+    ;
+
+expression_opt:
+      /* empty */
+    | expression
+    ;
+
+/* IO */
+io_statement:
+      COUT insertion_list SEMICOLON
+    | CIN extraction_list SEMICOLON
+    ;
+
+insertion_list:
+      insertion_item
+    | insertion_list LEFT_SHIFT insertion_item
+    ;
+
+extraction_list:
+      extraction_item
+    | extraction_list RIGHT_SHIFT extraction_item
+    ;
+
+insertion_item:
+      expression
+    | ENDL
+    | IDENTIFIER
+    ;
+
+extraction_item:
+      IDENTIFIER
+    ;
+
+/* Expressions */
+expression:
+      assignment_expression
+    | expression COMMA assignment_expression
     ;
 
 assignment_expression:
-        conditional_expression
-    |   unary_expression assignment_operator assignment_expression
+      conditional_expression
+    | unary_expression assignment_operator assignment_expression
     ;
 
 assignment_operator:
@@ -432,417 +508,216 @@ assignment_operator:
     | RIGHT_SHIFT_EQ
     ;
 
-expression:
-        assignment_expression
-    |   expression COMMA assignment_expression
+conditional_expression:
+      logical_or_expression
+    | logical_or_expression QUESTION_MARK expression COLON conditional_expression
     ;
 
+logical_or_expression:
+      logical_and_expression
+    | logical_or_expression LOGICAL_OR logical_and_expression
+    ;
+
+logical_and_expression:
+      inclusive_or_expression
+    | logical_and_expression LOGICAL_AND inclusive_or_expression
+    ;
+
+inclusive_or_expression:
+      exclusive_or_expression
+    | inclusive_or_expression BITWISE_OR exclusive_or_expression
+    ;
+
+exclusive_or_expression:
+      and_expression
+    | exclusive_or_expression BITWISE_XOR and_expression
+    ;
+
+and_expression:
+      equality_expression
+    | and_expression BITWISE_AND equality_expression
+    ;
+
+equality_expression:
+      relational_expression
+    | equality_expression EQUAL relational_expression
+    | equality_expression NOT_EQUAL relational_expression
+    ;
+
+relational_expression:
+      shift_expression
+    | relational_expression LESS_THAN shift_expression
+    | relational_expression GREATER_THAN shift_expression
+    | relational_expression LESS_EQUAL shift_expression
+    | relational_expression GREATER_EQUAL shift_expression
+    ;
+
+shift_expression:
+      additive_expression
+    | shift_expression LEFT_SHIFT additive_expression
+    | shift_expression RIGHT_SHIFT additive_expression
+    ;
+
+additive_expression:
+      multiplicative_expression
+    | additive_expression PLUS multiplicative_expression
+    | additive_expression MINUS multiplicative_expression
+    ;
+
+multiplicative_expression:
+      cast_expression
+    | multiplicative_expression STAR cast_expression
+    | multiplicative_expression DIVIDE cast_expression
+    | multiplicative_expression MODULUS cast_expression
+    ;
+
+cast_expression:
+      unary_expression
+    | LEFT_ROUND type_name RIGHT_ROUND cast_expression
+    ;
+
+unary_expression:
+      postfix_expression
+    | INCREMENT unary_expression
+    | DECREMENT unary_expression
+    | unary_operator cast_expression
+    | SIZEOF unary_expression
+    | SIZEOF LEFT_ROUND type_name RIGHT_ROUND
+    ;
+
+unary_operator:
+      PLUS
+    | MINUS
+    | TILDE
+    | LOGICAL_NOT
+    | BITWISE_AND
+    | STAR
+    ;
+
+postfix_expression:
+      primary_expression
+    | postfix_expression LEFT_SQUARE expression RIGHT_SQUARE
+    | postfix_expression LEFT_ROUND argument_expression_list_opt RIGHT_ROUND
+    | postfix_expression DOT IDENTIFIER
+    | postfix_expression ARROW IDENTIFIER
+    | postfix_expression INCREMENT
+    | postfix_expression DECREMENT
+    ;
+
+primary_expression:
+      IDENTIFIER
+    | DECIMAL_LITERAL
+    | CHARACTER_LITERAL
+    | STRING_LITERAL
+    | EXPONENT_LITERAL
+    | DOUBLE_LITERAL
+    | NULLPTR
+    | TRUE
+    | FALSE
+    | LEFT_ROUND expression RIGHT_ROUND
+    ;
+
+/* Arguments */
+argument_expression_list_opt:
+      /* empty */
+    | argument_expression_list
+    ;
+
+argument_expression_list:
+      assignment_expression
+    | argument_expression_list COMMA assignment_expression
+    ;
+
+constant_expression_opt:
+      /* empty */
+    | constant_expression
+    ;
+
+/* Constants */
 constant_expression:
-        conditional_expression
+      conditional_expression
     ;
 
-declaration:
-        declaration_specifiers SEMICOLON
-    |   declaration_specifiers init_declarator_list SEMICOLON
-    {
-        //printf("declaration  = %s\n", $2);
-        char type_str[10];
-        get_type_str(type_str, $1);
-
-        char *token = strtok($2, ",");
-        while (token != NULL) {
-            char *var_name = token;
-            char *value = strchr(token, '=');
-
-            if (value) {
-                *value = '\0';  
-                value++;  
-            }
-
-            assign_type(type_str);
-
-            int pointer_level = 0;
-            while (*var_name == '*') {
-                pointer_level++;
-                var_name++;  
-            }
-			assign_type(type_str);
-            if (pointer_level > 0) {
-                insert_symtab('P',var_name);
-            } else {
-                insert_symtab('V',var_name);
-            }
-
-            token = strtok(NULL, ",");
-        }
-    }
+/* Type names */
+type_name:
+      declaration_specifiers abstract_declarator_opt
     ;
 
-storage:
-      AUTO
-    | STATIC
+abstract_declarator_opt:
+      /* empty */
+    | abstract_declarator
     ;
 
-type_specifier:
-      VOID
-    | CHAR
-    | INT
-    | LONG
-    | DOUBLE
-    | BOOL
-    | str
-    | CONST
-    | STRUCT
-    | FUNCTION
-    | CLASS
-    ;
-
-declaration_specifiers:
-        storage
-    |   storage declaration_specifiers
-    |   type_specifier
-    |   type_specifier declaration_specifiers
-    |   CONST
-    |   CONST declaration_specifiers
-    ;
-
-
-init_declarator_list:
-        init_declarator
-    { 
-        $$ = strdup($1);  
-        //printf("init_declarator = %s\n", $$);
-    }
-    |   init_declarator_list COMMA init_declarator
-    { 
-        $$ = malloc(strlen($1) + strlen($3) + 2); 
-        sprintf($$, "%s,%s", $1, $3);  
-        free($1); free($3);
-        //printf("init_declarator_list = %s\n", $$);
-    }
-    ;
-
-init_declarator:
-        declarator
-    { 
-        $$ = strdup($1); 
-        //printf("declarator = %s\n", $$);
-    }
-    |   declarator ASSIGN initializer
-    { 
-        $$ = malloc(strlen($1) + strlen($3) + 2);  
-        sprintf($$, "%s=%s", $1, $3);  
-        free($1); free($3);
-        //printf("init_declarator with initializer = %s\n", $$);
-    }
-    ;
-
-initializer:
-        assignment_expression
-    |   LEFT_CURLY initializer_list RIGHT_CURLY
-    |   LEFT_CURLY initializer_list COMMA RIGHT_CURLY
-    ;
-
-initializer_list:
-        initializer
-    |   initializer_list COMMA initializer
-    ;
-
-declaration_list:
-        declaration
-    |   declaration_list declaration
-    |   error SEMICOLON {yyerrok;}
-    ;
-
-translation_unit:
-        external_declaration
-    |   translation_unit external_declaration
-    ;
-
-external_declaration:
-        function_definition
-    |   declaration
-    ;
-
-function_definition:
-        declaration_specifiers declarator declaration_list compound_statement
-    |   declaration_specifiers declarator compound_statement
-    {   //printf("Function is there: %s %s\n",$1,$2);
-		char type_str[10];
-      	get_type_str(type_str,$1);
-      	assign_type(type_str);
-      	insert_symtab('F',$2);
-	}
-    |   declarator declaration_list compound_statement
-	|   declarator compound_statement
-    ;
-
-declarator: 
-        pointer direct_declarator
-    { 
-		//printf("Pointer direct declarator\n");
-        $$ = malloc(strlen($1) + strlen($2) + 1); 
-        sprintf($$, "%s%s", $1, $2); 
-		//printf("it is $$: %s\n",$$); 
-        free($1); free($2);
-    }
-    |   direct_declarator
-    { 
-        $$ = strdup($1);  
-		//printf("Direct declarator %s\n",$$);
-    }
-    ;
-
-parameter_list:
-        parameter_declaration
-    |   parameter_list COMMA parameter_declaration
-    ;
-
-parameter_declaration:
-        declaration_specifiers declarator
-    {
-		// char type_str[10];
-        // get_type_str(type_str, $1);
-        // printf("Variable declaration: %s = %s\n", $1, $2); 
-        // assign_type(type_str);
-        // insert_symtab('V', $2);
-		char type_str[10];
-        get_type_str(type_str, $1);
-
-        char *token = strtok($2, ",");
-        while (token != NULL) {
-            char *var_name = token;
-            char *value = strchr(token, '=');
-
-            if (value) {
-                *value = '\0';  
-                value++;  
-            }
-
-            assign_type(type_str);
-
-            int pointer_level = 0;
-            while (*var_name == '*') {
-                pointer_level++;
-                var_name++;  
-            }
-			assign_type(type_str);
-            if (pointer_level > 0) {
-                insert_symtab('f',var_name);
-            } else {
-                insert_symtab('V',var_name);
-            }
-
-            token = strtok(NULL, ",");
-        } 
-	}
-    |   declaration_specifiers
-    |   declaration_specifiers abstract_declarator
-    ;
-
-type_name: 
-        specifier_qualifier_list
-	|   specifier_qualifier_list abstract_declarator
-	;
-
-pointer:
-        STAR    { $$ = strdup("*"); }
-    |   STAR pointer
-    { 
-        $$ = malloc(strlen($2) + 2); 
-        sprintf($$, "*%s", $2);  
-        free($2);
-    }
-    |   STAR type_qualifier_list
-    |   STAR type_qualifier_list pointer
-    ;
-
-specifier_qualifier_list: 
-        type_specifier specifier_qualifier_list
-	|   type_specifier
-	|   CONST specifier_qualifier_list
-	|   CONST
-	;
-
-type_qualifier_list: 
-        CONST
-	|   type_qualifier_list CONST
-	;
-
-compound_statement:
-        LEFT_CURLY RIGHT_CURLY
-    |   LEFT_CURLY declaration_list statement_list RIGHT_CURLY
-    |   LEFT_CURLY statement_declaration_list RIGHT_CURLY
-    |   LEFT_CURLY statement_list RIGHT_CURLY
-	|   LEFT_CURLY declaration_list RIGHT_CURLY
-    ;
-
-statement_list:
-        statement
-    |   statement_list statement
-    |   error SEMICOLON {yyerrok;}
-    ;
-
-statement:
-        compound_statement
-    |   labeled_statement
-    |   io_statement
-    |   expression_statement
-    |   selection_statement
-    |   iteration_statement
-    |   jump_statement
-    ;
-
-io_statement: 
-        output_statement SEMICOLON
-    |   input_statement SEMICOLON
-    ;
-
-output_statement: 
-        COUT output_chain
-    ;
-
-output_chain: 
-        LEFT_SHIFT output_item
-    |   output_chain LEFT_SHIFT output_item
-    ;
-
-output_item: 
-        expression
-    |   ENDL
-    ;
-
-input_statement:
-        CIN input_chain
-    ;
-
-input_chain:
-        RIGHT_SHIFT IDENTIFIER
-    |   input_chain RIGHT_SHIFT IDENTIFIER
-    ;
-
-labeled_statement:
-        IDENTIFIER COLON statement
-    |   CASE constant_expression COLON statement
-    |   DEFAULT COLON statement
-    ;
-
-expression_statement:
-        SEMICOLON
-    |   expression SEMICOLON
-    ;
-
-selection_statement:
-        IF LEFT_ROUND expression RIGHT_ROUND statement if_rest
-    |   SWITCH LEFT_ROUND expression RIGHT_ROUND statement
-    ;
-
-if_rest:
-    |   /* empty */                                                                                  /* if without else */
-        ELSE statement
-    |   ELIF LEFT_ROUND expression RIGHT_ROUND statement if_rest                                   /* elif followed by more elif/else */
-    ;
-
-iteration_statement:
-        WHILE LEFT_ROUND expression RIGHT_ROUND statement
-    |   UNTIL LEFT_ROUND expression RIGHT_ROUND statement
-    |   DO statement WHILE LEFT_ROUND expression RIGHT_ROUND SEMICOLON
-    |   FOR LEFT_ROUND expression_statement expression_statement RIGHT_ROUND statement
-    |   FOR LEFT_ROUND declaration expression_statement RIGHT_ROUND statement
-    ;
-
-jump_statement:
-        GOTO IDENTIFIER SEMICOLON
-    { 
-      	insert_symtab('G',$2);
-	}
-    |   CONTINUE SEMICOLON
-    |   BREAK SEMICOLON
-    |   RETURN expression SEMICOLON
-    |   RETURN SEMICOLON
-    ;
-
-new_expression:
-        NEW type_name
-    |   NEW type_name LEFT_ROUND argument_expression_list RIGHT_ROUND
-    ;
-
-delete_expression:
-        DELETE unary_expression
-    |   DELETE LEFT_SQUARE RIGHT_SQUARE unary_expression
-    ;
-
-statement_declaration_list: 
-        statement_list statement_declaration_list
-	|   declaration_list statement_declaration_list
-	|   statement_list
-	|   declaration_list
-	;
-
-direct_declarator: 
-        IDENTIFIER
-	|   LEFT_ROUND declarator RIGHT_ROUND
-    { 
-		$$ = strdup($2);
-	}
-	|   direct_declarator LEFT_CURLY constant_expression RIGHT_CURLY
-	|   direct_declarator LEFT_CURLY 
-	|   direct_declarator LEFT_ROUND parameter_list RIGHT_ROUND
-	|   direct_declarator LEFT_ROUND identifier_list RIGHT_ROUND
-	|   direct_declarator LEFT_ROUND RIGHT_ROUND
-	;
-
-identifier_list:
-        IDENTIFIER
-	|   identifier_list COMMA IDENTIFIER
-	;
-
-
-abstract_declarator: 
-        pointer
-	|   direct_abstract_declarator
-	|   pointer direct_abstract_declarator
+abstract_declarator:
+	  pointer
+	| direct_abstract_declarator
+	| pointer direct_abstract_declarator
 	;
 
 direct_abstract_declarator:
-	    LEFT_ROUND abstract_declarator RIGHT_ROUND
-	|   LEFT_SQUARE RIGHT_SQUARE
-	|   LEFT_SQUARE constant_expression RIGHT_SQUARE
-	|   direct_abstract_declarator LEFT_SQUARE RIGHT_SQUARE
-	|   direct_abstract_declarator LEFT_SQUARE constant_expression RIGHT_SQUARE
-	|   LEFT_ROUND RIGHT_ROUND
-	|   LEFT_ROUND parameter_list RIGHT_ROUND
-	|   direct_abstract_declarator LEFT_ROUND RIGHT_ROUND
-	|   direct_abstract_declarator LEFT_ROUND parameter_list RIGHT_ROUND
+	  LEFT_ROUND abstract_declarator RIGHT_ROUND
+	| LEFT_SQUARE constant_expression_opt RIGHT_SQUARE
+	| direct_abstract_declarator LEFT_SQUARE constant_expression_opt RIGHT_SQUARE
+	| LEFT_ROUND parameter_type_list_opt RIGHT_ROUND
+	| direct_abstract_declarator LEFT_ROUND parameter_type_list_opt RIGHT_ROUND
 	;
+
+
+/* New/Delete */
+new_expression:
+      NEW type_name new_initializer_opt
+    ;
+
+new_initializer_opt:
+      /* empty */
+    | LEFT_ROUND argument_expression_list_opt RIGHT_ROUND
+    ;
+
+/* Delete */
+delete_expression:
+      DELETE cast_expression
+    ;
+
+/* Lambda using FUNCTION token */
+lambda_expression:
+      FUNCTION LEFT_ROUND parameter_type_list_opt RIGHT_ROUND compound_statement
+    | FUNCTION LEFT_ROUND parameter_type_list_opt RIGHT_ROUND ARROW type_name compound_statement
+    ;
+
+/* Misc */
+initializer:
+      assignment_expression
+    | LEFT_CURLY initializer_list RIGHT_CURLY
+    ;
+
+initializer_list:
+      initializer
+    | initializer_list COMMA initializer
+    ;
 
 %%
 
-
 void yyerror(const char *s) {
-    fprintf(stderr, "Error at line %d: %s\n", yylineno, s);
+    cerr<<"Error at line "<<yylineno<<": "<<s<<endl;
 }
 
-int search_symbol_table(const char *id) {
-	for(int i=count_symbol-1; i>=0; i--) {
-		if(symbol_table[i].identifier_name == id) {
+int search_symtab(char *id_name) {
+	for(int i=count_sym-1; i>=0; i--) {
+		if(strcmp(symbol_table[i].identifier_name, id_name)==0) {
 			return 1;
 			break;
 		}
 	}
-
 	return 0;
 }
 
 void assign_type(char *str) {
-	data_type = str;
+	strcpy(d_type, str);
 }
-
 
 int main() {
     yyparse();
-
     print_symbol_table();
-    printf("\n");
+    cout<<endl;
     print_constant_table();
 }
