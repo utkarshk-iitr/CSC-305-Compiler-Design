@@ -208,67 +208,20 @@
 
 %}
 
-%union {
-    char *str;
-}
-
-/* Literals & identifiers */
-%token IDENTIFIER DECIMAL_LITERAL EXPONENT_LITERAL DOUBLE_LITERAL STRING_LITERAL CHARACTER_LITERAL
-
-/* Operators */
-%token PLUS MINUS STAR DIVIDE MODULUS AND OR XOR 
+%token PLUS MINUS STAR DIVIDE MODULUS ASSIGN INCREMENT DECREMENT
 %token EQUAL NOT_EQUAL LESS_THAN GREATER_THAN LESS_EQUAL GREATER_EQUAL
-%token INCREMENT DECREMENT
 %token BITWISE_AND BITWISE_OR BITWISE_XOR TILDE LEFT_SHIFT RIGHT_SHIFT
-
-/* Logical */
-%token LOGICAL_AND LOGICAL_NOT LOGICAL_OR
-
-/* Assignment variants */
-%token ASSIGN PLUS_EQUAL MINUS_EQUAL STAR_EQUAL DIV_EQUAL MOD_EQUAL
+%token LOGICAL_NOT LOGICAL_OR LOGICAL_AND
+%token PLUS_EQUAL MINUS_EQUAL STAR_EQUAL DIV_EQUAL MOD_EQUAL
 %token AND_EQUAL OR_EQUAL XOR_EQUAL LEFT_SHIFT_EQ RIGHT_SHIFT_EQ
-
-/* Punctuation & brackets */
-%token RCURLY LCURLY RSQUARE LSQUARE RROUND LROUND
+%token LEFT_CURLY RIGHT_CURLY LEFT_SQUARE RIGHT_SQUARE LEFT_ROUND RIGHT_ROUND
 %token DOT COMMA COLON SEMICOLON ARROW QUESTION_MARK
-
-/* extras */
-%token INCLUDE SCOMMENT SIZEOF
-%token DELIMITER WHITESPACE
-
-/* keywords */
-%token RETURN IF ELIF ELSE CASE SWITCH DEFAULT
+%token RETURN SIZEOF IF ELIF ELSE CASE SWITCH DEFAULT
 %token FOR WHILE DO UNTIL BREAK CONTINUE GOTO
 %token INT BOOL CHAR DOUBLE LONG STRING VOID CONST FUNCTION AUTO
-%token NULL NULLPTR STATIC CLASS STRUCT TRUE FALSE
-%token CLASS STRUCT PUBLIC PRIVATE PROTECTED 
+%token STATIC CLASS STRUCT PUBLIC PRIVATE PROTECTED
 %token COUT CIN ENDL NEW DELETE
-
-%type <str>
-    primary_expression postfix_expression argument_expression_list unary_expression
-    unary_operator cast_expression multiplicative_expression additive_expression
-    shift_expression relational_expression equality_expression and_expression
-    exclusive_or_expression inclusive_or_expression logical_and_expression
-    logical_or_expression conditional_expression assignment_expression
-    assignment_operator expression constant_expression declaration
-
-%type <str>
-    declaration_specifiers init_declarator_list init_declarator
-    storage_class_specifier type_specifier struct_or_union_specifier
-    struct_or_union struct_declaration_list struct_declaration
-    specifier_qualifier_list struct_declarator_list struct_declarator
-    enum_specifier enumerator_list enumerator type_qualifier declarator
-
-%type <str>
-    direct_declarator pointer type_qualifier_list parameter_type_list
-    parameter_list parameter_declaration identifier_list type_name
-    abstract_declarator direct_abstract_declarator initializer
-    initializer_list statement labeled_statement compound_statement
-
-%type <str>
-    declaration_list statement_list expression_statement
-    selection_statement iteration_statement jump_statement
-    translation_unit external_declaration function_definition
+%token IDENTIFIER DECIMAL_LITERAL EXPONENT_LITERAL DOUBLE_LITERAL STRING_LITERAL CHARACTER_LITERAL
 
 %start translation_unit
 %%
