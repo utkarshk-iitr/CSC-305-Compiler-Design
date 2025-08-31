@@ -30,29 +30,49 @@
     } const_table[1000];
 
     void print_symbol_table() {
-        cout<<"---------------------------------------------------------\n";
-        cout<<left<<setw(15)<<"NAME"<<setw(15)<<"DATATYPE"<<setw(15)<<"TYPE"<<setw(10)<<"LINE\n";
-        cout<<"---------------------------------------------------------\n";
-        for(int i=0;i<count_symbol;i++) {
-            cout<<left<<setw(15)<<symbol_table[i].id_name
-                <<setw(15)<<symbol_table[i].data_type
-                <<setw(15)<<symbol_table[i].type
-                <<setw(10)<<symbol_table[i].line_no<<"\n";
+        cout << "SYMBOL TABLE\n";
+        cout << "---------------------------------------------------------------\n";
+        cout << left
+            << setw(20) << "NAME"
+            << setw(20) << "DATATYPE"
+            << setw(20) << "TYPE"
+            << setw(10) << "LINE"
+            << "\n";
+        cout << "---------------------------------------------------------------\n";
+
+        for (int i = 0; i < count_symbol; i++) {
+            cout << left
+                << setw(20) << symbol_table[i].id_name
+                << setw(20) << symbol_table[i].data_type
+                << setw(20) << symbol_table[i].type
+                << setw(10) << symbol_table[i].line_no
+                << "\n";
         }
-        cout<<"---------------------------------------------------------\n";
+
+        cout << "---------------------------------------------------------------\n";
     }
 
     void print_constant_table() {
-        cout<<"---------------------------------------------------------\n";
-        cout<<left<<setw(20)<<"VALUE"<<setw(15)<<"TYPE"<<setw(10)<<"LINE\n";
-        cout<<"---------------------------------------------------------\n";
-        for(int i=0;i<count_const;i++) {
-            cout<<left<<setw(20)<<const_table[i].value
-                <<setw(15)<<const_table[i].type
-                <<setw(10)<<const_table[i].line_no<<"\n";
+        cout << "CONSTANT TABLE\n";
+        cout << "---------------------------------------------------------------\n";
+        cout << left
+            << setw(25) << "VALUE"
+            << setw(20) << "TYPE"
+            << setw(10) << "LINE"
+            << "\n";
+        cout << "---------------------------------------------------------------\n";
+
+        for (int i = 0; i < count_const; i++) {
+            cout << left
+                << setw(25) << const_table[i].value
+                << setw(20) << const_table[i].type
+                << setw(10) << const_table[i].line_no
+                << "\n";
         }
-        cout<<"---------------------------------------------------------\n";
+
+        cout << "---------------------------------------------------------------\n";
     }
+
     static char* curr_decl_spec  = NULL; 
     static char* curr_param_spec = NULL; 
     static char* curr_func_spec  = NULL; 
@@ -97,12 +117,12 @@
     void insert_const_symbol_table(char ch, char* yytext) {
         string t;
         switch(ch) {
-            case 'I': t = "INT";     break;
-            case 'D': t = "DOUBLE";  break;
-            case 'E': t = "EXP";     break;
-            case 'C': t = "CHAR";    break;
-            case 'S': t = "STRING";  break;
-            case 'B': t = "BOOL";    break;
+            case 'I': t = "DECIMAL_LITERAL";     break;
+            case 'D': t = "DOUBLE_LITERAL";  break;
+            case 'E': t = "EXPONENT_LITERAL";     break;
+            case 'C': t = "CHAR_LITERAL";    break;
+            case 'S': t = "STRING_LITERAL";  break;
+            case 'B': t = "BOOL_LITERAL";    break;
             case 'N': t = "NULLPTR"; break;
             default:  t = "UNKNOWN"; break;
         }
@@ -155,7 +175,7 @@
 %token<str> SEMICOLON COLON COMMA DOT QUESTION_MARK 
 %token<str> TILDE
 
-%token<str> IF ELSE ELIF SWITCH CASE DEFAULT WHILE DO FOR GOTO CONTINUE BREAK RETURN UNTIL
+%token<str> IF ELSE SWITCH CASE DEFAULT WHILE DO FOR GOTO CONTINUE BREAK RETURN UNTIL
 %token<str> SIZEOF
 
 %token<str> VOID INT DOUBLE CHAR BOOL STRING LONG
@@ -369,26 +389,14 @@ direct_function_declarator
     | LROUND function_declarator RROUND                { $$ = $2; }
     | direct_function_declarator LSQUARE constant_expression_opt RSQUARE { $$ = $1; }
     ;
-
-/* ---------- Declarators that MUST be functions (unambiguous) ---------- */
-function_declarator
-    : direct_function_declarator                       { $$ = $1; }
-    | pointer function_declarator                      { $$ = $2; }  /* e.g., int *f(int) */
-    ;
-
-direct_function_declarator
-    : IDENTIFIER LROUND parameter_type_list RROUND     { $$ = $1; }  /* fn(int a, ...) */
-    | IDENTIFIER LROUND RROUND                         { $$ = $1; }  /* fn() */
-    | LROUND function_declarator RROUND                { $$ = $2; }  /* ( *f )(int) etc. */
-    | direct_function_declarator LSQUARE constant_expression_opt RSQUARE { $$ = $1; } /* fn()[N] */
-    ;
-
+    
 /* ---------- Statements ---------- */
 statement
     : compound_statement
     | selection_statement
     | iteration_statement
     | jump_statement
+    | label
     | expression SEMICOLON
     | SEMICOLON
     ;
@@ -412,12 +420,27 @@ block_item
 selection_statement
     : IF LROUND expression RROUND statement
     | IF LROUND expression RROUND statement ELSE statement
-    | SWITCH LROUND expression RROUND statement
+    | SWITCH LROUND expression RROUND switch_body
+    ;
+
+switch_body
+    : LCURLY case_list RCURLY
+    ;
+
+case_list
+    : case_list case_label
+    | case_label
+    ;
+
+case_label
+    : CASE constant statement
+    | DEFAULT statement
     ;
 
 /* Iteration */
 iteration_statement
     : WHILE LROUND expression RROUND statement
+    | UNTIL LROUND expression RROUND statement
     | DO statement WHILE LROUND expression RROUND SEMICOLON
     | FOR LROUND expression_opt SEMICOLON expression_opt SEMICOLON expression_opt RROUND statement
     ;
@@ -428,6 +451,10 @@ expression_opt
     ;
 
 /* Jump */
+label
+    : IDENTIFIER COLON { insert_symbol_table($1, sdup("LABEL"), "IDENTIFIER");   }
+    ;
+
 jump_statement
     : GOTO IDENTIFIER SEMICOLON
     | CONTINUE SEMICOLON
@@ -535,6 +562,8 @@ unary_expression
     | DECREMENT unary_expression
     | PLUS  unary_expression
     | MINUS unary_expression
+    | STAR unary_expression
+    | BITWISE_AND unary_expression
     | LOGICAL_NOT unary_expression
     | TILDE unary_expression
     | SIZEOF unary_expression
@@ -560,7 +589,7 @@ primary_expression
     | STRING_LITERAL                      { insert_const_symbol_table('S',$1); }
     | LROUND expression RROUND
     | COUT LEFT_SHIFT argument_expression_list
-    | CIN  RIGHT_SHIFT IDENTIFIER         { insert_symbol_table($3, "IO", "IO"); }
+    | CIN  RIGHT_SHIFT IDENTIFIER 
     | ENDL
     | INVALID_IDENTIFIER                  /* token exists; ignore semantically */
     ;

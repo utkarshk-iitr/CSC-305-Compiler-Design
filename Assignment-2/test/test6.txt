@@ -1,0 +1,48 @@
+#include <stdio.h>
+
+void functionExample(){
+    cout << "function" << endl;
+}
+
+int main(){
+    int a = 10, b = 5;
+    a += 2;
+    a -= 1;
+    b /= 2;
+    b %= 3;
+    a &= 1;
+    a |= 2;
+    a ^= 4;
+    a <<= 1;
+    a >>= 2;
+    if (a > b){
+        cout << "a bada hai" << "\n";
+    }
+    else{
+        cout << "b bada hai" << "\n";
+    }
+
+    switch (b) {
+        case 1{
+            cout << "One" << "\n";
+            break;
+        }
+        case 2{
+            cout << "Two" << "\n";
+            break;
+        }
+        default{
+            cout << "Default case" << "\n";
+            break;
+        }
+    }
+    string x = null;
+    function f = functionExample;
+    cout << "endl" << endl;
+    string msg = "Hello, world!";
+    char ch = 'X';
+    int 123abc = 5;
+    int 1foo = 9.81;
+    int a$$@5 = 8;
+    return 0;
+}
