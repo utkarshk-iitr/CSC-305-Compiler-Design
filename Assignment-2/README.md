@@ -86,7 +86,7 @@ sudo apt install build-essential flex bison libfl-dev make
 ### Build
 
 From the project root:
-# generate lex.yy.c, parser.tab.c and build the executable
+generate lex.yy.c, parser.tab.c and build the executable
 make
 
 Makefile targets:
@@ -95,7 +95,7 @@ Makefile targets:
 * `clean` — removes generated files (`lex.yy.c`, `parser.tab.c`, `parser.tab.h`, `parser.output`, `parser`).
 
 make clean
-# removes all generated files
+removes all generated files
 
 
 ### Run
@@ -134,7 +134,7 @@ VALUE                    TYPE                LINE
 ---------------------------------------------------------------
 5                        DECIMAL_LITERAL     4         
 7                        DECIMAL_LITERAL     4         
-"Greater than"               STRING_LITERAL      7
+"Greater than"           STRING_LITERAL      7
 ```
 
 ### Return codes
