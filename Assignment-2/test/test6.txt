@@ -4,6 +4,10 @@ void functionExample(){
     cout << "function" << endl;
 }
 
+int anotherExample(int yy){
+    return 83;
+}
+
 int main(){
     int a = 10, b = 5;
     a += 2;
@@ -37,10 +41,12 @@ int main(){
         }
     }
     string x = null;
-    void f = functionExample;
+    
+    void foo = functionExample;
+    int (*boi)(int) = anotherExample;
+
     cout << "endl" << endl;
     string msg = "Hello, world!";
-
     char ch = 'X';
     int 123abc = 5;
     int 1foo = 9.81;

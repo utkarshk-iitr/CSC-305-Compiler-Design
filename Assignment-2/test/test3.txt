@@ -1,45 +1,34 @@
 #include <stdio.h>
 
-struct Node{
-    Node* ch[26] ;
+struct Node {
     bool flag ;
-
-    Node() {
-        flag = false;
-
-        for(int i=0 ;i<26 ;i++) ch[i] = nullptr;
-    }
-};
+    int val ;
+    string name ;
+    static int id ;  
+}
 
 class Trie{
     private :
     Node *root;
 
     public :
-    Trie() {
-        root = new Node();
-    }
-
-
-    void insert(string& s) {
-        Node* temp = root ;
-        for(char c : s) {
-            int pos = c - 'a';
-            if(!temp->ch[pos]) {
-                temp->ch[pos] = new Node();
-            }
-
-            temp = (*temp).ch[pos] ;
-        }
-    }
-};
+    int lol ;
+    bool flag ;
+    string name;
+}
 
 int main() {
     Trie PrefixString ;
     string lol = "HelloWorld" ;
 
-    PrefixString.insert(lol);
-    coit<<"Adesh$$$"<<endl;
-    coit<<"Adesh$$$;
+    PrefixString.name = lol;
+    PrefixString.lol = 930;
+
+    Trie* boi = &PrefixString;
+    cout<<boi->name<<endl;
+    cout<<*boi.lol<<endl;
+
+    cout<<"Adesh$$$"<<endl;
+    cout<<"Adesh$$$;
     return 0;
 }

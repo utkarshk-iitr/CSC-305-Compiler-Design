@@ -5,7 +5,7 @@ class Employee{
     int salary;
 
     public :
-    double loan ;
+    double loan;
 
     protected :
     string name;
@@ -29,25 +29,18 @@ int main() {
     IncrementLoan(Raja);
     IncrementLoan(Raja);
 
-    static int a=0;
-    int float b = 5;
-    const const int x=9;
-    const x;
-    static y;
-    int int y;
     Employee* Rani = &Raja;
     Rani->salary++;
     Rani->salary--;
 
-    for(int i=0,j=0 ;i<90 ;i++) {
+    int i;
+    for(i=0 ;i<90 ;i++) {
         if(i > 40) continue;
         cout<<i<<" ";
     }
     cout<<"\n";
 
     if(Rani == NULL) cout<<"No Match Found"<<"\n";
-
-    bool (*fp)(int,int) = IsValid;
 
     return 0;
 }
