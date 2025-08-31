@@ -164,31 +164,40 @@
     static vector<string> pending_ids;
     static const char* pending_role = "IDENTIFIER"; 
 
-    static char* sdup(const char* s) {
+   static char* sdup(const char* s) {
         return s ? strdup(s) : strdup("");
     }
+
     static char* cat2(const char* a, const char* b) {
-        size_t la = a ? strlen(a) : 0, lb = b ? strlen(b) : 0;
+        size_t la = a ? strlen(a) : 0;
+        size_t lb = b ? strlen(b) : 0;
         char* r = (char*)malloc(la + lb + 2);
         r[0] = 0;
-        if (la) { memcpy(r, a, la); r[la] = 0; }
+        if (la) {
+            memcpy(r, a, la);
+            r[la] = 0;
+        }
         if (la && lb) strcat(r, " ");
         if (lb) strcat(r, b);
         return r;
     }
+
     static void push_id(char* s) {
         pending_ids.emplace_back(s ? s : "");
     }
 
-    void insert_symbol_table (char* yytext, const char* data_type, const char* type) {
-        symbol_table[count_symbol].id_name   = yytext;
+    void insert_symbol_table(char* yytext, const char* data_type, const char* type) {
+        symbol_table[count_symbol].id_name = yytext;
         if (last_declarator_pointer && last_declarator_pointer[0]) {
-            symbol_table[count_symbol].data_type = data_type && data_type[0] ? cat2(data_type, last_declarator_pointer) : sdup(last_declarator_pointer);
+            symbol_table[count_symbol].data_type = 
+                (data_type && data_type[0]) 
+                ? cat2(data_type, last_declarator_pointer) 
+                : sdup(last_declarator_pointer);
         } else {
             symbol_table[count_symbol].data_type = data_type ? data_type : "";
         }
-        symbol_table[count_symbol].type      = type;
-        symbol_table[count_symbol].line_no   = curr_decl_lineno ? curr_decl_lineno : yylineno;
+        symbol_table[count_symbol].type = type;
+        symbol_table[count_symbol].line_no = curr_decl_lineno ? curr_decl_lineno : yylineno;
         curr_decl_lineno = 0;
         last_declarator_pointer = NULL;
         count_symbol++;
@@ -236,7 +245,7 @@
         pending_ids.clear();
     }
 
-#line 240 "src/parser.tab.c"
+#line 249 "src/parser.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -829,30 +838,30 @@ static const yytype_int8 yytranslate[] =
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int16 yyrline[] =
 {
-       0,   228,   228,   229,   233,   234,   235,   236,   237,   238,
-     243,   243,   244,   244,   247,   252,   253,   254,   258,   259,
-     263,   264,   265,   266,   267,   268,   269,   270,   271,   272,
-     276,   277,   281,   282,   286,   287,   292,   293,   294,   295,
-     309,   310,   314,   315,   320,   321,   322,   323,   324,   328,
-     332,   333,   337,   337,   339,   343,   343,   344,   344,   348,
-     349,   353,   354,   355,   356,   356,   359,   360,   365,   366,
-     370,   374,   374,   382,   382,   387,   393,   394,   398,   399,
-     400,   401,   406,   407,   408,   409,   410,   411,   412,   413,
-     418,   419,   423,   424,   425,   430,   431,   436,   437,   438,
-     442,   446,   447,   451,   452,   457,   458,   459,   460,   464,
-     465,   469,   469,   472,   478,   479,   484,   488,   489,   490,
-     491,   492,   497,   498,   499,   503,   504,   505,   509,   510,
-     511,   512,   513,   514,   515,   516,   517,   518,   519,   523,
-     524,   528,   529,   533,   534,   538,   539,   543,   544,   548,
-     549,   553,   554,   555,   559,   560,   561,   562,   563,   567,
-     568,   569,   573,   574,   575,   579,   580,   581,   582,   586,
-     587,   591,   592,   593,   594,   595,   596,   597,   598,   599,
-     600,   601,   605,   606,   607,   608,   609,   610,   611,   612,
-     613,   614,   618,   619,   620,   621,   622,   623,   624,   625,
-     626,   631,   632,   633,   637,   638,   642,   643,   647,   648,
-     649,   653,   654,   655,   664,   665,   669,   670,   679,   680,
-     681,   685,   686,   691,   692,   693,   694,   695,   696,   697,
-     698
+       0,   237,   237,   238,   242,   243,   244,   245,   246,   247,
+     252,   252,   253,   253,   256,   261,   262,   263,   267,   268,
+     272,   273,   274,   275,   276,   277,   278,   279,   280,   281,
+     285,   286,   290,   291,   295,   296,   301,   302,   303,   304,
+     318,   319,   323,   324,   329,   330,   331,   332,   333,   337,
+     341,   342,   346,   346,   348,   352,   352,   353,   353,   357,
+     358,   362,   363,   364,   365,   365,   368,   369,   374,   375,
+     379,   383,   383,   391,   391,   396,   402,   403,   407,   408,
+     409,   410,   414,   415,   416,   417,   418,   419,   420,   421,
+     426,   427,   431,   432,   433,   438,   439,   443,   444,   445,
+     449,   453,   454,   458,   459,   463,   464,   465,   466,   470,
+     471,   475,   475,   478,   484,   485,   489,   493,   494,   495,
+     496,   497,   501,   502,   503,   507,   508,   509,   513,   514,
+     515,   516,   517,   518,   519,   520,   521,   522,   523,   527,
+     528,   532,   533,   537,   538,   542,   543,   547,   548,   552,
+     553,   557,   558,   559,   563,   564,   565,   566,   567,   571,
+     572,   573,   577,   578,   579,   583,   584,   585,   586,   590,
+     591,   595,   596,   597,   598,   599,   600,   601,   602,   603,
+     604,   605,   609,   610,   611,   612,   613,   614,   615,   616,
+     617,   618,   622,   623,   624,   625,   626,   627,   628,   629,
+     630,   634,   635,   636,   640,   641,   645,   646,   650,   651,
+     652,   656,   657,   658,   667,   668,   672,   673,   682,   683,
+     684,   688,   689,   693,   694,   695,   696,   697,   698,   699,
+     700
 };
 #endif
 
@@ -2005,431 +2014,431 @@ yyreduce:
   switch (yyn)
     {
   case 9: /* external_declaration: error SEMICOLON  */
-#line 239 "src/parser.y"
+#line 248 "src/parser.y"
       { yyerrok; }
-#line 2011 "src/parser.tab.c"
+#line 2020 "src/parser.tab.c"
     break;
 
   case 10: /* $@1: %empty  */
-#line 243 "src/parser.y"
+#line 252 "src/parser.y"
                              { curr_decl_spec = (yyvsp[0].str); pending_role = "IDENTIFIER"; pending_ids.clear(); }
-#line 2017 "src/parser.tab.c"
+#line 2026 "src/parser.tab.c"
     break;
 
   case 12: /* $@2: %empty  */
-#line 244 "src/parser.y"
+#line 253 "src/parser.y"
                              { curr_decl_spec = (yyvsp[0].str); pending_role = "IDENTIFIER"; pending_ids.clear(); }
-#line 2023 "src/parser.tab.c"
+#line 2032 "src/parser.tab.c"
     break;
 
   case 13: /* declaration: declaration_specifiers $@2 init_declarator_list_no_func SEMICOLON  */
-#line 246 "src/parser.y"
+#line 255 "src/parser.y"
       { flush_pending(curr_decl_spec, pending_role); }
-#line 2029 "src/parser.tab.c"
+#line 2038 "src/parser.tab.c"
     break;
 
   case 14: /* declaration: error SEMICOLON  */
-#line 248 "src/parser.y"
+#line 257 "src/parser.y"
       { yyerrok; }
-#line 2035 "src/parser.tab.c"
+#line 2044 "src/parser.tab.c"
     break;
 
   case 15: /* declaration_specifiers: type_specifier  */
-#line 252 "src/parser.y"
+#line 261 "src/parser.y"
                      { (yyval.str) = (yyvsp[0].str); }
-#line 2041 "src/parser.tab.c"
+#line 2050 "src/parser.tab.c"
     break;
 
   case 16: /* declaration_specifiers: AUTO  */
-#line 253 "src/parser.y"
+#line 262 "src/parser.y"
            { (yyval.str) = (yyvsp[0].str); }
-#line 2047 "src/parser.tab.c"
+#line 2056 "src/parser.tab.c"
     break;
 
   case 17: /* declaration_specifiers: storage_class_specifier declaration_specifiers  */
-#line 254 "src/parser.y"
+#line 263 "src/parser.y"
                                                      { (yyval.str) = cat2((yyvsp[-1].str), (yyvsp[0].str)); }
-#line 2053 "src/parser.tab.c"
+#line 2062 "src/parser.tab.c"
     break;
 
   case 18: /* storage_class_specifier: STATIC  */
-#line 258 "src/parser.y"
+#line 267 "src/parser.y"
                { (yyval.str) = sdup("STATIC"); }
-#line 2059 "src/parser.tab.c"
+#line 2068 "src/parser.tab.c"
     break;
 
   case 19: /* storage_class_specifier: CONST  */
-#line 259 "src/parser.y"
+#line 268 "src/parser.y"
                { (yyval.str) = sdup("CONST"); }
-#line 2065 "src/parser.tab.c"
+#line 2074 "src/parser.tab.c"
     break;
 
   case 20: /* type_specifier: VOID  */
-#line 263 "src/parser.y"
+#line 272 "src/parser.y"
                { (yyval.str) = sdup("VOID"); }
-#line 2071 "src/parser.tab.c"
+#line 2080 "src/parser.tab.c"
     break;
 
   case 21: /* type_specifier: INT  */
-#line 264 "src/parser.y"
+#line 273 "src/parser.y"
                { (yyval.str) = sdup("INT"); }
-#line 2077 "src/parser.tab.c"
+#line 2086 "src/parser.tab.c"
     break;
 
   case 22: /* type_specifier: LONG  */
-#line 265 "src/parser.y"
+#line 274 "src/parser.y"
                { (yyval.str) = sdup("LONG"); }
-#line 2083 "src/parser.tab.c"
+#line 2092 "src/parser.tab.c"
     break;
 
   case 23: /* type_specifier: DOUBLE  */
-#line 266 "src/parser.y"
+#line 275 "src/parser.y"
                { (yyval.str) = sdup("DOUBLE"); }
-#line 2089 "src/parser.tab.c"
+#line 2098 "src/parser.tab.c"
     break;
 
   case 24: /* type_specifier: CHAR  */
-#line 267 "src/parser.y"
+#line 276 "src/parser.y"
                { (yyval.str) = sdup("CHAR"); }
-#line 2095 "src/parser.tab.c"
+#line 2104 "src/parser.tab.c"
     break;
 
   case 25: /* type_specifier: BOOL  */
-#line 268 "src/parser.y"
+#line 277 "src/parser.y"
                { (yyval.str) = sdup("BOOL"); }
-#line 2101 "src/parser.tab.c"
+#line 2110 "src/parser.tab.c"
     break;
 
   case 26: /* type_specifier: STRING  */
-#line 269 "src/parser.y"
+#line 278 "src/parser.y"
                { (yyval.str) = sdup("STRING"); }
-#line 2107 "src/parser.tab.c"
+#line 2116 "src/parser.tab.c"
     break;
 
   case 27: /* type_specifier: TYPE_NAME  */
-#line 270 "src/parser.y"
+#line 279 "src/parser.y"
                { (yyval.str) = sdup((yyvsp[0].str)); }
-#line 2113 "src/parser.tab.c"
+#line 2122 "src/parser.tab.c"
     break;
 
   case 28: /* type_specifier: STRUCT  */
-#line 271 "src/parser.y"
+#line 280 "src/parser.y"
                { (yyval.str) = sdup("STRUCT"); }
-#line 2119 "src/parser.tab.c"
+#line 2128 "src/parser.tab.c"
     break;
 
   case 29: /* type_specifier: CLASS  */
-#line 272 "src/parser.y"
+#line 281 "src/parser.y"
                { (yyval.str) = sdup("CLASS"); }
-#line 2125 "src/parser.tab.c"
+#line 2134 "src/parser.tab.c"
     break;
 
   case 32: /* init_declarator_no_func: declarator_no_func  */
-#line 281 "src/parser.y"
+#line 290 "src/parser.y"
                                                { push_id((yyvsp[0].str)); }
-#line 2131 "src/parser.tab.c"
+#line 2140 "src/parser.tab.c"
     break;
 
   case 33: /* init_declarator_no_func: declarator_no_func ASSIGN initializer  */
-#line 282 "src/parser.y"
+#line 291 "src/parser.y"
                                                { push_id((yyvsp[-2].str)); }
-#line 2137 "src/parser.tab.c"
+#line 2146 "src/parser.tab.c"
     break;
 
   case 34: /* declarator_no_func: pointer direct_declarator_no_func  */
-#line 286 "src/parser.y"
+#line 295 "src/parser.y"
                                            { last_declarator_pointer = (yyvsp[-1].str); curr_decl_lineno = last_ident_lineno; (yyval.str) = (yyvsp[0].str); }
-#line 2143 "src/parser.tab.c"
+#line 2152 "src/parser.tab.c"
     break;
 
   case 35: /* declarator_no_func: direct_declarator_no_func  */
-#line 287 "src/parser.y"
+#line 296 "src/parser.y"
                                            { last_declarator_pointer = NULL; curr_decl_lineno = last_ident_lineno; (yyval.str) = (yyvsp[0].str); }
-#line 2149 "src/parser.tab.c"
+#line 2158 "src/parser.tab.c"
     break;
 
   case 40: /* declarator: pointer direct_declarator  */
-#line 309 "src/parser.y"
+#line 318 "src/parser.y"
                                            { last_declarator_pointer = (yyvsp[-1].str); curr_decl_lineno = last_ident_lineno; (yyval.str) = (yyvsp[0].str); }
-#line 2155 "src/parser.tab.c"
+#line 2164 "src/parser.tab.c"
     break;
 
   case 41: /* declarator: direct_declarator  */
-#line 310 "src/parser.y"
+#line 319 "src/parser.y"
                                            { last_declarator_pointer = NULL; curr_decl_lineno = last_ident_lineno; (yyval.str) = (yyvsp[0].str); }
-#line 2161 "src/parser.tab.c"
+#line 2170 "src/parser.tab.c"
     break;
 
   case 42: /* pointer: STAR  */
-#line 314 "src/parser.y"
+#line 323 "src/parser.y"
                                      { (yyval.str) = sdup("pointer"); }
-#line 2167 "src/parser.tab.c"
+#line 2176 "src/parser.tab.c"
     break;
 
   case 43: /* pointer: STAR pointer  */
-#line 315 "src/parser.y"
+#line 324 "src/parser.y"
                                      { (yyval.str) = cat2((yyvsp[0].str), "pointer"); }
-#line 2173 "src/parser.tab.c"
+#line 2182 "src/parser.tab.c"
     break;
 
   case 44: /* direct_declarator: IDENTIFIER  */
-#line 320 "src/parser.y"
+#line 329 "src/parser.y"
                                                            { (yyval.str) = (yyvsp[0].str); }
-#line 2179 "src/parser.tab.c"
+#line 2188 "src/parser.tab.c"
     break;
 
   case 45: /* direct_declarator: LROUND declarator RROUND  */
-#line 321 "src/parser.y"
+#line 330 "src/parser.y"
                                                            { (yyval.str) = (yyvsp[-1].str); }
-#line 2185 "src/parser.tab.c"
+#line 2194 "src/parser.tab.c"
     break;
 
   case 46: /* direct_declarator: direct_declarator LROUND parameter_type_list RROUND  */
-#line 322 "src/parser.y"
+#line 331 "src/parser.y"
                                                            { (yyval.str) = (yyvsp[-3].str); }
-#line 2191 "src/parser.tab.c"
+#line 2200 "src/parser.tab.c"
     break;
 
   case 47: /* direct_declarator: direct_declarator LROUND RROUND  */
-#line 323 "src/parser.y"
+#line 332 "src/parser.y"
                                                            { (yyval.str) = (yyvsp[-2].str); }
-#line 2197 "src/parser.tab.c"
+#line 2206 "src/parser.tab.c"
     break;
 
   case 48: /* direct_declarator: direct_declarator LSQUARE constant_expression_opt RSQUARE  */
-#line 324 "src/parser.y"
+#line 333 "src/parser.y"
                                                                 { (yyval.str) = (yyvsp[-3].str); }
-#line 2203 "src/parser.tab.c"
+#line 2212 "src/parser.tab.c"
     break;
 
   case 52: /* $@3: %empty  */
-#line 337 "src/parser.y"
+#line 346 "src/parser.y"
                              { curr_param_spec = (yyvsp[0].str); }
-#line 2209 "src/parser.tab.c"
+#line 2218 "src/parser.tab.c"
     break;
 
   case 53: /* parameter_declaration: declaration_specifiers $@3 declarator  */
-#line 338 "src/parser.y"
+#line 347 "src/parser.y"
         { insert_symbol_table((yyvsp[0].str), curr_param_spec ? curr_param_spec : "", "PARAM"); }
-#line 2215 "src/parser.tab.c"
+#line 2224 "src/parser.tab.c"
     break;
 
   case 55: /* $@4: %empty  */
-#line 343 "src/parser.y"
+#line 352 "src/parser.y"
                                { insert_symbol_table((yyvsp[-1].str), sdup("CLASS"), "TYPE"); }
-#line 2221 "src/parser.tab.c"
+#line 2230 "src/parser.tab.c"
     break;
 
   case 57: /* $@5: %empty  */
-#line 344 "src/parser.y"
+#line 353 "src/parser.y"
                                { insert_symbol_table((yyvsp[-1].str), sdup("STRUCT"), "TYPE"); }
-#line 2227 "src/parser.tab.c"
+#line 2236 "src/parser.tab.c"
     break;
 
   case 64: /* $@6: %empty  */
-#line 356 "src/parser.y"
+#line 365 "src/parser.y"
                              { curr_decl_spec = (yyvsp[0].str); pending_role = "MEMBER"; pending_ids.clear(); }
-#line 2233 "src/parser.tab.c"
+#line 2242 "src/parser.tab.c"
     break;
 
   case 65: /* member_declaration: declaration_specifiers $@6 member_declarator_list SEMICOLON  */
-#line 358 "src/parser.y"
+#line 367 "src/parser.y"
       { flush_pending(curr_decl_spec, pending_role); }
-#line 2239 "src/parser.tab.c"
+#line 2248 "src/parser.tab.c"
     break;
 
   case 67: /* member_declaration: error SEMICOLON  */
-#line 361 "src/parser.y"
+#line 370 "src/parser.y"
       { yyerrok; }
-#line 2245 "src/parser.tab.c"
+#line 2254 "src/parser.tab.c"
     break;
 
   case 70: /* member_declarator: declarator  */
-#line 370 "src/parser.y"
+#line 379 "src/parser.y"
                                   { push_id((yyvsp[0].str)); }
-#line 2251 "src/parser.tab.c"
+#line 2260 "src/parser.tab.c"
     break;
 
   case 71: /* $@7: %empty  */
-#line 374 "src/parser.y"
+#line 383 "src/parser.y"
                                                 {
           curr_func_spec = (yyvsp[-1].str);
           curr_decl_lineno = last_ident_lineno;
           insert_symbol_table((yyvsp[0].str), curr_func_spec ? curr_func_spec : "", "FUNCTION");
         }
-#line 2261 "src/parser.tab.c"
+#line 2270 "src/parser.tab.c"
     break;
 
   case 72: /* function_definition: declaration_specifiers function_declarator $@7 compound_statement  */
-#line 379 "src/parser.y"
+#line 388 "src/parser.y"
                           {
           curr_func_spec = NULL;
         }
-#line 2269 "src/parser.tab.c"
+#line 2278 "src/parser.tab.c"
     break;
 
   case 73: /* $@8: %empty  */
-#line 382 "src/parser.y"
+#line 391 "src/parser.y"
                          {
           curr_decl_lineno = last_ident_lineno;
         }
-#line 2277 "src/parser.tab.c"
+#line 2286 "src/parser.tab.c"
     break;
 
   case 74: /* function_definition: function_declarator $@8 compound_statement  */
-#line 386 "src/parser.y"
+#line 395 "src/parser.y"
         { insert_symbol_table((yyvsp[-2].str), "INT", "FUNCTION"); }
-#line 2283 "src/parser.tab.c"
+#line 2292 "src/parser.tab.c"
     break;
 
   case 75: /* function_definition: error RCURLY  */
-#line 388 "src/parser.y"
+#line 397 "src/parser.y"
       { yyerrok; }
-#line 2289 "src/parser.tab.c"
+#line 2298 "src/parser.tab.c"
     break;
 
   case 76: /* function_declarator: direct_function_declarator  */
-#line 393 "src/parser.y"
+#line 402 "src/parser.y"
                                                        { (yyval.str) = (yyvsp[0].str); }
-#line 2295 "src/parser.tab.c"
+#line 2304 "src/parser.tab.c"
     break;
 
   case 77: /* function_declarator: pointer function_declarator  */
-#line 394 "src/parser.y"
+#line 403 "src/parser.y"
                                                        { (yyval.str) = (yyvsp[0].str); }
-#line 2301 "src/parser.tab.c"
+#line 2310 "src/parser.tab.c"
     break;
 
   case 78: /* direct_function_declarator: IDENTIFIER LROUND parameter_type_list RROUND  */
-#line 398 "src/parser.y"
+#line 407 "src/parser.y"
                                                        { curr_decl_lineno = last_ident_lineno; (yyval.str) = (yyvsp[-3].str); }
-#line 2307 "src/parser.tab.c"
+#line 2316 "src/parser.tab.c"
     break;
 
   case 79: /* direct_function_declarator: IDENTIFIER LROUND RROUND  */
-#line 399 "src/parser.y"
+#line 408 "src/parser.y"
                                                        { curr_decl_lineno = last_ident_lineno; (yyval.str) = (yyvsp[-2].str); }
-#line 2313 "src/parser.tab.c"
+#line 2322 "src/parser.tab.c"
     break;
 
   case 80: /* direct_function_declarator: LROUND function_declarator RROUND  */
-#line 400 "src/parser.y"
+#line 409 "src/parser.y"
                                                        { (yyval.str) = (yyvsp[-1].str); }
-#line 2319 "src/parser.tab.c"
+#line 2328 "src/parser.tab.c"
     break;
 
   case 81: /* direct_function_declarator: direct_function_declarator LSQUARE constant_expression_opt RSQUARE  */
-#line 401 "src/parser.y"
+#line 410 "src/parser.y"
                                                                          { (yyval.str) = (yyvsp[-3].str); }
-#line 2325 "src/parser.tab.c"
+#line 2334 "src/parser.tab.c"
     break;
 
   case 89: /* statement: error SEMICOLON  */
-#line 414 "src/parser.y"
+#line 422 "src/parser.y"
       { yyerrok; }
-#line 2331 "src/parser.tab.c"
+#line 2340 "src/parser.tab.c"
     break;
 
   case 94: /* block_item_list: error SEMICOLON  */
-#line 426 "src/parser.y"
+#line 434 "src/parser.y"
       { yyerrok; }
-#line 2337 "src/parser.tab.c"
+#line 2346 "src/parser.tab.c"
     break;
 
   case 111: /* $@9: %empty  */
-#line 469 "src/parser.y"
+#line 475 "src/parser.y"
                              { curr_decl_spec = (yyvsp[0].str); pending_role = "IDENTIFIER"; pending_ids.clear(); }
-#line 2343 "src/parser.tab.c"
+#line 2352 "src/parser.tab.c"
     break;
 
   case 112: /* for_declaration: declaration_specifiers $@9 init_declarator_list_no_func  */
-#line 471 "src/parser.y"
+#line 477 "src/parser.y"
       { flush_pending(curr_decl_spec, pending_role); }
-#line 2349 "src/parser.tab.c"
+#line 2358 "src/parser.tab.c"
     break;
 
   case 113: /* for_declaration: declaration_specifiers  */
-#line 472 "src/parser.y"
+#line 478 "src/parser.y"
                              {
         flush_pending(curr_decl_spec, pending_role);
       }
-#line 2357 "src/parser.tab.c"
+#line 2366 "src/parser.tab.c"
     break;
 
   case 116: /* label: IDENTIFIER COLON  */
-#line 484 "src/parser.y"
+#line 489 "src/parser.y"
                        { insert_symbol_table((yyvsp[-1].str), sdup("LABEL"), "IDENTIFIER");   }
-#line 2363 "src/parser.tab.c"
+#line 2372 "src/parser.tab.c"
     break;
 
   case 124: /* expression: error SEMICOLON  */
-#line 499 "src/parser.y"
+#line 503 "src/parser.y"
                       { yyerrok; }
-#line 2369 "src/parser.tab.c"
+#line 2378 "src/parser.tab.c"
     break;
 
   case 127: /* assignment_expression: error SEMICOLON  */
-#line 505 "src/parser.y"
+#line 509 "src/parser.y"
                       { yyerrok; }
-#line 2375 "src/parser.tab.c"
+#line 2384 "src/parser.tab.c"
     break;
 
   case 194: /* primary_expression: STRING_LITERAL  */
-#line 620 "src/parser.y"
+#line 624 "src/parser.y"
                                           { insert_const_symbol_table('S',(yyvsp[0].str)); }
-#line 2381 "src/parser.tab.c"
+#line 2390 "src/parser.tab.c"
     break;
 
   case 223: /* constant: DECIMAL_LITERAL  */
-#line 691 "src/parser.y"
+#line 693 "src/parser.y"
                             { insert_const_symbol_table('I',(yyvsp[0].str)); }
-#line 2387 "src/parser.tab.c"
+#line 2396 "src/parser.tab.c"
     break;
 
   case 224: /* constant: CHARACTER_LITERAL  */
-#line 692 "src/parser.y"
+#line 694 "src/parser.y"
                             { insert_const_symbol_table('C',(yyvsp[0].str)); }
-#line 2393 "src/parser.tab.c"
+#line 2402 "src/parser.tab.c"
     break;
 
   case 225: /* constant: STRING_LITERAL  */
-#line 693 "src/parser.y"
+#line 695 "src/parser.y"
                             { insert_const_symbol_table('S',(yyvsp[0].str)); }
-#line 2399 "src/parser.tab.c"
+#line 2408 "src/parser.tab.c"
     break;
 
   case 226: /* constant: EXPONENT_LITERAL  */
-#line 694 "src/parser.y"
+#line 696 "src/parser.y"
                             { insert_const_symbol_table('E',(yyvsp[0].str)); }
-#line 2405 "src/parser.tab.c"
+#line 2414 "src/parser.tab.c"
     break;
 
   case 227: /* constant: DOUBLE_LITERAL  */
-#line 695 "src/parser.y"
+#line 697 "src/parser.y"
                             { insert_const_symbol_table('D',(yyvsp[0].str)); }
-#line 2411 "src/parser.tab.c"
+#line 2420 "src/parser.tab.c"
     break;
 
   case 228: /* constant: NULLPTR  */
-#line 696 "src/parser.y"
+#line 698 "src/parser.y"
                             { insert_const_symbol_table('N',(yyvsp[0].str)); }
-#line 2417 "src/parser.tab.c"
+#line 2426 "src/parser.tab.c"
     break;
 
   case 229: /* constant: TRUE  */
-#line 697 "src/parser.y"
+#line 699 "src/parser.y"
                             { insert_const_symbol_table('B',(yyvsp[0].str)); }
-#line 2423 "src/parser.tab.c"
+#line 2432 "src/parser.tab.c"
     break;
 
   case 230: /* constant: FALSE  */
-#line 698 "src/parser.y"
+#line 700 "src/parser.y"
                             { insert_const_symbol_table('B',(yyvsp[0].str)); }
-#line 2429 "src/parser.tab.c"
+#line 2438 "src/parser.tab.c"
     break;
 
 
-#line 2433 "src/parser.tab.c"
+#line 2442 "src/parser.tab.c"
 
       default: break;
     }
@@ -2622,7 +2631,7 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 701 "src/parser.y"
+#line 703 "src/parser.y"
 
 
 int main() {
