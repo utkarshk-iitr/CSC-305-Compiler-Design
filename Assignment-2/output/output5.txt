@@ -18,6 +18,7 @@ x                   CONST CONST INT     IDENTIFIER          34
 Rani                Employee pointer    IDENTIFIER          38        
 i                   INT                 IDENTIFIER          42        
 j                   INT                 IDENTIFIER          42        
+(                   BOOL                IDENTIFIER          50        
 ---------------------------------------------------------------
 
 CONSTANT TABLE
@@ -48,7 +49,7 @@ false                    BOOL_LITERAL        18
 "\n"                     STRING_LITERAL      46        
 "No Match Found"         STRING_LITERAL      48        
 "\n"                     STRING_LITERAL      48        
-0                        DECIMAL_LITERAL     50        
+0                        DECIMAL_LITERAL     52        
 ---------------------------------------------------------------
 
 ERRORS

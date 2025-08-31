@@ -94,40 +94,31 @@
     static vector<string> pending_ids;
     static const char* pending_role = "IDENTIFIER"; 
 
-   static char* sdup(const char* s) {
+    static char* sdup(const char* s) {
         return s ? strdup(s) : strdup("");
     }
-
     static char* cat2(const char* a, const char* b) {
-        size_t la = a ? strlen(a) : 0;
-        size_t lb = b ? strlen(b) : 0;
+        size_t la = a ? strlen(a) : 0, lb = b ? strlen(b) : 0;
         char* r = (char*)malloc(la + lb + 2);
         r[0] = 0;
-        if (la) {
-            memcpy(r, a, la);
-            r[la] = 0;
-        }
+        if (la) { memcpy(r, a, la); r[la] = 0; }
         if (la && lb) strcat(r, " ");
         if (lb) strcat(r, b);
         return r;
     }
-
     static void push_id(char* s) {
         pending_ids.emplace_back(s ? s : "");
     }
 
-    void insert_symbol_table(char* yytext, const char* data_type, const char* type) {
-        symbol_table[count_symbol].id_name = yytext;
+    void insert_symbol_table (char* yytext, const char* data_type, const char* type) {
+        symbol_table[count_symbol].id_name   = yytext;
         if (last_declarator_pointer && last_declarator_pointer[0]) {
-            symbol_table[count_symbol].data_type = 
-                (data_type && data_type[0]) 
-                ? cat2(data_type, last_declarator_pointer) 
-                : sdup(last_declarator_pointer);
+            symbol_table[count_symbol].data_type = data_type && data_type[0] ? cat2(data_type, last_declarator_pointer) : sdup(last_declarator_pointer);
         } else {
             symbol_table[count_symbol].data_type = data_type ? data_type : "";
         }
-        symbol_table[count_symbol].type = type;
-        symbol_table[count_symbol].line_no = curr_decl_lineno ? curr_decl_lineno : yylineno;
+        symbol_table[count_symbol].type      = type;
+        symbol_table[count_symbol].line_no   = curr_decl_lineno ? curr_decl_lineno : yylineno;
         curr_decl_lineno = 0;
         last_declarator_pointer = NULL;
         count_symbol++;
@@ -296,11 +287,10 @@ declarator_no_func
     | direct_declarator_no_func            { last_declarator_pointer = NULL; curr_decl_lineno = last_ident_lineno; $$ = $1; }
     ;
 
-
 direct_declarator_no_func
     : IDENTIFIER
     | LROUND declarator_no_func RROUND
-    | LROUND declarator_no_func RROUND LROUND parameter_type_list RROUND
+    | LROUND declarator_no_func RROUND LROUND parameter_type_list RROUND   /* e.g., (*fp)(int) */
     | direct_declarator_no_func LSQUARE constant_expression_opt RSQUARE
     ;
     
@@ -631,11 +621,11 @@ primary_expression
     ;
 
 lambda_expression
-    : lambda_introducer lambda_declarator compound_statement
-    | lambda_introducer compound_statement
-    | lambda_introducer lambda_declarator LROUND RROUND compound_statement
+    : lambda_introducer lambda_specifier lambda_declarator lambda_body
+    | lambda_introducer lambda_specifier lambda_body
     ;
 
+/* captures: [] or [ capture, capture, ... ] */
 lambda_introducer
     : LSQUARE RSQUARE
     | LSQUARE lambda_capture_list RSQUARE
@@ -647,15 +637,29 @@ lambda_capture_list
     ;
 
 lambda_capture
-    : IDENTIFIER
-    | BITWISE_AND IDENTIFIER   
-    | BITWISE_AND              
+    : IDENTIFIER              /* capture x */
+    | BITWISE_AND IDENTIFIER  /* capture &x */
+    | BITWISE_AND             /* capture all by reference (&) - permissive */
     ;
 
+/* optional 'mutable' and/or other simple specifiers (keep simple) */
+lambda_specifier
+    : /* empty */
+    | TILDE /* use TILDE as placeholder if you want to attach something */
+    | /* you may add MUTABLE token here if lexer supports it */
+    ;
+
+/* optional parameter list and optional trailing return */
 lambda_declarator
     : LROUND parameter_type_list RROUND
     | LROUND RROUND
     | LROUND parameter_type_list RROUND ARROW type_specifier
+    | LROUND RROUND ARROW type_specifier
+    ;
+
+/* body: a compound_statement (common lambda body) */
+lambda_body
+    : compound_statement
     ;
 
 argument_expression_list_opt
