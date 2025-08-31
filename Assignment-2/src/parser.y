@@ -236,6 +236,8 @@ external_declaration
     | class_specifier
     | INCLUDE
     | FUNCTION                       /* harmless if your lexer emits it */
+    | error SEMICOLON           /* Error recovery at top level */
+      { yyerrok; }
     ;
 
 /* ---------- Declarations ---------- */
@@ -245,6 +247,8 @@ declaration
     | declaration_specifiers { curr_decl_spec = $1; pending_role = "IDENTIFIER"; pending_ids.clear(); }
       init_declarator_list_no_func SEMICOLON
       { flush_pending(curr_decl_spec, pending_role); }
+    | error SEMICOLON           /* Error recovery at top level */
+      { yyerrok; }
     ;
 
 /* Build a spec string like "CONST INT", "STATIC LONG", etc. */
@@ -359,6 +363,8 @@ member_declaration
       member_declarator_list SEMICOLON
       { flush_pending(curr_decl_spec, pending_role); }
     | declaration_specifiers SEMICOLON
+    | error SEMICOLON           /* Error recovery at top level */
+      { yyerrok; }
     ;
 
 member_declarator_list
@@ -387,7 +393,9 @@ function_definition
         }
         compound_statement
         { insert_symbol_table($1, "INT", "FUNCTION"); } /* default if no specifiers */
-    ;
+    | error RCURLY           /* Error recovery at top level */
+      { yyerrok; }
+      ;
 
 
 function_declarator
@@ -411,6 +419,8 @@ statement
     | label
     | expression SEMICOLON
     | SEMICOLON
+    | error SEMICOLON           /* Error recovery at top level */
+      { yyerrok; }
     ;
 
 compound_statement
@@ -421,6 +431,8 @@ compound_statement
 block_item_list
     : block_item
     | block_item_list block_item
+    | error SEMICOLON           /* Error recovery at top level */
+      { yyerrok; }
     ;
 
 block_item
@@ -479,11 +491,13 @@ jump_statement
 expression
     : assignment_expression
     | expression COMMA assignment_expression
+    | error { yyerrok; }
     ;
 
 assignment_expression
     : conditional_expression
     | unary_expression assignment_operator assignment_expression
+    | error { yyerrok; }
     ;
 
 assignment_operator
