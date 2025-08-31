@@ -3,37 +3,34 @@
     #include <string.h>
     #include <iomanip>
     #include <string>
+    using namespace std;
 
 	#define MAX_ARGS 100
-    
-    void yyerror(const char *s);
-    int search_symtab(char *);
-    void assign_type(char *str);
 
     extern int yylex();
     extern int yylineno;
     extern char *yytext;  
 
     int count_symbol = 0;
-    int count_constant_symbol = 0;
+    int count_const = 0;
 
-    char data_type[64];
+    string data_type;
 
     struct symbol_table_struct {
-        char identifier_name[10]; 
-        char datatype[64];
-        char type[32];
+        string identifier_name; 
+        string datatype;
+        string type;
         int lineno;
     }; 
 
     struct const_table_struct {
-        char constant_value[64];
-        char constant_type[32];
+        string constant_value;
+        string constant_type;
         int lineno;
     };
     
 	struct argument_list {
-        char *arg[MAX_ARGS];
+        string arg[MAX_ARGS];
         int count;
     } arg_list;
 
@@ -44,7 +41,7 @@
         if(yytext == NULL) return;
 
         if(count_symbol >= 128) {
-            fprintf(stderr, "Symbol table capacity exceeded at line %d\n", yylineno);
+            cerr << "Symbol table capacity exceeded at line " << yylineno << endl;
             return;
         }
 
@@ -94,7 +91,7 @@
     void insert_const_symbol_table(char c,const char *yytext) {
         if(yytext == NULL) return;
 
-        if(count_constant_symbol >= 128) {
+        if(count_const >= 128) {
             fprintf(stderr, "Constant symbol table capacity exceeded at line %d\n", yylineno);
             return;
         }
@@ -106,11 +103,17 @@
             case 'I' : 
                 constant_table[count_const].constant_type = "INTEGER_CONST";
                 break;
-            case 'F' :
-                constant_table[count_const].constant_type = "FLOAT_CONST";
+            case 'D' :
+                constant_table[count_const].constant_type = "DOUBLE_CONST";
+                break;
+            case 'B' :
+                constant_table[count_const].constant_type = "BOOLEAN_CONST";
                 break;
             case 'E' :
                 constant_table[count_const].constant_type = "EXPONENTIAL_CONST";
+                break;
+            case 'N' :
+                constant_table[count_const].constant_type = "NULLPTR_CONST";
                 break;
             case 'S' :
                 constant_table[count_const].constant_type = "STRING_CONST";
@@ -119,7 +122,7 @@
                 constant_table[count_const].constant_type = "CHARACTER_CONST";
         }
 
-        count_constant_symbol++;
+        count_const++;
     }
 
     void str_type(char *return_type, char *given_type) {
@@ -158,6 +161,23 @@
         }
     }
 
+    void yyerror(const char *s) {
+        cerr<<"Error at line "<<yylineno<<": "<<s<<endl;
+    }
+
+    int search_symtab(char *id_name) {
+        for(int i=count_symbol-1; i>=0; i--) {
+            if(strcmp(symbol_table[i].identifier_name, id_name)==0) {
+                return 1;
+                break;
+            }
+        }
+        return 0;
+    }
+
+    void assign_type(char *str) {
+        strcpy(data_type, str);
+    }
 
     void print_symbol_table() {
         cout << "\nSYMBOL TABLE\n";
@@ -235,7 +255,7 @@
 %type<str> argument_expression_list_opt argument_expression_list constant_expression_opt
 %type<str> constant_expression type_name abstract_declarator_opt abstract_declarator
 %type<str> direct_abstract_declarator new_expression new_initializer_opt delete_expression
-%type<str> lambda_expression initializer initializer_list
+%type<str> lambda_expression initializer initializer_list constant
 
 %start translation_unit
 %%  
@@ -281,6 +301,7 @@ type_specifier:
     | CLASS IDENTIFIER
     | STRUCT IDENTIFIER
     | IDENTIFIER
+    | FUNCTION
     ;
 
 type_qualifier:
@@ -583,6 +604,8 @@ unary_expression:
     | unary_operator cast_expression
     | SIZEOF unary_expression
     | SIZEOF LEFT_ROUND type_name RIGHT_ROUND
+    | new_expression
+    | delete_expression
     ;
 
 unary_operator:
@@ -598,6 +621,9 @@ postfix_expression:
       primary_expression
     | postfix_expression LEFT_SQUARE expression RIGHT_SQUARE
     | postfix_expression LEFT_ROUND argument_expression_list_opt RIGHT_ROUND
+    {
+        str_type(data_type,"unknown");
+    }
     | postfix_expression DOT IDENTIFIER
     | postfix_expression ARROW IDENTIFIER
     | postfix_expression INCREMENT
@@ -606,15 +632,20 @@ postfix_expression:
 
 primary_expression:
       IDENTIFIER
-    | DECIMAL_LITERAL
-    | CHARACTER_LITERAL
-    | STRING_LITERAL
-    | EXPONENT_LITERAL
-    | DOUBLE_LITERAL
-    | NULLPTR
-    | TRUE
-    | FALSE
+    | constant
     | LEFT_ROUND expression RIGHT_ROUND
+    | lambda_expression
+    ;
+
+constant:
+      DECIMAL_LITERAL       {insert_constant_symbol_table('I',$1)}
+    | CHARACTER_LITERAL     {insert_constant_symbol_table('C',$1)}
+    | STRING_LITERAL        {insert_constant_symbol_table('S',$1)}
+    | EXPONENT_LITERAL      {insert_constant_symbol_table('E',$1)}
+    | DOUBLE_LITERAL        {insert_constant_symbol_table('D',$1)}
+    | NULLPTR               {insert_constant_symbol_table('N',$1)}
+    | TRUE                  {insert_constant_symbol_table('B',$1)}
+    | FALSE                 {insert_constant_symbol_table('B',$1)}
     ;
 
 /* Arguments */
@@ -678,10 +709,10 @@ delete_expression:
       DELETE cast_expression
     ;
 
-/* Lambda using FUNCTION token */
+
 lambda_expression:
-      FUNCTION LEFT_ROUND parameter_type_list_opt RIGHT_ROUND compound_statement
-    | FUNCTION LEFT_ROUND parameter_type_list_opt RIGHT_ROUND ARROW type_name compound_statement
+      FUNCTION IDENTIFIER ASSIGN LEFT_ROUND parameter_type_list_opt RIGHT_ROUND compound_statement
+    | FUNCTION IDENTIFIER ASSIGN LEFT_ROUND parameter_type_list_opt RIGHT_ROUND ARROW type_name compound_statement
     ;
 
 /* Misc */
@@ -696,24 +727,6 @@ initializer_list:
     ;
 
 %%
-
-void yyerror(const char *s) {
-    cerr<<"Error at line "<<yylineno<<": "<<s<<endl;
-}
-
-int search_symtab(char *id_name) {
-	for(int i=count_sym-1; i>=0; i--) {
-		if(strcmp(symbol_table[i].identifier_name, id_name)==0) {
-			return 1;
-			break;
-		}
-	}
-	return 0;
-}
-
-void assign_type(char *str) {
-	strcpy(d_type, str);
-}
 
 int main() {
     yyparse();
