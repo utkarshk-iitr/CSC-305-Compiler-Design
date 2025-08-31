@@ -18,7 +18,7 @@ sudo apt install build-essential flex bison libfl-dev make
 ---
 
 ## Repo layout
-
+```
 .
 ├── makefile        # build rules
 ├── README.md
@@ -38,7 +38,7 @@ sudo apt install build-essential flex bison libfl-dev make
 └── output/
     ├── output1.txt 
     └── ...             # generated output (symbol & constant tables)
-
+```
 ---
 
 ## Features
@@ -119,21 +119,23 @@ The parser generates two formatted ASCII tables to stdout:
 
 #### 1. Symbol Table
 SYMBOL TABLE
+```
 ---------------------------------------------------------------
 NAME                DATATYPE            TYPE                LINE      
 ---------------------------------------------------------------
 a                   INT                 IDENTIFIER          4         
 b                   INT                 IDENTIFIER          4   
-
+```
 #### 2. Constant Table
 CONSTANT TABLE
+```
 ---------------------------------------------------------------
 VALUE                    TYPE                LINE      
 ---------------------------------------------------------------
 5                        DECIMAL_LITERAL     4         
 7                        DECIMAL_LITERAL     4         
 "Greater than"               STRING_LITERAL      7
-
+```
 
 ### Return codes
 
