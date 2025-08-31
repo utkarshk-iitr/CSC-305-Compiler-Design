@@ -634,7 +634,6 @@ lambda_expression
     | lambda_introducer lambda_specifier lambda_body
     ;
 
-/* captures: [] or [ capture, capture, ... ] */
 lambda_introducer
     : LSQUARE RSQUARE
     | LSQUARE lambda_capture_list RSQUARE
@@ -646,19 +645,16 @@ lambda_capture_list
     ;
 
 lambda_capture
-    : IDENTIFIER              /* capture x */
-    | BITWISE_AND IDENTIFIER  /* capture &x */
-    | BITWISE_AND             /* capture all by reference (&) - permissive */
+    : IDENTIFIER              
+    | BITWISE_AND IDENTIFIER  
+    | BITWISE_AND             
     ;
 
-/* optional 'mutable' and/or other simple specifiers (keep simple) */
 lambda_specifier
     : /* empty */
-    | TILDE /* use TILDE as placeholder if you want to attach something */
-    | /* you may add MUTABLE token here if lexer supports it */
+    | TILDE 
     ;
 
-/* optional parameter list and optional trailing return */
 lambda_declarator
     : LROUND parameter_type_list RROUND
     | LROUND RROUND
@@ -666,7 +662,6 @@ lambda_declarator
     | LROUND RROUND ARROW type_specifier
     ;
 
-/* body: a compound_statement (common lambda body) */
 lambda_body
     : compound_statement
     ;
