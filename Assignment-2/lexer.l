@@ -1,7 +1,7 @@
 %option noyywrap yylineno
 %{
     #include <iostream>
-    #include "parser1_fixed.tab.h"
+    #include "parser.tab.h"
 
     extern int yylineno;
     int last_ident_lineno = 0;       
