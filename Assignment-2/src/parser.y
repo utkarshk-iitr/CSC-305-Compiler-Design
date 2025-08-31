@@ -236,7 +236,7 @@ external_declaration
     | class_specifier
     | INCLUDE
     | FUNCTION                       /* harmless if your lexer emits it */
-    | error SEMICOLON           /* Error recovery at top level */
+    | error SEMICOLON
       { yyerrok; }
     ;
 
@@ -247,7 +247,7 @@ declaration
     | declaration_specifiers { curr_decl_spec = $1; pending_role = "IDENTIFIER"; pending_ids.clear(); }
       init_declarator_list_no_func SEMICOLON
       { flush_pending(curr_decl_spec, pending_role); }
-    | error SEMICOLON           /* Error recovery at top level */
+    | error SEMICOLON 
       { yyerrok; }
     ;
 
@@ -363,7 +363,7 @@ member_declaration
       member_declarator_list SEMICOLON
       { flush_pending(curr_decl_spec, pending_role); }
     | declaration_specifiers SEMICOLON
-    | error SEMICOLON           /* Error recovery at top level */
+    | error SEMICOLON
       { yyerrok; }
     ;
 
@@ -393,7 +393,7 @@ function_definition
         }
         compound_statement
         { insert_symbol_table($1, "INT", "FUNCTION"); } /* default if no specifiers */
-    | error RCURLY           /* Error recovery at top level */
+    | error RCURLY
       { yyerrok; }
       ;
 
@@ -419,7 +419,7 @@ statement
     | label
     | expression SEMICOLON
     | SEMICOLON
-    | error SEMICOLON           /* Error recovery at top level */
+    | error SEMICOLON
       { yyerrok; }
     ;
 
@@ -431,7 +431,7 @@ compound_statement
 block_item_list
     : block_item
     | block_item_list block_item
-    | error SEMICOLON           /* Error recovery at top level */
+    | error SEMICOLON 
       { yyerrok; }
     ;
 
@@ -491,13 +491,13 @@ jump_statement
 expression
     : assignment_expression
     | expression COMMA assignment_expression
-    | error { yyerrok; }
+    | error SEMICOLON { yyerrok; }
     ;
 
 assignment_expression
     : conditional_expression
     | unary_expression assignment_operator assignment_expression
-    | error { yyerrok; }
+    | error SEMICOLON { yyerrok; }
     ;
 
 assignment_operator

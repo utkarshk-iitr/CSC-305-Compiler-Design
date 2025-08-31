@@ -6,6 +6,9 @@ functionExample     VOID                FUNCTION            3
 a                   INT                 IDENTIFIER          8         
 b                   INT                 IDENTIFIER          8         
 x                   STRING              IDENTIFIER          39        
+msg                 STRING              IDENTIFIER          42        
+ch                  CHAR                IDENTIFIER          43        
+main                INT                 FUNCTION            46        
 ---------------------------------------------------------------
 
 CONSTANT TABLE
@@ -37,8 +40,15 @@ VALUE                    TYPE                LINE
 "Default case"           STRING_LITERAL      35        
 "\n"                     STRING_LITERAL      35        
 null                     NULLPTR             39        
+"endl"                   STRING_LITERAL      41        
+"Hello, world!"          STRING_LITERAL      42        
+'X'                      CHAR_LITERAL        43        
+0                        DECIMAL_LITERAL     47        
 ---------------------------------------------------------------
 
 ERRORS
 Error: syntax error at line 40 near 'function'
+Error: syntax error at line 44 near '123abc'
+Error: syntax error at line 45 near '1foo'
+Error: syntax error at line 46 near '$'
 ---------------------------------------------------------------

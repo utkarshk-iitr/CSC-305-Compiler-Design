@@ -3,14 +3,45 @@ SYMBOL TABLE
 NAME                DATATYPE            TYPE                LINE      
 ---------------------------------------------------------------
 salary              INT                 MEMBER              5         
+name                STRING              MEMBER              11        
+Employee            CLASS               TYPE                12        
+x                   INT                 PARAM               14        
+y                   INT                 PARAM               14        
+IsValid             BOOL                FUNCTION            14        
+Raja                Employee            IDENTIFIER          27        
+Rani                Employee pointer    IDENTIFIER          32        
 ---------------------------------------------------------------
 
 CONSTANT TABLE
 ---------------------------------------------------------------
 VALUE                    TYPE                LINE      
 ---------------------------------------------------------------
+"Origin"                 STRING_LITERAL      15        
+"\n"                     STRING_LITERAL      15        
+0                        DECIMAL_LITERAL     16        
+0                        DECIMAL_LITERAL     16        
+10                       DECIMAL_LITERAL     16        
+10                       DECIMAL_LITERAL     16        
+true                     BOOL_LITERAL        16        
+false                    BOOL_LITERAL        18        
+5                        DECIMAL_LITERAL     26        
+7                        DECIMAL_LITERAL     26        
+"Ha Valid Hai"           STRING_LITERAL      26        
+"\t"                     STRING_LITERAL      26        
+"\n"                     STRING_LITERAL      26        
 ---------------------------------------------------------------
 
 ERRORS
 Error: syntax error at line 8 near '{'
+Error: syntax error at line 12 near ';'
+Error: syntax error at line 21 near '&'
+Error: syntax error at line 23 near '}'
+Error: syntax error at line 36 near 'int'
+Error: syntax error at line 36 near 'i'
+Error: syntax error at line 36 near 'i'
+Error: syntax error at line 38 near 'cout'
+Error: syntax error at line 39 near '}'
+Error: syntax error at line 42 near 'if'
+Error: syntax error at line 44 near 'return'
+Error: syntax error at line 45 near '}'
 ---------------------------------------------------------------

@@ -2,14 +2,41 @@ SYMBOL TABLE
 ---------------------------------------------------------------
 NAME                DATATYPE            TYPE                LINE      
 ---------------------------------------------------------------
+flag                BOOL                MEMBER              5         
+Node                STRUCT              TYPE                11        
+root                Node pointer        MEMBER              16        
+Trie                CLASS               TYPE                21        
+PrefixString        Trie                IDENTIFIER          38        
+lol                 STRING              IDENTIFIER          39        
+main                INT                 FUNCTION            45        
 ---------------------------------------------------------------
 
 CONSTANT TABLE
 ---------------------------------------------------------------
 VALUE                    TYPE                LINE      
 ---------------------------------------------------------------
+"HelloWorld"             STRING_LITERAL      39        
+"Adesh$$$"               STRING_LITERAL      42        
+0                        DECIMAL_LITERAL     44        
 ---------------------------------------------------------------
 
 ERRORS
 Error: syntax error at line 4 near 'Node'
+Error: syntax error at line 7 near 'Node'
+Error: syntax error at line 10 near 'for'
+Error: syntax error at line 10 near 'i'
+Error: syntax error at line 10 near 'i'
+Error: syntax error at line 12 near '}'
+Error: syntax error at line 12 near ';'
+Error: syntax error at line 19 near 'Trie'
+Error: syntax error at line 24 near '&'
+Error: syntax error at line 26 near 'for'
+Error: syntax error at line 28 near 'if'
+Error: syntax error at line 30 near '}'
+Error: syntax error at line 32 near '='
+Error: syntax error at line 33 near '}'
+Error: syntax error at line 34 near '}'
+Error: syntax error at line 35 near '}'
+Error: syntax error at line 35 near ';'
+Error: syntax error at line 43 near '"'
 ---------------------------------------------------------------
