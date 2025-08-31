@@ -2,6 +2,7 @@ SYMBOL TABLE
 ---------------------------------------------------------------
 NAME                DATATYPE            TYPE                LINE      
 ---------------------------------------------------------------
+main                INT                 FUNCTION            3         
 a                   LONG                IDENTIFIER          4         
 b                   LONG                IDENTIFIER          4         
 aa                  LONG                IDENTIFIER          4         
@@ -17,7 +18,6 @@ f                   INT                 IDENTIFIER          9
 g                   INT                 IDENTIFIER          11        
 s                   INT                 IDENTIFIER          25        
 ee                  LONG                IDENTIFIER          35        
-main                INT                 FUNCTION            39        
 ---------------------------------------------------------------
 
 CONSTANT TABLE

@@ -2,37 +2,40 @@ SYMBOL TABLE
 ---------------------------------------------------------------
 NAME                DATATYPE            TYPE                LINE      
 ---------------------------------------------------------------
-Age                 INT                 IDENTIFIER          4         
-Flag_1              BOOL                IDENTIFIER          5         
-Flag_2              BOOL                IDENTIFIER          5         
-Name                STRING              IDENTIFIER          6         
-FirstLetter         CHAR                IDENTIFIER          7         
-Salary              DOUBLE              IDENTIFIER          8         
-BigNumbre           LONG                IDENTIFIER          9         
-MOD                 CONST INT           IDENTIFIER          10        
-WhatIsThis          AUTO                IDENTIFIER          11        
-Iptr                INT pointer         IDENTIFIER          12        
-Arr                 CHAR pointer        IDENTIFIER          13        
+abcd                CLASS               TYPE                3         
+main                INT                 FUNCTION            7         
+Age                 INT                 IDENTIFIER          8         
+Flag_1              BOOL                IDENTIFIER          9         
+Flag_2              BOOL                IDENTIFIER          9         
+Name                STRING              IDENTIFIER          10        
+FirstLetter         CHAR                IDENTIFIER          11        
+Salary              DOUBLE              IDENTIFIER          12        
+BigNumbre           LONG                IDENTIFIER          13        
+MOD                 CONST INT           IDENTIFIER          15        
+WhatIsThis          auto                IDENTIFIER          16        
+Iptr                INT pointer         IDENTIFIER          17        
+Arr                 CHAR pointer        IDENTIFIER          18        
 ---------------------------------------------------------------
 
 CONSTANT TABLE
 ---------------------------------------------------------------
 VALUE                    TYPE                LINE      
 ---------------------------------------------------------------
-1e9                      EXPONENT_LITERAL    10        
-7                        DECIMAL_LITERAL     10        
-3.14                     DOUBLE_LITERAL      11        
-nullptr                  NULLPTR             12        
-26                       DECIMAL_LITERAL     13        
-"\n"                     STRING_LITERAL      16        
-"\n"                     STRING_LITERAL      19        
-true                     BOOL_LITERAL        23        
-false                    BOOL_LITERAL        24        
+1e9                      EXPONENT_LITERAL    15        
+7                        DECIMAL_LITERAL     15        
+3.14                     DOUBLE_LITERAL      16        
+nullptr                  NULLPTR             17        
+26                       DECIMAL_LITERAL     18        
+"\n"                     STRING_LITERAL      24        
+true                     BOOL_LITERAL        28        
+false                    BOOL_LITERAL        29        
 ---------------------------------------------------------------
 
 ERRORS
-Error: syntax error at line 25 near '122aa'
-Error: syntax error at line 27 near '<'
-Error: syntax error at line 29 near '}'
-Error: syntax error at line 31 near '}'
+Error: syntax error at line 4 near '='
+Error: syntax error at line 21 near 'cout'
+Error: syntax error at line 30 near '122aa'
+Error: syntax error at line 32 near '<'
+Error: syntax error at line 34 near '}'
+Error: syntax error at line 36 near '}'
 ---------------------------------------------------------------

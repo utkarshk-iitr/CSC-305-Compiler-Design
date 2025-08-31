@@ -1,5 +1,5 @@
 parser: src/parser.y src/lexer.l
-	bison -d -v src/parser.y -o src/parser.tab.c
+	bison -d -v -Wno-all src/parser.y -o src/parser.tab.c
 	flex -o src/lex.yy.c src/lexer.l
 	g++ -w src/parser.tab.c src/lex.yy.c -o src/parser
 	chmod +x run.sh

@@ -11,7 +11,6 @@
     using namespace std;
 %}
 
-/* ===================== Macros (Definitions Section) ===================== */
 
 /* Arithmetic */
 PLUS             "+"

@@ -1,5 +1,9 @@
 #include <stdio.h>
 
+class abcd{
+    int a;
+}
+
 int main() {
     int Age ;
     bool Flag_1 , Flag_2;
@@ -7,12 +11,13 @@ int main() {
     char FirstLetter ;
     double Salary;
     long BigNumbre;
+    ;
     const int MOD = 1e9+7;
     auto WhatIsThis = 3.14 ;
     int* Iptr = nullptr ;
     char *Arr = new int(26);
-    Iptr = &Age;
-
+    Iptr = &Age
+    
     cout<<*Iptr<<"\n";
     cin>>Name;
     cin >> Salary ;

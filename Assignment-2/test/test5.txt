@@ -5,11 +5,11 @@ class Employee{
     int salary;
 
     public :
-    double loan {0};
+    double loan ;
 
     protected :
     string name;
-};
+}
 
 bool IsValid(int x , int y) {
     if(!x && !y) cout<<"Origin"<<"\n";
@@ -18,7 +18,7 @@ bool IsValid(int x , int y) {
     return false;
 }
 
-void IncrementLoan(Employee& emp) {
+void IncrementLoan(Employee emp) {
     emp.loan += 1;
 }
 
@@ -29,11 +29,17 @@ int main() {
     IncrementLoan(Raja);
     IncrementLoan(Raja);
 
+    static int a=0;
+    int float b = 5;
+    const const int x=9;
+    const x;
+    static y;
+    int int y;
     Employee* Rani = &Raja;
     Rani->salary++;
     Rani->salary--;
 
-    for(int i=0 ;i<90 ;i++) {
+    for(int i=0,j=0 ;i<90 ;i++) {
         if(i > 40) continue;
         cout<<i<<" ";
     }

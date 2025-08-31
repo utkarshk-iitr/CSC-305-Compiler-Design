@@ -37,9 +37,10 @@ int main(){
         }
     }
     string x = null;
-    function f = functionExample;
+    void f = functionExample;
     cout << "endl" << endl;
     string msg = "Hello, world!";
+
     char ch = 'X';
     int 123abc = 5;
     int 1foo = 9.81;

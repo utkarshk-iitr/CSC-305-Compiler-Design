@@ -2,6 +2,7 @@ SYMBOL TABLE
 ---------------------------------------------------------------
 NAME                DATATYPE            TYPE                LINE      
 ---------------------------------------------------------------
+main                INT                 FUNCTION            3         
 a                   INT                 IDENTIFIER          4         
 b                   INT                 IDENTIFIER          4         
 x                   CHAR                IDENTIFIER          29        
@@ -10,7 +11,6 @@ pd                  INT                 IDENTIFIER          47
 uk                  DOUBLE              IDENTIFIER          48        
 skipItAll           LABEL               IDENTIFIER          49        
 count               INT                 IDENTIFIER          50        
-main                INT                 FUNCTION            60        
 ---------------------------------------------------------------
 
 CONSTANT TABLE

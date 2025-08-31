@@ -202,7 +202,6 @@
 %token<str> FUNCTION
 %token<str> INVALID_IDENTIFIER
 
-/* Types for nonterminals that carry strings */
 %type<str> translation_unit external_declaration declaration declaration_specifiers init_declarator_list init_declarator
 %type<str> declarator direct_declarator pointer constant initializer initializer_list assignment_operator
 %type<str> statement compound_statement block_item_list block_item expression assignment_expression
@@ -231,19 +230,17 @@ translation_unit
     ;
 
 external_declaration
-    : function_definition            /* prefer defs so '{' is accepted */
+    : function_definition
     | declaration
     | class_specifier
     | INCLUDE
-    | FUNCTION                       /* harmless if your lexer emits it */
+    | FUNCTION 
     | error SEMICOLON
       { yyerrok; }
     ;
 
-/* ---------- Declarations ---------- */
 declaration
     : declaration_specifiers { curr_decl_spec = $1; pending_role = "IDENTIFIER"; pending_ids.clear(); } SEMICOLON
-      /* no declarators */
     | declaration_specifiers { curr_decl_spec = $1; pending_role = "IDENTIFIER"; pending_ids.clear(); }
       init_declarator_list_no_func SEMICOLON
       { flush_pending(curr_decl_spec, pending_role); }
@@ -251,17 +248,14 @@ declaration
       { yyerrok; }
     ;
 
-/* Build a spec string like "CONST INT", "STATIC LONG", etc. */
 declaration_specifiers
-    : type_specifier                                { $$ = $1; }
-    | storage_class_specifier                       { $$ = $1; }
+    : type_specifier { $$ = $1; }
+    | AUTO { $$ = $1; }
     | storage_class_specifier declaration_specifiers { $$ = cat2($1, $2); }
-    | type_specifier        declaration_specifiers   { $$ = cat2($1, $2); }
     ;
 
 storage_class_specifier
-    : AUTO     { $$ = sdup("AUTO"); }
-    | STATIC   { $$ = sdup("STATIC"); }
+    : STATIC   { $$ = sdup("STATIC"); }
     | CONST    { $$ = sdup("CONST"); }
     ;
 
@@ -278,7 +272,6 @@ type_specifier
     | CLASS    { $$ = sdup("CLASS"); }
     ;
 
-/* ---------- declarators used ONLY for variable/member declarations (no functions) ---------- */
 init_declarator_list_no_func
     : init_declarator_no_func
     | init_declarator_list_no_func COMMA init_declarator_no_func
@@ -298,6 +291,7 @@ declarator_no_func
 direct_declarator_no_func
     : IDENTIFIER
     | LROUND declarator_no_func RROUND
+    | LROUND declarator_no_func RROUND LROUND parameter_type_list RROUND
     | direct_declarator_no_func LSQUARE constant_expression_opt RSQUARE
     ;
     
@@ -325,7 +319,7 @@ pointer
 direct_declarator
     : IDENTIFIER                                           { $$ = $1; }
     | LROUND declarator RROUND                             { $$ = $2; }
-    | direct_declarator LROUND parameter_type_list RROUND  { $$ = $1; }  /* keep the base name */
+    | direct_declarator LROUND parameter_type_list RROUND  { $$ = $1; }
     | direct_declarator LROUND RROUND                      { $$ = $1; }
     | direct_declarator LSQUARE constant_expression_opt RSQUARE { $$ = $1; }
     ;
@@ -342,12 +336,12 @@ parameter_list
 parameter_declaration
     : declaration_specifiers { curr_param_spec = $1; } declarator
         { insert_symbol_table($3, curr_param_spec ? curr_param_spec : "", "PARAM"); }
-    | declaration_specifiers /* e.g., void */
+    | declaration_specifiers 
     ;
 
 class_specifier
-    : CLASS  IDENTIFIER LCURLY member_specification RCURLY { insert_symbol_table($2, sdup("CLASS"), "TYPE"); }
-    | STRUCT IDENTIFIER LCURLY member_specification RCURLY { insert_symbol_table($2, sdup("STRUCT"), "TYPE"); }
+    : CLASS  IDENTIFIER LCURLY { insert_symbol_table($2, sdup("CLASS"), "TYPE"); } member_specification RCURLY 
+    | STRUCT IDENTIFIER LCURLY { insert_symbol_table($2, sdup("STRUCT"), "TYPE"); } member_specification RCURLY 
     ;
 
 member_specification
@@ -373,26 +367,23 @@ member_declarator_list
     ;
 
 member_declarator
-    : declarator_no_func                    { push_id($1); }
+    : declarator                  { push_id($1); }
     ;
 
-/* ---------- Function definitions ---------- */
 function_definition
-    : declaration_specifiers function_declarator
-        { /* remember return-spec and record function-name lineno here */
+    : declaration_specifiers function_declarator{
           curr_func_spec = $1;
           curr_decl_lineno = last_ident_lineno;
+          insert_symbol_table($2, curr_func_spec ? curr_func_spec : "", "FUNCTION");
         }
-        compound_statement
-        { insert_symbol_table($2, curr_func_spec ? curr_func_spec : "", "FUNCTION");
+        compound_statement{
           curr_func_spec = NULL;
         }
-    | function_declarator
-        { /* no explicit return-specifiers; record function-name lineno */
+    | function_declarator{
           curr_decl_lineno = last_ident_lineno;
         }
         compound_statement
-        { insert_symbol_table($1, "INT", "FUNCTION"); } /* default if no specifiers */
+        { insert_symbol_table($1, "INT", "FUNCTION"); }
     | error RCURLY
       { yyerrok; }
       ;
@@ -400,7 +391,7 @@ function_definition
 
 function_declarator
     : direct_function_declarator                       { $$ = $1; }
-    | pointer function_declarator                      { $$ = $2; }  /* e.g., int *f(int) */
+    | pointer function_declarator                      { $$ = $2; }
     ;
 
 direct_function_declarator
@@ -410,7 +401,6 @@ direct_function_declarator
     | direct_function_declarator LSQUARE constant_expression_opt RSQUARE { $$ = $1; }
     ;
     
-/* ---------- Statements ---------- */
 statement
     : compound_statement
     | selection_statement
@@ -440,7 +430,6 @@ block_item
     | statement
     ;
 
-/* Selection */
 selection_statement
     : IF LROUND expression RROUND statement
     | IF LROUND expression RROUND statement ELSE statement
@@ -461,12 +450,25 @@ case_label
     | DEFAULT statement
     ;
 
-/* Iteration */
 iteration_statement
     : WHILE LROUND expression RROUND statement
     | UNTIL LROUND expression RROUND statement
     | DO statement WHILE LROUND expression RROUND SEMICOLON
-    | FOR LROUND expression_opt SEMICOLON expression_opt SEMICOLON expression_opt RROUND statement
+    | FOR LROUND for_init SEMICOLON expression_opt SEMICOLON expression_opt RROUND statement
+    ;
+
+for_init
+    : expression_opt
+    | for_declaration
+    ;
+
+for_declaration
+    : declaration_specifiers { curr_decl_spec = $1; pending_role = "IDENTIFIER"; pending_ids.clear(); }
+      init_declarator_list_no_func
+      { flush_pending(curr_decl_spec, pending_role); }
+    | declaration_specifiers {
+        flush_pending(curr_decl_spec, pending_role);
+      }
     ;
 
 expression_opt
@@ -474,7 +476,6 @@ expression_opt
     | expression
     ;
 
-/* Jump */
 label
     : IDENTIFIER COLON { insert_symbol_table($1, sdup("LABEL"), "IDENTIFIER");   }
     ;
@@ -487,7 +488,6 @@ jump_statement
     | RETURN expression SEMICOLON
     ;
 
-/* ---------- Expressions ---------- */
 expression
     : assignment_expression
     | expression COMMA assignment_expression
@@ -617,7 +617,36 @@ primary_expression
     | COUT LEFT_SHIFT argument_expression_list
     | CIN  RIGHT_SHIFT IDENTIFIER 
     | ENDL
-    | INVALID_IDENTIFIER                  /* token exists; ignore semantically */
+    | lambda_expression
+    | INVALID_IDENTIFIER            
+    ;
+
+lambda_expression
+    : lambda_introducer lambda_declarator compound_statement
+    | lambda_introducer compound_statement
+    | lambda_introducer lambda_declarator LROUND RROUND compound_statement
+    ;
+
+lambda_introducer
+    : LSQUARE RSQUARE
+    | LSQUARE lambda_capture_list RSQUARE
+    ;
+
+lambda_capture_list
+    : lambda_capture
+    | lambda_capture_list COMMA lambda_capture
+    ;
+
+lambda_capture
+    : IDENTIFIER
+    | BITWISE_AND IDENTIFIER   
+    | BITWISE_AND              
+    ;
+
+lambda_declarator
+    : LROUND parameter_type_list RROUND
+    | LROUND RROUND
+    | LROUND parameter_type_list RROUND ARROW type_specifier
     ;
 
 argument_expression_list_opt
@@ -651,7 +680,6 @@ initializer_list
     | initializer_list COMMA initializer
     ;
 
-/* ---------- Constants (as produced by your lexer) ---------- */
 constant
     : DECIMAL_LITERAL       { insert_const_symbol_table('I',$1); }
     | CHARACTER_LITERAL     { insert_const_symbol_table('C',$1); }

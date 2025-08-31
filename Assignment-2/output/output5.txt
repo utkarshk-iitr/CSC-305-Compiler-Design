@@ -2,14 +2,22 @@ SYMBOL TABLE
 ---------------------------------------------------------------
 NAME                DATATYPE            TYPE                LINE      
 ---------------------------------------------------------------
+Employee            CLASS               TYPE                3         
 salary              INT                 MEMBER              5         
+loan                DOUBLE              MEMBER              8         
 name                STRING              MEMBER              11        
-Employee            CLASS               TYPE                12        
 x                   INT                 PARAM               14        
 y                   INT                 PARAM               14        
 IsValid             BOOL                FUNCTION            14        
+emp                 Employee            PARAM               21        
+IncrementLoan       VOID                FUNCTION            21        
+main                INT                 FUNCTION            25        
 Raja                Employee            IDENTIFIER          27        
-Rani                Employee pointer    IDENTIFIER          32        
+a                   STATIC INT          IDENTIFIER          32        
+x                   CONST CONST INT     IDENTIFIER          34        
+Rani                Employee pointer    IDENTIFIER          38        
+i                   INT                 IDENTIFIER          42        
+j                   INT                 IDENTIFIER          42        
 ---------------------------------------------------------------
 
 CONSTANT TABLE
@@ -24,24 +32,28 @@ VALUE                    TYPE                LINE
 10                       DECIMAL_LITERAL     16        
 true                     BOOL_LITERAL        16        
 false                    BOOL_LITERAL        18        
+1                        DECIMAL_LITERAL     22        
 5                        DECIMAL_LITERAL     26        
 7                        DECIMAL_LITERAL     26        
 "Ha Valid Hai"           STRING_LITERAL      26        
 "\t"                     STRING_LITERAL      26        
 "\n"                     STRING_LITERAL      26        
+0                        DECIMAL_LITERAL     32        
+9                        DECIMAL_LITERAL     34        
+0                        DECIMAL_LITERAL     42        
+0                        DECIMAL_LITERAL     42        
+90                       DECIMAL_LITERAL     42        
+40                       DECIMAL_LITERAL     43        
+" "                      STRING_LITERAL      44        
+"\n"                     STRING_LITERAL      46        
+"No Match Found"         STRING_LITERAL      48        
+"\n"                     STRING_LITERAL      48        
+0                        DECIMAL_LITERAL     50        
 ---------------------------------------------------------------
 
 ERRORS
-Error: syntax error at line 8 near '{'
-Error: syntax error at line 12 near ';'
-Error: syntax error at line 21 near '&'
-Error: syntax error at line 23 near '}'
-Error: syntax error at line 36 near 'int'
-Error: syntax error at line 36 near 'i'
-Error: syntax error at line 36 near 'i'
-Error: syntax error at line 38 near 'cout'
-Error: syntax error at line 39 near '}'
-Error: syntax error at line 42 near 'if'
-Error: syntax error at line 44 near 'return'
-Error: syntax error at line 45 near '}'
+Error: syntax error at line 33 near 'b'
+Error: syntax error at line 35 near 'x'
+Error: syntax error at line 36 near 'y'
+Error: syntax error at line 37 near 'int'
 ---------------------------------------------------------------
