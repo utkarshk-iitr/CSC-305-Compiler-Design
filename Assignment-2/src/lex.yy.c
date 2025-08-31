@@ -1431,12 +1431,12 @@ YY_RULE_SETUP
 case 94:
 YY_RULE_SETUP
 #line 258 "src/lexer.l"
-{ cerr << "Invalid identifier: " << yytext << " at line " << yylineno << endl; return INVALID_IDENTIFIER; }
+{ return INVALID_IDENTIFIER; }
 	YY_BREAK
 case 95:
 YY_RULE_SETUP
 #line 259 "src/lexer.l"
-{ cerr << "Invalid token: " << yytext << " at line " << yylineno << endl; return yytext[0]; }
+{ return yytext[0]; }
 	YY_BREAK
 case 96:
 YY_RULE_SETUP

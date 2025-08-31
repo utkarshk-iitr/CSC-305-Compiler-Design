@@ -255,7 +255,7 @@ INVALID_IDENTIFIER ({DIGIT}+({LETTER}|_)+({DIGIT}|{LETTER}|_)*(\.{DIGIT}*)?)
 {STRING_LITERAL}       { yylval.str = strdup(yytext); return STRING_LITERAL; }
 {CHARACTER_LITERAL}    { yylval.str = strdup(yytext); return CHARACTER_LITERAL; }
 
-{INVALID_IDENTIFIER}   { cerr << "Invalid identifier: " << yytext << " at line " << yylineno << endl; return INVALID_IDENTIFIER; }
-.                      { cerr << "Invalid token: " << yytext << " at line " << yylineno << endl; return yytext[0]; }
+{INVALID_IDENTIFIER}   { return INVALID_IDENTIFIER; }
+.                      { return yytext[0]; }
 
 %%

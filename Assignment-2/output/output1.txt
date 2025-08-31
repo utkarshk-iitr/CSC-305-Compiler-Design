@@ -2,14 +2,34 @@ SYMBOL TABLE
 ---------------------------------------------------------------
 NAME                DATATYPE            TYPE                LINE      
 ---------------------------------------------------------------
+Age                 INT                 IDENTIFIER          4         
+Flag_1              BOOL                IDENTIFIER          5         
+Flag_2              BOOL                IDENTIFIER          5         
+Name                STRING              IDENTIFIER          6         
+FirstLetter         CHAR                IDENTIFIER          7         
+Salary              DOUBLE              IDENTIFIER          8         
+BigNumbre           LONG                IDENTIFIER          9         
+MOD                 CONST INT           IDENTIFIER          10        
+WhatIsThis          AUTO                IDENTIFIER          11        
+Iptr                INT pointer         IDENTIFIER          12        
+Arr                 CHAR pointer        IDENTIFIER          13        
 ---------------------------------------------------------------
 
 CONSTANT TABLE
 ---------------------------------------------------------------
 VALUE                    TYPE                LINE      
 ---------------------------------------------------------------
+1e9                      EXPONENT_LITERAL    10        
+7                        DECIMAL_LITERAL     10        
+3.14                     DOUBLE_LITERAL      11        
+nullptr                  NULLPTR             12        
+26                       DECIMAL_LITERAL     13        
+"\n"                     STRING_LITERAL      16        
+"\n"                     STRING_LITERAL      19        
+true                     BOOL_LITERAL        23        
+false                    BOOL_LITERAL        24        
 ---------------------------------------------------------------
 
 ERRORS
-Error: syntax error at line 3 near ';'
+Error: syntax error at line 25 near '122aa'
 ---------------------------------------------------------------
