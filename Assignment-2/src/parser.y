@@ -29,6 +29,8 @@
         int    line_no;
     } const_table[1000];
 
+    vector<string> err;
+
     void print_symbol_table() {
         cout << "SYMBOL TABLE\n";
         cout << "---------------------------------------------------------------\n";
@@ -70,6 +72,14 @@
                 << "\n";
         }
 
+        cout << "---------------------------------------------------------------\n";
+    }
+
+    void print_error(){
+        cout << "\nERRORS\n";
+        for(auto& x:err){
+            cout<<x<<endl;
+        }
         cout << "---------------------------------------------------------------\n";
     }
 
@@ -133,7 +143,9 @@
     }
 
     void yyerror(const char *s) {
-        cerr << "Error: " << s << " at line " << yylineno << " near '" << yytext << "'" << endl;
+        string a = "Error: ";
+        string b = s;
+        err.push_back(a+b+" at line "+to_string(yylineno)+" near '" + yytext + "'");
     }
 
 
@@ -644,5 +656,6 @@ int main() {
     print_symbol_table();
     cout << endl;
     print_constant_table();
+    print_error();
     return 0;
 }

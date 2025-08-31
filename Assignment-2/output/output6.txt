@@ -1,0 +1,44 @@
+SYMBOL TABLE
+---------------------------------------------------------------
+NAME                DATATYPE            TYPE                LINE      
+---------------------------------------------------------------
+functionExample     VOID                FUNCTION            3         
+a                   INT                 IDENTIFIER          8         
+b                   INT                 IDENTIFIER          8         
+x                   STRING              IDENTIFIER          39        
+---------------------------------------------------------------
+
+CONSTANT TABLE
+---------------------------------------------------------------
+VALUE                    TYPE                LINE      
+---------------------------------------------------------------
+"function"               STRING_LITERAL      4         
+10                       DECIMAL_LITERAL     8         
+5                        DECIMAL_LITERAL     8         
+2                        DECIMAL_LITERAL     9         
+1                        DECIMAL_LITERAL     10        
+2                        DECIMAL_LITERAL     11        
+3                        DECIMAL_LITERAL     12        
+1                        DECIMAL_LITERAL     13        
+2                        DECIMAL_LITERAL     14        
+4                        DECIMAL_LITERAL     15        
+1                        DECIMAL_LITERAL     16        
+2                        DECIMAL_LITERAL     17        
+"a bada hai"             STRING_LITERAL      19        
+"\n"                     STRING_LITERAL      19        
+"b bada hai"             STRING_LITERAL      22        
+"\n"                     STRING_LITERAL      22        
+1                        DECIMAL_LITERAL     26        
+"One"                    STRING_LITERAL      27        
+"\n"                     STRING_LITERAL      27        
+2                        DECIMAL_LITERAL     30        
+"Two"                    STRING_LITERAL      31        
+"\n"                     STRING_LITERAL      31        
+"Default case"           STRING_LITERAL      35        
+"\n"                     STRING_LITERAL      35        
+null                     NULLPTR             39        
+---------------------------------------------------------------
+
+ERRORS
+Error: syntax error at line 40 near 'function'
+---------------------------------------------------------------
