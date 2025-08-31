@@ -4,6 +4,7 @@
     #include <iomanip>
     #include <vector>
     #include <string>
+    #include <cstdlib>
     using namespace std;
 
     #define MAX_ARGS 100
@@ -55,26 +56,26 @@
 
     void insert_symbol_table (char* yytext, const char* data_type, const char* type) {
         symbol_table[count_symbol].id_name   = yytext;
-        symbol_table[count_symbol].data_type = data_type;
+        symbol_table[count_symbol].data_type = data_type ? data_type : "";
         symbol_table[count_symbol].type      = type;
         symbol_table[count_symbol].line_no   = yylineno;
         count_symbol++;
     }
 
     void insert_const_symbol_table(char ch, char* yytext) {
-        string type;
+        string t;
         switch(ch) {
-            case 'I': type = "INT";     break;
-            case 'D': type = "DOUBLE";  break;
-            case 'E': type = "EXP";     break;
-            case 'C': type = "CHAR";    break;
-            case 'S': type = "STRING";  break;
-            case 'B': type = "BOOL";    break;
-            case 'N': type = "NULLPTR"; break;
-            default:  type = "UNKNOWN"; break;
+            case 'I': t = "INT";     break;
+            case 'D': t = "DOUBLE";  break;
+            case 'E': t = "EXP";     break;
+            case 'C': t = "CHAR";    break;
+            case 'S': t = "STRING";  break;
+            case 'B': t = "BOOL";    break;
+            case 'N': t = "NULLPTR"; break;
+            default:  t = "UNKNOWN"; break;
         }
         const_table[count_const].value  = yytext;
-        const_table[count_const].type   = type;
+        const_table[count_const].type   = t;
         const_table[count_const].line_no= yylineno;
         count_const++;
     }
@@ -83,14 +84,43 @@
         cerr << "Error: " << s << " at line " << yylineno << " near '" << yytext << "'" << endl;
     }
 
-    string data_type = "";
+    /* ===================== Scoped spec strings & helpers ===================== */
+    static char* curr_decl_spec  = NULL; 
+    static char* curr_param_spec = NULL; 
+    static char* curr_func_spec  = NULL; 
+
+    
+    static vector<string> pending_ids;
+    static const char* pending_role = "IDENTIFIER"; 
+
+    static char* sdup(const char* s) {
+        return s ? strdup(s) : strdup("");
+    }
+    static char* cat2(const char* a, const char* b) {
+        size_t la = a ? strlen(a) : 0, lb = b ? strlen(b) : 0;
+        char* r = (char*)malloc(la + lb + 2);
+        r[0] = 0;
+        if (la) { memcpy(r, a, la); r[la] = 0; }
+        if (la && lb) strcat(r, " ");
+        if (lb) strcat(r, b);
+        return r;
+    }
+    static void push_id(char* s) {
+        pending_ids.emplace_back(s ? s : "");
+    }
+    static void flush_pending(const char* spec, const char* role) {
+        for (auto &id : pending_ids) {
+            insert_symbol_table((char*)id.c_str(), spec ? spec : "", role ? role : "IDENTIFIER");
+        }
+        pending_ids.clear();
+    }
 %}
 
 %union { 
     char *str; 
 }
 
-/* ===== Tokens from your lexer.l (canonical set) ===== */
+
 %token<str> INCLUDE
 %token<str> PLUS MINUS STAR DIVIDE MODULUS ASSIGN
 %token<str> INCREMENT DECREMENT
@@ -134,6 +164,10 @@
 %type<str> type_specifier storage_class_specifier
 %type<str> initializer_opt constant_expression_opt
 %type<str> expression_opt
+%type<str> init_declarator_list_no_func init_declarator_no_func
+%type<str> declarator_no_func direct_declarator_no_func
+%type<str> function_declarator direct_function_declarator
+
 
 %start translation_unit
 
@@ -145,52 +179,78 @@ translation_unit
     ;
 
 external_declaration
-    : declaration
-    | function_definition
+    : function_definition            /* prefer defs so '{' is accepted */
+    | declaration
     | class_specifier
     | INCLUDE
-    | FUNCTION                 /* harmless if your lexer emits it */
+    | FUNCTION                       /* harmless if your lexer emits it */
     ;
 
 /* ---------- Declarations ---------- */
 declaration
-    : declaration_specifiers SEMICOLON
-    | declaration_specifiers init_declarator_list SEMICOLON
+    : declaration_specifiers { curr_decl_spec = $1; pending_role = "IDENTIFIER"; pending_ids.clear(); } SEMICOLON
+      /* no declarators */
+    | declaration_specifiers { curr_decl_spec = $1; pending_role = "IDENTIFIER"; pending_ids.clear(); }
+      init_declarator_list_no_func SEMICOLON
+      { flush_pending(curr_decl_spec, pending_role); }
     ;
 
+/* Build a spec string like "CONST INT", "STATIC LONG", etc. */
 declaration_specifiers
-    : storage_class_specifier
-    | storage_class_specifier declaration_specifiers 
-    | type_specifier
-    | type_specifier declaration_specifiers
+    : type_specifier                                { $$ = $1; }
+    | storage_class_specifier                       { $$ = $1; }
+    | storage_class_specifier declaration_specifiers { $$ = cat2($1, $2); }
+    | type_specifier        declaration_specifiers   { $$ = cat2($1, $2); }
     ;
 
 storage_class_specifier
-    : AUTO
-    | STATIC
-    | CONST
+    : AUTO     { $$ = sdup("AUTO"); }
+    | STATIC   { $$ = sdup("STATIC"); }
+    | CONST    { $$ = sdup("CONST"); }
     ;
 
 type_specifier
-    : VOID      { data_type = "VOID"; }
-    | INT       { data_type = "INT"; }
-    | LONG      { data_type = "LONG"; }
-    | DOUBLE    { data_type = "DOUBLE"; }
-    | CHAR      { data_type = "CHAR"; }
-    | BOOL      { data_type = "BOOL"; }
-    | STRING    { data_type = "STRING"; }
-    | STRUCT    { data_type = "STRUCT"; }
-    | CLASS     { data_type = "CLASS"; }
+    : VOID     { $$ = sdup("VOID"); }
+    | INT      { $$ = sdup("INT"); }
+    | LONG     { $$ = sdup("LONG"); }
+    | DOUBLE   { $$ = sdup("DOUBLE"); }
+    | CHAR     { $$ = sdup("CHAR"); }
+    | BOOL     { $$ = sdup("BOOL"); }
+    | STRING   { $$ = sdup("STRING"); }
+    | STRUCT   { $$ = sdup("STRUCT"); }
+    | CLASS    { $$ = sdup("CLASS"); }
     ;
 
-init_declarator_list
-    : init_declarator
-    | init_declarator_list COMMA init_declarator
+/* ---------- declarators used ONLY for variable/member declarations (no functions) ---------- */
+init_declarator_list_no_func
+    : init_declarator_no_func
+    | init_declarator_list_no_func COMMA init_declarator_no_func
     ;
+
+init_declarator_no_func
+    : declarator_no_func                       { push_id($1); }
+    | declarator_no_func ASSIGN initializer    { push_id($1); }
+    ;
+
+declarator_no_func
+    : pointer direct_declarator_no_func        { $$ = $2; }
+    | direct_declarator_no_func                { $$ = $1; }
+    ;
+
+direct_declarator_no_func
+    : IDENTIFIER
+    | LROUND declarator_no_func RROUND
+    | direct_declarator_no_func LSQUARE constant_expression_opt RSQUARE
+    ;
+    
+init_declarator_list
+: init_declarator
+| init_declarator_list COMMA init_declarator
+;
 
 init_declarator
-    : declarator                           { insert_symbol_table($1, data_type.c_str(), "IDENTIFIER"); }
-    | declarator ASSIGN initializer        { insert_symbol_table($1, data_type.c_str(), "IDENTIFIER"); }
+    : declarator                           { push_id($1); }
+    | declarator ASSIGN initializer        { push_id($1); }
     ;
 
 declarator
@@ -204,11 +264,11 @@ pointer
     ;
 
 direct_declarator
-    : IDENTIFIER                           { $$ = $1; }
-    | LROUND declarator RROUND                     { $$ = $2; }
-    | direct_declarator LROUND parameter_type_list RROUND
-    | direct_declarator LROUND RROUND
-    | direct_declarator LSQUARE constant_expression_opt RSQUARE
+    : IDENTIFIER                                           { $$ = $1; }
+    | LROUND declarator RROUND                             { $$ = $2; }
+    | direct_declarator LROUND parameter_type_list RROUND  { $$ = $1; }  /* keep the base name */
+    | direct_declarator LROUND RROUND                      { $$ = $1; }
+    | direct_declarator LSQUARE constant_expression_opt RSQUARE { $$ = $1; }
     ;
 
 parameter_type_list
@@ -221,8 +281,9 @@ parameter_list
     ;
 
 parameter_declaration
-    : declaration_specifiers declarator    { insert_symbol_table($2, data_type.c_str(), "PARAM"); }
-    | declaration_specifiers               /* e.g., void */
+    : declaration_specifiers { curr_param_spec = $1; } declarator
+        { insert_symbol_table($3, curr_param_spec ? curr_param_spec : "", "PARAM"); }
+    | declaration_specifiers /* e.g., void */
     ;
 
 /* ---------- Class / Struct ---------- */
@@ -240,7 +301,9 @@ member_declaration
     : PUBLIC COLON
     | PRIVATE COLON
     | PROTECTED COLON
-    | declaration_specifiers member_declarator_list SEMICOLON
+    | declaration_specifiers { curr_decl_spec = $1; pending_role = "MEMBER"; pending_ids.clear(); }
+      member_declarator_list SEMICOLON
+      { flush_pending(curr_decl_spec, pending_role); }
     | declaration_specifiers SEMICOLON
     ;
 
@@ -250,13 +313,39 @@ member_declarator_list
     ;
 
 member_declarator
-    : declarator                            { insert_symbol_table($1, data_type.c_str(), "MEMBER"); }
+    : declarator_no_func                    { push_id($1); }
     ;
 
 /* ---------- Function definitions ---------- */
 function_definition
-    : type_specifier declarator compound_statement { insert_symbol_table($2, data_type.c_str(), "FUNCTION"); }
-    | declarator compound_statement
+    : declaration_specifiers function_declarator compound_statement
+        { insert_symbol_table($2, $1 ? $1 : "", "FUNCTION"); }
+    | function_declarator compound_statement
+        { insert_symbol_table($1, "INT", "FUNCTION"); } /* default if no specifiers */
+    ;
+
+function_declarator
+    : direct_function_declarator                       { $$ = $1; }
+    | pointer function_declarator                      { $$ = $2; }  /* e.g., int *f(int) */
+    ;
+
+direct_function_declarator
+    : IDENTIFIER LROUND parameter_type_list RROUND     { $$ = $1; }  /* fn(int a, ...) */
+    | IDENTIFIER LROUND RROUND                         { $$ = $1; }  /* fn() */
+    | LROUND function_declarator RROUND                { $$ = $2; }  /* ( *f )(int) etc. */
+    | direct_function_declarator LSQUARE constant_expression_opt RSQUARE { $$ = $1; } /* fn()[N] */
+    ;
+/* ---------- Declarators that MUST be functions (unambiguous) ---------- */
+function_declarator
+    : direct_function_declarator                       { $$ = $1; }
+    | pointer function_declarator                      { $$ = $2; }  /* e.g., int *f(int) */
+    ;
+
+direct_function_declarator
+    : IDENTIFIER LROUND parameter_type_list RROUND     { $$ = $1; }  /* fn(int a, ...) */
+    | IDENTIFIER LROUND RROUND                         { $$ = $1; }  /* fn() */
+    | LROUND function_declarator RROUND                { $$ = $2; }  /* ( *f )(int) etc. */
+    | direct_function_declarator LSQUARE constant_expression_opt RSQUARE { $$ = $1; } /* fn()[N] */
     ;
 
 /* ---------- Statements ---------- */
