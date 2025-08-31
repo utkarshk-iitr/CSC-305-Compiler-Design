@@ -1,9 +1,11 @@
 %option noyywrap yylineno
 %{
     #include <iostream>
-    #include "parser1.tab.h"
+    #include "parser1_fixed.tab.h"
 
     extern int yylineno;
+    int last_ident_lineno = 0;       
+    int is_type_name(const char* s);    
     extern int yylex();
     extern YYSTYPE yylval;
     using namespace std;
@@ -75,10 +77,10 @@ INCLUDE          ^#include.*\n
 SCOMMENT         "//".*
 RETURN           "return"
 SIZEOF           "sizeof"
+NULL             "null"
 
 /* Conditionals */
 IF               "if"
-ELIF             "elif"
 ELSE             "else"
 CASE             "case"
 SWITCH           "switch"
@@ -198,7 +200,6 @@ INVALID_IDENTIFIER ({DIGIT}+({LETTER}|_)+({DIGIT}|{LETTER}|_)*(\.{DIGIT}*)?)
 {RETURN}               { yylval.str = strdup(yytext); return RETURN; }
 {SIZEOF}               { yylval.str = strdup(yytext); return SIZEOF; }
 {IF}                   { yylval.str = strdup(yytext); return IF; }
-{ELIF}                 { yylval.str = strdup(yytext); return ELIF; }
 {ELSE}                 { yylval.str = strdup(yytext); return ELSE; }
 {CASE}                 { yylval.str = strdup(yytext); return CASE; }
 {SWITCH}               { yylval.str = strdup(yytext); return SWITCH; }
@@ -220,6 +221,7 @@ INVALID_IDENTIFIER ({DIGIT}+({LETTER}|_)+({DIGIT}|{LETTER}|_)*(\.{DIGIT}*)?)
 {VOID}                 { yylval.str = strdup(yytext); return VOID; }
 {CONST}                { yylval.str = strdup(yytext); return CONST; }
 {NULLPTR}              { yylval.str = strdup(yytext); return NULLPTR; }
+{NULL}                 { yylval.str = strdup(yytext); return NULLPTR; }
 {FUNCTION}             { yylval.str = strdup(yytext); return FUNCTION; }
 {AUTO}                 { yylval.str = strdup(yytext); return AUTO; }
 {TRUE}                 { yylval.str = strdup(yytext); return TRUE; }
@@ -238,7 +240,15 @@ INVALID_IDENTIFIER ({DIGIT}+({LETTER}|_)+({DIGIT}|{LETTER}|_)*(\.{DIGIT}*)?)
 {NEW}                  { yylval.str = strdup(yytext); return NEW; }
 {DELETE}               { yylval.str = strdup(yytext); return DELETE; }
 
-{IDENTIFIER}           { yylval.str = strdup(yytext); return IDENTIFIER; }
+{IDENTIFIER}           {
+                          last_ident_lineno = yylineno;
+                          if (is_type_name(yytext)) {
+                              yylval.str = strdup(yytext);
+                              return TYPE_NAME;
+                          }
+                          yylval.str = strdup(yytext);
+                          return IDENTIFIER;
+                       }
 {DECIMAL_LITERAL}      { yylval.str = strdup(yytext); return DECIMAL_LITERAL; }
 {EXPONENT_LITERAL}     { yylval.str = strdup(yytext); return EXPONENT_LITERAL; }
 {DOUBLE_LITERAL}       { yylval.str = strdup(yytext); return DOUBLE_LITERAL; }
