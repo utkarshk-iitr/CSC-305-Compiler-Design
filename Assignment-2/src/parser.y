@@ -97,28 +97,37 @@
     static char* sdup(const char* s) {
         return s ? strdup(s) : strdup("");
     }
+
     static char* cat2(const char* a, const char* b) {
-        size_t la = a ? strlen(a) : 0, lb = b ? strlen(b) : 0;
+        size_t la = a ? strlen(a) : 0;
+        size_t lb = b ? strlen(b) : 0;
         char* r = (char*)malloc(la + lb + 2);
         r[0] = 0;
-        if (la) { memcpy(r, a, la); r[la] = 0; }
+        if (la) {
+            memcpy(r, a, la);
+            r[la] = 0;
+        }
         if (la && lb) strcat(r, " ");
         if (lb) strcat(r, b);
         return r;
     }
+
     static void push_id(char* s) {
         pending_ids.emplace_back(s ? s : "");
     }
 
-    void insert_symbol_table (char* yytext, const char* data_type, const char* type) {
-        symbol_table[count_symbol].id_name   = yytext;
+    void insert_symbol_table(char* yytext, const char* data_type, const char* type) {
+        symbol_table[count_symbol].id_name = yytext;
         if (last_declarator_pointer && last_declarator_pointer[0]) {
-            symbol_table[count_symbol].data_type = data_type && data_type[0] ? cat2(data_type, last_declarator_pointer) : sdup(last_declarator_pointer);
+            symbol_table[count_symbol].data_type = 
+                (data_type && data_type[0]) 
+                ? cat2(data_type, last_declarator_pointer) 
+                : sdup(last_declarator_pointer);
         } else {
             symbol_table[count_symbol].data_type = data_type ? data_type : "";
         }
-        symbol_table[count_symbol].type      = type;
-        symbol_table[count_symbol].line_no   = curr_decl_lineno ? curr_decl_lineno : yylineno;
+        symbol_table[count_symbol].type = type;
+        symbol_table[count_symbol].line_no = curr_decl_lineno ? curr_decl_lineno : yylineno;
         curr_decl_lineno = 0;
         last_declarator_pointer = NULL;
         count_symbol++;
