@@ -3,6 +3,7 @@ SYMBOL TABLE
 NAME                DATATYPE            TYPE                LINE      
 ---------------------------------------------------------------
 abcd                CLASS               TYPE                3         
+a                   INT                 MEMBER              4         
 main                INT                 FUNCTION            7         
 Age                 INT                 IDENTIFIER          8         
 Flag_1              BOOL                IDENTIFIER          9         
@@ -32,7 +33,6 @@ false                    BOOL_LITERAL        29
 ---------------------------------------------------------------
 
 ERRORS
-Error: syntax error at line 4 near '='
 Error: syntax error at line 21 near 'cout'
 Error: syntax error at line 30 near '122aa'
 Error: syntax error at line 32 near '<'
