@@ -1,7 +1,7 @@
 # Define compiler and tools
 LEX = flex
 BISON = bison
-CC = gcc
+CC = g++
 CFLAGS = -w
 
 # Output executable name

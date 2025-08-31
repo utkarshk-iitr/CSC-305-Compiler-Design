@@ -2,6 +2,7 @@
     #include <iostream>
     #include <string.h>
     #include <iomanip>
+    #include <vector>
     #include <string>
     using namespace std;
 
@@ -14,7 +15,7 @@
     int count_symbol = 0;
     int count_const = 0;
 
-    string data_type;
+    char data_type[10];
 
     struct symbol_table_struct {
         string identifier_name; 
@@ -34,95 +35,105 @@
         int count;
     } arg_list;
 
-    const_table_struct constant_table[128];
-    symbol_table_struct symbol_table[128];
+    vector<const_table_struct> constant_table;
+    vector<symbol_table_struct> symbol_table;
+
+    int search_symbol_table(string id_name) {
+        for(auto& x : symbol_table) {
+            if(x.identifier_name == id_name) {
+                return 1;
+                break;
+            }
+        }
+        return 0;
+    }
+
+    void yyerror(const char *s) {
+        cerr<<"Error at line "<<yylineno<<": "<<s<<endl;
+    }
+
+    void assign_type(char *str) {
+        strcpy(data_type, str);
+    }
 
     void insert_symbol_table(char c,const char *yytext) {
         if(yytext == NULL) return;
-
-        if(count_symbol >= 128) {
-            cerr << "Symbol table capacity exceeded at line " << yylineno << endl;
-            return;
-        }
-
+        int lineno;
+        string identifier_name, datatype, type;
         if (search_symbol_table(yytext) == 0) {
-            symbol_table[count_symbol].identifier_name = yytext;
-            symbol_table[count_symbol].lineno = yylineno;
+            identifier_name = yytext;
+            lineno = yylineno;
 
             switch (c) {
                 case 'H' :
-                    symbol_table[count_symbol].datatype = data_type;
-                    symbol_table[count_symbol].type = "HEADER";
+                    datatype = data_type;
+                    type = "HEADER";
                     break;
                 case 'K' : 
-                    symbol_table[count_symbol].datatype = yytext;
-                    symbol_table[count_symbol].type = "KEYWORD";
+                    datatype = yytext;
+                    type = "KEYWORD";
                     break;
                 case 'V' :
-                    symbol_table[count_symbol].datatype = data_type;
-                    symbol_table[count_symbol].type = "VARIABLE";
+                    datatype = data_type;
+                    type = "VARIABLE";
                     break;
                 case 'C' : 
-                    symbol_table[count_symbol].datatype = "CONST";
-                    symbol_table[count_symbol].type = "CONSTANT";
+                    datatype = "CONST";
+                    type = "CONSTANT";
                     break;
                 case 'F' :
-                    symbol_table[count_symbol].datatype = data_type;
-                    symbol_table[count_symbol].type = "FUNCTION";
+                    datatype = data_type;
+                    type = "FUNCTION";
                     break;
                 case 'G' :
-                    symbol_table[count_symbol].datatype = "GOTO";
-                    symbol_table[count_symbol].type = "LABEL";
+                    datatype = "GOTO";
+                    type = "LABEL";
                     break;
                 case 'P' :
-                    symbol_table[count_symbol].datatype = data_type;
-                    symbol_table[count_symbol].type = "POINTER";
+                    datatype = data_type;
+                    type = "POINTER";
                     break;
                 case 'f' :
-                    symbol_table[count_symbol].datatype = data_type;
-                    symbol_table[count_symbol].type = "POINTER";
+                    datatype = data_type;
+                    type = "POINTER";
                     break;
-                }
             }
-
-            count_symbol++;
         }
 
+        symbol_table.push_back({identifier_name, datatype, type, lineno});
+    }
+    
     void insert_const_symbol_table(char c,const char *yytext) {
         if(yytext == NULL) return;
 
-        if(count_const >= 128) {
-            fprintf(stderr, "Constant symbol table capacity exceeded at line %d\n", yylineno);
-            return;
-        }
-        
-        constant_table[count_const].constant_value = yytext;
-        constant_table[count_const].lineno = yylineno;
+        string constant_value = yytext;
+        int lineno = yylineno;
+        string constant_type;
 
         switch (c) {
             case 'I' : 
-                constant_table[count_const].constant_type = "INTEGER_CONST";
+                constant_type = "INTEGER_CONST";
                 break;
             case 'D' :
-                constant_table[count_const].constant_type = "DOUBLE_CONST";
+                constant_type = "DOUBLE_CONST";
                 break;
             case 'B' :
-                constant_table[count_const].constant_type = "BOOLEAN_CONST";
+                constant_type = "BOOLEAN_CONST";
                 break;
             case 'E' :
-                constant_table[count_const].constant_type = "EXPONENTIAL_CONST";
+                constant_type = "EXPONENTIAL_CONST";
                 break;
             case 'N' :
-                constant_table[count_const].constant_type = "NULLPTR_CONST";
+                constant_type = "NULLPTR_CONST";
                 break;
             case 'S' :
-                constant_table[count_const].constant_type = "STRING_CONST";
+                constant_type = "STRING_CONST";
                 break;
             case 'C' :
-                constant_table[count_const].constant_type = "CHARACTER_CONST";
+                constant_type = "CHARACTER_CONST";
         }
 
-        count_const++;
+        constant_table.push_back({constant_value, constant_type, lineno});
     }
 
     void str_type(char *return_type, char *given_type) {
@@ -159,24 +170,6 @@
         else {
             return_type = "UNKNOWN";
         }
-    }
-
-    void yyerror(const char *s) {
-        cerr<<"Error at line "<<yylineno<<": "<<s<<endl;
-    }
-
-    int search_symtab(char *id_name) {
-        for(int i=count_symbol-1; i>=0; i--) {
-            if(strcmp(symbol_table[i].identifier_name, id_name)==0) {
-                return 1;
-                break;
-            }
-        }
-        return 0;
-    }
-
-    void assign_type(char *str) {
-        strcpy(data_type, str);
     }
 
     void print_symbol_table() {
@@ -235,7 +228,7 @@
 %token<str> INT BOOL CHAR DOUBLE LONG STRING VOID CONST FUNCTION AUTO
 %token<str> STATIC CLASS STRUCT PUBLIC PRIVATE PROTECTED
 %token<str> COUT CIN ENDL NEW DELETE
-%token<str> NULLPTR TRUE FALSE //INVALID_IDENTIFIER INCLUDE
+%token<str> NULLPTR TRUE FALSE INVALID_IDENTIFIER INCLUDE
 %token<str> IDENTIFIER DECIMAL_LITERAL EXPONENT_LITERAL DOUBLE_LITERAL STRING_LITERAL CHARACTER_LITERAL
 
 %type<str> translation_unit external_declaration declaration declaration_specifiers
@@ -511,7 +504,7 @@ expression:
     ;
 
 assignment_expression:
-      conditional_expression
+      conditional_expression        {$$ = strdup($1);}
     | unary_expression assignment_operator assignment_expression
     ;
 
@@ -622,7 +615,8 @@ postfix_expression:
     | postfix_expression LEFT_SQUARE expression RIGHT_SQUARE
     | postfix_expression LEFT_ROUND argument_expression_list_opt RIGHT_ROUND
     {
-        str_type(data_type,"unknown");
+        assign_type("UNKNOWN");
+        insert_symbol_table('F',$1);
     }
     | postfix_expression DOT IDENTIFIER
     | postfix_expression ARROW IDENTIFIER
@@ -638,14 +632,14 @@ primary_expression:
     ;
 
 constant:
-      DECIMAL_LITERAL       {insert_constant_symbol_table('I',$1)}
-    | CHARACTER_LITERAL     {insert_constant_symbol_table('C',$1)}
-    | STRING_LITERAL        {insert_constant_symbol_table('S',$1)}
-    | EXPONENT_LITERAL      {insert_constant_symbol_table('E',$1)}
-    | DOUBLE_LITERAL        {insert_constant_symbol_table('D',$1)}
-    | NULLPTR               {insert_constant_symbol_table('N',$1)}
-    | TRUE                  {insert_constant_symbol_table('B',$1)}
-    | FALSE                 {insert_constant_symbol_table('B',$1)}
+      DECIMAL_LITERAL       {insert_const_symbol_table('I',$1);}
+    | CHARACTER_LITERAL     {insert_const_symbol_table('C',$1);}
+    | STRING_LITERAL        {insert_const_symbol_table('S',$1);}
+    | EXPONENT_LITERAL      {insert_const_symbol_table('E',$1);}
+    | DOUBLE_LITERAL        {insert_const_symbol_table('D',$1);}
+    | NULLPTR               {insert_const_symbol_table('N',$1);}
+    | TRUE                  {insert_const_symbol_table('B',$1);}
+    | FALSE                 {insert_const_symbol_table('B',$1);}
     ;
 
 /* Arguments */
