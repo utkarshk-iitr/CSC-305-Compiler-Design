@@ -53,12 +53,44 @@
         }
         cout<<"---------------------------------------------------------\n";
     }
+    static char* curr_decl_spec  = NULL; 
+    static char* curr_param_spec = NULL; 
+    static char* curr_func_spec  = NULL; 
+
+    extern int last_ident_lineno;        
+    int curr_decl_lineno = 0;            
+    char* last_declarator_pointer = NULL;
+
+    static vector<string> pending_ids;
+    static const char* pending_role = "IDENTIFIER"; 
+
+    static char* sdup(const char* s) {
+        return s ? strdup(s) : strdup("");
+    }
+    static char* cat2(const char* a, const char* b) {
+        size_t la = a ? strlen(a) : 0, lb = b ? strlen(b) : 0;
+        char* r = (char*)malloc(la + lb + 2);
+        r[0] = 0;
+        if (la) { memcpy(r, a, la); r[la] = 0; }
+        if (la && lb) strcat(r, " ");
+        if (lb) strcat(r, b);
+        return r;
+    }
+    static void push_id(char* s) {
+        pending_ids.emplace_back(s ? s : "");
+    }
 
     void insert_symbol_table (char* yytext, const char* data_type, const char* type) {
         symbol_table[count_symbol].id_name   = yytext;
-        symbol_table[count_symbol].data_type = data_type ? data_type : "";
+        if (last_declarator_pointer && last_declarator_pointer[0]) {
+            symbol_table[count_symbol].data_type = data_type && data_type[0] ? cat2(data_type, last_declarator_pointer) : sdup(last_declarator_pointer);
+        } else {
+            symbol_table[count_symbol].data_type = data_type ? data_type : "";
+        }
         symbol_table[count_symbol].type      = type;
-        symbol_table[count_symbol].line_no   = yylineno;
+        symbol_table[count_symbol].line_no   = curr_decl_lineno ? curr_decl_lineno : yylineno;
+        curr_decl_lineno = 0;
+        last_declarator_pointer = NULL;
         count_symbol++;
     }
 
@@ -84,29 +116,17 @@
         cerr << "Error: " << s << " at line " << yylineno << " near '" << yytext << "'" << endl;
     }
 
-    /* ===================== Scoped spec strings & helpers ===================== */
-    static char* curr_decl_spec  = NULL; 
-    static char* curr_param_spec = NULL; 
-    static char* curr_func_spec  = NULL; 
-    
-    static vector<string> pending_ids;
-    static const char* pending_role = "IDENTIFIER"; 
 
-    static char* sdup(const char* s) {
-        return s ? strdup(s) : strdup("");
+    int is_type_name(const char* s) {
+        if (!s || s[0] == '\0') return 0;         
+        for (int i = 0; i < count_symbol; ++i) {
+            if (symbol_table[i].id_name == s && symbol_table[i].type == "TYPE") {
+                return 1;
+            }
+        }
+        return 0;
     }
-    static char* cat2(const char* a, const char* b) {
-        size_t la = a ? strlen(a) : 0, lb = b ? strlen(b) : 0;
-        char* r = (char*)malloc(la + lb + 2);
-        r[0] = 0;
-        if (la) { memcpy(r, a, la); r[la] = 0; }
-        if (la && lb) strcat(r, " ");
-        if (lb) strcat(r, b);
-        return r;
-    }
-    static void push_id(char* s) {
-        pending_ids.emplace_back(s ? s : "");
-    }
+    
     static void flush_pending(const char* spec, const char* role) {
         for (auto &id : pending_ids) {
             insert_symbol_table((char*)id.c_str(), spec ? spec : "", role ? role : "IDENTIFIER");
@@ -118,6 +138,7 @@
 %union { 
     char *str; 
 }
+
 
 %token<str> INCLUDE
 %token<str> PLUS MINUS STAR DIVIDE MODULUS ASSIGN
@@ -134,7 +155,7 @@
 %token<str> SEMICOLON COLON COMMA DOT QUESTION_MARK 
 %token<str> TILDE
 
-%token<str> IF ELSE SWITCH CASE DEFAULT WHILE DO FOR GOTO CONTINUE BREAK RETURN UNTIL
+%token<str> IF ELSE ELIF SWITCH CASE DEFAULT WHILE DO FOR GOTO CONTINUE BREAK RETURN UNTIL
 %token<str> SIZEOF
 
 %token<str> VOID INT DOUBLE CHAR BOOL STRING LONG
@@ -142,6 +163,7 @@
 %token<str> AUTO STATIC CONST
 %token<str> CLASS STRUCT PUBLIC PRIVATE PROTECTED
 %token<str> DELETE NEW CIN COUT ENDL
+%token<str> TYPE_NAME
 
 %token<str> IDENTIFIER
 %token<str> DECIMAL_LITERAL DOUBLE_LITERAL EXPONENT_LITERAL CHARACTER_LITERAL STRING_LITERAL
@@ -161,7 +183,7 @@
 %type<str> parameter_type_list parameter_list parameter_declaration
 %type<str> type_specifier storage_class_specifier
 %type<str> initializer_opt constant_expression_opt
-%type<str> expression_opt if_rest
+%type<str> expression_opt
 %type<str> init_declarator_list_no_func init_declarator_no_func
 %type<str> declarator_no_func direct_declarator_no_func
 %type<str> function_declarator direct_function_declarator
@@ -215,6 +237,7 @@ type_specifier
     | CHAR     { $$ = sdup("CHAR"); }
     | BOOL     { $$ = sdup("BOOL"); }
     | STRING   { $$ = sdup("STRING"); }
+    | TYPE_NAME{ $$ = sdup($1); }
     | STRUCT   { $$ = sdup("STRUCT"); }
     | CLASS    { $$ = sdup("CLASS"); }
     ;
@@ -231,9 +254,10 @@ init_declarator_no_func
     ;
 
 declarator_no_func
-    : pointer direct_declarator_no_func        { $$ = $2; }
-    | direct_declarator_no_func                { $$ = $1; }
+    : pointer direct_declarator_no_func    { last_declarator_pointer = $1; curr_decl_lineno = last_ident_lineno; $$ = $2; }
+    | direct_declarator_no_func            { last_declarator_pointer = NULL; curr_decl_lineno = last_ident_lineno; $$ = $1; }
     ;
+
 
 direct_declarator_no_func
     : IDENTIFIER
@@ -252,14 +276,15 @@ init_declarator
     ;
 
 declarator
-    : pointer direct_declarator            { $$ = $2; }
-    | direct_declarator                    { $$ = $1; }
+    : pointer direct_declarator            { last_declarator_pointer = $1; curr_decl_lineno = last_ident_lineno; $$ = $2; }
+    | direct_declarator                    { last_declarator_pointer = NULL; curr_decl_lineno = last_ident_lineno; $$ = $1; }
     ;
 
 pointer
-    : STAR
-    | STAR pointer
+    : STAR                           { $$ = sdup("pointer"); }
+    | STAR pointer                   { $$ = cat2($2, "pointer"); }
     ;
+
 
 direct_declarator
     : IDENTIFIER                                           { $$ = $1; }
@@ -284,10 +309,9 @@ parameter_declaration
     | declaration_specifiers /* e.g., void */
     ;
 
-/* ---------- Class / Struct ---------- */
 class_specifier
-    : CLASS  IDENTIFIER LCURLY member_specification RCURLY
-    | STRUCT IDENTIFIER LCURLY member_specification RCURLY
+    : CLASS  IDENTIFIER LCURLY member_specification RCURLY { insert_symbol_table($2, sdup("CLASS"), "TYPE"); }
+    | STRUCT IDENTIFIER LCURLY member_specification RCURLY { insert_symbol_table($2, sdup("STRUCT"), "TYPE"); }
     ;
 
 member_specification
@@ -314,10 +338,36 @@ member_declarator
     : declarator_no_func                    { push_id($1); }
     ;
 
-/* ---------- Function definitions (use a declarator that MUST have params) ---------- */
+/* ---------- Function definitions ---------- */
 function_definition
-    : declaration_specifiers { curr_func_spec = $1; } function_declarator compound_statement
-        { insert_symbol_table($3, curr_func_spec ? curr_func_spec : "", "FUNCTION"); }
+    : declaration_specifiers function_declarator
+        { /* remember return-spec and record function-name lineno here */
+          curr_func_spec = $1;
+          curr_decl_lineno = last_ident_lineno;
+        }
+        compound_statement
+        { insert_symbol_table($2, curr_func_spec ? curr_func_spec : "", "FUNCTION");
+          curr_func_spec = NULL;
+        }
+    | function_declarator
+        { /* no explicit return-specifiers; record function-name lineno */
+          curr_decl_lineno = last_ident_lineno;
+        }
+        compound_statement
+        { insert_symbol_table($1, "INT", "FUNCTION"); } /* default if no specifiers */
+    ;
+
+
+function_declarator
+    : direct_function_declarator                       { $$ = $1; }
+    | pointer function_declarator                      { $$ = $2; }  /* e.g., int *f(int) */
+    ;
+
+direct_function_declarator
+    : IDENTIFIER LROUND parameter_type_list RROUND     { curr_decl_lineno = last_ident_lineno; $$ = $1; }
+    | IDENTIFIER LROUND RROUND                         { curr_decl_lineno = last_ident_lineno; $$ = $1; }
+    | LROUND function_declarator RROUND                { $$ = $2; }
+    | direct_function_declarator LSQUARE constant_expression_opt RSQUARE { $$ = $1; }
     ;
 
 /* ---------- Declarators that MUST be functions (unambiguous) ---------- */
@@ -360,19 +410,14 @@ block_item
 
 /* Selection */
 selection_statement
-    : IF LROUND expression RROUND statement if_rest
+    : IF LROUND expression RROUND statement
+    | IF LROUND expression RROUND statement ELSE statement
     | SWITCH LROUND expression RROUND statement
-    ;
-
-if_rest
-    : ELSE statement
-    | /* empty */
     ;
 
 /* Iteration */
 iteration_statement
     : WHILE LROUND expression RROUND statement
-    | UNTIL LROUND expression RROUND statement
     | DO statement WHILE LROUND expression RROUND SEMICOLON
     | FOR LROUND expression_opt SEMICOLON expression_opt SEMICOLON expression_opt RROUND statement
     ;
@@ -572,4 +617,3 @@ int main() {
     print_constant_table();
     return 0;
 }
-
