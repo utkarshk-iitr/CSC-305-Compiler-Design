@@ -88,7 +88,6 @@
     static char* curr_decl_spec  = NULL; 
     static char* curr_param_spec = NULL; 
     static char* curr_func_spec  = NULL; 
-
     
     static vector<string> pending_ids;
     static const char* pending_role = "IDENTIFIER"; 
@@ -120,7 +119,6 @@
     char *str; 
 }
 
-
 %token<str> INCLUDE
 %token<str> PLUS MINUS STAR DIVIDE MODULUS ASSIGN
 %token<str> INCREMENT DECREMENT
@@ -136,7 +134,7 @@
 %token<str> SEMICOLON COLON COMMA DOT QUESTION_MARK 
 %token<str> TILDE
 
-%token<str> IF ELSE ELIF SWITCH CASE DEFAULT WHILE DO FOR GOTO CONTINUE BREAK RETURN UNTIL
+%token<str> IF ELSE SWITCH CASE DEFAULT WHILE DO FOR GOTO CONTINUE BREAK RETURN UNTIL
 %token<str> SIZEOF
 
 %token<str> VOID INT DOUBLE CHAR BOOL STRING LONG
@@ -163,7 +161,7 @@
 %type<str> parameter_type_list parameter_list parameter_declaration
 %type<str> type_specifier storage_class_specifier
 %type<str> initializer_opt constant_expression_opt
-%type<str> expression_opt
+%type<str> expression_opt if_rest
 %type<str> init_declarator_list_no_func init_declarator_no_func
 %type<str> declarator_no_func direct_declarator_no_func
 %type<str> function_declarator direct_function_declarator
@@ -316,25 +314,12 @@ member_declarator
     : declarator_no_func                    { push_id($1); }
     ;
 
-/* ---------- Function definitions ---------- */
+/* ---------- Function definitions (use a declarator that MUST have params) ---------- */
 function_definition
-    : declaration_specifiers function_declarator compound_statement
-        { insert_symbol_table($2, $1 ? $1 : "", "FUNCTION"); }
-    | function_declarator compound_statement
-        { insert_symbol_table($1, "INT", "FUNCTION"); } /* default if no specifiers */
+    : declaration_specifiers { curr_func_spec = $1; } function_declarator compound_statement
+        { insert_symbol_table($3, curr_func_spec ? curr_func_spec : "", "FUNCTION"); }
     ;
 
-function_declarator
-    : direct_function_declarator                       { $$ = $1; }
-    | pointer function_declarator                      { $$ = $2; }  /* e.g., int *f(int) */
-    ;
-
-direct_function_declarator
-    : IDENTIFIER LROUND parameter_type_list RROUND     { $$ = $1; }  /* fn(int a, ...) */
-    | IDENTIFIER LROUND RROUND                         { $$ = $1; }  /* fn() */
-    | LROUND function_declarator RROUND                { $$ = $2; }  /* ( *f )(int) etc. */
-    | direct_function_declarator LSQUARE constant_expression_opt RSQUARE { $$ = $1; } /* fn()[N] */
-    ;
 /* ---------- Declarators that MUST be functions (unambiguous) ---------- */
 function_declarator
     : direct_function_declarator                       { $$ = $1; }
@@ -375,14 +360,19 @@ block_item
 
 /* Selection */
 selection_statement
-    : IF LROUND expression RROUND statement
-    | IF LROUND expression RROUND statement ELSE statement
+    : IF LROUND expression RROUND statement if_rest
     | SWITCH LROUND expression RROUND statement
+    ;
+
+if_rest
+    : ELSE statement
+    | /* empty */
     ;
 
 /* Iteration */
 iteration_statement
     : WHILE LROUND expression RROUND statement
+    | UNTIL LROUND expression RROUND statement
     | DO statement WHILE LROUND expression RROUND SEMICOLON
     | FOR LROUND expression_opt SEMICOLON expression_opt SEMICOLON expression_opt RROUND statement
     ;
@@ -582,3 +572,4 @@ int main() {
     print_constant_table();
     return 0;
 }
+
