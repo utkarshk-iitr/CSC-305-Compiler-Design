@@ -1,25 +1,9 @@
-# Define compiler and tools
-LEX = flex
-BISON = bison
-CC = g++
-CFLAGS = -w
+all: parser
 
-# Output executable name
-EXEC = parser
+parser: parser.y lexer.l
+	bison -d -v -Wno-all parser.y
+	flex lexer.l
+	g++ -w parser.tab.c lex.yy.c -o parser -lfl
 
-# Source files
-LEX_FILE = lexer.l
-YACC_FILE = parser.y
-
-# Default target
-all: $(EXEC)
-
-# Rule to compile the parser and scanner
-$(EXEC): $(YACC_FILE) $(LEX_FILE)
-	$(BISON) -d -v -Wno-all $(YACC_FILE)
-	$(LEX) $(LEX_FILE)
-	$(CC) $(CFLAGS) parser.tab.c lex.yy.c -o $(EXEC) -lfl
-
-# Clean build files
 clean:
-	rm -f $(EXEC) lex.yy.c parser.tab.c parser.tab.h parser.output
+	rm -f parser lex.yy.c parser.tab.c parser.tab.h parser.output
