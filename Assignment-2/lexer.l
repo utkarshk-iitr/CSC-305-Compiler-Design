@@ -1,7 +1,7 @@
 %option noyywrap yylineno
 %{
     #include <iostream>
-    #include "parser.tab.h"
+    #include "parser1.tab.h"
 
     extern int yylineno;
     extern int yylex();
@@ -142,7 +142,6 @@ INVALID_IDENTIFIER ({DIGIT}+({LETTER}|_)+({DIGIT}|{LETTER}|_)*(\.{DIGIT}*)?)
 %%  
 [ \t\r\n]+             ;
 {SCOMMENT}             ;
-\/\*([^*]|\*+[^*/])*\*+\/   ;
 
 {INCLUDE}              { yylval.str = strdup(yytext); return INCLUDE; }
 
