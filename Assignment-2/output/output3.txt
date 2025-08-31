@@ -3,41 +3,31 @@ SYMBOL TABLE
 NAME                DATATYPE            TYPE                LINE      
 ---------------------------------------------------------------
 Node                STRUCT              TYPE                3         
-ch                  Node pointer        MEMBER              4         
-flag                BOOL                MEMBER              5         
-Trie                CLASS               TYPE                14        
-root                Node pointer        MEMBER              16        
-main                INT                 FUNCTION            37        
-PrefixString        Trie                IDENTIFIER          38        
-lol                 STRING              IDENTIFIER          39        
+flag                BOOL                MEMBER              4         
+val                 INT                 MEMBER              5         
+name                STRING              MEMBER              6         
+id                  STATIC INT          MEMBER              7         
+Trie                CLASS               TYPE                10        
+root                Node pointer        MEMBER              12        
+lol                 INT                 MEMBER              15        
+flag                BOOL                MEMBER              16        
+name                STRING              MEMBER              17        
+main                INT                 FUNCTION            20        
+PrefixString        Trie                IDENTIFIER          21        
+lol                 STRING              IDENTIFIER          22        
+boi                 Trie pointer        IDENTIFIER          27        
 ---------------------------------------------------------------
 
 CONSTANT TABLE
 ---------------------------------------------------------------
 VALUE                    TYPE                LINE      
 ---------------------------------------------------------------
-26                       DECIMAL_LITERAL     4         
-"HelloWorld"             STRING_LITERAL      39        
-"Adesh$$$"               STRING_LITERAL      42        
-0                        DECIMAL_LITERAL     44        
+"HelloWorld"             STRING_LITERAL      22        
+930                      DECIMAL_LITERAL     25        
+"Adesh$$$"               STRING_LITERAL      31        
 ---------------------------------------------------------------
 
 ERRORS
-Error: syntax error at line 7 near ')'
-Error: syntax error at line 10 near 'for'
-Error: syntax error at line 10 near 'i'
-Error: syntax error at line 10 near 'i'
-Error: syntax error at line 12 near '}'
-Error: syntax error at line 12 near ';'
-Error: syntax error at line 19 near ')'
-Error: syntax error at line 24 near '&'
-Error: syntax error at line 26 near 'for'
-Error: syntax error at line 28 near 'if'
-Error: syntax error at line 30 near '}'
-Error: syntax error at line 32 near '='
-Error: syntax error at line 33 near '}'
-Error: syntax error at line 34 near '}'
-Error: syntax error at line 35 near '}'
-Error: syntax error at line 35 near ';'
-Error: syntax error at line 43 near '"'
+Error: syntax error at line 32 near '"'
+Error: syntax error at line 33 near 'return'
 ---------------------------------------------------------------

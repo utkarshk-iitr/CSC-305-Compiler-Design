@@ -36,7 +36,7 @@ VALUE                    TYPE                LINE
 0                        DECIMAL_LITERAL     24        
 5                        DECIMAL_LITERAL     27        
 6                        DECIMAL_LITERAL     28        
-0                        DECIMAL_LITERAL     38        
+0                        DECIMAL_LITERAL     39        
 ---------------------------------------------------------------
 
 ERRORS
