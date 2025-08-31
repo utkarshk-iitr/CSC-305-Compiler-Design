@@ -187,14 +187,14 @@
     void insert_const_symbol_table(char ch, char* yytext) {
         string t;
         switch(ch) {
-            case 'I': t = "DECIMAL_LITERAL";     break;
-            case 'D': t = "DOUBLE_LITERAL";  break;
-            case 'E': t = "EXPONENT_LITERAL";     break;
-            case 'C': t = "CHAR_LITERAL";    break;
-            case 'S': t = "STRING_LITERAL";  break;
-            case 'B': t = "BOOL_LITERAL";    break;
-            case 'N': t = "NULLPTR"; break;
-            default:  t = "UNKNOWN"; break;
+            case 'I': t = "DECIMAL_LITERAL";    break;
+            case 'D': t = "DOUBLE_LITERAL";     break;
+            case 'E': t = "EXPONENT_LITERAL";   break;
+            case 'C': t = "CHAR_LITERAL";       break;
+            case 'S': t = "STRING_LITERAL";     break;
+            case 'B': t = "BOOL_LITERAL";       break;
+            case 'N': t = "NULLPTR";            break;
+            default:  t = "UNKNOWN";            break;
         }
         const_table[count_const].value  = yytext;
         const_table[count_const].type   = t;

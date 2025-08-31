@@ -43,6 +43,8 @@ int main() {
 
     goto skipItAll;
 
+    int a = **p;
+    int pd = &(&p);
     double uk = 6.9;
     skipItAll:
     int count = 8;
