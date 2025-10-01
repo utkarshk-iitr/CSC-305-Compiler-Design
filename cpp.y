@@ -12,6 +12,7 @@
     char* str; 
 }
 
+
 %token<str> INCLUDE TYPEDEF TYPE_NAME
 %token<str> PLUS MINUS STAR DIVIDE MODULUS ASSIGN
 %token<str> INCREMENT DECREMENT
@@ -52,6 +53,9 @@
 
 %right ASSIGN PLUS_EQUAL MINUS_EQUAL STAR_EQUAL DIV_EQUAL MOD_EQUAL
 %right AND_EQUAL OR_EQUAL XOR_EQUAL LEFT_SHIFT_EQ RIGHT_SHIFT_EQ
+
+%nonassoc LOWER_THAN_ELSE
+%nonassoc ELSE
 
 %start translation_unit
 %%
@@ -98,28 +102,28 @@ unary_expression
 	| SIZEOF unary_expression
 	| SIZEOF LROUND type_name RROUND
 	| delete_expression
-	/* | new_expression */
+	| new_expression
 	;
 
-/* new_expression
-	: NEW type_specifier new_array_opt new_init_opt
-	; */
+new_expression
+    : NEW type_specifier new_declarator scalar_new_init_opt    /* scalar new */
+    ;
 
-new_array_opt
-	: 
-	| new_array_opt LSQUARE expression RSQUARE
-	;
-  
-new_init_opt
-	: 
-	| LROUND RROUND
-	| LROUND argument_expression_list RROUND
-	;
+scalar_new_init_opt
+    : /* empty */
+    | LROUND RROUND
+    | LROUND argument_expression_list RROUND
+    ;
+
+new_declarator
+    : LSQUARE expression RSQUARE
+    | new_declarator LSQUARE expression RSQUARE
+    ;
 
 delete_expression
-    : DELETE cast_expression
-	| DELETE LSQUARE RSQUARE cast_expression
-	;
+    : DELETE LSQUARE RSQUARE cast_expression
+    | DELETE cast_expression
+    ;
 
 unary_operator
 	: BITWISE_AND
@@ -420,8 +424,33 @@ statement
 	| selection_statement
 	| iteration_statement
 	| jump_statement
-	/* | io_statement */
+	| io_statement
 	;
+
+io_statement
+    : cout_expression SEMICOLON
+    | cin_expression SEMICOLON
+    ;
+
+cout_expression
+    : COUT insertion_list
+    ;
+
+insertion_list
+    : LEFT_SHIFT expression
+	| LEFT_SHIFT ENDL
+	| insertion_list LEFT_SHIFT ENDL
+    | insertion_list LEFT_SHIFT expression
+    ;
+
+cin_expression
+    : CIN extraction_list
+    ;
+
+extraction_list
+    : RIGHT_SHIFT expression
+    | extraction_list RIGHT_SHIFT expression
+    ;
 
 labeled_statement
 	: IDENTIFIER COLON statement
@@ -447,7 +476,7 @@ expression_statement
 	;
 
 selection_statement
-	: IF LROUND expression RROUND statement
+	: IF LROUND expression RROUND statement %prec LOWER_THAN_ELSE
 	| IF LROUND expression RROUND statement ELSE statement
 	| SWITCH LROUND expression RROUND statement
 	;

@@ -144,7 +144,8 @@ extern int yydebug;
     DOUBLE_LITERAL = 345,          /* DOUBLE_LITERAL  */
     EXPONENT_LITERAL = 346,        /* EXPONENT_LITERAL  */
     CHARACTER_LITERAL = 347,       /* CHARACTER_LITERAL  */
-    STRING_LITERAL = 348           /* STRING_LITERAL  */
+    STRING_LITERAL = 348,          /* STRING_LITERAL  */
+    LOWER_THAN_ELSE = 349          /* LOWER_THAN_ELSE  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -157,7 +158,7 @@ union YYSTYPE
  
     char* str; 
 
-#line 161 "cpp.tab.h"
+#line 162 "cpp.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;
