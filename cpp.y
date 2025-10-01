@@ -98,32 +98,12 @@ unary_expression
 	: postfix_expression
 	| INCREMENT unary_expression
 	| DECREMENT unary_expression
-	| unary_operator cast_expression
+	| unary_operator cast_expression 
 	| SIZEOF unary_expression
 	| SIZEOF LROUND type_name RROUND
 	| delete_expression
 	| new_expression
 	;
-
-new_expression
-    : NEW type_specifier new_declarator scalar_new_init_opt    /* scalar new */
-    ;
-
-scalar_new_init_opt
-    : /* empty */
-    | LROUND RROUND
-    | LROUND argument_expression_list RROUND
-    ;
-
-new_declarator
-    : LSQUARE expression RSQUARE
-    | new_declarator LSQUARE expression RSQUARE
-    ;
-
-delete_expression
-    : DELETE LSQUARE RSQUARE cast_expression
-    | DELETE cast_expression
-    ;
 
 unary_operator
 	: BITWISE_AND
@@ -133,6 +113,37 @@ unary_operator
 	| TILDE
 	| LOGICAL_NOT
 	;
+
+new_expression
+    : NEW type_specifier pointer_opt new_declarator scalar_new_init_opt
+    | NEW type_specifier new_declarator scalar_new_init_opt
+    | NEW type_specifier pointer_opt scalar_new_init_opt
+    | NEW type_specifier pointer_opt new_declarator
+    | NEW type_specifier pointer_opt 
+    | NEW type_specifier new_declarator 
+    | NEW type_specifier scalar_new_init_opt
+    | NEW type_specifier
+    ;
+
+pointer_opt
+	: STAR pointer_opt
+	| STAR
+	;
+
+scalar_new_init_opt
+    : LROUND RROUND
+    | LROUND argument_expression_list RROUND
+    ;
+
+new_declarator
+	: LSQUARE expression RSQUARE
+    | new_declarator LSQUARE expression RSQUARE
+    ;
+
+delete_expression
+    : DELETE LSQUARE RSQUARE cast_expression
+    | DELETE cast_expression
+    ;
 
 cast_expression
 	: unary_expression
@@ -204,7 +215,7 @@ conditional_expression
 
 assignment_expression
 	: conditional_expression
-	| unary_expression assignment_operator assignment_expression
+	| unary_expression assignment_operator assignment_expression 
 	;
 
 assignment_operator
@@ -437,10 +448,10 @@ cout_expression
     ;
 
 insertion_list
-    : LEFT_SHIFT expression
+    : LEFT_SHIFT assignment_expression
 	| LEFT_SHIFT ENDL
 	| insertion_list LEFT_SHIFT ENDL
-    | insertion_list LEFT_SHIFT expression
+    | insertion_list LEFT_SHIFT assignment_expression
     ;
 
 cin_expression
@@ -448,8 +459,8 @@ cin_expression
     ;
 
 extraction_list
-    : RIGHT_SHIFT expression
-    | extraction_list RIGHT_SHIFT expression
+    : RIGHT_SHIFT assignment_expression
+    | extraction_list RIGHT_SHIFT assignment_expression
     ;
 
 labeled_statement
