@@ -12,7 +12,7 @@
     char* str; 
 }
 
-%token<str> INCLUDE TYPEDEF
+%token<str> INCLUDE TYPEDEF TYPE_NAME
 %token<str> PLUS MINUS STAR DIVIDE MODULUS ASSIGN
 %token<str> INCREMENT DECREMENT
 %token<str> EQUAL NOT_EQUAL LESS_THAN GREATER_THAN LESS_EQUAL GREATER_EQUAL
@@ -38,7 +38,20 @@
 
 %token<str> IDENTIFIER
 %token<str> DECIMAL_LITERAL DOUBLE_LITERAL EXPONENT_LITERAL CHARACTER_LITERAL STRING_LITERAL
-%token<str> FUNCTION CONSTANT
+
+%left LOGICAL_OR
+%left LOGICAL_AND
+%left BITWISE_OR
+%left BITWISE_XOR
+%left BITWISE_AND
+%left EQUAL NOT_EQUAL
+%left LESS_THAN GREATER_THAN LESS_EQUAL GREATER_EQUAL
+%left LEFT_SHIFT RIGHT_SHIFT
+%left PLUS MINUS
+%left STAR DIVIDE MODULUS
+
+%right ASSIGN PLUS_EQUAL MINUS_EQUAL STAR_EQUAL DIV_EQUAL MOD_EQUAL
+%right AND_EQUAL OR_EQUAL XOR_EQUAL LEFT_SHIFT_EQ RIGHT_SHIFT_EQ
 
 %start translation_unit
 %%
@@ -84,6 +97,28 @@ unary_expression
 	| unary_operator cast_expression
 	| SIZEOF unary_expression
 	| SIZEOF LROUND type_name RROUND
+	| delete_expression
+	/* | new_expression */
+	;
+
+/* new_expression
+	: NEW type_specifier new_array_opt new_init_opt
+	; */
+
+new_array_opt
+	: 
+	| new_array_opt LSQUARE expression RSQUARE
+	;
+  
+new_init_opt
+	: 
+	| LROUND RROUND
+	| LROUND argument_expression_list RROUND
+	;
+
+delete_expression
+    : DELETE cast_expression
+	| DELETE LSQUARE RSQUARE cast_expression
 	;
 
 unary_operator
@@ -229,7 +264,7 @@ type_specifier
 	| DOUBLE
 	| BOOL
 	| STRING
-	| struct_or_class_specifier
+	| TYPE_NAME
 	;
 
 struct_or_class_specifier
@@ -261,7 +296,6 @@ access_specifier_label
 member_declaration
 	: specifier_qualifier_list struct_declarator_list SEMICOLON
 	| specifier_qualifier_list SEMICOLON
-	| declarator compound_statement
 	| specifier_qualifier_list declarator compound_statement
 	| struct_or_class_specifier SEMICOLON
 	| SEMICOLON
@@ -305,7 +339,6 @@ declarator
 
 direct_declarator
 	: IDENTIFIER
-	| TILDE IDENTIFIER
 	| LROUND declarator RROUND
 	| direct_declarator LSQUARE constant_expression RSQUARE
 	| direct_declarator LSQUARE RSQUARE
@@ -389,22 +422,6 @@ statement
 	| jump_statement
 	/* | io_statement */
 	;
-
-/* io_statement
-  : COUT output_chain SEMICOLON
-  | CIN input_chain SEMICOLON
-  ;
-
-output_chain
-  : LEFT_SHIFT rvalue
-  | output_chain LEFT_SHIFT rvalue
-  | output_chain LEFT_SHIFT ENDL
-  ;
-  
-input_chain
-  : RIGHT_SHIFT lvalue
-  | input_chain RIGHT_SHIFT lvalue
-  ; */
 
 labeled_statement
 	: IDENTIFIER COLON statement
