@@ -1,0 +1,55 @@
+SYMBOL TABLE
+---------------------------------------------------------------
+NAME                DATATYPE            TYPE                LINE      
+---------------------------------------------------------------
+main                INT                 FUNCTION            3         
+a                   INT                 IDENTIFIER          4         
+b                   INT                 IDENTIFIER          4         
+x                   CHAR                IDENTIFIER          29        
+a                   INT                 IDENTIFIER          46        
+pd                  INT                 IDENTIFIER          47        
+uk                  DOUBLE              IDENTIFIER          48        
+skipItAll           LABEL               IDENTIFIER          49        
+count               INT                 IDENTIFIER          50        
+---------------------------------------------------------------
+
+CONSTANT TABLE
+---------------------------------------------------------------
+VALUE                    TYPE                LINE      
+---------------------------------------------------------------
+5                        DECIMAL_LITERAL     4         
+7                        DECIMAL_LITERAL     4         
+"Bada Hai"               STRING_LITERAL      7         
+"\n"                     STRING_LITERAL      7         
+"Chota Hai"              STRING_LITERAL      10        
+"\n"                     STRING_LITERAL      10        
+"Saman Hai"              STRING_LITERAL      13        
+"\n"                     STRING_LITERAL      13        
+"Sure"                   STRING_LITERAL      16        
+"\n"                     STRING_LITERAL      16        
+"Not Sure"               STRING_LITERAL      20        
+"\n"                     STRING_LITERAL      20        
+"Is it possible"         STRING_LITERAL      22        
+"\n"                     STRING_LITERAL      22        
+"Not Equal"              STRING_LITERAL      25        
+"\n"                     STRING_LITERAL      25        
+"To be Printed"          STRING_LITERAL      26        
+"\n"                     STRING_LITERAL      26        
+'I'                      CHAR_LITERAL        29        
+'A'                      CHAR_LITERAL        31        
+"A"                      STRING_LITERAL      32        
+'B'                      CHAR_LITERAL        35        
+"B"                      STRING_LITERAL      36        
+"Other than A and B"     STRING_LITERAL      40        
+6.9                      DOUBLE_LITERAL      48        
+8                        DECIMAL_LITERAL     50        
+0                        DECIMAL_LITERAL     51        
+9                        DECIMAL_LITERAL     52        
+0                        DECIMAL_LITERAL     55        
+8                        DECIMAL_LITERAL     56        
+3                        DECIMAL_LITERAL     57        
+0                        DECIMAL_LITERAL     59        
+---------------------------------------------------------------
+
+ERRORS
+---------------------------------------------------------------

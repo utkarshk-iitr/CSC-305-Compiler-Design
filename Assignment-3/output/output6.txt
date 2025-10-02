@@ -1,0 +1,58 @@
+SYMBOL TABLE
+---------------------------------------------------------------
+NAME                DATATYPE            TYPE                LINE      
+---------------------------------------------------------------
+functionExample     VOID                FUNCTION            3         
+yy                  INT                 PARAM               7         
+anotherExample      INT                 FUNCTION            7         
+main                INT                 FUNCTION            11        
+a                   INT                 IDENTIFIER          12        
+b                   INT                 IDENTIFIER          12        
+x                   STRING              IDENTIFIER          43        
+foo                 VOID                IDENTIFIER          45        
+(                   INT                 IDENTIFIER          46        
+msg                 STRING              IDENTIFIER          49        
+ch                  CHAR                IDENTIFIER          50        
+---------------------------------------------------------------
+
+CONSTANT TABLE
+---------------------------------------------------------------
+VALUE                    TYPE                LINE      
+---------------------------------------------------------------
+"function"               STRING_LITERAL      4         
+83                       DECIMAL_LITERAL     8         
+10                       DECIMAL_LITERAL     12        
+5                        DECIMAL_LITERAL     12        
+2                        DECIMAL_LITERAL     13        
+1                        DECIMAL_LITERAL     14        
+2                        DECIMAL_LITERAL     15        
+3                        DECIMAL_LITERAL     16        
+1                        DECIMAL_LITERAL     17        
+2                        DECIMAL_LITERAL     18        
+4                        DECIMAL_LITERAL     19        
+1                        DECIMAL_LITERAL     20        
+2                        DECIMAL_LITERAL     21        
+"a bada hai"             STRING_LITERAL      23        
+"\n"                     STRING_LITERAL      23        
+"b bada hai"             STRING_LITERAL      26        
+"\n"                     STRING_LITERAL      26        
+1                        DECIMAL_LITERAL     30        
+"One"                    STRING_LITERAL      31        
+"\n"                     STRING_LITERAL      31        
+2                        DECIMAL_LITERAL     34        
+"Two"                    STRING_LITERAL      35        
+"\n"                     STRING_LITERAL      35        
+"Default case"           STRING_LITERAL      39        
+"\n"                     STRING_LITERAL      39        
+null                     NULLPTR             43        
+"endl"                   STRING_LITERAL      48        
+"Hello, world!"          STRING_LITERAL      49        
+'X'                      CHAR_LITERAL        50        
+0                        DECIMAL_LITERAL     54        
+---------------------------------------------------------------
+
+ERRORS
+Error: syntax error at line 51 near '123abc'
+Error: syntax error at line 52 near '1foo'
+Error: syntax error at line 53 near '$'
+---------------------------------------------------------------

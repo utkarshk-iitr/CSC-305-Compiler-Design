@@ -1,0 +1,43 @@
+SYMBOL TABLE
+---------------------------------------------------------------
+NAME                DATATYPE            TYPE                LINE      
+---------------------------------------------------------------
+main                INT                 FUNCTION            3         
+a                   LONG                IDENTIFIER          4         
+b                   LONG                IDENTIFIER          4         
+aa                  LONG                IDENTIFIER          4         
+bb                  LONG                IDENTIFIER          4         
+cc                  LONG                IDENTIFIER          4         
+dd                  LONG                IDENTIFIER          4         
+ff                  LONG                IDENTIFIER          4         
+gg                  LONG                IDENTIFIER          4         
+c                   INT                 IDENTIFIER          6         
+d                   INT                 IDENTIFIER          7         
+e                   INT                 IDENTIFIER          8         
+f                   INT                 IDENTIFIER          9         
+g                   INT                 IDENTIFIER          11        
+s                   INT                 IDENTIFIER          25        
+ee                  LONG                IDENTIFIER          35        
+---------------------------------------------------------------
+
+CONSTANT TABLE
+---------------------------------------------------------------
+VALUE                    TYPE                LINE      
+---------------------------------------------------------------
+5                        DECIMAL_LITERAL     4         
+0                        DECIMAL_LITERAL     10        
+99999                    DECIMAL_LITERAL     17        
+2                        DECIMAL_LITERAL     19        
+4                        DECIMAL_LITERAL     20        
+9                        DECIMAL_LITERAL     22        
+3                        DECIMAL_LITERAL     22        
+2                        DECIMAL_LITERAL     22        
+"\n"                     STRING_LITERAL      22        
+0                        DECIMAL_LITERAL     24        
+5                        DECIMAL_LITERAL     27        
+6                        DECIMAL_LITERAL     28        
+0                        DECIMAL_LITERAL     39        
+---------------------------------------------------------------
+
+ERRORS
+---------------------------------------------------------------

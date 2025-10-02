@@ -1,0 +1,34 @@
+#include <stdio.h>
+
+struct Node {
+    bool flag ;
+    int val ;
+    string name ;
+    static int id ;  
+}
+
+class Trie{
+    private :
+    Node *root;
+
+    public :
+    int lol ;
+    bool flag ;
+    string name;
+}
+
+int main() {
+    Trie PrefixString ;
+    string lol = "HelloWorld" ;
+
+    PrefixString.name = lol;
+    PrefixString.lol = 930;
+
+    Trie* boi = &PrefixString;
+    cout<<boi->name<<endl;
+    cout<<*boi.lol<<endl;
+
+    cout<<"Adesh$$$"<<endl;
+    cout<<"Adesh$$$;
+    return 0;
+}

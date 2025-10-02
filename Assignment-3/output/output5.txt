@@ -1,0 +1,49 @@
+SYMBOL TABLE
+---------------------------------------------------------------
+NAME                DATATYPE            TYPE                LINE      
+---------------------------------------------------------------
+Employee            CLASS               TYPE                3         
+salary              INT                 MEMBER              5         
+loan                DOUBLE              MEMBER              8         
+name                STRING              MEMBER              11        
+x                   INT                 PARAM               14        
+y                   INT                 PARAM               14        
+IsValid             BOOL                FUNCTION            14        
+emp                 Employee            PARAM               21        
+IncrementLoan       VOID                FUNCTION            21        
+main                INT                 FUNCTION            25        
+Raja                Employee            IDENTIFIER          27        
+Rani                Employee pointer    IDENTIFIER          32        
+i                   INT                 IDENTIFIER          36        
+---------------------------------------------------------------
+
+CONSTANT TABLE
+---------------------------------------------------------------
+VALUE                    TYPE                LINE      
+---------------------------------------------------------------
+"Origin"                 STRING_LITERAL      15        
+"\n"                     STRING_LITERAL      15        
+0                        DECIMAL_LITERAL     16        
+0                        DECIMAL_LITERAL     16        
+10                       DECIMAL_LITERAL     16        
+10                       DECIMAL_LITERAL     16        
+true                     BOOL_LITERAL        16        
+false                    BOOL_LITERAL        18        
+1                        DECIMAL_LITERAL     22        
+5                        DECIMAL_LITERAL     26        
+7                        DECIMAL_LITERAL     26        
+"Ha Valid Hai"           STRING_LITERAL      26        
+"\t"                     STRING_LITERAL      26        
+"\n"                     STRING_LITERAL      26        
+0                        DECIMAL_LITERAL     37        
+90                       DECIMAL_LITERAL     37        
+40                       DECIMAL_LITERAL     38        
+" "                      STRING_LITERAL      39        
+"\n"                     STRING_LITERAL      41        
+"No Match Found"         STRING_LITERAL      43        
+"\n"                     STRING_LITERAL      43        
+0                        DECIMAL_LITERAL     45        
+---------------------------------------------------------------
+
+ERRORS
+---------------------------------------------------------------

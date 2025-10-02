@@ -4,8 +4,7 @@ Terminals unused in grammar
 
 
 State 107 conflicts: 2 shift/reduce
-State 191 conflicts: 1 shift/reduce
-State 193 conflicts: 1 shift/reduce
+State 194 conflicts: 1 shift/reduce
 
 
 Grammar
@@ -66,11 +65,11 @@ Grammar
    45 pointer_opt: STAR pointer_opt
    46            | STAR
 
-   47 scalar_new_init_opt: LROUND RROUND
-   48                    | LROUND argument_expression_list RROUND
+   47 new_declarator: LSQUARE expression RSQUARE
+   48               | new_declarator LSQUARE expression RSQUARE
 
-   49 new_declarator: LSQUARE expression RSQUARE
-   50               | new_declarator LSQUARE expression RSQUARE
+   49 scalar_new_init_opt: LROUND RROUND
+   50                    | LROUND argument_expression_list RROUND
 
    51 delete_expression: DELETE LSQUARE RSQUARE cast_expression
    52                  | DELETE cast_expression
@@ -343,9 +342,9 @@ Grammar
   251                        | LROUND parameter_list RROUND
 
   252 trailing_return_opt: ε
-  253                    | ARROW type_specifier
+  253                    | ARROW type_name
 
-  254 lambda_capture_clause: ε
+  254 lambda_capture_clause: MINUS
   255                      | ASSIGN
   256                      | capture_list
   257                      | capture_list COMMA ASSIGN
@@ -363,7 +362,7 @@ Terminals, with rules where they appear
     TYPEDEF <str> (259) 113
     TYPE_NAME <str> (260) 123
     PLUS <str> (261) 33 60
-    MINUS <str> (262) 34 61
+    MINUS <str> (262) 34 61 254
     STAR <str> (263) 32 45 46 56 162 163 164 165
     DIVIDE <str> (264) 57
     MODULUS <str> (265) 58
@@ -395,12 +394,12 @@ Terminals, with rules where they appear
     XOR_EQUAL <str> (291) 96
     LEFT_SHIFT_EQ <str> (292) 93
     RIGHT_SHIFT_EQ <str> (293) 94
-    LROUND <str> (294) 3 15 16 28 47 48 54 142 143 144 156 159 160 161 181 186 187 188 189 223 224 225 226 227 228 229 230 250 251
-    RROUND <str> (295) 3 15 16 28 47 48 54 142 143 144 156 159 160 161 181 186 187 188 189 223 224 225 226 227 228 229 230 250 251
+    LROUND <str> (294) 3 15 16 28 49 50 54 142 143 144 156 159 160 161 181 186 187 188 189 223 224 225 226 227 228 229 230 250 251
+    RROUND <str> (295) 3 15 16 28 49 50 54 142 143 144 156 159 160 161 181 186 187 188 189 223 224 225 226 227 228 229 230 250 251
     LCURLY <str> (296) 124 191 192 215 216 217 218
     RCURLY <str> (297) 124 191 192 215 216 217 218
-    LSQUARE <str> (298) 14 49 50 51 157 158 182 183 184 185 247 248
-    RSQUARE <str> (299) 14 49 50 51 157 158 182 183 184 185 247 248
+    LSQUARE <str> (298) 14 47 48 51 157 158 182 183 184 185 247 248
+    RSQUARE <str> (299) 14 47 48 51 157 158 182 183 184 185 247 248
     SEMICOLON <str> (300) 101 102 135 136 138 139 202 203 221 222 228 233 234 235 236 237 241
     COLON <str> (301) 84 132 133 134 212 213 214
     COMMA <str> (302) 22 99 110 146 170 175 192 194 257 258 260
@@ -468,7 +467,7 @@ Nonterminals, with rules where they appear
         on right: 14 15 16 17 18 19 20 23
     argument_expression_list (99)
         on left: 21 22
-        on right: 16 22 48
+        on right: 16 22 50
     unary_expression (100)
         on left: 23 24 25 26 27 28 29 30
         on right: 24 25 27 53 86
@@ -481,12 +480,12 @@ Nonterminals, with rules where they appear
     pointer_opt (103)
         on left: 45 46
         on right: 37 39 40 41 45
-    scalar_new_init_opt (104)
+    new_declarator (104)
         on left: 47 48
-        on right: 37 38 39 43
-    new_declarator (105)
+        on right: 37 38 40 42 48
+    scalar_new_init_opt (105)
         on left: 49 50
-        on right: 37 38 40 42 50
+        on right: 37 38 39 43
     delete_expression (106)
         on left: 51 52
         on right: 29
@@ -534,7 +533,7 @@ Nonterminals, with rules where they appear
         on right: 86
     expression (121)
         on left: 98 99
-        on right: 3 14 49 50 84 99 222 223 224 225 226 227 228 230 237
+        on right: 3 14 47 48 84 99 222 223 224 225 226 227 228 230 237
     constant_expression (122)
         on left: 100
         on right: 157 183 185 213
@@ -555,7 +554,7 @@ Nonterminals, with rules where they appear
         on right: 103 104
     type_specifier (128)
         on left: 116 117 118 119 120 121 122 123
-        on right: 37 38 39 40 41 42 43 44 105 106 148 149 253
+        on right: 37 38 39 40 41 42 43 44 105 106 148 149
     struct_or_class_specifier (129)
         on left: 124 125
         on right: 138 241
@@ -618,7 +617,7 @@ Nonterminals, with rules where they appear
         on right: 160 175
     type_name (149)
         on left: 176 177
-        on right: 28 54
+        on right: 28 54 253
     abstract_declarator (150)
         on left: 178 179 180
         on right: 172 177 181
@@ -1733,13 +1732,12 @@ State 68
   247 lambda_expression: LSQUARE • lambda_capture_clause RSQUARE lambda_declarator compound_statement
   248                  | LSQUARE • lambda_capture_clause RSQUARE compound_statement
 
-    ASSIGN      shift, and go to state 172
-    IDENTIFIER  shift, and go to state 173
+    MINUS       shift, and go to state 172
+    ASSIGN      shift, and go to state 173
+    IDENTIFIER  shift, and go to state 174
 
-    $default  reduce using rule 254 (lambda_capture_clause)
-
-    lambda_capture_clause  go to state 174
-    capture_list           go to state 175
+    lambda_capture_clause  go to state 175
+    capture_list           go to state 176
 
 
 State 69
@@ -1761,14 +1759,14 @@ State 71
   223 selection_statement: IF • LROUND expression RROUND statement
   224                    | IF • LROUND expression RROUND statement ELSE statement
 
-    LROUND  shift, and go to state 176
+    LROUND  shift, and go to state 177
 
 
 State 72
 
   225 selection_statement: SWITCH • LROUND expression RROUND statement
 
-    LROUND  shift, and go to state 177
+    LROUND  shift, and go to state 178
 
 
 State 73
@@ -1817,7 +1815,7 @@ State 73
     logical_and_expression     go to state 113
     logical_or_expression      go to state 114
     conditional_expression     go to state 143
-    constant_expression        go to state 178
+    constant_expression        go to state 179
     lambda_expression          go to state 132
 
 
@@ -1825,14 +1823,14 @@ State 74
 
   214 labeled_statement: DEFAULT • COLON statement
 
-    COLON  shift, and go to state 179
+    COLON  shift, and go to state 180
 
 
 State 75
 
   226 iteration_statement: WHILE • LROUND expression RROUND statement
 
-    LROUND  shift, and go to state 180
+    LROUND  shift, and go to state 181
 
 
 State 76
@@ -1899,7 +1897,7 @@ State 76
     conditional_expression     go to state 115
     assignment_expression      go to state 116
     expression                 go to state 117
-    statement                  go to state 181
+    statement                  go to state 182
     io_statement               go to state 121
     cout_expression            go to state 122
     cin_expression             go to state 123
@@ -1917,28 +1915,28 @@ State 77
   229 iteration_statement: FOR • LROUND for_init_statement expression_statement RROUND statement
   230                    | FOR • LROUND for_init_statement expression_statement expression RROUND statement
 
-    LROUND  shift, and go to state 182
+    LROUND  shift, and go to state 183
 
 
 State 78
 
   233 jump_statement: GOTO • IDENTIFIER SEMICOLON
 
-    IDENTIFIER  shift, and go to state 183
+    IDENTIFIER  shift, and go to state 184
 
 
 State 79
 
   234 jump_statement: CONTINUE • SEMICOLON
 
-    SEMICOLON  shift, and go to state 184
+    SEMICOLON  shift, and go to state 185
 
 
 State 80
 
   235 jump_statement: BREAK • SEMICOLON
 
-    SEMICOLON  shift, and go to state 185
+    SEMICOLON  shift, and go to state 186
 
 
 State 81
@@ -1955,7 +1953,7 @@ State 81
     LOGICAL_NOT        shift, and go to state 65
     LROUND             shift, and go to state 66
     LSQUARE            shift, and go to state 68
-    SEMICOLON          shift, and go to state 186
+    SEMICOLON          shift, and go to state 187
     TILDE              shift, and go to state 70
     SIZEOF             shift, and go to state 83
     TRUE               shift, and go to state 84
@@ -1990,7 +1988,7 @@ State 81
     logical_or_expression      go to state 114
     conditional_expression     go to state 115
     assignment_expression      go to state 116
-    expression                 go to state 187
+    expression                 go to state 188
     lambda_expression          go to state 132
 
 
@@ -1998,7 +1996,7 @@ State 82
 
   227 iteration_statement: UNTIL • LROUND expression RROUND statement
 
-    LROUND  shift, and go to state 188
+    LROUND  shift, and go to state 189
 
 
 State 83
@@ -2013,7 +2011,7 @@ State 83
     DECREMENT          shift, and go to state 63
     BITWISE_AND        shift, and go to state 64
     LOGICAL_NOT        shift, and go to state 65
-    LROUND             shift, and go to state 189
+    LROUND             shift, and go to state 190
     LSQUARE            shift, and go to state 68
     TILDE              shift, and go to state 70
     SIZEOF             shift, and go to state 83
@@ -2032,7 +2030,7 @@ State 83
     primary_expression  go to state 97
     constant            go to state 98
     postfix_expression  go to state 99
-    unary_expression    go to state 190
+    unary_expression    go to state 191
     unary_operator      go to state 101
     new_expression      go to state 102
     delete_expression   go to state 103
@@ -2073,7 +2071,7 @@ State 87
     BITWISE_AND        shift, and go to state 64
     LOGICAL_NOT        shift, and go to state 65
     LROUND             shift, and go to state 66
-    LSQUARE            shift, and go to state 191
+    LSQUARE            shift, and go to state 192
     TILDE              shift, and go to state 70
     SIZEOF             shift, and go to state 83
     TRUE               shift, and go to state 84
@@ -2095,7 +2093,7 @@ State 87
     unary_operator      go to state 101
     new_expression      go to state 102
     delete_expression   go to state 103
-    cast_expression     go to state 192
+    cast_expression     go to state 193
     lambda_expression   go to state 132
 
 
@@ -2119,25 +2117,25 @@ State 88
     STRING     shift, and go to state 10
     LONG       shift, and go to state 11
 
-    type_specifier  go to state 193
+    type_specifier  go to state 194
 
 
 State 89
 
   209 cin_expression: CIN • extraction_list
 
-    RIGHT_SHIFT  shift, and go to state 194
+    RIGHT_SHIFT  shift, and go to state 195
 
-    extraction_list  go to state 195
+    extraction_list  go to state 196
 
 
 State 90
 
   204 cout_expression: COUT • insertion_list
 
-    LEFT_SHIFT  shift, and go to state 196
+    LEFT_SHIFT  shift, and go to state 197
 
-    insertion_list  go to state 197
+    insertion_list  go to state 198
 
 
 State 91
@@ -2145,7 +2143,7 @@ State 91
     1 primary_expression: IDENTIFIER •
   212 labeled_statement: IDENTIFIER • COLON statement
 
-    COLON  shift, and go to state 198
+    COLON  shift, and go to state 199
 
     $default  reduce using rule 1 (primary_expression)
 
@@ -2210,12 +2208,12 @@ State 99
    20                   | postfix_expression • DECREMENT
    23 unary_expression: postfix_expression •
 
-    INCREMENT  shift, and go to state 199
-    DECREMENT  shift, and go to state 200
-    ARROW      shift, and go to state 201
-    LROUND     shift, and go to state 202
-    LSQUARE    shift, and go to state 203
-    DOT        shift, and go to state 204
+    INCREMENT  shift, and go to state 200
+    DECREMENT  shift, and go to state 201
+    ARROW      shift, and go to state 202
+    LROUND     shift, and go to state 203
+    LSQUARE    shift, and go to state 204
+    DOT        shift, and go to state 205
 
     $default  reduce using rule 23 (unary_expression)
 
@@ -2225,21 +2223,21 @@ State 100
    53 cast_expression: unary_expression •
    86 assignment_expression: unary_expression • assignment_operator assignment_expression
 
-    ASSIGN          shift, and go to state 205
-    PLUS_EQUAL      shift, and go to state 206
-    MINUS_EQUAL     shift, and go to state 207
-    STAR_EQUAL      shift, and go to state 208
-    DIV_EQUAL       shift, and go to state 209
-    MOD_EQUAL       shift, and go to state 210
-    AND_EQUAL       shift, and go to state 211
-    OR_EQUAL        shift, and go to state 212
-    XOR_EQUAL       shift, and go to state 213
-    LEFT_SHIFT_EQ   shift, and go to state 214
-    RIGHT_SHIFT_EQ  shift, and go to state 215
+    ASSIGN          shift, and go to state 206
+    PLUS_EQUAL      shift, and go to state 207
+    MINUS_EQUAL     shift, and go to state 208
+    STAR_EQUAL      shift, and go to state 209
+    DIV_EQUAL       shift, and go to state 210
+    MOD_EQUAL       shift, and go to state 211
+    AND_EQUAL       shift, and go to state 212
+    OR_EQUAL        shift, and go to state 213
+    XOR_EQUAL       shift, and go to state 214
+    LEFT_SHIFT_EQ   shift, and go to state 215
+    RIGHT_SHIFT_EQ  shift, and go to state 216
 
     $default  reduce using rule 53 (cast_expression)
 
-    assignment_operator  go to state 216
+    assignment_operator  go to state 217
 
 
 State 101
@@ -2276,7 +2274,7 @@ State 101
     unary_operator      go to state 101
     new_expression      go to state 102
     delete_expression   go to state 103
-    cast_expression     go to state 217
+    cast_expression     go to state 218
     lambda_expression   go to state 132
 
 
@@ -2308,9 +2306,9 @@ State 105
    58                          | multiplicative_expression • MODULUS cast_expression
    59 additive_expression: multiplicative_expression •
 
-    STAR     shift, and go to state 218
-    DIVIDE   shift, and go to state 219
-    MODULUS  shift, and go to state 220
+    STAR     shift, and go to state 219
+    DIVIDE   shift, and go to state 220
+    MODULUS  shift, and go to state 221
 
     $default  reduce using rule 59 (additive_expression)
 
@@ -2321,8 +2319,8 @@ State 106
    61                    | additive_expression • MINUS multiplicative_expression
    62 shift_expression: additive_expression •
 
-    PLUS   shift, and go to state 221
-    MINUS  shift, and go to state 222
+    PLUS   shift, and go to state 222
+    MINUS  shift, and go to state 223
 
     $default  reduce using rule 62 (shift_expression)
 
@@ -2333,8 +2331,8 @@ State 107
    64                 | shift_expression • RIGHT_SHIFT additive_expression
    65 relational_expression: shift_expression •
 
-    LEFT_SHIFT   shift, and go to state 223
-    RIGHT_SHIFT  shift, and go to state 224
+    LEFT_SHIFT   shift, and go to state 224
+    RIGHT_SHIFT  shift, and go to state 225
 
     LEFT_SHIFT   [reduce using rule 65 (relational_expression)]
     RIGHT_SHIFT  [reduce using rule 65 (relational_expression)]
@@ -2349,10 +2347,10 @@ State 108
    69                      | relational_expression • GREATER_EQUAL shift_expression
    70 equality_expression: relational_expression •
 
-    LESS_THAN      shift, and go to state 225
-    GREATER_THAN   shift, and go to state 226
-    LESS_EQUAL     shift, and go to state 227
-    GREATER_EQUAL  shift, and go to state 228
+    LESS_THAN      shift, and go to state 226
+    GREATER_THAN   shift, and go to state 227
+    LESS_EQUAL     shift, and go to state 228
+    GREATER_EQUAL  shift, and go to state 229
 
     $default  reduce using rule 70 (equality_expression)
 
@@ -2363,8 +2361,8 @@ State 109
    72                    | equality_expression • NOT_EQUAL relational_expression
    73 and_expression: equality_expression •
 
-    EQUAL      shift, and go to state 229
-    NOT_EQUAL  shift, and go to state 230
+    EQUAL      shift, and go to state 230
+    NOT_EQUAL  shift, and go to state 231
 
     $default  reduce using rule 73 (and_expression)
 
@@ -2374,7 +2372,7 @@ State 110
    74 and_expression: and_expression • BITWISE_AND equality_expression
    75 exclusive_or_expression: and_expression •
 
-    BITWISE_AND  shift, and go to state 231
+    BITWISE_AND  shift, and go to state 232
 
     $default  reduce using rule 75 (exclusive_or_expression)
 
@@ -2384,7 +2382,7 @@ State 111
    76 exclusive_or_expression: exclusive_or_expression • BITWISE_XOR and_expression
    77 inclusive_or_expression: exclusive_or_expression •
 
-    BITWISE_XOR  shift, and go to state 232
+    BITWISE_XOR  shift, and go to state 233
 
     $default  reduce using rule 77 (inclusive_or_expression)
 
@@ -2394,7 +2392,7 @@ State 112
    78 inclusive_or_expression: inclusive_or_expression • BITWISE_OR exclusive_or_expression
    79 logical_and_expression: inclusive_or_expression •
 
-    BITWISE_OR  shift, and go to state 233
+    BITWISE_OR  shift, and go to state 234
 
     $default  reduce using rule 79 (logical_and_expression)
 
@@ -2404,7 +2402,7 @@ State 113
    80 logical_and_expression: logical_and_expression • LOGICAL_AND inclusive_or_expression
    81 logical_or_expression: logical_and_expression •
 
-    LOGICAL_AND  shift, and go to state 234
+    LOGICAL_AND  shift, and go to state 235
 
     $default  reduce using rule 81 (logical_or_expression)
 
@@ -2415,8 +2413,8 @@ State 114
    83 conditional_expression: logical_or_expression •
    84                       | logical_or_expression • QUESTION_MARK expression COLON conditional_expression
 
-    LOGICAL_OR     shift, and go to state 235
-    QUESTION_MARK  shift, and go to state 236
+    LOGICAL_OR     shift, and go to state 236
+    QUESTION_MARK  shift, and go to state 237
 
     $default  reduce using rule 83 (conditional_expression)
 
@@ -2440,8 +2438,8 @@ State 117
    99 expression: expression • COMMA assignment_expression
   222 expression_statement: expression • SEMICOLON
 
-    SEMICOLON  shift, and go to state 237
-    COMMA      shift, and go to state 238
+    SEMICOLON  shift, and go to state 238
+    COMMA      shift, and go to state 239
 
 
 State 118
@@ -2486,14 +2484,14 @@ State 122
 
   202 io_statement: cout_expression • SEMICOLON
 
-    SEMICOLON  shift, and go to state 239
+    SEMICOLON  shift, and go to state 240
 
 
 State 123
 
   203 io_statement: cin_expression • SEMICOLON
 
-    SEMICOLON  shift, and go to state 240
+    SEMICOLON  shift, and go to state 241
 
 
 State 124
@@ -2524,7 +2522,7 @@ State 126
     LOGICAL_NOT        shift, and go to state 65
     LROUND             shift, and go to state 66
     LCURLY             shift, and go to state 44
-    RCURLY             shift, and go to state 241
+    RCURLY             shift, and go to state 242
     LSQUARE            shift, and go to state 68
     SEMICOLON          shift, and go to state 69
     TILDE              shift, and go to state 70
@@ -2576,7 +2574,7 @@ State 126
     conditional_expression     go to state 115
     assignment_expression      go to state 116
     expression                 go to state 117
-    statement                  go to state 242
+    statement                  go to state 243
     io_statement               go to state 121
     cout_expression            go to state 122
     cin_expression             go to state 123
@@ -2634,7 +2632,7 @@ State 131
     LOGICAL_NOT        shift, and go to state 65
     LROUND             shift, and go to state 66
     LCURLY             shift, and go to state 44
-    RCURLY             shift, and go to state 243
+    RCURLY             shift, and go to state 244
     LSQUARE            shift, and go to state 68
     SEMICOLON          shift, and go to state 69
     TILDE              shift, and go to state 70
@@ -2696,7 +2694,7 @@ State 131
     conditional_expression     go to state 115
     assignment_expression      go to state 116
     expression                 go to state 117
-    declaration                go to state 244
+    declaration                go to state 245
     declaration_specifiers     go to state 119
     storage_class_specifier    go to state 20
     type_specifier             go to state 21
@@ -2707,7 +2705,7 @@ State 131
     cin_expression             go to state 123
     labeled_statement          go to state 124
     compound_statement         go to state 125
-    statement_list             go to state 245
+    statement_list             go to state 246
     expression_statement       go to state 127
     selection_statement        go to state 128
     iteration_statement        go to state 129
@@ -2743,24 +2741,24 @@ State 135
   173                      | declaration_specifiers •
 
     STAR        shift, and go to state 3
-    LROUND      shift, and go to state 246
-    LSQUARE     shift, and go to state 247
+    LROUND      shift, and go to state 247
+    LSQUARE     shift, and go to state 248
     IDENTIFIER  shift, and go to state 17
 
     $default  reduce using rule 173 (parameter_declaration)
 
-    declarator                  go to state 248
+    declarator                  go to state 249
     direct_declarator           go to state 26
-    pointer                     go to state 249
-    abstract_declarator         go to state 250
-    direct_abstract_declarator  go to state 251
+    pointer                     go to state 250
+    abstract_declarator         go to state 251
+    direct_abstract_declarator  go to state 252
 
 
 State 136
 
   159 direct_declarator: direct_declarator LROUND parameter_type_list • RROUND
 
-    RROUND  shift, and go to state 252
+    RROUND  shift, and go to state 253
 
 
 State 137
@@ -2768,7 +2766,7 @@ State 137
   168 parameter_type_list: parameter_list •
   170 parameter_list: parameter_list • COMMA parameter_declaration
 
-    COMMA  shift, and go to state 253
+    COMMA  shift, and go to state 254
 
     $default  reduce using rule 168 (parameter_type_list)
 
@@ -2785,8 +2783,8 @@ State 139
   160 direct_declarator: direct_declarator LROUND identifier_list • RROUND
   175 identifier_list: identifier_list • COMMA IDENTIFIER
 
-    RROUND  shift, and go to state 254
-    COMMA   shift, and go to state 255
+    RROUND  shift, and go to state 255
+    COMMA   shift, and go to state 256
 
 
 State 140
@@ -2821,7 +2819,7 @@ State 144
 
   157 direct_declarator: direct_declarator LSQUARE constant_expression • RSQUARE
 
-    RSQUARE  shift, and go to state 256
+    RSQUARE  shift, and go to state 257
 
 
 State 145
@@ -2890,8 +2888,8 @@ State 147
     logical_or_expression      go to state 114
     conditional_expression     go to state 115
     assignment_expression      go to state 148
-    initializer                go to state 257
-    initializer_list           go to state 258
+    initializer                go to state 258
+    initializer_list           go to state 259
     lambda_expression          go to state 132
 
 
@@ -2920,28 +2918,28 @@ State 151
 
   144 destructor_definition: TILDE • IDENTIFIER LROUND RROUND compound_statement
 
-    IDENTIFIER  shift, and go to state 259
+    IDENTIFIER  shift, and go to state 260
 
 
 State 152
 
   132 access_specifier_label: PUBLIC • COLON
 
-    COLON  shift, and go to state 260
+    COLON  shift, and go to state 261
 
 
 State 153
 
   133 access_specifier_label: PRIVATE • COLON
 
-    COLON  shift, and go to state 261
+    COLON  shift, and go to state 262
 
 
 State 154
 
   134 access_specifier_label: PROTECTED • COLON
 
-    COLON  shift, and go to state 262
+    COLON  shift, and go to state 263
 
 
 State 155
@@ -2949,7 +2947,7 @@ State 155
   142 constructor_definition: IDENTIFIER • LROUND parameter_list RROUND compound_statement
   143                       | IDENTIFIER • LROUND RROUND compound_statement
 
-    LROUND  shift, and go to state 263
+    LROUND  shift, and go to state 264
 
 
 State 156
@@ -2970,7 +2968,7 @@ State 156
     $default  reduce using rule 149 (specifier_qualifier_list)
 
     type_specifier            go to state 156
-    specifier_qualifier_list  go to state 264
+    specifier_qualifier_list  go to state 265
     type_qualifier            go to state 165
 
 
@@ -2978,7 +2976,7 @@ State 157
 
   138 member_declaration: struct_or_class_specifier • SEMICOLON
 
-    SEMICOLON  shift, and go to state 265
+    SEMICOLON  shift, and go to state 266
 
 
 State 158
@@ -2987,7 +2985,7 @@ State 158
   129 struct_or_class_member_list: struct_or_class_member_list • struct_or_class_member
 
     TYPE_NAME   shift, and go to state 2
-    RCURLY      shift, and go to state 266
+    RCURLY      shift, and go to state 267
     SEMICOLON   shift, and go to state 150
     TILDE       shift, and go to state 151
     VOID        shift, and go to state 5
@@ -3008,7 +3006,7 @@ State 158
     type_specifier             go to state 156
     struct_or_class_specifier  go to state 157
     struct_or_class            go to state 23
-    struct_or_class_member     go to state 267
+    struct_or_class_member     go to state 268
     access_specifier_label     go to state 160
     member_declaration         go to state 161
     constructor_definition     go to state 162
@@ -3060,13 +3058,13 @@ State 164
 
     STAR        shift, and go to state 3
     LROUND      shift, and go to state 4
-    SEMICOLON   shift, and go to state 268
+    SEMICOLON   shift, and go to state 269
     IDENTIFIER  shift, and go to state 17
 
-    init_declarator         go to state 269
-    struct_declarator_list  go to state 270
-    struct_declarator       go to state 271
-    declarator              go to state 272
+    init_declarator         go to state 270
+    struct_declarator_list  go to state 271
+    struct_declarator       go to state 272
+    declarator              go to state 273
     direct_declarator       go to state 26
     pointer                 go to state 27
 
@@ -3089,7 +3087,7 @@ State 165
     $default  reduce using rule 151 (specifier_qualifier_list)
 
     type_specifier            go to state 156
-    specifier_qualifier_list  go to state 273
+    specifier_qualifier_list  go to state 274
     type_qualifier            go to state 165
 
 
@@ -3163,8 +3161,8 @@ State 169
     3 primary_expression: LROUND expression • RROUND
    99 expression: expression • COMMA assignment_expression
 
-    RROUND  shift, and go to state 274
-    COMMA   shift, and go to state 238
+    RROUND  shift, and go to state 275
+    COMMA   shift, and go to state 239
 
 
 State 170
@@ -3173,114 +3171,70 @@ State 170
   177          | specifier_qualifier_list • abstract_declarator
 
     STAR     shift, and go to state 3
-    LROUND   shift, and go to state 275
-    LSQUARE  shift, and go to state 247
+    LROUND   shift, and go to state 276
+    LSQUARE  shift, and go to state 248
 
     $default  reduce using rule 176 (type_name)
 
-    pointer                     go to state 276
-    abstract_declarator         go to state 277
-    direct_abstract_declarator  go to state 251
+    pointer                     go to state 277
+    abstract_declarator         go to state 278
+    direct_abstract_declarator  go to state 252
 
 
 State 171
 
    54 cast_expression: LROUND type_name • RROUND cast_expression
 
-    RROUND  shift, and go to state 278
+    RROUND  shift, and go to state 279
 
 
 State 172
 
+  254 lambda_capture_clause: MINUS •
+
+    $default  reduce using rule 254 (lambda_capture_clause)
+
+
+State 173
+
   255 lambda_capture_clause: ASSIGN •
   258                      | ASSIGN • COMMA capture_list
 
-    COMMA  shift, and go to state 279
+    COMMA  shift, and go to state 280
 
     $default  reduce using rule 255 (lambda_capture_clause)
 
 
-State 173
+State 174
 
   259 capture_list: IDENTIFIER •
 
     $default  reduce using rule 259 (capture_list)
 
 
-State 174
+State 175
 
   247 lambda_expression: LSQUARE lambda_capture_clause • RSQUARE lambda_declarator compound_statement
   248                  | LSQUARE lambda_capture_clause • RSQUARE compound_statement
 
-    RSQUARE  shift, and go to state 280
+    RSQUARE  shift, and go to state 281
 
 
-State 175
+State 176
 
   256 lambda_capture_clause: capture_list •
   257                      | capture_list • COMMA ASSIGN
   260 capture_list: capture_list • COMMA IDENTIFIER
 
-    COMMA  shift, and go to state 281
+    COMMA  shift, and go to state 282
 
     $default  reduce using rule 256 (lambda_capture_clause)
 
 
-State 176
+State 177
 
   223 selection_statement: IF LROUND • expression RROUND statement
   224                    | IF LROUND • expression RROUND statement ELSE statement
-
-    PLUS               shift, and go to state 59
-    MINUS              shift, and go to state 60
-    STAR               shift, and go to state 61
-    INCREMENT          shift, and go to state 62
-    DECREMENT          shift, and go to state 63
-    BITWISE_AND        shift, and go to state 64
-    LOGICAL_NOT        shift, and go to state 65
-    LROUND             shift, and go to state 66
-    LSQUARE            shift, and go to state 68
-    TILDE              shift, and go to state 70
-    SIZEOF             shift, and go to state 83
-    TRUE               shift, and go to state 84
-    FALSE              shift, and go to state 85
-    NULLPTR            shift, and go to state 86
-    DELETE             shift, and go to state 87
-    NEW                shift, and go to state 88
-    IDENTIFIER         shift, and go to state 141
-    DECIMAL_LITERAL    shift, and go to state 92
-    DOUBLE_LITERAL     shift, and go to state 93
-    EXPONENT_LITERAL   shift, and go to state 94
-    CHARACTER_LITERAL  shift, and go to state 95
-    STRING_LITERAL     shift, and go to state 96
-
-    primary_expression         go to state 97
-    constant                   go to state 98
-    postfix_expression         go to state 99
-    unary_expression           go to state 100
-    unary_operator             go to state 101
-    new_expression             go to state 102
-    delete_expression          go to state 103
-    cast_expression            go to state 104
-    multiplicative_expression  go to state 105
-    additive_expression        go to state 106
-    shift_expression           go to state 107
-    relational_expression      go to state 108
-    equality_expression        go to state 109
-    and_expression             go to state 110
-    exclusive_or_expression    go to state 111
-    inclusive_or_expression    go to state 112
-    logical_and_expression     go to state 113
-    logical_or_expression      go to state 114
-    conditional_expression     go to state 115
-    assignment_expression      go to state 116
-    expression                 go to state 282
-    lambda_expression          go to state 132
-
-
-State 177
-
-  225 selection_statement: SWITCH LROUND • expression RROUND statement
 
     PLUS               shift, and go to state 59
     MINUS              shift, and go to state 60
@@ -3331,12 +3285,63 @@ State 177
 
 State 178
 
-  213 labeled_statement: CASE constant_expression • COLON statement
+  225 selection_statement: SWITCH LROUND • expression RROUND statement
 
-    COLON  shift, and go to state 284
+    PLUS               shift, and go to state 59
+    MINUS              shift, and go to state 60
+    STAR               shift, and go to state 61
+    INCREMENT          shift, and go to state 62
+    DECREMENT          shift, and go to state 63
+    BITWISE_AND        shift, and go to state 64
+    LOGICAL_NOT        shift, and go to state 65
+    LROUND             shift, and go to state 66
+    LSQUARE            shift, and go to state 68
+    TILDE              shift, and go to state 70
+    SIZEOF             shift, and go to state 83
+    TRUE               shift, and go to state 84
+    FALSE              shift, and go to state 85
+    NULLPTR            shift, and go to state 86
+    DELETE             shift, and go to state 87
+    NEW                shift, and go to state 88
+    IDENTIFIER         shift, and go to state 141
+    DECIMAL_LITERAL    shift, and go to state 92
+    DOUBLE_LITERAL     shift, and go to state 93
+    EXPONENT_LITERAL   shift, and go to state 94
+    CHARACTER_LITERAL  shift, and go to state 95
+    STRING_LITERAL     shift, and go to state 96
+
+    primary_expression         go to state 97
+    constant                   go to state 98
+    postfix_expression         go to state 99
+    unary_expression           go to state 100
+    unary_operator             go to state 101
+    new_expression             go to state 102
+    delete_expression          go to state 103
+    cast_expression            go to state 104
+    multiplicative_expression  go to state 105
+    additive_expression        go to state 106
+    shift_expression           go to state 107
+    relational_expression      go to state 108
+    equality_expression        go to state 109
+    and_expression             go to state 110
+    exclusive_or_expression    go to state 111
+    inclusive_or_expression    go to state 112
+    logical_and_expression     go to state 113
+    logical_or_expression      go to state 114
+    conditional_expression     go to state 115
+    assignment_expression      go to state 116
+    expression                 go to state 284
+    lambda_expression          go to state 132
 
 
 State 179
+
+  213 labeled_statement: CASE constant_expression • COLON statement
+
+    COLON  shift, and go to state 285
+
+
+State 180
 
   214 labeled_statement: DEFAULT COLON • statement
 
@@ -3400,7 +3405,7 @@ State 179
     conditional_expression     go to state 115
     assignment_expression      go to state 116
     expression                 go to state 117
-    statement                  go to state 285
+    statement                  go to state 286
     io_statement               go to state 121
     cout_expression            go to state 122
     cin_expression             go to state 123
@@ -3413,7 +3418,7 @@ State 179
     lambda_expression          go to state 132
 
 
-State 180
+State 181
 
   226 iteration_statement: WHILE LROUND • expression RROUND statement
 
@@ -3460,18 +3465,18 @@ State 180
     logical_or_expression      go to state 114
     conditional_expression     go to state 115
     assignment_expression      go to state 116
-    expression                 go to state 286
+    expression                 go to state 287
     lambda_expression          go to state 132
 
 
-State 181
+State 182
 
   228 iteration_statement: DO statement • WHILE LROUND expression RROUND SEMICOLON
 
-    WHILE  shift, and go to state 287
+    WHILE  shift, and go to state 288
 
 
-State 182
+State 183
 
   229 iteration_statement: FOR LROUND • for_init_statement expression_statement RROUND statement
   230                    | FOR LROUND • for_init_statement expression_statement expression RROUND statement
@@ -3533,54 +3538,54 @@ State 182
     conditional_expression     go to state 115
     assignment_expression      go to state 116
     expression                 go to state 117
-    declaration                go to state 288
+    declaration                go to state 289
     declaration_specifiers     go to state 119
     storage_class_specifier    go to state 20
     type_specifier             go to state 21
     type_qualifier             go to state 24
-    expression_statement       go to state 289
-    for_init_statement         go to state 290
+    expression_statement       go to state 290
+    for_init_statement         go to state 291
     lambda_expression          go to state 132
 
 
-State 183
+State 184
 
   233 jump_statement: GOTO IDENTIFIER • SEMICOLON
 
-    SEMICOLON  shift, and go to state 291
+    SEMICOLON  shift, and go to state 292
 
 
-State 184
+State 185
 
   234 jump_statement: CONTINUE SEMICOLON •
 
     $default  reduce using rule 234 (jump_statement)
 
 
-State 185
+State 186
 
   235 jump_statement: BREAK SEMICOLON •
 
     $default  reduce using rule 235 (jump_statement)
 
 
-State 186
+State 187
 
   236 jump_statement: RETURN SEMICOLON •
 
     $default  reduce using rule 236 (jump_statement)
 
 
-State 187
+State 188
 
    99 expression: expression • COMMA assignment_expression
   237 jump_statement: RETURN expression • SEMICOLON
 
-    SEMICOLON  shift, and go to state 292
-    COMMA      shift, and go to state 238
+    SEMICOLON  shift, and go to state 293
+    COMMA      shift, and go to state 239
 
 
-State 188
+State 189
 
   227 iteration_statement: UNTIL LROUND • expression RROUND statement
 
@@ -3627,11 +3632,11 @@ State 188
     logical_or_expression      go to state 114
     conditional_expression     go to state 115
     assignment_expression      go to state 116
-    expression                 go to state 293
+    expression                 go to state 294
     lambda_expression          go to state 132
 
 
-State 189
+State 190
 
     3 primary_expression: LROUND • expression RROUND
    28 unary_expression: SIZEOF LROUND • type_name RROUND
@@ -3692,41 +3697,40 @@ State 189
     type_specifier             go to state 156
     specifier_qualifier_list   go to state 170
     type_qualifier             go to state 165
-    type_name                  go to state 294
+    type_name                  go to state 295
     lambda_expression          go to state 132
 
 
-State 190
+State 191
 
    27 unary_expression: SIZEOF unary_expression •
 
     $default  reduce using rule 27 (unary_expression)
 
 
-State 191
+State 192
 
    51 delete_expression: DELETE LSQUARE • RSQUARE cast_expression
   247 lambda_expression: LSQUARE • lambda_capture_clause RSQUARE lambda_declarator compound_statement
   248                  | LSQUARE • lambda_capture_clause RSQUARE compound_statement
 
-    ASSIGN      shift, and go to state 172
-    RSQUARE     shift, and go to state 295
-    IDENTIFIER  shift, and go to state 173
+    MINUS       shift, and go to state 172
+    ASSIGN      shift, and go to state 173
+    RSQUARE     shift, and go to state 296
+    IDENTIFIER  shift, and go to state 174
 
-    RSQUARE  [reduce using rule 254 (lambda_capture_clause)]
-
-    lambda_capture_clause  go to state 174
-    capture_list           go to state 175
+    lambda_capture_clause  go to state 175
+    capture_list           go to state 176
 
 
-State 192
+State 193
 
    52 delete_expression: DELETE cast_expression •
 
     $default  reduce using rule 52 (delete_expression)
 
 
-State 193
+State 194
 
    37 new_expression: NEW type_specifier • pointer_opt new_declarator scalar_new_init_opt
    38               | NEW type_specifier • new_declarator scalar_new_init_opt
@@ -3737,19 +3741,19 @@ State 193
    43               | NEW type_specifier • scalar_new_init_opt
    44               | NEW type_specifier •
 
-    STAR     shift, and go to state 296
-    LROUND   shift, and go to state 297
-    LSQUARE  shift, and go to state 298
+    STAR     shift, and go to state 297
+    LROUND   shift, and go to state 298
+    LSQUARE  shift, and go to state 299
 
     STAR      [reduce using rule 44 (new_expression)]
     $default  reduce using rule 44 (new_expression)
 
-    pointer_opt          go to state 299
-    scalar_new_init_opt  go to state 300
+    pointer_opt          go to state 300
     new_declarator       go to state 301
+    scalar_new_init_opt  go to state 302
 
 
-State 194
+State 195
 
   210 extraction_list: RIGHT_SHIFT • assignment_expression
 
@@ -3795,21 +3799,21 @@ State 194
     logical_and_expression     go to state 113
     logical_or_expression      go to state 114
     conditional_expression     go to state 115
-    assignment_expression      go to state 302
+    assignment_expression      go to state 303
     lambda_expression          go to state 132
 
 
-State 195
+State 196
 
   209 cin_expression: CIN extraction_list •
   211 extraction_list: extraction_list • RIGHT_SHIFT assignment_expression
 
-    RIGHT_SHIFT  shift, and go to state 303
+    RIGHT_SHIFT  shift, and go to state 304
 
     $default  reduce using rule 209 (cin_expression)
 
 
-State 196
+State 197
 
   205 insertion_list: LEFT_SHIFT • assignment_expression
   206               | LEFT_SHIFT • ENDL
@@ -3830,7 +3834,7 @@ State 196
     NULLPTR            shift, and go to state 86
     DELETE             shift, and go to state 87
     NEW                shift, and go to state 88
-    ENDL               shift, and go to state 304
+    ENDL               shift, and go to state 305
     IDENTIFIER         shift, and go to state 141
     DECIMAL_LITERAL    shift, and go to state 92
     DOUBLE_LITERAL     shift, and go to state 93
@@ -3857,22 +3861,22 @@ State 196
     logical_and_expression     go to state 113
     logical_or_expression      go to state 114
     conditional_expression     go to state 115
-    assignment_expression      go to state 305
+    assignment_expression      go to state 306
     lambda_expression          go to state 132
 
 
-State 197
+State 198
 
   204 cout_expression: COUT insertion_list •
   207 insertion_list: insertion_list • LEFT_SHIFT ENDL
   208               | insertion_list • LEFT_SHIFT assignment_expression
 
-    LEFT_SHIFT  shift, and go to state 306
+    LEFT_SHIFT  shift, and go to state 307
 
     $default  reduce using rule 204 (cout_expression)
 
 
-State 198
+State 199
 
   212 labeled_statement: IDENTIFIER COLON • statement
 
@@ -3936,7 +3940,7 @@ State 198
     conditional_expression     go to state 115
     assignment_expression      go to state 116
     expression                 go to state 117
-    statement                  go to state 307
+    statement                  go to state 308
     io_statement               go to state 121
     cout_expression            go to state 122
     cin_expression             go to state 123
@@ -3949,28 +3953,28 @@ State 198
     lambda_expression          go to state 132
 
 
-State 199
+State 200
 
    19 postfix_expression: postfix_expression INCREMENT •
 
     $default  reduce using rule 19 (postfix_expression)
 
 
-State 200
+State 201
 
    20 postfix_expression: postfix_expression DECREMENT •
 
     $default  reduce using rule 20 (postfix_expression)
 
 
-State 201
+State 202
 
    18 postfix_expression: postfix_expression ARROW • IDENTIFIER
 
-    IDENTIFIER  shift, and go to state 308
+    IDENTIFIER  shift, and go to state 309
 
 
-State 202
+State 203
 
    15 postfix_expression: postfix_expression LROUND • RROUND
    16                   | postfix_expression LROUND • argument_expression_list RROUND
@@ -3983,7 +3987,7 @@ State 202
     BITWISE_AND        shift, and go to state 64
     LOGICAL_NOT        shift, and go to state 65
     LROUND             shift, and go to state 66
-    RROUND             shift, and go to state 309
+    RROUND             shift, and go to state 310
     LSQUARE            shift, and go to state 68
     TILDE              shift, and go to state 70
     SIZEOF             shift, and go to state 83
@@ -4002,7 +4006,7 @@ State 202
     primary_expression         go to state 97
     constant                   go to state 98
     postfix_expression         go to state 99
-    argument_expression_list   go to state 310
+    argument_expression_list   go to state 311
     unary_expression           go to state 100
     unary_operator             go to state 101
     new_expression             go to state 102
@@ -4019,11 +4023,11 @@ State 202
     logical_and_expression     go to state 113
     logical_or_expression      go to state 114
     conditional_expression     go to state 115
-    assignment_expression      go to state 311
+    assignment_expression      go to state 312
     lambda_expression          go to state 132
 
 
-State 203
+State 204
 
    14 postfix_expression: postfix_expression LSQUARE • expression RSQUARE
 
@@ -4070,95 +4074,95 @@ State 203
     logical_or_expression      go to state 114
     conditional_expression     go to state 115
     assignment_expression      go to state 116
-    expression                 go to state 312
+    expression                 go to state 313
     lambda_expression          go to state 132
 
 
-State 204
+State 205
 
    17 postfix_expression: postfix_expression DOT • IDENTIFIER
 
-    IDENTIFIER  shift, and go to state 313
+    IDENTIFIER  shift, and go to state 314
 
 
-State 205
+State 206
 
    87 assignment_operator: ASSIGN •
 
     $default  reduce using rule 87 (assignment_operator)
 
 
-State 206
+State 207
 
    91 assignment_operator: PLUS_EQUAL •
 
     $default  reduce using rule 91 (assignment_operator)
 
 
-State 207
+State 208
 
    92 assignment_operator: MINUS_EQUAL •
 
     $default  reduce using rule 92 (assignment_operator)
 
 
-State 208
+State 209
 
    88 assignment_operator: STAR_EQUAL •
 
     $default  reduce using rule 88 (assignment_operator)
 
 
-State 209
+State 210
 
    89 assignment_operator: DIV_EQUAL •
 
     $default  reduce using rule 89 (assignment_operator)
 
 
-State 210
+State 211
 
    90 assignment_operator: MOD_EQUAL •
 
     $default  reduce using rule 90 (assignment_operator)
 
 
-State 211
+State 212
 
    95 assignment_operator: AND_EQUAL •
 
     $default  reduce using rule 95 (assignment_operator)
 
 
-State 212
+State 213
 
    97 assignment_operator: OR_EQUAL •
 
     $default  reduce using rule 97 (assignment_operator)
 
 
-State 213
+State 214
 
    96 assignment_operator: XOR_EQUAL •
 
     $default  reduce using rule 96 (assignment_operator)
 
 
-State 214
+State 215
 
    93 assignment_operator: LEFT_SHIFT_EQ •
 
     $default  reduce using rule 93 (assignment_operator)
 
 
-State 215
+State 216
 
    94 assignment_operator: RIGHT_SHIFT_EQ •
 
     $default  reduce using rule 94 (assignment_operator)
 
 
-State 216
+State 217
 
    86 assignment_expression: unary_expression assignment_operator • assignment_expression
 
@@ -4204,58 +4208,20 @@ State 216
     logical_and_expression     go to state 113
     logical_or_expression      go to state 114
     conditional_expression     go to state 115
-    assignment_expression      go to state 314
+    assignment_expression      go to state 315
     lambda_expression          go to state 132
 
 
-State 217
+State 218
 
    26 unary_expression: unary_operator cast_expression •
 
     $default  reduce using rule 26 (unary_expression)
 
 
-State 218
-
-   56 multiplicative_expression: multiplicative_expression STAR • cast_expression
-
-    PLUS               shift, and go to state 59
-    MINUS              shift, and go to state 60
-    STAR               shift, and go to state 61
-    INCREMENT          shift, and go to state 62
-    DECREMENT          shift, and go to state 63
-    BITWISE_AND        shift, and go to state 64
-    LOGICAL_NOT        shift, and go to state 65
-    LROUND             shift, and go to state 66
-    LSQUARE            shift, and go to state 68
-    TILDE              shift, and go to state 70
-    SIZEOF             shift, and go to state 83
-    TRUE               shift, and go to state 84
-    FALSE              shift, and go to state 85
-    NULLPTR            shift, and go to state 86
-    DELETE             shift, and go to state 87
-    NEW                shift, and go to state 88
-    IDENTIFIER         shift, and go to state 141
-    DECIMAL_LITERAL    shift, and go to state 92
-    DOUBLE_LITERAL     shift, and go to state 93
-    EXPONENT_LITERAL   shift, and go to state 94
-    CHARACTER_LITERAL  shift, and go to state 95
-    STRING_LITERAL     shift, and go to state 96
-
-    primary_expression  go to state 97
-    constant            go to state 98
-    postfix_expression  go to state 99
-    unary_expression    go to state 142
-    unary_operator      go to state 101
-    new_expression      go to state 102
-    delete_expression   go to state 103
-    cast_expression     go to state 315
-    lambda_expression   go to state 132
-
-
 State 219
 
-   57 multiplicative_expression: multiplicative_expression DIVIDE • cast_expression
+   56 multiplicative_expression: multiplicative_expression STAR • cast_expression
 
     PLUS               shift, and go to state 59
     MINUS              shift, and go to state 60
@@ -4293,7 +4259,7 @@ State 219
 
 State 220
 
-   58 multiplicative_expression: multiplicative_expression MODULUS • cast_expression
+   57 multiplicative_expression: multiplicative_expression DIVIDE • cast_expression
 
     PLUS               shift, and go to state 59
     MINUS              shift, and go to state 60
@@ -4331,7 +4297,7 @@ State 220
 
 State 221
 
-   60 additive_expression: additive_expression PLUS • multiplicative_expression
+   58 multiplicative_expression: multiplicative_expression MODULUS • cast_expression
 
     PLUS               shift, and go to state 59
     MINUS              shift, and go to state 60
@@ -4356,21 +4322,20 @@ State 221
     CHARACTER_LITERAL  shift, and go to state 95
     STRING_LITERAL     shift, and go to state 96
 
-    primary_expression         go to state 97
-    constant                   go to state 98
-    postfix_expression         go to state 99
-    unary_expression           go to state 142
-    unary_operator             go to state 101
-    new_expression             go to state 102
-    delete_expression          go to state 103
-    cast_expression            go to state 104
-    multiplicative_expression  go to state 318
-    lambda_expression          go to state 132
+    primary_expression  go to state 97
+    constant            go to state 98
+    postfix_expression  go to state 99
+    unary_expression    go to state 142
+    unary_operator      go to state 101
+    new_expression      go to state 102
+    delete_expression   go to state 103
+    cast_expression     go to state 318
+    lambda_expression   go to state 132
 
 
 State 222
 
-   61 additive_expression: additive_expression MINUS • multiplicative_expression
+   60 additive_expression: additive_expression PLUS • multiplicative_expression
 
     PLUS               shift, and go to state 59
     MINUS              shift, and go to state 60
@@ -4409,7 +4374,7 @@ State 222
 
 State 223
 
-   63 shift_expression: shift_expression LEFT_SHIFT • additive_expression
+   61 additive_expression: additive_expression MINUS • multiplicative_expression
 
     PLUS               shift, and go to state 59
     MINUS              shift, and go to state 60
@@ -4442,14 +4407,13 @@ State 223
     new_expression             go to state 102
     delete_expression          go to state 103
     cast_expression            go to state 104
-    multiplicative_expression  go to state 105
-    additive_expression        go to state 320
+    multiplicative_expression  go to state 320
     lambda_expression          go to state 132
 
 
 State 224
 
-   64 shift_expression: shift_expression RIGHT_SHIFT • additive_expression
+   63 shift_expression: shift_expression LEFT_SHIFT • additive_expression
 
     PLUS               shift, and go to state 59
     MINUS              shift, and go to state 60
@@ -4489,7 +4453,7 @@ State 224
 
 State 225
 
-   67 relational_expression: relational_expression LESS_THAN • shift_expression
+   64 shift_expression: shift_expression RIGHT_SHIFT • additive_expression
 
     PLUS               shift, and go to state 59
     MINUS              shift, and go to state 60
@@ -4523,14 +4487,13 @@ State 225
     delete_expression          go to state 103
     cast_expression            go to state 104
     multiplicative_expression  go to state 105
-    additive_expression        go to state 106
-    shift_expression           go to state 322
+    additive_expression        go to state 322
     lambda_expression          go to state 132
 
 
 State 226
 
-   66 relational_expression: relational_expression GREATER_THAN • shift_expression
+   67 relational_expression: relational_expression LESS_THAN • shift_expression
 
     PLUS               shift, and go to state 59
     MINUS              shift, and go to state 60
@@ -4571,7 +4534,7 @@ State 226
 
 State 227
 
-   68 relational_expression: relational_expression LESS_EQUAL • shift_expression
+   66 relational_expression: relational_expression GREATER_THAN • shift_expression
 
     PLUS               shift, and go to state 59
     MINUS              shift, and go to state 60
@@ -4612,7 +4575,7 @@ State 227
 
 State 228
 
-   69 relational_expression: relational_expression GREATER_EQUAL • shift_expression
+   68 relational_expression: relational_expression LESS_EQUAL • shift_expression
 
     PLUS               shift, and go to state 59
     MINUS              shift, and go to state 60
@@ -4653,7 +4616,7 @@ State 228
 
 State 229
 
-   71 equality_expression: equality_expression EQUAL • relational_expression
+   69 relational_expression: relational_expression GREATER_EQUAL • shift_expression
 
     PLUS               shift, and go to state 59
     MINUS              shift, and go to state 60
@@ -4688,14 +4651,13 @@ State 229
     cast_expression            go to state 104
     multiplicative_expression  go to state 105
     additive_expression        go to state 106
-    shift_expression           go to state 107
-    relational_expression      go to state 326
+    shift_expression           go to state 326
     lambda_expression          go to state 132
 
 
 State 230
 
-   72 equality_expression: equality_expression NOT_EQUAL • relational_expression
+   71 equality_expression: equality_expression EQUAL • relational_expression
 
     PLUS               shift, and go to state 59
     MINUS              shift, and go to state 60
@@ -4737,6 +4699,48 @@ State 230
 
 State 231
 
+   72 equality_expression: equality_expression NOT_EQUAL • relational_expression
+
+    PLUS               shift, and go to state 59
+    MINUS              shift, and go to state 60
+    STAR               shift, and go to state 61
+    INCREMENT          shift, and go to state 62
+    DECREMENT          shift, and go to state 63
+    BITWISE_AND        shift, and go to state 64
+    LOGICAL_NOT        shift, and go to state 65
+    LROUND             shift, and go to state 66
+    LSQUARE            shift, and go to state 68
+    TILDE              shift, and go to state 70
+    SIZEOF             shift, and go to state 83
+    TRUE               shift, and go to state 84
+    FALSE              shift, and go to state 85
+    NULLPTR            shift, and go to state 86
+    DELETE             shift, and go to state 87
+    NEW                shift, and go to state 88
+    IDENTIFIER         shift, and go to state 141
+    DECIMAL_LITERAL    shift, and go to state 92
+    DOUBLE_LITERAL     shift, and go to state 93
+    EXPONENT_LITERAL   shift, and go to state 94
+    CHARACTER_LITERAL  shift, and go to state 95
+    STRING_LITERAL     shift, and go to state 96
+
+    primary_expression         go to state 97
+    constant                   go to state 98
+    postfix_expression         go to state 99
+    unary_expression           go to state 142
+    unary_operator             go to state 101
+    new_expression             go to state 102
+    delete_expression          go to state 103
+    cast_expression            go to state 104
+    multiplicative_expression  go to state 105
+    additive_expression        go to state 106
+    shift_expression           go to state 107
+    relational_expression      go to state 328
+    lambda_expression          go to state 132
+
+
+State 232
+
    74 and_expression: and_expression BITWISE_AND • equality_expression
 
     PLUS               shift, and go to state 59
@@ -4774,11 +4778,11 @@ State 231
     additive_expression        go to state 106
     shift_expression           go to state 107
     relational_expression      go to state 108
-    equality_expression        go to state 328
+    equality_expression        go to state 329
     lambda_expression          go to state 132
 
 
-State 232
+State 233
 
    76 exclusive_or_expression: exclusive_or_expression BITWISE_XOR • and_expression
 
@@ -4818,11 +4822,11 @@ State 232
     shift_expression           go to state 107
     relational_expression      go to state 108
     equality_expression        go to state 109
-    and_expression             go to state 329
+    and_expression             go to state 330
     lambda_expression          go to state 132
 
 
-State 233
+State 234
 
    78 inclusive_or_expression: inclusive_or_expression BITWISE_OR • exclusive_or_expression
 
@@ -4863,11 +4867,11 @@ State 233
     relational_expression      go to state 108
     equality_expression        go to state 109
     and_expression             go to state 110
-    exclusive_or_expression    go to state 330
+    exclusive_or_expression    go to state 331
     lambda_expression          go to state 132
 
 
-State 234
+State 235
 
    80 logical_and_expression: logical_and_expression LOGICAL_AND • inclusive_or_expression
 
@@ -4909,11 +4913,11 @@ State 234
     equality_expression        go to state 109
     and_expression             go to state 110
     exclusive_or_expression    go to state 111
-    inclusive_or_expression    go to state 331
+    inclusive_or_expression    go to state 332
     lambda_expression          go to state 132
 
 
-State 235
+State 236
 
    82 logical_or_expression: logical_or_expression LOGICAL_OR • logical_and_expression
 
@@ -4956,11 +4960,11 @@ State 235
     and_expression             go to state 110
     exclusive_or_expression    go to state 111
     inclusive_or_expression    go to state 112
-    logical_and_expression     go to state 332
+    logical_and_expression     go to state 333
     lambda_expression          go to state 132
 
 
-State 236
+State 237
 
    84 conditional_expression: logical_or_expression QUESTION_MARK • expression COLON conditional_expression
 
@@ -5007,18 +5011,18 @@ State 236
     logical_or_expression      go to state 114
     conditional_expression     go to state 115
     assignment_expression      go to state 116
-    expression                 go to state 333
+    expression                 go to state 334
     lambda_expression          go to state 132
 
 
-State 237
+State 238
 
   222 expression_statement: expression SEMICOLON •
 
     $default  reduce using rule 222 (expression_statement)
 
 
-State 238
+State 239
 
    99 expression: expression COMMA • assignment_expression
 
@@ -5064,53 +5068,53 @@ State 238
     logical_and_expression     go to state 113
     logical_or_expression      go to state 114
     conditional_expression     go to state 115
-    assignment_expression      go to state 334
+    assignment_expression      go to state 335
     lambda_expression          go to state 132
 
 
-State 239
+State 240
 
   202 io_statement: cout_expression SEMICOLON •
 
     $default  reduce using rule 202 (io_statement)
 
 
-State 240
+State 241
 
   203 io_statement: cin_expression SEMICOLON •
 
     $default  reduce using rule 203 (io_statement)
 
 
-State 241
+State 242
 
   216 compound_statement: LCURLY statement_list RCURLY •
 
     $default  reduce using rule 216 (compound_statement)
 
 
-State 242
+State 243
 
   220 statement_list: statement_list statement •
 
     $default  reduce using rule 220 (statement_list)
 
 
-State 243
+State 244
 
   217 compound_statement: LCURLY declaration_list RCURLY •
 
     $default  reduce using rule 217 (compound_statement)
 
 
-State 244
+State 245
 
   244 declaration_list: declaration_list declaration •
 
     $default  reduce using rule 244 (declaration_list)
 
 
-State 245
+State 246
 
   218 compound_statement: LCURLY declaration_list statement_list • RCURLY
   220 statement_list: statement_list • statement
@@ -5124,7 +5128,7 @@ State 245
     LOGICAL_NOT        shift, and go to state 65
     LROUND             shift, and go to state 66
     LCURLY             shift, and go to state 44
-    RCURLY             shift, and go to state 335
+    RCURLY             shift, and go to state 336
     LSQUARE            shift, and go to state 68
     SEMICOLON          shift, and go to state 69
     TILDE              shift, and go to state 70
@@ -5176,7 +5180,7 @@ State 245
     conditional_expression     go to state 115
     assignment_expression      go to state 116
     expression                 go to state 117
-    statement                  go to state 242
+    statement                  go to state 243
     io_statement               go to state 121
     cout_expression            go to state 122
     cin_expression             go to state 123
@@ -5189,7 +5193,7 @@ State 245
     lambda_expression          go to state 132
 
 
-State 246
+State 247
 
   156 direct_declarator: LROUND • declarator RROUND
   181 direct_abstract_declarator: LROUND • abstract_declarator RROUND
@@ -5199,9 +5203,9 @@ State 246
     TYPEDEF     shift, and go to state 1
     TYPE_NAME   shift, and go to state 2
     STAR        shift, and go to state 3
-    LROUND      shift, and go to state 246
-    RROUND      shift, and go to state 336
-    LSQUARE     shift, and go to state 247
+    LROUND      shift, and go to state 247
+    RROUND      shift, and go to state 337
+    LSQUARE     shift, and go to state 248
     VOID        shift, and go to state 5
     INT         shift, and go to state 6
     DOUBLE      shift, and go to state 7
@@ -5220,15 +5224,15 @@ State 246
     type_qualifier              go to state 24
     declarator                  go to state 34
     direct_declarator           go to state 26
-    pointer                     go to state 249
-    parameter_type_list         go to state 337
+    pointer                     go to state 250
+    parameter_type_list         go to state 338
     parameter_list              go to state 137
     parameter_declaration       go to state 138
-    abstract_declarator         go to state 338
-    direct_abstract_declarator  go to state 251
+    abstract_declarator         go to state 339
+    direct_abstract_declarator  go to state 252
 
 
-State 247
+State 248
 
   182 direct_abstract_declarator: LSQUARE • RSQUARE
   183                           | LSQUARE • constant_expression RSQUARE
@@ -5242,7 +5246,7 @@ State 247
     LOGICAL_NOT        shift, and go to state 65
     LROUND             shift, and go to state 66
     LSQUARE            shift, and go to state 68
-    RSQUARE            shift, and go to state 339
+    RSQUARE            shift, and go to state 340
     TILDE              shift, and go to state 70
     SIZEOF             shift, and go to state 83
     TRUE               shift, and go to state 84
@@ -5276,41 +5280,41 @@ State 247
     logical_and_expression     go to state 113
     logical_or_expression      go to state 114
     conditional_expression     go to state 143
-    constant_expression        go to state 340
+    constant_expression        go to state 341
     lambda_expression          go to state 132
 
 
-State 248
+State 249
 
   171 parameter_declaration: declaration_specifiers declarator •
 
     $default  reduce using rule 171 (parameter_declaration)
 
 
-State 249
+State 250
 
   153 declarator: pointer • direct_declarator
   178 abstract_declarator: pointer •
   180                    | pointer • direct_abstract_declarator
 
-    LROUND      shift, and go to state 246
-    LSQUARE     shift, and go to state 247
+    LROUND      shift, and go to state 247
+    LSQUARE     shift, and go to state 248
     IDENTIFIER  shift, and go to state 17
 
     $default  reduce using rule 178 (abstract_declarator)
 
     direct_declarator           go to state 48
-    direct_abstract_declarator  go to state 341
+    direct_abstract_declarator  go to state 342
 
 
-State 250
+State 251
 
   172 parameter_declaration: declaration_specifiers abstract_declarator •
 
     $default  reduce using rule 172 (parameter_declaration)
 
 
-State 251
+State 252
 
   179 abstract_declarator: direct_abstract_declarator •
   184 direct_abstract_declarator: direct_abstract_declarator • LSQUARE RSQUARE
@@ -5318,20 +5322,20 @@ State 251
   188                           | direct_abstract_declarator • LROUND RROUND
   189                           | direct_abstract_declarator • LROUND parameter_type_list RROUND
 
-    LROUND   shift, and go to state 342
-    LSQUARE  shift, and go to state 343
+    LROUND   shift, and go to state 343
+    LSQUARE  shift, and go to state 344
 
     $default  reduce using rule 179 (abstract_declarator)
 
 
-State 252
+State 253
 
   159 direct_declarator: direct_declarator LROUND parameter_type_list RROUND •
 
     $default  reduce using rule 159 (direct_declarator)
 
 
-State 253
+State 254
 
   170 parameter_list: parameter_list COMMA • parameter_declaration
 
@@ -5352,83 +5356,83 @@ State 253
     storage_class_specifier  go to state 20
     type_specifier           go to state 21
     type_qualifier           go to state 24
-    parameter_declaration    go to state 344
+    parameter_declaration    go to state 345
 
 
-State 254
+State 255
 
   160 direct_declarator: direct_declarator LROUND identifier_list RROUND •
 
     $default  reduce using rule 160 (direct_declarator)
 
 
-State 255
+State 256
 
   175 identifier_list: identifier_list COMMA • IDENTIFIER
 
-    IDENTIFIER  shift, and go to state 345
+    IDENTIFIER  shift, and go to state 346
 
 
-State 256
+State 257
 
   157 direct_declarator: direct_declarator LSQUARE constant_expression RSQUARE •
 
     $default  reduce using rule 157 (direct_declarator)
 
 
-State 257
+State 258
 
   193 initializer_list: initializer •
 
     $default  reduce using rule 193 (initializer_list)
 
 
-State 258
+State 259
 
   191 initializer: LCURLY initializer_list • RCURLY
   192            | LCURLY initializer_list • COMMA RCURLY
   194 initializer_list: initializer_list • COMMA initializer
 
-    RCURLY  shift, and go to state 346
-    COMMA   shift, and go to state 347
-
-
-State 259
-
-  144 destructor_definition: TILDE IDENTIFIER • LROUND RROUND compound_statement
-
-    LROUND  shift, and go to state 348
+    RCURLY  shift, and go to state 347
+    COMMA   shift, and go to state 348
 
 
 State 260
+
+  144 destructor_definition: TILDE IDENTIFIER • LROUND RROUND compound_statement
+
+    LROUND  shift, and go to state 349
+
+
+State 261
 
   132 access_specifier_label: PUBLIC COLON •
 
     $default  reduce using rule 132 (access_specifier_label)
 
 
-State 261
+State 262
 
   133 access_specifier_label: PRIVATE COLON •
 
     $default  reduce using rule 133 (access_specifier_label)
 
 
-State 262
+State 263
 
   134 access_specifier_label: PROTECTED COLON •
 
     $default  reduce using rule 134 (access_specifier_label)
 
 
-State 263
+State 264
 
   142 constructor_definition: IDENTIFIER LROUND • parameter_list RROUND compound_statement
   143                       | IDENTIFIER LROUND • RROUND compound_statement
 
     TYPEDEF    shift, and go to state 1
     TYPE_NAME  shift, and go to state 2
-    RROUND     shift, and go to state 349
+    RROUND     shift, and go to state 350
     VOID       shift, and go to state 5
     INT        shift, and go to state 6
     DOUBLE     shift, and go to state 7
@@ -5444,69 +5448,69 @@ State 263
     storage_class_specifier  go to state 20
     type_specifier           go to state 21
     type_qualifier           go to state 24
-    parameter_list           go to state 350
+    parameter_list           go to state 351
     parameter_declaration    go to state 138
 
 
-State 264
+State 265
 
   148 specifier_qualifier_list: type_specifier specifier_qualifier_list •
 
     $default  reduce using rule 148 (specifier_qualifier_list)
 
 
-State 265
+State 266
 
   138 member_declaration: struct_or_class_specifier SEMICOLON •
 
     $default  reduce using rule 138 (member_declaration)
 
 
-State 266
+State 267
 
   124 struct_or_class_specifier: struct_or_class IDENTIFIER LCURLY struct_or_class_member_list RCURLY •
 
     $default  reduce using rule 124 (struct_or_class_specifier)
 
 
-State 267
+State 268
 
   129 struct_or_class_member_list: struct_or_class_member_list struct_or_class_member •
 
     $default  reduce using rule 129 (struct_or_class_member_list)
 
 
-State 268
+State 269
 
   136 member_declaration: specifier_qualifier_list SEMICOLON •
 
     $default  reduce using rule 136 (member_declaration)
 
 
-State 269
+State 270
 
   147 struct_declarator: init_declarator •
 
     $default  reduce using rule 147 (struct_declarator)
 
 
-State 270
+State 271
 
   135 member_declaration: specifier_qualifier_list struct_declarator_list • SEMICOLON
   146 struct_declarator_list: struct_declarator_list • COMMA struct_declarator
 
-    SEMICOLON  shift, and go to state 351
-    COMMA      shift, and go to state 352
+    SEMICOLON  shift, and go to state 352
+    COMMA      shift, and go to state 353
 
 
-State 271
+State 272
 
   145 struct_declarator_list: struct_declarator •
 
     $default  reduce using rule 145 (struct_declarator_list)
 
 
-State 272
+State 273
 
   111 init_declarator: declarator •
   112                | declarator • ASSIGN initializer
@@ -5517,24 +5521,24 @@ State 272
 
     $default  reduce using rule 111 (init_declarator)
 
-    compound_statement  go to state 353
+    compound_statement  go to state 354
 
 
-State 273
+State 274
 
   150 specifier_qualifier_list: type_qualifier specifier_qualifier_list •
 
     $default  reduce using rule 150 (specifier_qualifier_list)
 
 
-State 274
+State 275
 
     3 primary_expression: LROUND expression RROUND •
 
     $default  reduce using rule 3 (primary_expression)
 
 
-State 275
+State 276
 
   181 direct_abstract_declarator: LROUND • abstract_declarator RROUND
   186                           | LROUND • RROUND
@@ -5543,9 +5547,9 @@ State 275
     TYPEDEF    shift, and go to state 1
     TYPE_NAME  shift, and go to state 2
     STAR       shift, and go to state 3
-    LROUND     shift, and go to state 275
-    RROUND     shift, and go to state 336
-    LSQUARE    shift, and go to state 247
+    LROUND     shift, and go to state 276
+    RROUND     shift, and go to state 337
+    LSQUARE    shift, and go to state 248
     VOID       shift, and go to state 5
     INT        shift, and go to state 6
     DOUBLE     shift, and go to state 7
@@ -5561,35 +5565,35 @@ State 275
     storage_class_specifier     go to state 20
     type_specifier              go to state 21
     type_qualifier              go to state 24
-    pointer                     go to state 276
-    parameter_type_list         go to state 337
+    pointer                     go to state 277
+    parameter_type_list         go to state 338
     parameter_list              go to state 137
     parameter_declaration       go to state 138
-    abstract_declarator         go to state 338
-    direct_abstract_declarator  go to state 251
+    abstract_declarator         go to state 339
+    direct_abstract_declarator  go to state 252
 
 
-State 276
+State 277
 
   178 abstract_declarator: pointer •
   180                    | pointer • direct_abstract_declarator
 
-    LROUND   shift, and go to state 275
-    LSQUARE  shift, and go to state 247
+    LROUND   shift, and go to state 276
+    LSQUARE  shift, and go to state 248
 
     $default  reduce using rule 178 (abstract_declarator)
 
-    direct_abstract_declarator  go to state 341
+    direct_abstract_declarator  go to state 342
 
 
-State 277
+State 278
 
   177 type_name: specifier_qualifier_list abstract_declarator •
 
     $default  reduce using rule 177 (type_name)
 
 
-State 278
+State 279
 
    54 cast_expression: LROUND type_name RROUND • cast_expression
 
@@ -5623,61 +5627,61 @@ State 278
     unary_operator      go to state 101
     new_expression      go to state 102
     delete_expression   go to state 103
-    cast_expression     go to state 354
+    cast_expression     go to state 355
     lambda_expression   go to state 132
-
-
-State 279
-
-  258 lambda_capture_clause: ASSIGN COMMA • capture_list
-
-    IDENTIFIER  shift, and go to state 173
-
-    capture_list  go to state 355
 
 
 State 280
 
-  247 lambda_expression: LSQUARE lambda_capture_clause RSQUARE • lambda_declarator compound_statement
-  248                  | LSQUARE lambda_capture_clause RSQUARE • compound_statement
+  258 lambda_capture_clause: ASSIGN COMMA • capture_list
 
-    LROUND  shift, and go to state 356
-    LCURLY  shift, and go to state 44
+    IDENTIFIER  shift, and go to state 174
 
-    compound_statement       go to state 357
-    lambda_declarator        go to state 358
-    lambda_parameter_clause  go to state 359
+    capture_list  go to state 356
 
 
 State 281
 
-  257 lambda_capture_clause: capture_list COMMA • ASSIGN
-  260 capture_list: capture_list COMMA • IDENTIFIER
+  247 lambda_expression: LSQUARE lambda_capture_clause RSQUARE • lambda_declarator compound_statement
+  248                  | LSQUARE lambda_capture_clause RSQUARE • compound_statement
 
-    ASSIGN      shift, and go to state 360
-    IDENTIFIER  shift, and go to state 361
+    LROUND  shift, and go to state 357
+    LCURLY  shift, and go to state 44
+
+    compound_statement       go to state 358
+    lambda_declarator        go to state 359
+    lambda_parameter_clause  go to state 360
 
 
 State 282
 
-   99 expression: expression • COMMA assignment_expression
-  223 selection_statement: IF LROUND expression • RROUND statement
-  224                    | IF LROUND expression • RROUND statement ELSE statement
+  257 lambda_capture_clause: capture_list COMMA • ASSIGN
+  260 capture_list: capture_list COMMA • IDENTIFIER
 
-    RROUND  shift, and go to state 362
-    COMMA   shift, and go to state 238
+    ASSIGN      shift, and go to state 361
+    IDENTIFIER  shift, and go to state 362
 
 
 State 283
 
    99 expression: expression • COMMA assignment_expression
-  225 selection_statement: SWITCH LROUND expression • RROUND statement
+  223 selection_statement: IF LROUND expression • RROUND statement
+  224                    | IF LROUND expression • RROUND statement ELSE statement
 
     RROUND  shift, and go to state 363
-    COMMA   shift, and go to state 238
+    COMMA   shift, and go to state 239
 
 
 State 284
+
+   99 expression: expression • COMMA assignment_expression
+  225 selection_statement: SWITCH LROUND expression • RROUND statement
+
+    RROUND  shift, and go to state 364
+    COMMA   shift, and go to state 239
+
+
+State 285
 
   213 labeled_statement: CASE constant_expression COLON • statement
 
@@ -5741,7 +5745,7 @@ State 284
     conditional_expression     go to state 115
     assignment_expression      go to state 116
     expression                 go to state 117
-    statement                  go to state 364
+    statement                  go to state 365
     io_statement               go to state 121
     cout_expression            go to state 122
     cin_expression             go to state 123
@@ -5754,44 +5758,44 @@ State 284
     lambda_expression          go to state 132
 
 
-State 285
+State 286
 
   214 labeled_statement: DEFAULT COLON statement •
 
     $default  reduce using rule 214 (labeled_statement)
 
 
-State 286
+State 287
 
    99 expression: expression • COMMA assignment_expression
   226 iteration_statement: WHILE LROUND expression • RROUND statement
 
-    RROUND  shift, and go to state 365
-    COMMA   shift, and go to state 238
-
-
-State 287
-
-  228 iteration_statement: DO statement WHILE • LROUND expression RROUND SEMICOLON
-
-    LROUND  shift, and go to state 366
+    RROUND  shift, and go to state 366
+    COMMA   shift, and go to state 239
 
 
 State 288
+
+  228 iteration_statement: DO statement WHILE • LROUND expression RROUND SEMICOLON
+
+    LROUND  shift, and go to state 367
+
+
+State 289
 
   232 for_init_statement: declaration •
 
     $default  reduce using rule 232 (for_init_statement)
 
 
-State 289
+State 290
 
   231 for_init_statement: expression_statement •
 
     $default  reduce using rule 231 (for_init_statement)
 
 
-State 290
+State 291
 
   229 iteration_statement: FOR LROUND for_init_statement • expression_statement RROUND statement
   230                    | FOR LROUND for_init_statement • expression_statement expression RROUND statement
@@ -5841,41 +5845,41 @@ State 290
     conditional_expression     go to state 115
     assignment_expression      go to state 116
     expression                 go to state 117
-    expression_statement       go to state 367
+    expression_statement       go to state 368
     lambda_expression          go to state 132
 
 
-State 291
+State 292
 
   233 jump_statement: GOTO IDENTIFIER SEMICOLON •
 
     $default  reduce using rule 233 (jump_statement)
 
 
-State 292
+State 293
 
   237 jump_statement: RETURN expression SEMICOLON •
 
     $default  reduce using rule 237 (jump_statement)
 
 
-State 293
+State 294
 
    99 expression: expression • COMMA assignment_expression
   227 iteration_statement: UNTIL LROUND expression • RROUND statement
 
-    RROUND  shift, and go to state 368
-    COMMA   shift, and go to state 238
-
-
-State 294
-
-   28 unary_expression: SIZEOF LROUND type_name • RROUND
-
     RROUND  shift, and go to state 369
+    COMMA   shift, and go to state 239
 
 
 State 295
+
+   28 unary_expression: SIZEOF LROUND type_name • RROUND
+
+    RROUND  shift, and go to state 370
+
+
+State 296
 
    51 delete_expression: DELETE LSQUARE RSQUARE • cast_expression
 
@@ -5909,24 +5913,24 @@ State 295
     unary_operator      go to state 101
     new_expression      go to state 102
     delete_expression   go to state 103
-    cast_expression     go to state 370
+    cast_expression     go to state 371
     lambda_expression   go to state 132
 
 
-State 296
+State 297
 
    45 pointer_opt: STAR • pointer_opt
    46            | STAR •
 
     $default  reduce using rule 46 (pointer_opt)
 
-    pointer_opt  go to state 371
+    pointer_opt  go to state 372
 
 
-State 297
+State 298
 
-   47 scalar_new_init_opt: LROUND • RROUND
-   48                    | LROUND • argument_expression_list RROUND
+   49 scalar_new_init_opt: LROUND • RROUND
+   50                    | LROUND • argument_expression_list RROUND
 
     PLUS               shift, and go to state 59
     MINUS              shift, and go to state 60
@@ -5936,7 +5940,7 @@ State 297
     BITWISE_AND        shift, and go to state 64
     LOGICAL_NOT        shift, and go to state 65
     LROUND             shift, and go to state 66
-    RROUND             shift, and go to state 372
+    RROUND             shift, and go to state 373
     LSQUARE            shift, and go to state 68
     TILDE              shift, and go to state 70
     SIZEOF             shift, and go to state 83
@@ -5955,7 +5959,7 @@ State 297
     primary_expression         go to state 97
     constant                   go to state 98
     postfix_expression         go to state 99
-    argument_expression_list   go to state 373
+    argument_expression_list   go to state 374
     unary_expression           go to state 100
     unary_operator             go to state 101
     new_expression             go to state 102
@@ -5972,13 +5976,13 @@ State 297
     logical_and_expression     go to state 113
     logical_or_expression      go to state 114
     conditional_expression     go to state 115
-    assignment_expression      go to state 311
+    assignment_expression      go to state 312
     lambda_expression          go to state 132
 
 
-State 298
+State 299
 
-   49 new_declarator: LSQUARE • expression RSQUARE
+   47 new_declarator: LSQUARE • expression RSQUARE
 
     PLUS               shift, and go to state 59
     MINUS              shift, and go to state 60
@@ -6023,55 +6027,55 @@ State 298
     logical_or_expression      go to state 114
     conditional_expression     go to state 115
     assignment_expression      go to state 116
-    expression                 go to state 374
+    expression                 go to state 375
     lambda_expression          go to state 132
 
 
-State 299
+State 300
 
    37 new_expression: NEW type_specifier pointer_opt • new_declarator scalar_new_init_opt
    39               | NEW type_specifier pointer_opt • scalar_new_init_opt
    40               | NEW type_specifier pointer_opt • new_declarator
    41               | NEW type_specifier pointer_opt •
 
-    LROUND   shift, and go to state 297
-    LSQUARE  shift, and go to state 298
+    LROUND   shift, and go to state 298
+    LSQUARE  shift, and go to state 299
 
     $default  reduce using rule 41 (new_expression)
 
-    scalar_new_init_opt  go to state 375
     new_declarator       go to state 376
-
-
-State 300
-
-   43 new_expression: NEW type_specifier scalar_new_init_opt •
-
-    $default  reduce using rule 43 (new_expression)
+    scalar_new_init_opt  go to state 377
 
 
 State 301
 
    38 new_expression: NEW type_specifier new_declarator • scalar_new_init_opt
    42               | NEW type_specifier new_declarator •
-   50 new_declarator: new_declarator • LSQUARE expression RSQUARE
+   48 new_declarator: new_declarator • LSQUARE expression RSQUARE
 
-    LROUND   shift, and go to state 297
-    LSQUARE  shift, and go to state 377
+    LROUND   shift, and go to state 298
+    LSQUARE  shift, and go to state 378
 
     $default  reduce using rule 42 (new_expression)
 
-    scalar_new_init_opt  go to state 378
+    scalar_new_init_opt  go to state 379
 
 
 State 302
+
+   43 new_expression: NEW type_specifier scalar_new_init_opt •
+
+    $default  reduce using rule 43 (new_expression)
+
+
+State 303
 
   210 extraction_list: RIGHT_SHIFT assignment_expression •
 
     $default  reduce using rule 210 (extraction_list)
 
 
-State 303
+State 304
 
   211 extraction_list: extraction_list RIGHT_SHIFT • assignment_expression
 
@@ -6117,25 +6121,25 @@ State 303
     logical_and_expression     go to state 113
     logical_or_expression      go to state 114
     conditional_expression     go to state 115
-    assignment_expression      go to state 379
+    assignment_expression      go to state 380
     lambda_expression          go to state 132
 
 
-State 304
+State 305
 
   206 insertion_list: LEFT_SHIFT ENDL •
 
     $default  reduce using rule 206 (insertion_list)
 
 
-State 305
+State 306
 
   205 insertion_list: LEFT_SHIFT assignment_expression •
 
     $default  reduce using rule 205 (insertion_list)
 
 
-State 306
+State 307
 
   207 insertion_list: insertion_list LEFT_SHIFT • ENDL
   208               | insertion_list LEFT_SHIFT • assignment_expression
@@ -6156,7 +6160,7 @@ State 306
     NULLPTR            shift, and go to state 86
     DELETE             shift, and go to state 87
     NEW                shift, and go to state 88
-    ENDL               shift, and go to state 380
+    ENDL               shift, and go to state 381
     IDENTIFIER         shift, and go to state 141
     DECIMAL_LITERAL    shift, and go to state 92
     DOUBLE_LITERAL     shift, and go to state 93
@@ -6183,103 +6187,89 @@ State 306
     logical_and_expression     go to state 113
     logical_or_expression      go to state 114
     conditional_expression     go to state 115
-    assignment_expression      go to state 381
+    assignment_expression      go to state 382
     lambda_expression          go to state 132
 
 
-State 307
+State 308
 
   212 labeled_statement: IDENTIFIER COLON statement •
 
     $default  reduce using rule 212 (labeled_statement)
 
 
-State 308
+State 309
 
    18 postfix_expression: postfix_expression ARROW IDENTIFIER •
 
     $default  reduce using rule 18 (postfix_expression)
 
 
-State 309
+State 310
 
    15 postfix_expression: postfix_expression LROUND RROUND •
 
     $default  reduce using rule 15 (postfix_expression)
 
 
-State 310
+State 311
 
    16 postfix_expression: postfix_expression LROUND argument_expression_list • RROUND
    22 argument_expression_list: argument_expression_list • COMMA assignment_expression
 
-    RROUND  shift, and go to state 382
-    COMMA   shift, and go to state 383
+    RROUND  shift, and go to state 383
+    COMMA   shift, and go to state 384
 
 
-State 311
+State 312
 
    21 argument_expression_list: assignment_expression •
 
     $default  reduce using rule 21 (argument_expression_list)
 
 
-State 312
+State 313
 
    14 postfix_expression: postfix_expression LSQUARE expression • RSQUARE
    99 expression: expression • COMMA assignment_expression
 
-    RSQUARE  shift, and go to state 384
-    COMMA    shift, and go to state 238
+    RSQUARE  shift, and go to state 385
+    COMMA    shift, and go to state 239
 
 
-State 313
+State 314
 
    17 postfix_expression: postfix_expression DOT IDENTIFIER •
 
     $default  reduce using rule 17 (postfix_expression)
 
 
-State 314
+State 315
 
    86 assignment_expression: unary_expression assignment_operator assignment_expression •
 
     $default  reduce using rule 86 (assignment_expression)
 
 
-State 315
+State 316
 
    56 multiplicative_expression: multiplicative_expression STAR cast_expression •
 
     $default  reduce using rule 56 (multiplicative_expression)
 
 
-State 316
+State 317
 
    57 multiplicative_expression: multiplicative_expression DIVIDE cast_expression •
 
     $default  reduce using rule 57 (multiplicative_expression)
 
 
-State 317
+State 318
 
    58 multiplicative_expression: multiplicative_expression MODULUS cast_expression •
 
     $default  reduce using rule 58 (multiplicative_expression)
-
-
-State 318
-
-   56 multiplicative_expression: multiplicative_expression • STAR cast_expression
-   57                          | multiplicative_expression • DIVIDE cast_expression
-   58                          | multiplicative_expression • MODULUS cast_expression
-   60 additive_expression: additive_expression PLUS multiplicative_expression •
-
-    STAR     shift, and go to state 218
-    DIVIDE   shift, and go to state 219
-    MODULUS  shift, and go to state 220
-
-    $default  reduce using rule 60 (additive_expression)
 
 
 State 319
@@ -6287,101 +6277,99 @@ State 319
    56 multiplicative_expression: multiplicative_expression • STAR cast_expression
    57                          | multiplicative_expression • DIVIDE cast_expression
    58                          | multiplicative_expression • MODULUS cast_expression
-   61 additive_expression: additive_expression MINUS multiplicative_expression •
+   60 additive_expression: additive_expression PLUS multiplicative_expression •
 
-    STAR     shift, and go to state 218
-    DIVIDE   shift, and go to state 219
-    MODULUS  shift, and go to state 220
+    STAR     shift, and go to state 219
+    DIVIDE   shift, and go to state 220
+    MODULUS  shift, and go to state 221
 
-    $default  reduce using rule 61 (additive_expression)
+    $default  reduce using rule 60 (additive_expression)
 
 
 State 320
 
-   60 additive_expression: additive_expression • PLUS multiplicative_expression
-   61                    | additive_expression • MINUS multiplicative_expression
-   63 shift_expression: shift_expression LEFT_SHIFT additive_expression •
+   56 multiplicative_expression: multiplicative_expression • STAR cast_expression
+   57                          | multiplicative_expression • DIVIDE cast_expression
+   58                          | multiplicative_expression • MODULUS cast_expression
+   61 additive_expression: additive_expression MINUS multiplicative_expression •
 
-    PLUS   shift, and go to state 221
-    MINUS  shift, and go to state 222
+    STAR     shift, and go to state 219
+    DIVIDE   shift, and go to state 220
+    MODULUS  shift, and go to state 221
 
-    $default  reduce using rule 63 (shift_expression)
+    $default  reduce using rule 61 (additive_expression)
 
 
 State 321
 
    60 additive_expression: additive_expression • PLUS multiplicative_expression
    61                    | additive_expression • MINUS multiplicative_expression
-   64 shift_expression: shift_expression RIGHT_SHIFT additive_expression •
+   63 shift_expression: shift_expression LEFT_SHIFT additive_expression •
 
-    PLUS   shift, and go to state 221
-    MINUS  shift, and go to state 222
+    PLUS   shift, and go to state 222
+    MINUS  shift, and go to state 223
 
-    $default  reduce using rule 64 (shift_expression)
+    $default  reduce using rule 63 (shift_expression)
 
 
 State 322
 
-   63 shift_expression: shift_expression • LEFT_SHIFT additive_expression
-   64                 | shift_expression • RIGHT_SHIFT additive_expression
-   67 relational_expression: relational_expression LESS_THAN shift_expression •
+   60 additive_expression: additive_expression • PLUS multiplicative_expression
+   61                    | additive_expression • MINUS multiplicative_expression
+   64 shift_expression: shift_expression RIGHT_SHIFT additive_expression •
 
-    LEFT_SHIFT   shift, and go to state 223
-    RIGHT_SHIFT  shift, and go to state 224
+    PLUS   shift, and go to state 222
+    MINUS  shift, and go to state 223
 
-    $default  reduce using rule 67 (relational_expression)
+    $default  reduce using rule 64 (shift_expression)
 
 
 State 323
 
    63 shift_expression: shift_expression • LEFT_SHIFT additive_expression
    64                 | shift_expression • RIGHT_SHIFT additive_expression
-   66 relational_expression: relational_expression GREATER_THAN shift_expression •
+   67 relational_expression: relational_expression LESS_THAN shift_expression •
 
-    LEFT_SHIFT   shift, and go to state 223
-    RIGHT_SHIFT  shift, and go to state 224
+    LEFT_SHIFT   shift, and go to state 224
+    RIGHT_SHIFT  shift, and go to state 225
 
-    $default  reduce using rule 66 (relational_expression)
+    $default  reduce using rule 67 (relational_expression)
 
 
 State 324
 
    63 shift_expression: shift_expression • LEFT_SHIFT additive_expression
    64                 | shift_expression • RIGHT_SHIFT additive_expression
-   68 relational_expression: relational_expression LESS_EQUAL shift_expression •
+   66 relational_expression: relational_expression GREATER_THAN shift_expression •
 
-    LEFT_SHIFT   shift, and go to state 223
-    RIGHT_SHIFT  shift, and go to state 224
+    LEFT_SHIFT   shift, and go to state 224
+    RIGHT_SHIFT  shift, and go to state 225
 
-    $default  reduce using rule 68 (relational_expression)
+    $default  reduce using rule 66 (relational_expression)
 
 
 State 325
 
    63 shift_expression: shift_expression • LEFT_SHIFT additive_expression
    64                 | shift_expression • RIGHT_SHIFT additive_expression
-   69 relational_expression: relational_expression GREATER_EQUAL shift_expression •
+   68 relational_expression: relational_expression LESS_EQUAL shift_expression •
 
-    LEFT_SHIFT   shift, and go to state 223
-    RIGHT_SHIFT  shift, and go to state 224
+    LEFT_SHIFT   shift, and go to state 224
+    RIGHT_SHIFT  shift, and go to state 225
 
-    $default  reduce using rule 69 (relational_expression)
+    $default  reduce using rule 68 (relational_expression)
 
 
 State 326
 
-   66 relational_expression: relational_expression • GREATER_THAN shift_expression
-   67                      | relational_expression • LESS_THAN shift_expression
-   68                      | relational_expression • LESS_EQUAL shift_expression
-   69                      | relational_expression • GREATER_EQUAL shift_expression
-   71 equality_expression: equality_expression EQUAL relational_expression •
+   63 shift_expression: shift_expression • LEFT_SHIFT additive_expression
+   64                 | shift_expression • RIGHT_SHIFT additive_expression
+   69 relational_expression: relational_expression GREATER_EQUAL shift_expression •
 
-    LESS_THAN      shift, and go to state 225
-    GREATER_THAN   shift, and go to state 226
-    LESS_EQUAL     shift, and go to state 227
-    GREATER_EQUAL  shift, and go to state 228
+    LEFT_SHIFT   shift, and go to state 224
+    RIGHT_SHIFT  shift, and go to state 225
 
-    $default  reduce using rule 71 (equality_expression)
+    $default  reduce using rule 69 (relational_expression)
 
 
 State 327
@@ -6390,127 +6378,143 @@ State 327
    67                      | relational_expression • LESS_THAN shift_expression
    68                      | relational_expression • LESS_EQUAL shift_expression
    69                      | relational_expression • GREATER_EQUAL shift_expression
+   71 equality_expression: equality_expression EQUAL relational_expression •
+
+    LESS_THAN      shift, and go to state 226
+    GREATER_THAN   shift, and go to state 227
+    LESS_EQUAL     shift, and go to state 228
+    GREATER_EQUAL  shift, and go to state 229
+
+    $default  reduce using rule 71 (equality_expression)
+
+
+State 328
+
+   66 relational_expression: relational_expression • GREATER_THAN shift_expression
+   67                      | relational_expression • LESS_THAN shift_expression
+   68                      | relational_expression • LESS_EQUAL shift_expression
+   69                      | relational_expression • GREATER_EQUAL shift_expression
    72 equality_expression: equality_expression NOT_EQUAL relational_expression •
 
-    LESS_THAN      shift, and go to state 225
-    GREATER_THAN   shift, and go to state 226
-    LESS_EQUAL     shift, and go to state 227
-    GREATER_EQUAL  shift, and go to state 228
+    LESS_THAN      shift, and go to state 226
+    GREATER_THAN   shift, and go to state 227
+    LESS_EQUAL     shift, and go to state 228
+    GREATER_EQUAL  shift, and go to state 229
 
     $default  reduce using rule 72 (equality_expression)
 
 
-State 328
+State 329
 
    71 equality_expression: equality_expression • EQUAL relational_expression
    72                    | equality_expression • NOT_EQUAL relational_expression
    74 and_expression: and_expression BITWISE_AND equality_expression •
 
-    EQUAL      shift, and go to state 229
-    NOT_EQUAL  shift, and go to state 230
+    EQUAL      shift, and go to state 230
+    NOT_EQUAL  shift, and go to state 231
 
     $default  reduce using rule 74 (and_expression)
 
 
-State 329
+State 330
 
    74 and_expression: and_expression • BITWISE_AND equality_expression
    76 exclusive_or_expression: exclusive_or_expression BITWISE_XOR and_expression •
 
-    BITWISE_AND  shift, and go to state 231
+    BITWISE_AND  shift, and go to state 232
 
     $default  reduce using rule 76 (exclusive_or_expression)
 
 
-State 330
+State 331
 
    76 exclusive_or_expression: exclusive_or_expression • BITWISE_XOR and_expression
    78 inclusive_or_expression: inclusive_or_expression BITWISE_OR exclusive_or_expression •
 
-    BITWISE_XOR  shift, and go to state 232
+    BITWISE_XOR  shift, and go to state 233
 
     $default  reduce using rule 78 (inclusive_or_expression)
 
 
-State 331
+State 332
 
    78 inclusive_or_expression: inclusive_or_expression • BITWISE_OR exclusive_or_expression
    80 logical_and_expression: logical_and_expression LOGICAL_AND inclusive_or_expression •
 
-    BITWISE_OR  shift, and go to state 233
+    BITWISE_OR  shift, and go to state 234
 
     $default  reduce using rule 80 (logical_and_expression)
 
 
-State 332
+State 333
 
    80 logical_and_expression: logical_and_expression • LOGICAL_AND inclusive_or_expression
    82 logical_or_expression: logical_or_expression LOGICAL_OR logical_and_expression •
 
-    LOGICAL_AND  shift, and go to state 234
+    LOGICAL_AND  shift, and go to state 235
 
     $default  reduce using rule 82 (logical_or_expression)
 
 
-State 333
+State 334
 
    84 conditional_expression: logical_or_expression QUESTION_MARK expression • COLON conditional_expression
    99 expression: expression • COMMA assignment_expression
 
-    COLON  shift, and go to state 385
-    COMMA  shift, and go to state 238
+    COLON  shift, and go to state 386
+    COMMA  shift, and go to state 239
 
 
-State 334
+State 335
 
    99 expression: expression COMMA assignment_expression •
 
     $default  reduce using rule 99 (expression)
 
 
-State 335
+State 336
 
   218 compound_statement: LCURLY declaration_list statement_list RCURLY •
 
     $default  reduce using rule 218 (compound_statement)
 
 
-State 336
+State 337
 
   186 direct_abstract_declarator: LROUND RROUND •
 
     $default  reduce using rule 186 (direct_abstract_declarator)
 
 
-State 337
-
-  187 direct_abstract_declarator: LROUND parameter_type_list • RROUND
-
-    RROUND  shift, and go to state 386
-
-
 State 338
 
-  181 direct_abstract_declarator: LROUND abstract_declarator • RROUND
+  187 direct_abstract_declarator: LROUND parameter_type_list • RROUND
 
     RROUND  shift, and go to state 387
 
 
 State 339
 
+  181 direct_abstract_declarator: LROUND abstract_declarator • RROUND
+
+    RROUND  shift, and go to state 388
+
+
+State 340
+
   182 direct_abstract_declarator: LSQUARE RSQUARE •
 
     $default  reduce using rule 182 (direct_abstract_declarator)
 
 
-State 340
+State 341
 
   183 direct_abstract_declarator: LSQUARE constant_expression • RSQUARE
 
-    RSQUARE  shift, and go to state 388
+    RSQUARE  shift, and go to state 389
 
 
-State 341
+State 342
 
   180 abstract_declarator: pointer direct_abstract_declarator •
   184 direct_abstract_declarator: direct_abstract_declarator • LSQUARE RSQUARE
@@ -6518,20 +6522,20 @@ State 341
   188                           | direct_abstract_declarator • LROUND RROUND
   189                           | direct_abstract_declarator • LROUND parameter_type_list RROUND
 
-    LROUND   shift, and go to state 342
-    LSQUARE  shift, and go to state 343
+    LROUND   shift, and go to state 343
+    LSQUARE  shift, and go to state 344
 
     $default  reduce using rule 180 (abstract_declarator)
 
 
-State 342
+State 343
 
   188 direct_abstract_declarator: direct_abstract_declarator LROUND • RROUND
   189                           | direct_abstract_declarator LROUND • parameter_type_list RROUND
 
     TYPEDEF    shift, and go to state 1
     TYPE_NAME  shift, and go to state 2
-    RROUND     shift, and go to state 389
+    RROUND     shift, and go to state 390
     VOID       shift, and go to state 5
     INT        shift, and go to state 6
     DOUBLE     shift, and go to state 7
@@ -6547,12 +6551,12 @@ State 342
     storage_class_specifier  go to state 20
     type_specifier           go to state 21
     type_qualifier           go to state 24
-    parameter_type_list      go to state 390
+    parameter_type_list      go to state 391
     parameter_list           go to state 137
     parameter_declaration    go to state 138
 
 
-State 343
+State 344
 
   184 direct_abstract_declarator: direct_abstract_declarator LSQUARE • RSQUARE
   185                           | direct_abstract_declarator LSQUARE • constant_expression RSQUARE
@@ -6566,7 +6570,7 @@ State 343
     LOGICAL_NOT        shift, and go to state 65
     LROUND             shift, and go to state 66
     LSQUARE            shift, and go to state 68
-    RSQUARE            shift, and go to state 391
+    RSQUARE            shift, and go to state 392
     TILDE              shift, and go to state 70
     SIZEOF             shift, and go to state 83
     TRUE               shift, and go to state 84
@@ -6600,32 +6604,32 @@ State 343
     logical_and_expression     go to state 113
     logical_or_expression      go to state 114
     conditional_expression     go to state 143
-    constant_expression        go to state 392
+    constant_expression        go to state 393
     lambda_expression          go to state 132
 
 
-State 344
+State 345
 
   170 parameter_list: parameter_list COMMA parameter_declaration •
 
     $default  reduce using rule 170 (parameter_list)
 
 
-State 345
+State 346
 
   175 identifier_list: identifier_list COMMA IDENTIFIER •
 
     $default  reduce using rule 175 (identifier_list)
 
 
-State 346
+State 347
 
   191 initializer: LCURLY initializer_list RCURLY •
 
     $default  reduce using rule 191 (initializer)
 
 
-State 347
+State 348
 
   192 initializer: LCURLY initializer_list COMMA • RCURLY
   194 initializer_list: initializer_list COMMA • initializer
@@ -6639,7 +6643,7 @@ State 347
     LOGICAL_NOT        shift, and go to state 65
     LROUND             shift, and go to state 66
     LCURLY             shift, and go to state 147
-    RCURLY             shift, and go to state 393
+    RCURLY             shift, and go to state 394
     LSQUARE            shift, and go to state 68
     TILDE              shift, and go to state 70
     SIZEOF             shift, and go to state 83
@@ -6675,43 +6679,43 @@ State 347
     logical_or_expression      go to state 114
     conditional_expression     go to state 115
     assignment_expression      go to state 148
-    initializer                go to state 394
+    initializer                go to state 395
     lambda_expression          go to state 132
 
 
-State 348
+State 349
 
   144 destructor_definition: TILDE IDENTIFIER LROUND • RROUND compound_statement
 
-    RROUND  shift, and go to state 395
+    RROUND  shift, and go to state 396
 
 
-State 349
+State 350
 
   143 constructor_definition: IDENTIFIER LROUND RROUND • compound_statement
 
     LCURLY  shift, and go to state 44
 
-    compound_statement  go to state 396
+    compound_statement  go to state 397
 
 
-State 350
+State 351
 
   142 constructor_definition: IDENTIFIER LROUND parameter_list • RROUND compound_statement
   170 parameter_list: parameter_list • COMMA parameter_declaration
 
-    RROUND  shift, and go to state 397
-    COMMA   shift, and go to state 253
+    RROUND  shift, and go to state 398
+    COMMA   shift, and go to state 254
 
 
-State 351
+State 352
 
   135 member_declaration: specifier_qualifier_list struct_declarator_list SEMICOLON •
 
     $default  reduce using rule 135 (member_declaration)
 
 
-State 352
+State 353
 
   146 struct_declarator_list: struct_declarator_list COMMA • struct_declarator
 
@@ -6719,45 +6723,45 @@ State 352
     LROUND      shift, and go to state 4
     IDENTIFIER  shift, and go to state 17
 
-    init_declarator    go to state 269
-    struct_declarator  go to state 398
+    init_declarator    go to state 270
+    struct_declarator  go to state 399
     declarator         go to state 146
     direct_declarator  go to state 26
     pointer            go to state 27
 
 
-State 353
+State 354
 
   137 member_declaration: specifier_qualifier_list declarator compound_statement •
 
     $default  reduce using rule 137 (member_declaration)
 
 
-State 354
+State 355
 
    54 cast_expression: LROUND type_name RROUND cast_expression •
 
     $default  reduce using rule 54 (cast_expression)
 
 
-State 355
+State 356
 
   258 lambda_capture_clause: ASSIGN COMMA capture_list •
   260 capture_list: capture_list • COMMA IDENTIFIER
 
-    COMMA  shift, and go to state 399
+    COMMA  shift, and go to state 400
 
     $default  reduce using rule 258 (lambda_capture_clause)
 
 
-State 356
+State 357
 
   250 lambda_parameter_clause: LROUND • RROUND
   251                        | LROUND • parameter_list RROUND
 
     TYPEDEF    shift, and go to state 1
     TYPE_NAME  shift, and go to state 2
-    RROUND     shift, and go to state 400
+    RROUND     shift, and go to state 401
     VOID       shift, and go to state 5
     INT        shift, and go to state 6
     DOUBLE     shift, and go to state 7
@@ -6773,132 +6777,55 @@ State 356
     storage_class_specifier  go to state 20
     type_specifier           go to state 21
     type_qualifier           go to state 24
-    parameter_list           go to state 401
+    parameter_list           go to state 402
     parameter_declaration    go to state 138
 
 
-State 357
+State 358
 
   248 lambda_expression: LSQUARE lambda_capture_clause RSQUARE compound_statement •
 
     $default  reduce using rule 248 (lambda_expression)
 
 
-State 358
+State 359
 
   247 lambda_expression: LSQUARE lambda_capture_clause RSQUARE lambda_declarator • compound_statement
 
     LCURLY  shift, and go to state 44
 
-    compound_statement  go to state 402
-
-
-State 359
-
-  249 lambda_declarator: lambda_parameter_clause • trailing_return_opt
-
-    ARROW  shift, and go to state 403
-
-    $default  reduce using rule 252 (trailing_return_opt)
-
-    trailing_return_opt  go to state 404
+    compound_statement  go to state 403
 
 
 State 360
+
+  249 lambda_declarator: lambda_parameter_clause • trailing_return_opt
+
+    ARROW  shift, and go to state 404
+
+    $default  reduce using rule 252 (trailing_return_opt)
+
+    trailing_return_opt  go to state 405
+
+
+State 361
 
   257 lambda_capture_clause: capture_list COMMA ASSIGN •
 
     $default  reduce using rule 257 (lambda_capture_clause)
 
 
-State 361
+State 362
 
   260 capture_list: capture_list COMMA IDENTIFIER •
 
     $default  reduce using rule 260 (capture_list)
 
 
-State 362
+State 363
 
   223 selection_statement: IF LROUND expression RROUND • statement
   224                    | IF LROUND expression RROUND • statement ELSE statement
-
-    PLUS               shift, and go to state 59
-    MINUS              shift, and go to state 60
-    STAR               shift, and go to state 61
-    INCREMENT          shift, and go to state 62
-    DECREMENT          shift, and go to state 63
-    BITWISE_AND        shift, and go to state 64
-    LOGICAL_NOT        shift, and go to state 65
-    LROUND             shift, and go to state 66
-    LCURLY             shift, and go to state 44
-    LSQUARE            shift, and go to state 68
-    SEMICOLON          shift, and go to state 69
-    TILDE              shift, and go to state 70
-    IF                 shift, and go to state 71
-    SWITCH             shift, and go to state 72
-    CASE               shift, and go to state 73
-    DEFAULT            shift, and go to state 74
-    WHILE              shift, and go to state 75
-    DO                 shift, and go to state 76
-    FOR                shift, and go to state 77
-    GOTO               shift, and go to state 78
-    CONTINUE           shift, and go to state 79
-    BREAK              shift, and go to state 80
-    RETURN             shift, and go to state 81
-    UNTIL              shift, and go to state 82
-    SIZEOF             shift, and go to state 83
-    TRUE               shift, and go to state 84
-    FALSE              shift, and go to state 85
-    NULLPTR            shift, and go to state 86
-    DELETE             shift, and go to state 87
-    NEW                shift, and go to state 88
-    CIN                shift, and go to state 89
-    COUT               shift, and go to state 90
-    IDENTIFIER         shift, and go to state 91
-    DECIMAL_LITERAL    shift, and go to state 92
-    DOUBLE_LITERAL     shift, and go to state 93
-    EXPONENT_LITERAL   shift, and go to state 94
-    CHARACTER_LITERAL  shift, and go to state 95
-    STRING_LITERAL     shift, and go to state 96
-
-    primary_expression         go to state 97
-    constant                   go to state 98
-    postfix_expression         go to state 99
-    unary_expression           go to state 100
-    unary_operator             go to state 101
-    new_expression             go to state 102
-    delete_expression          go to state 103
-    cast_expression            go to state 104
-    multiplicative_expression  go to state 105
-    additive_expression        go to state 106
-    shift_expression           go to state 107
-    relational_expression      go to state 108
-    equality_expression        go to state 109
-    and_expression             go to state 110
-    exclusive_or_expression    go to state 111
-    inclusive_or_expression    go to state 112
-    logical_and_expression     go to state 113
-    logical_or_expression      go to state 114
-    conditional_expression     go to state 115
-    assignment_expression      go to state 116
-    expression                 go to state 117
-    statement                  go to state 405
-    io_statement               go to state 121
-    cout_expression            go to state 122
-    cin_expression             go to state 123
-    labeled_statement          go to state 124
-    compound_statement         go to state 125
-    expression_statement       go to state 127
-    selection_statement        go to state 128
-    iteration_statement        go to state 129
-    jump_statement             go to state 130
-    lambda_expression          go to state 132
-
-
-State 363
-
-  225 selection_statement: SWITCH LROUND expression RROUND • statement
 
     PLUS               shift, and go to state 59
     MINUS              shift, and go to state 60
@@ -6975,14 +6902,7 @@ State 363
 
 State 364
 
-  213 labeled_statement: CASE constant_expression COLON statement •
-
-    $default  reduce using rule 213 (labeled_statement)
-
-
-State 365
-
-  226 iteration_statement: WHILE LROUND expression RROUND • statement
+  225 selection_statement: SWITCH LROUND expression RROUND • statement
 
     PLUS               shift, and go to state 59
     MINUS              shift, and go to state 60
@@ -7057,7 +6977,91 @@ State 365
     lambda_expression          go to state 132
 
 
+State 365
+
+  213 labeled_statement: CASE constant_expression COLON statement •
+
+    $default  reduce using rule 213 (labeled_statement)
+
+
 State 366
+
+  226 iteration_statement: WHILE LROUND expression RROUND • statement
+
+    PLUS               shift, and go to state 59
+    MINUS              shift, and go to state 60
+    STAR               shift, and go to state 61
+    INCREMENT          shift, and go to state 62
+    DECREMENT          shift, and go to state 63
+    BITWISE_AND        shift, and go to state 64
+    LOGICAL_NOT        shift, and go to state 65
+    LROUND             shift, and go to state 66
+    LCURLY             shift, and go to state 44
+    LSQUARE            shift, and go to state 68
+    SEMICOLON          shift, and go to state 69
+    TILDE              shift, and go to state 70
+    IF                 shift, and go to state 71
+    SWITCH             shift, and go to state 72
+    CASE               shift, and go to state 73
+    DEFAULT            shift, and go to state 74
+    WHILE              shift, and go to state 75
+    DO                 shift, and go to state 76
+    FOR                shift, and go to state 77
+    GOTO               shift, and go to state 78
+    CONTINUE           shift, and go to state 79
+    BREAK              shift, and go to state 80
+    RETURN             shift, and go to state 81
+    UNTIL              shift, and go to state 82
+    SIZEOF             shift, and go to state 83
+    TRUE               shift, and go to state 84
+    FALSE              shift, and go to state 85
+    NULLPTR            shift, and go to state 86
+    DELETE             shift, and go to state 87
+    NEW                shift, and go to state 88
+    CIN                shift, and go to state 89
+    COUT               shift, and go to state 90
+    IDENTIFIER         shift, and go to state 91
+    DECIMAL_LITERAL    shift, and go to state 92
+    DOUBLE_LITERAL     shift, and go to state 93
+    EXPONENT_LITERAL   shift, and go to state 94
+    CHARACTER_LITERAL  shift, and go to state 95
+    STRING_LITERAL     shift, and go to state 96
+
+    primary_expression         go to state 97
+    constant                   go to state 98
+    postfix_expression         go to state 99
+    unary_expression           go to state 100
+    unary_operator             go to state 101
+    new_expression             go to state 102
+    delete_expression          go to state 103
+    cast_expression            go to state 104
+    multiplicative_expression  go to state 105
+    additive_expression        go to state 106
+    shift_expression           go to state 107
+    relational_expression      go to state 108
+    equality_expression        go to state 109
+    and_expression             go to state 110
+    exclusive_or_expression    go to state 111
+    inclusive_or_expression    go to state 112
+    logical_and_expression     go to state 113
+    logical_or_expression      go to state 114
+    conditional_expression     go to state 115
+    assignment_expression      go to state 116
+    expression                 go to state 117
+    statement                  go to state 408
+    io_statement               go to state 121
+    cout_expression            go to state 122
+    cin_expression             go to state 123
+    labeled_statement          go to state 124
+    compound_statement         go to state 125
+    expression_statement       go to state 127
+    selection_statement        go to state 128
+    iteration_statement        go to state 129
+    jump_statement             go to state 130
+    lambda_expression          go to state 132
+
+
+State 367
 
   228 iteration_statement: DO statement WHILE LROUND • expression RROUND SEMICOLON
 
@@ -7104,11 +7108,11 @@ State 366
     logical_or_expression      go to state 114
     conditional_expression     go to state 115
     assignment_expression      go to state 116
-    expression                 go to state 408
+    expression                 go to state 409
     lambda_expression          go to state 132
 
 
-State 367
+State 368
 
   229 iteration_statement: FOR LROUND for_init_statement expression_statement • RROUND statement
   230                    | FOR LROUND for_init_statement expression_statement • expression RROUND statement
@@ -7121,7 +7125,7 @@ State 367
     BITWISE_AND        shift, and go to state 64
     LOGICAL_NOT        shift, and go to state 65
     LROUND             shift, and go to state 66
-    RROUND             shift, and go to state 409
+    RROUND             shift, and go to state 410
     LSQUARE            shift, and go to state 68
     TILDE              shift, and go to state 70
     SIZEOF             shift, and go to state 83
@@ -7157,11 +7161,11 @@ State 367
     logical_or_expression      go to state 114
     conditional_expression     go to state 115
     assignment_expression      go to state 116
-    expression                 go to state 410
+    expression                 go to state 411
     lambda_expression          go to state 132
 
 
-State 368
+State 369
 
   227 iteration_statement: UNTIL LROUND expression RROUND • statement
 
@@ -7225,7 +7229,7 @@ State 368
     conditional_expression     go to state 115
     assignment_expression      go to state 116
     expression                 go to state 117
-    statement                  go to state 411
+    statement                  go to state 412
     io_statement               go to state 121
     cout_expression            go to state 122
     cin_expression             go to state 123
@@ -7238,76 +7242,76 @@ State 368
     lambda_expression          go to state 132
 
 
-State 369
+State 370
 
    28 unary_expression: SIZEOF LROUND type_name RROUND •
 
     $default  reduce using rule 28 (unary_expression)
 
 
-State 370
+State 371
 
    51 delete_expression: DELETE LSQUARE RSQUARE cast_expression •
 
     $default  reduce using rule 51 (delete_expression)
 
 
-State 371
+State 372
 
    45 pointer_opt: STAR pointer_opt •
 
     $default  reduce using rule 45 (pointer_opt)
 
 
-State 372
-
-   47 scalar_new_init_opt: LROUND RROUND •
-
-    $default  reduce using rule 47 (scalar_new_init_opt)
-
-
 State 373
 
-   22 argument_expression_list: argument_expression_list • COMMA assignment_expression
-   48 scalar_new_init_opt: LROUND argument_expression_list • RROUND
+   49 scalar_new_init_opt: LROUND RROUND •
 
-    RROUND  shift, and go to state 412
-    COMMA   shift, and go to state 383
+    $default  reduce using rule 49 (scalar_new_init_opt)
 
 
 State 374
 
-   49 new_declarator: LSQUARE expression • RSQUARE
-   99 expression: expression • COMMA assignment_expression
+   22 argument_expression_list: argument_expression_list • COMMA assignment_expression
+   50 scalar_new_init_opt: LROUND argument_expression_list • RROUND
 
-    RSQUARE  shift, and go to state 413
-    COMMA    shift, and go to state 238
+    RROUND  shift, and go to state 413
+    COMMA   shift, and go to state 384
 
 
 State 375
 
-   39 new_expression: NEW type_specifier pointer_opt scalar_new_init_opt •
+   47 new_declarator: LSQUARE expression • RSQUARE
+   99 expression: expression • COMMA assignment_expression
 
-    $default  reduce using rule 39 (new_expression)
+    RSQUARE  shift, and go to state 414
+    COMMA    shift, and go to state 239
 
 
 State 376
 
    37 new_expression: NEW type_specifier pointer_opt new_declarator • scalar_new_init_opt
    40               | NEW type_specifier pointer_opt new_declarator •
-   50 new_declarator: new_declarator • LSQUARE expression RSQUARE
+   48 new_declarator: new_declarator • LSQUARE expression RSQUARE
 
-    LROUND   shift, and go to state 297
-    LSQUARE  shift, and go to state 377
+    LROUND   shift, and go to state 298
+    LSQUARE  shift, and go to state 378
 
     $default  reduce using rule 40 (new_expression)
 
-    scalar_new_init_opt  go to state 414
+    scalar_new_init_opt  go to state 415
 
 
 State 377
 
-   50 new_declarator: new_declarator LSQUARE • expression RSQUARE
+   39 new_expression: NEW type_specifier pointer_opt scalar_new_init_opt •
+
+    $default  reduce using rule 39 (new_expression)
+
+
+State 378
+
+   48 new_declarator: new_declarator LSQUARE • expression RSQUARE
 
     PLUS               shift, and go to state 59
     MINUS              shift, and go to state 60
@@ -7352,46 +7356,46 @@ State 377
     logical_or_expression      go to state 114
     conditional_expression     go to state 115
     assignment_expression      go to state 116
-    expression                 go to state 415
+    expression                 go to state 416
     lambda_expression          go to state 132
 
 
-State 378
+State 379
 
    38 new_expression: NEW type_specifier new_declarator scalar_new_init_opt •
 
     $default  reduce using rule 38 (new_expression)
 
 
-State 379
+State 380
 
   211 extraction_list: extraction_list RIGHT_SHIFT assignment_expression •
 
     $default  reduce using rule 211 (extraction_list)
 
 
-State 380
+State 381
 
   207 insertion_list: insertion_list LEFT_SHIFT ENDL •
 
     $default  reduce using rule 207 (insertion_list)
 
 
-State 381
+State 382
 
   208 insertion_list: insertion_list LEFT_SHIFT assignment_expression •
 
     $default  reduce using rule 208 (insertion_list)
 
 
-State 382
+State 383
 
    16 postfix_expression: postfix_expression LROUND argument_expression_list RROUND •
 
     $default  reduce using rule 16 (postfix_expression)
 
 
-State 383
+State 384
 
    22 argument_expression_list: argument_expression_list COMMA • assignment_expression
 
@@ -7437,18 +7441,18 @@ State 383
     logical_and_expression     go to state 113
     logical_or_expression      go to state 114
     conditional_expression     go to state 115
-    assignment_expression      go to state 416
+    assignment_expression      go to state 417
     lambda_expression          go to state 132
 
 
-State 384
+State 385
 
    14 postfix_expression: postfix_expression LSQUARE expression RSQUARE •
 
     $default  reduce using rule 14 (postfix_expression)
 
 
-State 385
+State 386
 
    84 conditional_expression: logical_or_expression QUESTION_MARK expression COLON • conditional_expression
 
@@ -7493,138 +7497,138 @@ State 385
     inclusive_or_expression    go to state 112
     logical_and_expression     go to state 113
     logical_or_expression      go to state 114
-    conditional_expression     go to state 417
+    conditional_expression     go to state 418
     lambda_expression          go to state 132
 
 
-State 386
+State 387
 
   187 direct_abstract_declarator: LROUND parameter_type_list RROUND •
 
     $default  reduce using rule 187 (direct_abstract_declarator)
 
 
-State 387
+State 388
 
   181 direct_abstract_declarator: LROUND abstract_declarator RROUND •
 
     $default  reduce using rule 181 (direct_abstract_declarator)
 
 
-State 388
+State 389
 
   183 direct_abstract_declarator: LSQUARE constant_expression RSQUARE •
 
     $default  reduce using rule 183 (direct_abstract_declarator)
 
 
-State 389
+State 390
 
   188 direct_abstract_declarator: direct_abstract_declarator LROUND RROUND •
 
     $default  reduce using rule 188 (direct_abstract_declarator)
 
 
-State 390
+State 391
 
   189 direct_abstract_declarator: direct_abstract_declarator LROUND parameter_type_list • RROUND
 
-    RROUND  shift, and go to state 418
+    RROUND  shift, and go to state 419
 
 
-State 391
+State 392
 
   184 direct_abstract_declarator: direct_abstract_declarator LSQUARE RSQUARE •
 
     $default  reduce using rule 184 (direct_abstract_declarator)
 
 
-State 392
+State 393
 
   185 direct_abstract_declarator: direct_abstract_declarator LSQUARE constant_expression • RSQUARE
 
-    RSQUARE  shift, and go to state 419
+    RSQUARE  shift, and go to state 420
 
 
-State 393
+State 394
 
   192 initializer: LCURLY initializer_list COMMA RCURLY •
 
     $default  reduce using rule 192 (initializer)
 
 
-State 394
+State 395
 
   194 initializer_list: initializer_list COMMA initializer •
 
     $default  reduce using rule 194 (initializer_list)
 
 
-State 395
-
-  144 destructor_definition: TILDE IDENTIFIER LROUND RROUND • compound_statement
-
-    LCURLY  shift, and go to state 44
-
-    compound_statement  go to state 420
-
-
 State 396
 
-  143 constructor_definition: IDENTIFIER LROUND RROUND compound_statement •
-
-    $default  reduce using rule 143 (constructor_definition)
-
-
-State 397
-
-  142 constructor_definition: IDENTIFIER LROUND parameter_list RROUND • compound_statement
+  144 destructor_definition: TILDE IDENTIFIER LROUND RROUND • compound_statement
 
     LCURLY  shift, and go to state 44
 
     compound_statement  go to state 421
 
 
+State 397
+
+  143 constructor_definition: IDENTIFIER LROUND RROUND compound_statement •
+
+    $default  reduce using rule 143 (constructor_definition)
+
+
 State 398
+
+  142 constructor_definition: IDENTIFIER LROUND parameter_list RROUND • compound_statement
+
+    LCURLY  shift, and go to state 44
+
+    compound_statement  go to state 422
+
+
+State 399
 
   146 struct_declarator_list: struct_declarator_list COMMA struct_declarator •
 
     $default  reduce using rule 146 (struct_declarator_list)
 
 
-State 399
+State 400
 
   260 capture_list: capture_list COMMA • IDENTIFIER
 
-    IDENTIFIER  shift, and go to state 361
+    IDENTIFIER  shift, and go to state 362
 
 
-State 400
+State 401
 
   250 lambda_parameter_clause: LROUND RROUND •
 
     $default  reduce using rule 250 (lambda_parameter_clause)
 
 
-State 401
+State 402
 
   170 parameter_list: parameter_list • COMMA parameter_declaration
   251 lambda_parameter_clause: LROUND parameter_list • RROUND
 
-    RROUND  shift, and go to state 422
-    COMMA   shift, and go to state 253
+    RROUND  shift, and go to state 423
+    COMMA   shift, and go to state 254
 
 
-State 402
+State 403
 
   247 lambda_expression: LSQUARE lambda_capture_clause RSQUARE lambda_declarator compound_statement •
 
     $default  reduce using rule 247 (lambda_expression)
 
 
-State 403
+State 404
 
-  253 trailing_return_opt: ARROW • type_specifier
+  253 trailing_return_opt: ARROW • type_name
 
     TYPE_NAME  shift, and go to state 2
     VOID       shift, and go to state 5
@@ -7634,51 +7638,55 @@ State 403
     BOOL       shift, and go to state 9
     STRING     shift, and go to state 10
     LONG       shift, and go to state 11
+    CONST      shift, and go to state 14
 
-    type_specifier  go to state 423
+    type_specifier            go to state 156
+    specifier_qualifier_list  go to state 170
+    type_qualifier            go to state 165
+    type_name                 go to state 424
 
 
-State 404
+State 405
 
   249 lambda_declarator: lambda_parameter_clause trailing_return_opt •
 
     $default  reduce using rule 249 (lambda_declarator)
 
 
-State 405
+State 406
 
   223 selection_statement: IF LROUND expression RROUND statement •
   224                    | IF LROUND expression RROUND statement • ELSE statement
 
-    ELSE  shift, and go to state 424
+    ELSE  shift, and go to state 425
 
     $default  reduce using rule 223 (selection_statement)
 
 
-State 406
+State 407
 
   225 selection_statement: SWITCH LROUND expression RROUND statement •
 
     $default  reduce using rule 225 (selection_statement)
 
 
-State 407
+State 408
 
   226 iteration_statement: WHILE LROUND expression RROUND statement •
 
     $default  reduce using rule 226 (iteration_statement)
 
 
-State 408
+State 409
 
    99 expression: expression • COMMA assignment_expression
   228 iteration_statement: DO statement WHILE LROUND expression • RROUND SEMICOLON
 
-    RROUND  shift, and go to state 425
-    COMMA   shift, and go to state 238
+    RROUND  shift, and go to state 426
+    COMMA   shift, and go to state 239
 
 
-State 409
+State 410
 
   229 iteration_statement: FOR LROUND for_init_statement expression_statement RROUND • statement
 
@@ -7742,7 +7750,7 @@ State 409
     conditional_expression     go to state 115
     assignment_expression      go to state 116
     expression                 go to state 117
-    statement                  go to state 426
+    statement                  go to state 427
     io_statement               go to state 121
     cout_expression            go to state 122
     cin_expression             go to state 123
@@ -7755,109 +7763,109 @@ State 409
     lambda_expression          go to state 132
 
 
-State 410
+State 411
 
    99 expression: expression • COMMA assignment_expression
   230 iteration_statement: FOR LROUND for_init_statement expression_statement expression • RROUND statement
 
-    RROUND  shift, and go to state 427
-    COMMA   shift, and go to state 238
+    RROUND  shift, and go to state 428
+    COMMA   shift, and go to state 239
 
 
-State 411
+State 412
 
   227 iteration_statement: UNTIL LROUND expression RROUND statement •
 
     $default  reduce using rule 227 (iteration_statement)
 
 
-State 412
-
-   48 scalar_new_init_opt: LROUND argument_expression_list RROUND •
-
-    $default  reduce using rule 48 (scalar_new_init_opt)
-
-
 State 413
 
-   49 new_declarator: LSQUARE expression RSQUARE •
+   50 scalar_new_init_opt: LROUND argument_expression_list RROUND •
 
-    $default  reduce using rule 49 (new_declarator)
+    $default  reduce using rule 50 (scalar_new_init_opt)
 
 
 State 414
+
+   47 new_declarator: LSQUARE expression RSQUARE •
+
+    $default  reduce using rule 47 (new_declarator)
+
+
+State 415
 
    37 new_expression: NEW type_specifier pointer_opt new_declarator scalar_new_init_opt •
 
     $default  reduce using rule 37 (new_expression)
 
 
-State 415
+State 416
 
-   50 new_declarator: new_declarator LSQUARE expression • RSQUARE
+   48 new_declarator: new_declarator LSQUARE expression • RSQUARE
    99 expression: expression • COMMA assignment_expression
 
-    RSQUARE  shift, and go to state 428
-    COMMA    shift, and go to state 238
+    RSQUARE  shift, and go to state 429
+    COMMA    shift, and go to state 239
 
 
-State 416
+State 417
 
    22 argument_expression_list: argument_expression_list COMMA assignment_expression •
 
     $default  reduce using rule 22 (argument_expression_list)
 
 
-State 417
+State 418
 
    84 conditional_expression: logical_or_expression QUESTION_MARK expression COLON conditional_expression •
 
     $default  reduce using rule 84 (conditional_expression)
 
 
-State 418
+State 419
 
   189 direct_abstract_declarator: direct_abstract_declarator LROUND parameter_type_list RROUND •
 
     $default  reduce using rule 189 (direct_abstract_declarator)
 
 
-State 419
+State 420
 
   185 direct_abstract_declarator: direct_abstract_declarator LSQUARE constant_expression RSQUARE •
 
     $default  reduce using rule 185 (direct_abstract_declarator)
 
 
-State 420
+State 421
 
   144 destructor_definition: TILDE IDENTIFIER LROUND RROUND compound_statement •
 
     $default  reduce using rule 144 (destructor_definition)
 
 
-State 421
+State 422
 
   142 constructor_definition: IDENTIFIER LROUND parameter_list RROUND compound_statement •
 
     $default  reduce using rule 142 (constructor_definition)
 
 
-State 422
+State 423
 
   251 lambda_parameter_clause: LROUND parameter_list RROUND •
 
     $default  reduce using rule 251 (lambda_parameter_clause)
 
 
-State 423
+State 424
 
-  253 trailing_return_opt: ARROW type_specifier •
+  253 trailing_return_opt: ARROW type_name •
 
     $default  reduce using rule 253 (trailing_return_opt)
 
 
-State 424
+State 425
 
   224 selection_statement: IF LROUND expression RROUND statement ELSE • statement
 
@@ -7921,7 +7929,7 @@ State 424
     conditional_expression     go to state 115
     assignment_expression      go to state 116
     expression                 go to state 117
-    statement                  go to state 429
+    statement                  go to state 430
     io_statement               go to state 121
     cout_expression            go to state 122
     cin_expression             go to state 123
@@ -7934,21 +7942,21 @@ State 424
     lambda_expression          go to state 132
 
 
-State 425
+State 426
 
   228 iteration_statement: DO statement WHILE LROUND expression RROUND • SEMICOLON
 
-    SEMICOLON  shift, and go to state 430
+    SEMICOLON  shift, and go to state 431
 
 
-State 426
+State 427
 
   229 iteration_statement: FOR LROUND for_init_statement expression_statement RROUND statement •
 
     $default  reduce using rule 229 (iteration_statement)
 
 
-State 427
+State 428
 
   230 iteration_statement: FOR LROUND for_init_statement expression_statement expression RROUND • statement
 
@@ -8012,7 +8020,7 @@ State 427
     conditional_expression     go to state 115
     assignment_expression      go to state 116
     expression                 go to state 117
-    statement                  go to state 431
+    statement                  go to state 432
     io_statement               go to state 121
     cout_expression            go to state 122
     cin_expression             go to state 123
@@ -8025,28 +8033,28 @@ State 427
     lambda_expression          go to state 132
 
 
-State 428
-
-   50 new_declarator: new_declarator LSQUARE expression RSQUARE •
-
-    $default  reduce using rule 50 (new_declarator)
-
-
 State 429
+
+   48 new_declarator: new_declarator LSQUARE expression RSQUARE •
+
+    $default  reduce using rule 48 (new_declarator)
+
+
+State 430
 
   224 selection_statement: IF LROUND expression RROUND statement ELSE statement •
 
     $default  reduce using rule 224 (selection_statement)
 
 
-State 430
+State 431
 
   228 iteration_statement: DO statement WHILE LROUND expression RROUND SEMICOLON •
 
     $default  reduce using rule 228 (iteration_statement)
 
 
-State 431
+State 432
 
   230 iteration_statement: FOR LROUND for_init_statement expression_statement expression RROUND statement •
 
