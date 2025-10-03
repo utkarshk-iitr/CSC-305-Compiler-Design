@@ -1,96 +1,113 @@
 %{
-#include <iostream>
-#include <string>
-#include <vector>
-#include <unordered_map>
-#include <map>
-#include <cstdlib>
-using namespace std;
+    #include <iostream>
+    #include <string>
+    #include <vector>
+    #include <unordered_map>
+    #include <map>
+    #include <cstdlib>
+    using namespace std;
 
-struct Node {
-    vector<string> code;
-    string place;
-    string type;
-    int argCount = 0;
-    Node() : place(""), type("") {}
-};
+    struct Node {
+        vector<string> code;
+        string place;
+        string type;
+        string kind;
+        int argCount = 0;
+        Node() : place(""), type("") , kind("") {}
+        Node(const Node &n) : code(n.code), place(n.place), type(n.type), kind(n.kind), argCount(n.argCount) {}
+        Node(string p, string t, string k) : place(p), type(t), kind(k) {}
+    };
 
-struct Symbol {
-    string name;
-    string type;
-    bool isFunction = false;
-    int paramCount = 0;
-    bool isDeclared = true;
-};
+    struct Symbol {
+        string name;
+        string type;
+        string kind;
+        bool isFunction = false;
+        int paramCount = 0;
+        bool isDeclared = true;
+        Symbol() : name(""), type(""), kind(""), isFunction(false), paramCount(0), isDeclared(true) {}
+        Symbol(const Symbol &s) : name(s.name), type(s.type), kind(s.kind), isFunction(s.isFunction), paramCount(s.paramCount), isDeclared(s.isDeclared) {}
+        Symbol(string n, string t, string k, bool f, int p) : name(n), type(t), kind(k), isFunction(f), paramCount(p) {}
+    };
 
-vector< unordered_map<string, Symbol> > symStack;
-vector<string> errors;
-static string currentFunction = "global";
-static int globalTemp = 0, globalLabel = 0;
-static int localTemp = 0, localLabel = 0;
-static string lastDeclType = "int";
+    vector< unordered_map<string, Symbol> > symStack;
+    vector<string> errors;
+    static string currentFunction = "global";
+    static int globalTemp = 0, globalLabel = 0;
+    static int localTemp = 0, localLabel = 0;
+    static string lastDeclType = "int";
+    static string lastUsage = "rvalue";
 
-ofstream irfile;
-Node* finalRoot = nullptr;
+    Node* finalRoot = nullptr;
 
-string newTemp() {
-    if (currentFunction == "global") {
-        return "global.t" + to_string(++globalTemp);
-    } else {
-        return currentFunction + ".t" + to_string(++localTemp);
+    string newTemp() {
+        if (currentFunction == "global") {
+            return "global.t" + to_string(++globalTemp);
+        } else {
+            return currentFunction + ".t" + to_string(++localTemp);
+        }
     }
-}
-string newLabel() {
-    if (currentFunction == "global") {
-        return "global.L" + to_string(++globalLabel);
-    } else {
-        return currentFunction + ".L" + to_string(++localLabel);
+    string newLabel() {
+        if (currentFunction == "global") {
+            return "global.L" + to_string(++globalLabel);
+        } else {
+            return currentFunction + ".L" + to_string(++localLabel);
+        }
     }
-}
 
-void pushScope() {
-    symStack.emplace_back();
-}
-void popScope() {
-    if (!symStack.empty()) symStack.pop_back();
-}
-
-Symbol* lookupSymbol(const string &name) {
-    for (int i = (int)symStack.size()-1; i >= 0; --i) {
-        auto &m = symStack[i];
-        auto it = m.find(name);
-        if (it != m.end()) return &it->second;
+    void pushScope() {
+        symStack.emplace_back();
     }
-    return nullptr;
-}
+    void popScope() {
+        if (!symStack.empty()) symStack.pop_back();
+    }
 
-bool declareSymbol(const string &name, const string &type, bool isFunc=false, int params=0) {
-    if (symStack.empty()) pushScope();
-    auto &cur = symStack.back();
-    if (cur.find(name) != cur.end()) {
+    Symbol* lookupSymbol(const string &name) {
+        for (int i = (int)symStack.size()-1; i >= 0; --i) {
+            auto &m = symStack[i];
+            auto it = m.find(name);
+            if (it != m.end()) return &it->second;
+        }
+        return nullptr;
+    }
+
+    bool declareSymbol(const string &name, const string &type, bool isFunc=false, int params=0) {
+        if (symStack.empty()) pushScope();
+        auto &cur = symStack.back();
+        if (cur.find(name) != cur.end()) {
+            return false;
+        }
+        Symbol s; s.name = name; s.type = type; s.isFunction = isFunc; s.paramCount = params; s.isDeclared = true;
+        cur[name] = s;
+        return true;
+    }
+
+    bool is_type_name(const string &name) {
+        for (int i = (int)symStack.size()-1; i >= 0; --i){
+            auto &m = symStack[i];
+            auto it = m.find(name);
+            if (it != m.end() && it->second.isDeclared) 
+                return true;
+        }
         return false;
     }
-    Symbol s; s.name = name; s.type = type; s.isFunction = isFunc; s.paramCount = params; s.isDeclared = true;
-    cur[name] = s;
-    return true;
-}
 
-bool is_type_name(const string &name) {
-    for (const auto &scope : symStack) {
-        auto it = scope.find(name);
-        if (it != scope.end() && it->second.isDeclared) return true;
+    extern int yylineno;
+    void yyerror(const char *s) {
+        errors.push_back(string("Error at line ") + to_string(yylineno) + " : " + s);
     }
-    return false;
-}
 
-extern int yylineno;
-void yyerror(const char *s) {
-    errors.push_back(string("Error at line ") + to_string(yylineno) + " : " + s);
-}
+    void check_access(Symbol* sym) {
+        if(contains(sym->kind,"private")){
+            yyerror("Can't access private member '" + sym->name + "'.");
+        }
+        else if(contains(sym->kind,"protected")){
+            yyerror("Can't access protected member '" + sym->name + "'.");
+        }
+    }
 
-
-extern int yylex();
-extern int yyparse();
+    extern int yylex();
+    extern int yyparse();
 
 %}
 
@@ -176,9 +193,9 @@ primary_expression
           Symbol* sym = lookupSymbol(name);
           if (!sym) {
               yyerror("Use of undeclared identifier '" + name + "'.");
-              declareSymbol(name, "int"); 
-              n->type = "int";
           } else {
+              check_access(sym);
+              n->kind = sym->kind;
               n->type = sym->type;
           }
           $$ = n;
@@ -190,48 +207,36 @@ primary_expression
 
 constant
     : DECIMAL_LITERAL       {
-          Node* n = new Node();
-          n->place = string($1);
-          n->type = "int";
+          Node* n = new Node(string($1), "int", "constant");
           $$ = n;
       }
     | CHARACTER_LITERAL     {
-          Node* n = new Node();
-          n->place = string($1);
-          n->type = "char";
+          Node* n = new Node(string($1), "char", "constant");
           $$ = n;
       }
     | STRING_LITERAL        {
-          Node* n = new Node();
-          n->place = string($1);
-          n->type = "string";
+          Node* n = new Node(string($1), "string", "constant");
           $$ = n;
       }
     | EXPONENT_LITERAL      {
-          Node* n = new Node();
-          n->place = string($1);
-          n->type = "double";
+          Node* n = new Node(string($1), "double", "constant");
           $$ = n;
       }
     | DOUBLE_LITERAL        {
-          Node* n = new Node();
-          n->place = string($1);
-          n->type = "double";
+          Node* n = new Node(string($1), "double", "constant");
           $$ = n;
       }
     | NULLPTR               {
-          Node* n = new Node();
-          n->place = "0";
-          n->type = "nullptr";
+          Node* n = new Node("0", "nullptr", "constant");
           $$ = n;
       }
     | TRUE                  {
-          Node* n = new Node();
-          n->place = "1"; n->type = "bool"; $$ = n;
+          Node* n = new Node("1", "bool", "constant");
+          $$ = n;
       }
     | FALSE                 {
-          Node* n = new Node();
-          n->place = "0"; n->type = "bool"; $$ = n;
+          Node* n = new Node("0", "bool", "constant");
+          $$ = n;
       }
     ;
 
@@ -239,84 +244,175 @@ postfix_expression
 	: primary_expression { $$ = $1; }
 	| postfix_expression LSQUARE expression RSQUARE {
           Node* base = $1; Node* idx = $3;
+          if(base->kind!="array" && base->kind!="pointer"){
+              yyerror("Subscripted value is not an array or pointer.");
+          }
+          if(idx->type!="int"){
+              yyerror("Index is not an integer.");
+          }
+
           Node* n = new Node();
           n->code = base->code;
           n->code.insert(n->code.end(), idx->code.begin(), idx->code.end());
-          n->place = newTemp();
+
+          if(lastUsage=="lvalue"){
+            n->place = base->place + "[" + idx->place + "]";
+          }
+          else{
+            n->place = newTemp();
+            n->code.push_back(n->place + " = " + base->place + "[" + idx->place + "];");
+          }
           n->type = base->type;
-          n->code.push_back(n->place + " = " + base->place + "[" + idx->place + "];");
+          n->kind = lastUsage;          
+          
           $$ = n;
       }
 	| postfix_expression LROUND RROUND {
-          Node* fun = $1;
-          Node* n = new Node();
-          n->code = fun->code;
-          n->place = newTemp();
-          n->code.push_back(n->place + " = call " + fun->place + ", 0;");
-          n->type = "int";
-          $$ = n;
-      }
+            Node* fun = $1;
+            Symbol* s = lookupSymbol(fun->place);
+            check_access(s);
+            if(!s || !s->isFunction){
+                yyerror("Call to non-function '" + fun->place + "'.");
+            }
+            if(s->isFunction && s->paramCount != 0){
+                yyerror("Call to function '" + fun->place + "' with incorrect number of arguments.");
+            }
+            Node* n = new Node();
+            n->code = fun->code;
+            n->type = fun->type;
+
+            if(fun->type=="void"){
+                n->code.push_back("call " + fun->place + ", 0;");
+            }
+            else{
+                n->place = newTemp();
+                n->code.push_back(n->place + " = call " + fun->place + ", 0;");
+            }
+            $$ = n;
+        }
 	| postfix_expression LROUND argument_expression_list RROUND {
-          Node* fun = $1; Node* args = $3;
-          Node* n = new Node();
-          n->code = fun->code;
-          n->code.insert(n->code.end(), args->code.begin(), args->code.end());
-          n->place = newTemp();
-          n->code.push_back(n->place + " = call " + fun->place + ", " + to_string(args->argCount) + ";");
-          Symbol* s = lookupSymbol(fun->place);
-          if (s && s->isFunction && s->paramCount != args->argCount) {
-              yyerror("Call to function '" + fun->place + "' with incorrect number of arguments.");
-          }
-          n->type = "int";
-          $$ = n;
+            Node* fun = $1; Node* args = $3;
+            Symbol* s = lookupSymbol(fun->place);
+            check_access(s);
+            if(!s || !s->isFunction){
+                yyerror("Call to non-function '" + fun->place + "'.");
+            }
+            if (s->isFunction && s->paramCount != args->argCount) {
+                yyerror("Call to function '" + fun->place + "' with incorrect number of arguments.");
+            }
+            Node* n = new Node();
+            n->code = fun->code;
+            n->type = fun->type;
+            n->code.insert(n->code.end(), args->code.begin(), args->code.end());
+            if(fun->type=="void"){
+                n->code.push_back("call " + fun->place + ", " + to_string(args->argCount) + ";");
+            }
+            else{
+                n->place = newTemp();
+                n->code.push_back(n->place + " = call " + fun->place + ", " + to_string(args->argCount) + ";");
+            }
+            $$ = n;
       }
 	| postfix_expression DOT IDENTIFIER {
-          Node* obj = $1;
-          Node* n = new Node();
-          n->code = obj->code;
-          n->place = newTemp();
-          n->type = "int";
-          n->code.push_back(n->place + " = " + obj->place + "." + string($3) + ";");
-          $$ = n;
+            Node* obj = $1;
+            if(obj->kind=="pointer"){
+                yyerror("Member access through pointer must use '->' operator.");
+            }
+            Symbol* s = lookupSymbol(obj->type + "." + string($3));
+            if(!s){
+                yyerror("No member named '" + string($3) + "' in '" + obj->type + "'.");
+            }
+            check_access(s);
+            Node* n = new Node();
+            n->code = obj->code;
+
+            if(lastUsage=="lvalue"){
+                n->place = obj->place + "." + string($3);
+            }
+            else{
+                n->place = newTemp();
+                n->code.push_back(n->place + " = " + obj->place + "." + string($3) + ";");
+            }
+            n->type = s->type;
+            $$ = n;
       }
 	| postfix_expression ARROW IDENTIFIER {
           Node* obj = $1;
+          Symbol* s = lookupSymbol(obj->type + "." + string($3));
+            if(!s){
+                yyerror("No member named '" + string($3) + "' in '" + obj->type + "'.");
+            }
+            check_access(s);
           Node* n = new Node();
           n->code = obj->code;
-          n->place = newTemp();
-          n->type = "int";
-          n->code.push_back(n->place + " = " + obj->place + "->" + string($3) + ";");
+          if(lastUsage=="lvalue"){
+              n->place = obj->place + "->" + string($3);
+          }
+          else{
+              n->place = newTemp();
+              n->code.push_back(n->place + " = " + obj->place + "->" + string($3) + ";");
+          }
+          n->type = s->type;
           $$ = n;
       }
 	| postfix_expression INCREMENT {
           Node* v = $1;
+          if(v->kind!="lvalue"){
+              yyerror("Lvalue required as increment operand.");
+          }
+          if(v->type=="bool" || v->type=="nullptr" || v->type=="string" || v->type=="char"){
+              yyerror("Invalid type '" + v->type + "' for increment.");
+          }
           Node* n = new Node();
           n->code = v->code;
-          n->place = v->place;
-          n->code.push_back(v->place + " = " + v->place + " + 1;");
+          string old = newTemp();
+            n->code.push_back(old + " = " + v->addr + ";");          // load old value from address
+            n->code.push_back(v->addr + " = " + old + " + 1;");      // store back incremented value
+
+            n->place = old;
+          n->type = v->type;
+          n->kind = "rvalue";
           $$ = n;
       }
 	| postfix_expression DECREMENT { 
           Node* v = $1;
+            if(v->kind!="lvalue"){
+                yyerror("Lvalue required as decrement operand.");
+            }
+            if(v->type=="bool" || v->type=="nullptr" || v->type=="string" || v->type=="char"){
+                yyerror("Invalid type '" + v->type + "' for decrement.");
+            }
           Node* n = new Node();
           n->code = v->code;
-          n->place = v->place;
-          n->code.push_back(v->place + " = " + v->place + " - 1;");
+          string old = newTemp();
+            n->code.push_back(old + " = " + v->addr + ";");          // load old value from address
+            n->code.push_back(v->addr + " = " + old + " - 1;");      // store back incremented value
+
+            n->place = old;
+          n->type = v->type;
+          n->kind = "rvalue";
           $$ = n;
       }    
 	;
 
 argument_expression_list
 	: assignment_expression {
+          Node* e = $1;
+          if(e->place.empty()){
+              yyerror("Void expression cannot be used as function argument.");
+          }
           Node* n = new Node();
-          n->code = $1->code;
+          n->code = e->code;
           n->argCount = 1;
-          n->code.push_back("param " + $1->place + ";");
+          n->code.push_back("param " + e->place + ";");
           $$ = n;
       }
 	| argument_expression_list COMMA assignment_expression {
+            Node* e = $3;
+            if(e->place.empty()){
+                yyerror("Void expression cannot be used as function argument.");
+            }
           Node* n = $1;
-          Node* e = $3;
           n->code.insert(n->code.end(), e->code.begin(), e->code.end());
           n->argCount = n->argCount + 1;
           n->code.push_back("param " + e->place + ";");
