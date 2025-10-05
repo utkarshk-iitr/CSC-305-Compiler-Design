@@ -12,7 +12,6 @@ Debug: return_type -> type_specifier pointer_opt
 Debug: parameter_declaration -> return_type IDENTIFIER
 Debug: parameter_list -> parameter_list , parameter_declaration
 Debug: function_definition -> return_type IDENTIFIER ( parameter_list ) compound_statement
-Debug: --------Function 'f' with 2 parameters declared.
 Debug: type_specifier -> INT
 Debug: declaration_specifiers -> type_specifier
 Debug: direct_declarator -> IDENTIFIER
@@ -52,13 +51,7 @@ Debug: translation_unit -> external_declaration
 Debug: type_specifier -> INT
 Debug: pointer_opt -> <empty>
 Debug: return_type -> type_specifier pointer_opt
-Debug: type_specifier -> INT
-Debug: pointer_opt -> <empty>
-Debug: return_type -> type_specifier pointer_opt
-Debug: parameter_declaration -> return_type IDENTIFIER
-Debug: parameter_list -> parameter_declaration
-Debug: function_definition -> return_type IDENTIFIER ( parameter_list ) compound_statement
-Debug: --------Function 'main' with 1 parameters declared.
+Debug: function_definition -> return_type direct_declarator compound_statement
 Debug: primary_expression -> IDENTIFIER
 Debug: postfix_expression -> primary_expression
 Debug: unary_expression -> postfix_expression

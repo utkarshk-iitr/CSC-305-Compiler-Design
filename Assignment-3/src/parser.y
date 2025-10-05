@@ -568,14 +568,6 @@ new_expression
           n->type = lastDeclType + "*";
           $$ = n;
       }
-	| NEW type_specifier new_declarator scalar_new_init_opt {
-          dbg("new_expression -> NEW type_specifier new_declarator scalar_new_init_opt");
-          Node* n = new Node();
-          n->place = newTemp();
-          n->code.push_back(n->place + " = alloc " + lastDeclType + ";");
-          n->type = lastDeclType + "*";
-          $$ = n;
-      }
 	| NEW type_specifier pointer_opt scalar_new_init_opt {
             dbg("new_expression -> NEW type_specifier pointer_opt scalar_new_init_opt");
           Node* n = new Node();
@@ -594,30 +586,6 @@ new_expression
       }
 	| NEW type_specifier pointer_opt {
             dbg("new_expression -> NEW type_specifier pointer_opt");
-          Node* n = new Node();
-          n->place = newTemp();
-          n->code.push_back(n->place + " = alloc " + lastDeclType + ";");
-          n->type = lastDeclType + "*";
-          $$ = n;
-      }
-	| NEW type_specifier new_declarator {
-            dbg("new_expression -> NEW type_specifier new_declarator");
-          Node* n = new Node();
-          n->place = newTemp();
-          n->code.push_back(n->place + " = alloc " + lastDeclType + ";");
-          n->type = lastDeclType + "*";
-          $$ = n;
-      }
-	| NEW type_specifier scalar_new_init_opt {
-            dbg("new_expression -> NEW type_specifier scalar_new_init_opt");
-          Node* n = new Node();
-          n->place = newTemp();
-          n->code.push_back(n->place + " = alloc " + lastDeclType + ";");
-          n->type = lastDeclType + "*";
-          $$ = n;
-      }
-	| NEW type_specifier {
-            dbg("new_expression -> NEW type_specifier");
           Node* n = new Node();
           n->place = newTemp();
           n->code.push_back(n->place + " = alloc " + lastDeclType + ";");
@@ -1079,14 +1047,8 @@ init_declarator
     ;
 
 storage_class_specifier
-	: TYPEDEF { 
-        dbg("storage_class_specifier -> TYPEDEF");
-        $$ = new Node(); }
-	| STATIC { 
+	: STATIC { 
         dbg("storage_class_specifier -> STATIC");
-        $$ = new Node(); }
-	| AUTO { 
-        dbg("storage_class_specifier -> AUTO");
         $$ = new Node(); }
 	;
 
@@ -1747,22 +1709,18 @@ function_header
         {
             dbg("function_definition -> return_type direct_declarator compound_statement");
             string fname = string($2);
-            if (funcTable.find(fname) != funcTable.end()){
+
+            if(funcTable.find(fname)!=funcTable.end())
                 yyerror("Function redeclaration: " + fname);
-            }
             
-            if(string($1) == "void")
-            {
-                funcTable[fname].returnType = "void";
-                funcTable[fname].hasReturn = false;
-            }
-            else
-            {
-                funcTable[fname].returnType = string($1); 
-                funcTable[fname].hasReturn = true;
-            }
-                       
+            if(string($1) == "void") funcTable[fname].hasReturn = false;
+            else funcTable[fname].hasReturn = true;
+
+            funcTable[fname].returnType = string($1);
             funcTable[fname].paramCount = 0;
+            // dbg("Function '" + fname + "' with return type '" + funcTable[fname].returnType + "' declared.");
+            // dbg("Function '" + fname + "' with " + to_string(funcTable[fname].paramCount) + " parameters declared.");
+
             currentFunction = fname;
             localTemp = 0; localLabel = 0;
             Node* n = new Node();
@@ -1775,48 +1733,34 @@ function_header
         {
             dbg("function_definition -> return_type IDENTIFIER ( parameter_list ) compound_statement");
             string fname = string($2);
-            if (funcTable.find(fname) != funcTable.end()){
+
+            if(funcTable.find(fname) != funcTable.end())
                 yyerror("Function redeclaration: " + fname);
-            }
             
-            if(string($1) == "void")
-            {
-                funcTable[fname].returnType = "void";
-                funcTable[fname].hasReturn = false;
-            }
-            else
-            {
-                funcTable[fname].returnType = string($1); 
-                funcTable[fname].hasReturn = true;
-            }
-            // dbg("Function '" + fname + "' with return type '" + funcTable[fname].returnType + "' declared.");
+            if(string($1) == "void") funcTable[fname].hasReturn = false;
+            else funcTable[fname].hasReturn = true;
                        
+            funcTable[fname].returnType = string($1); 
             funcTable[fname].paramCount = $4->syn.size()/2;
+            // dbg("Function '" + fname + "' with return type '" + funcTable[fname].returnType + "' declared.");
             // dbg("Function '" + fname + "' with " + to_string(funcTable[fname].paramCount) + " parameters declared.");
 
-            for (int i = 0; i < $4->syn.size(); i += 2)
-            {
+            for (int i=0;i<$4->syn.size();i+=2){
                 funcTable[fname].paramTypes.push_back($4->syn[i]);
                 // dbg("Parameter: " + $4->syn[i+1] + " of type " + $4->syn[i]);
             }
             
             currentFunction = fname;
             localTemp = 0; localLabel = 0;
-            Node* n = new Node();
-            
+            Node* n = new Node();            
             n->code.push_back(fname + ":");
-            
-            // Declare parameters in the new scope
             pushScope(); 
-            for (int i = 1; i < $4->syn.size(); i += 2) 
-            {
+
+            for(int i=1;i<$4->syn.size();i+=2){
                 string pname = $4->syn[i];
-                string ptype = $4->syn[i-1]; // Parameter type information can be added if needed
-                bool ok = declareSymbol(pname, ptype);
-                
-                if (!ok) {
-                    yyerror("Duplicate parameter name '" + pname + "' in function '" + fname + "'.");
-                }
+                string ptype = $4->syn[i-1];
+                bool ok = declareSymbol(pname,ptype);
+                if(!ok) yyerror("Duplicate parameter name '" + pname + "' in function '" + fname + "'.");
             }
             $$ = n;
         }
@@ -1827,9 +1771,7 @@ function_definition
     : function_header compound_statement{
             dbg("function_definition -> function_header compound_statement");
             Node* n = $1;
-            if ($2) { 
-                n->code.insert(n->code.end(), $2->code.begin(), $2->code.end()); 
-            }
+            if($2) n->code.insert(n->code.end(),$2->code.begin(),$2->code.end()); 
             popScope(); 
             finalRoot = n;
             currentFunction = "global";
@@ -1842,7 +1784,7 @@ function_definition
 return_type
     : type_specifier pointer_opt { 
             dbg("return_type -> type_specifier pointer_opt");
-            $$ = strcat($1, $2); 
+            $$ = strcat($1,$2); 
         }
     ;
 
@@ -1912,24 +1854,18 @@ void yyerror(const char *s);
 
 int main(int argc, char** argv){
     pushScope();
-    
-    if (yyparse() == 0) {
-        cerr << "Parsing completed successfully.\n";
-    } else {
-        cerr << "Parsing failed.\n";
-    }
+    if(yyparse()) cerr << "Parsing failed.\n";
+    else cerr << "Parsing completed successfully.\n"; 
 
-    if (!errors.empty()) {
-        cout << "---- Errors found ----\n";
-        for (auto &e : errors) 
-            cout << e << "\n";
-
+    if(!errors.empty()){
+        cout<<"---- Errors found ----\n";
+        for(auto &e:errors) cout<<e<<"\n";
         return 1;
     }
 
-    if (finalRoot) {
-        for (size_t i = 0; i < finalRoot->code.size(); ++i) {
-            cout << "["<<(i+1) << "] " << finalRoot->code[i] << "\n";
+    if(finalRoot){
+        for(int i=0;i<finalRoot->code.size();i++) {
+            cout<<"["<<(i+1)<<"] "<<finalRoot->code[i]<<"\n";
         }
     }
 
