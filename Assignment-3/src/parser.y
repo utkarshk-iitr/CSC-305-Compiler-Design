@@ -16,12 +16,12 @@
 
     struct Node {
         vector<string> code;
+        vector<string> syn;
         string place;
         string type;
         string kind;
         int argCount = 0;
         Node() : place(""), type("") , kind("") {}
-        Node(const Node &n) : code(n.code), place(n.place), type(n.type), kind(n.kind), argCount(n.argCount) {}
         Node(string p, string t, string k) : place(p), type(t), kind(k) {}
     };
 
@@ -33,15 +33,30 @@
         int paramCount = 0;
         bool isDeclared = true;
         Symbol() : name(""), type(""), kind(""), isFunction(false), paramCount(0), isDeclared(true) {}
-        Symbol(const Symbol &s) : name(s.name), type(s.type), kind(s.kind), isFunction(s.isFunction), paramCount(s.paramCount), isDeclared(s.isDeclared) {}
         Symbol(string n, string t, string k, bool f, int p) : name(n), type(t), kind(k), isFunction(f), paramCount(p) {}
     };
 
+    struct funcInfo {
+        string returnType;
+        bool hasReturn = false;
+        vector<string> paramTypes;
+        int paramCount = 0;
+        funcInfo() : returnType("void"), hasReturn(false) {}
+    };
+
+    unordered_map<string, funcInfo> funcTable;
+
     vector< unordered_map<string, Symbol> > symStack;
+
+    unordered_map<string,int> typeSize = {
+        {"int", 4}, {"char", 1}, {"bool", 1}, {"double", 8}, {"string", 8}, {"nullptr", 8}
+    };
+    
     vector<string> errors;
     static string currentFunction = "global";
     static int globalTemp = 0, globalLabel = 0;
     static int localTemp = 0, localLabel = 0;
+    
     static string lastDeclType = "int";
     static string lastUsage = "rvalue";
 
@@ -62,11 +77,16 @@
         }
     }
 
+    extern bool is_type_name(char const* s) {
+        return typeSize.find(s) != typeSize.end();
+    }
+
     void pushScope() {
         symStack.emplace_back();
     }
     void popScope() {
-        if (!symStack.empty()) symStack.pop_back();
+        if (!symStack.empty()) 
+            symStack.pop_back();
     }
 
     Symbol* lookupSymbol(const string &name) {
@@ -87,16 +107,6 @@
         Symbol s; s.name = name; s.type = type; s.isFunction = isFunc; s.paramCount = params; s.isDeclared = true;
         cur[name] = s;
         return true;
-    }
-
-    bool is_type_name(char const* name) {
-        for (int i = (int)symStack.size()-1; i >= 0; --i){
-            auto &m = symStack[i];
-            auto it = m.find(name);
-            if (it != m.end() && it->second.isDeclared) 
-                return true;
-        }
-        return false;
     }
 
     extern int yylineno;
@@ -176,7 +186,7 @@
 %type<node> struct_or_class_specifier struct_or_class struct_or_class_member_list struct_or_class_member
 %type<node> access_specifier_label member_declaration constructor_definition destructor_definition
 %type<node> struct_declarator_list struct_declarator specifier_qualifier_list type_qualifier
-%type<node> declarator direct_declarator pointer type_qualifier_list parameter_type_list parameter_list
+%type<node> declarator direct_declarator pointer type_qualifier_list parameter_list
 %type<node> parameter_declaration identifier_list type_name abstract_declarator direct_abstract_declarator
 %type<node> initializer initializer_list statement compound_statement statement_list labeled_statement
 %type<node> selection_statement iteration_statement jump_statement io_statement cout_expression
@@ -188,10 +198,10 @@
 %type<node> equality_expression and_expression exclusive_or_expression inclusive_or_expression
 %type<node> logical_and_expression logical_or_expression conditional_expression block_item
 %type<node> assignment_expression expression constant_expression declaration init_declarator
-%type<node> init_declarator_list constant new_expression pointer_opt new_declarator delete_expression  
-%type<node> scalar_new_init_opt declaration_specifiers
+%type<node> init_declarator_list constant new_expression new_declarator delete_expression  
+%type<node> scalar_new_init_opt declaration_specifiers function_header
 %type<node> storage_class_specifier expression_statement translation_unit for_init_statement;
-%type<str> type_specifier assignment_operator unary_operator
+%type<str> type_specifier assignment_operator unary_operator return_type pointer_opt
 
 %start translation_unit
 
@@ -619,10 +629,10 @@ new_expression
 pointer_opt 
 	: STAR pointer_opt { 
         dbg("pointer_opt -> * pointer_opt");
-        $$ = nullptr; }
-	| STAR { 
-        dbg("pointer_opt -> *");
-        $$ = nullptr; }
+        $$ = strcat(strdup("*"), $2); }
+	|  { 
+        dbg("pointer_opt -> <empty>");
+        $$ = strdup(""); }
 	;
 
 new_declarator 
@@ -1262,8 +1272,8 @@ direct_declarator
 	| direct_declarator LSQUARE RSQUARE { 
         dbg("direct_declarator -> direct_declarator [ ]");
         $$ = $1; }
-	| direct_declarator LROUND parameter_type_list RROUND { 
-        dbg("direct_declarator -> direct_declarator ( parameter_type_list )");
+	| direct_declarator LROUND parameter_list RROUND { 
+        dbg("direct_declarator -> direct_declarator ( parameter_list )");
         $$ = $1; }
 	| direct_declarator LROUND identifier_list RROUND { 
         dbg("direct_declarator -> direct_declarator ( identifier_list )");
@@ -1297,36 +1307,29 @@ type_qualifier_list
         $$ = new Node(); }
 	;
 
-parameter_type_list
-	: parameter_list {
-        dbg("parameter_type_list -> parameter_list"); 
-        $$ = $1; }
-	;
-
 parameter_list
 	: parameter_declaration { 
-        dbg("parameter_list -> parameter_declaration");
-        $$ = $1; }
-	| parameter_list COMMA parameter_declaration {
+            dbg("parameter_list -> parameter_declaration");
+            $$ = $1; 
+        }
+	| parameter_list COMMA parameter_declaration 
+        {
             dbg("parameter_list -> parameter_list , parameter_declaration");
-          Node* n = $1; $$ = n;
-      }
+            Node* n = $1;
+            n->syn.insert(n->syn.end(), $3->syn.begin(), $3->syn.end()); 
+            $$ = n;
+        }
 	;
 
 parameter_declaration
-	: declaration_specifiers declarator {
-            dbg("parameter_declaration -> declaration_specifiers declarator");
-          Node* n = new Node();
-          n->place = $2->place;
-          n->type = lastDeclType;
-          $$ = n;
-      }
-	| declaration_specifiers abstract_declarator { 
-        dbg("parameter_declaration -> declaration_specifiers abstract_declarator");
-        Node* n = new Node(); $$ = n; }
-	| declaration_specifiers { 
-        dbg("parameter_declaration -> declaration_specifiers");
-        Node* n = new Node(); $$ = n; }
+	: return_type IDENTIFIER 
+        {
+            dbg("parameter_declaration -> return_type IDENTIFIER");
+            Node* n = new Node();
+            n->syn.push_back(string($1)); 
+            n->syn.push_back(string($2));
+            $$ = n;
+        }
 	;
 
 identifier_list
@@ -1378,14 +1381,14 @@ direct_abstract_declarator
 	| LROUND RROUND { 
         dbg("direct_abstract_declarator -> ( )");
         $$ = new Node(); }
-	| LROUND parameter_type_list RROUND { 
-        dbg("direct_abstract_declarator -> ( parameter_type_list )");
+	| LROUND parameter_list RROUND { 
+        dbg("direct_abstract_declarator -> ( parameter_list )");
         $$ = new Node(); }
 	| direct_abstract_declarator LROUND RROUND { 
         dbg("direct_abstract_declarator -> direct_abstract_declarator ( )");
         $$ = new Node(); }
-	| direct_abstract_declarator LROUND parameter_type_list RROUND { 
-        dbg("direct_abstract_declarator -> direct_abstract_declarator ( parameter_type_list )");
+	| direct_abstract_declarator LROUND parameter_list RROUND { 
+        dbg("direct_abstract_declarator -> direct_abstract_declarator ( parameter_list )");
         $$ = new Node(); }
 	;
 
@@ -1704,6 +1707,7 @@ jump_statement
       }
     ;
 
+// Done
 translation_unit
 	: external_declaration { 
         dbg("translation_unit -> external_declaration");
@@ -1711,56 +1715,136 @@ translation_unit
 	| translation_unit external_declaration {
             dbg("translation_unit -> translation_unit external_declaration");
           Node* a = $1; Node* b = $2;
-          if (a) { a->code.insert(a->code.end(), b->code.begin(), b->code.end()); finalRoot = a; $$ = a; }
+          if (a) { 
+            a->code.insert(a->code.end(), b->code.begin(), b->code.end()); 
+            finalRoot = a; $$ = a; }
           else { finalRoot = b; $$ = b; }
       }
     | error { yyerrok;}
 	;
 
+// Done
 external_declaration
 	: function_definition { 
         dbg("external_declaration -> function_definition");
         $$ = $1; }
 	| struct_or_class_specifier SEMICOLON { 
         dbg("external_declaration -> struct_or_class_specifier ;");
-        Node* n = new Node(); $$ = n; }
+        $$ = $1; }
 	| declaration {
         dbg("external_declaration -> declaration");
          $$ = $1; }
+    | TYPEDEF return_type IDENTIFIER SEMICOLON {
+        dbg("external_declaration -> TYPEDEF return_type IDENTIFIER ;");
+        typeSize[string($3)] = typeSize[string($2)];
+        $$ = new Node();
+        }
     ;
 
-function_definition
-	: declaration_specifiers declarator compound_statement {
-            dbg("function_definition -> declaration_specifiers declarator compound_statement");
-          string fname = $2->place;
-          if (fname.empty()) fname = "anon";
-          Symbol* s = lookupSymbol(fname);
-          if (s && s->isFunction) yyerror("Function redeclaration: " + fname);
-          else declareSymbol(fname, "function", true, 0);
-          currentFunction = fname;
-          localTemp = 0; localLabel = 0;
-          Node* n = new Node();
-          n->code.push_back(fname + ":");
-          if ($3) { pushScope(); n->code.insert(n->code.end(), $3->code.begin(), $3->code.end()); popScope(); }
-          finalRoot = n;
-          $$ = n;
-      }
-	| declarator compound_statement {
-            dbg("function_definition -> declarator compound_statement");
-          string fname = $1->place;
-          if (fname.empty()) fname = "anon";
-          Symbol* s = lookupSymbol(fname);
-          if (s && s->isFunction) yyerror("Function redeclaration: " + fname);
-          else declareSymbol(fname, "function", true, 0);
-          currentFunction = fname; localTemp = 0; localLabel = 0;
-          Node* n = new Node();
-          n->code.push_back(fname + ":");
-          if ($2) { pushScope(); n->code.insert(n->code.end(), $2->code.begin(), $2->code.end()); popScope(); }
-          finalRoot = n;
-          $$ = n;
-      }
-    | error RCURLY { yyerrok;}
+// Done
+function_header
+	: return_type IDENTIFIER LROUND RROUND 
+        {
+            dbg("function_definition -> return_type direct_declarator compound_statement");
+            string fname = string($2);
+            if (funcTable.find(fname) != funcTable.end()){
+                yyerror("Function redeclaration: " + fname);
+            }
+            
+            if(string($1) == "void")
+            {
+                funcTable[fname].returnType = "void";
+                funcTable[fname].hasReturn = false;
+            }
+            else
+            {
+                funcTable[fname].returnType = string($1); 
+                funcTable[fname].hasReturn = true;
+            }
+                       
+            funcTable[fname].paramCount = 0;
+            currentFunction = fname;
+            localTemp = 0; localLabel = 0;
+            Node* n = new Node();
+            n->code.push_back(fname + ":");
+            pushScope(); 
+            $$ = n;
+        }
+
+    | return_type IDENTIFIER LROUND parameter_list RROUND 
+        {
+            dbg("function_definition -> return_type IDENTIFIER ( parameter_list ) compound_statement");
+            string fname = string($2);
+            if (funcTable.find(fname) != funcTable.end()){
+                yyerror("Function redeclaration: " + fname);
+            }
+            
+            if(string($1) == "void")
+            {
+                funcTable[fname].returnType = "void";
+                funcTable[fname].hasReturn = false;
+            }
+            else
+            {
+                funcTable[fname].returnType = string($1); 
+                funcTable[fname].hasReturn = true;
+            }
+            // dbg("Function '" + fname + "' with return type '" + funcTable[fname].returnType + "' declared.");
+                       
+            funcTable[fname].paramCount = $4->syn.size()/2;
+            // dbg("Function '" + fname + "' with " + to_string(funcTable[fname].paramCount) + " parameters declared.");
+
+            for (int i = 0; i < $4->syn.size(); i += 2)
+            {
+                funcTable[fname].paramTypes.push_back($4->syn[i]);
+                // dbg("Parameter: " + $4->syn[i+1] + " of type " + $4->syn[i]);
+            }
+            
+            currentFunction = fname;
+            localTemp = 0; localLabel = 0;
+            Node* n = new Node();
+            
+            n->code.push_back(fname + ":");
+            
+            // Declare parameters in the new scope
+            pushScope(); 
+            for (int i = 1; i < $4->syn.size(); i += 2) 
+            {
+                string pname = $4->syn[i];
+                string ptype = $4->syn[i-1]; // Parameter type information can be added if needed
+                bool ok = declareSymbol(pname, ptype);
+                
+                if (!ok) {
+                    yyerror("Duplicate parameter name '" + pname + "' in function '" + fname + "'.");
+                }
+            }
+            $$ = n;
+        }
 	;
+
+// Done
+function_definition
+    : function_header compound_statement{
+            dbg("function_definition -> function_header compound_statement");
+            Node* n = $1;
+            if ($2) { 
+                n->code.insert(n->code.end(), $2->code.begin(), $2->code.end()); 
+            }
+            popScope(); 
+            finalRoot = n;
+            currentFunction = "global";
+            $$ = n;
+        }
+    | error RCURLY { yyerrok;}
+    ;
+
+// Done
+return_type
+    : type_specifier pointer_opt { 
+            dbg("return_type -> type_specifier pointer_opt");
+            $$ = strcat($1, $2); 
+        }
+    ;
 
 lambda_expression
     : LSQUARE lambda_capture_clause RSQUARE lambda_declarator compound_statement { 

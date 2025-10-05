@@ -4,9 +4,11 @@ using namespace std;
 
 int main()
 {
-    int **a = new int *[10];
-    cout << *a << endl;
-    delete a;
-    cout << *a << endl; // Undefined behavior: accessing deleted memory
+    const static int b = 5;
+    cout<<b<<endl;
+    int a = stoi("9875");
+    cout<<a<<endl;
+    int *c, *d;
     return 0;
+    
 }

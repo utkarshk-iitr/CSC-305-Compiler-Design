@@ -1,8 +1,7 @@
-class abcd{
-    public:
-    int x;
-};
+void f(int a,int b){
+    int c = a+b;
+}
 
-int main() {
-    int x=8-9;
+int main(int x){
+    x=8-9;
 }

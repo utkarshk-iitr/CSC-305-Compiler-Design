@@ -115,19 +115,15 @@
 		;
 
 	new_expression 
-		: NEW type_specifier pointer_opt new_declarator scalar_new_init_opt 
-		| NEW type_specifier new_declarator scalar_new_init_opt 
-		| NEW type_specifier pointer_opt scalar_new_init_opt 
-		| NEW type_specifier pointer_opt new_declarator 
-		| NEW type_specifier pointer_opt 
-		| NEW type_specifier new_declarator 
-		| NEW type_specifier scalar_new_init_opt 
-		| NEW type_specifier 
+		: NEW big_data_type new_declarator scalar_new_init
+		| NEW big_data_type new_declarator 
+		| NEW big_data_type scalar_new_init
+		| NEW big_data_type 
 		;
 
 	pointer_opt 
-		: STAR pointer_opt 
-		| STAR 
+	 	:
+		| STAR pointer_opt  
 		;
 
 	new_declarator 
@@ -135,7 +131,7 @@
 		| new_declarator LSQUARE expression RSQUARE 
 		;
 
-	scalar_new_init_opt 
+	scalar_new_init
 		: LROUND RROUND 
 		| LROUND argument_expression_list RROUND 
 		;
@@ -247,12 +243,8 @@
 		;
 
 	declaration_specifiers
-		: storage_class_specifier
-		| storage_class_specifier declaration_specifiers
-		| type_specifier
-		| type_specifier declaration_specifiers
-		| type_qualifier
-		| type_qualifier declaration_specifiers
+		: big_data_type
+		| CONST big_data_type
 		;
 
 	init_declarator_list
@@ -265,13 +257,20 @@
 		| declarator ASSIGN initializer
 		;
 
-	storage_class_specifier
-		: TYPEDEF
+	static_opt
+		:
 		| STATIC
-		| AUTO
 		;
 
-	type_specifier
+	big_data_type
+		: static_opt small_data_type
+		;
+
+	small_data_type
+		: basic_data_type pointer_opt
+		;
+
+	basic_data_type
 		: VOID
 		| CHAR
 		| INT
@@ -309,9 +308,9 @@
 		;
 
 	member_declaration
-		: specifier_qualifier_list struct_declarator_list SEMICOLON
-		| specifier_qualifier_list SEMICOLON
-		| specifier_qualifier_list declarator compound_statement
+		: declaration_specifiers struct_declarator_list SEMICOLON
+		| declaration_specifiers SEMICOLON
+		| declaration_specifiers declarator compound_statement
 		| struct_or_class_specifier SEMICOLON
 		| SEMICOLON
 		| constructor_definition
@@ -336,20 +335,9 @@
 		: init_declarator
 		;
 
-	specifier_qualifier_list
-		: type_specifier specifier_qualifier_list
-		| type_specifier
-		| type_qualifier specifier_qualifier_list
-		| type_qualifier
-		;
-
-	type_qualifier
-		: CONST
-		;
-
 	declarator
-		: pointer direct_declarator
-		| direct_declarator
+		: direct_declarator
+		| pointer direct_declarator
 		;
 
 	direct_declarator
@@ -370,8 +358,8 @@
 		;
 
 	type_qualifier_list
-		: type_qualifier
-		| type_qualifier_list type_qualifier
+		: CONST
+		| type_qualifier_list CONST
 		;
 
 	parameter_type_list
@@ -395,8 +383,8 @@
 		;
 
 	type_name
-		: specifier_qualifier_list
-		| specifier_qualifier_list abstract_declarator
+		: declaration_specifiers
+		| declaration_specifiers abstract_declarator
 		;
 
 	abstract_declarator
