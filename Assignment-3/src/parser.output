@@ -2,6 +2,7 @@ Terminals unused in grammar
 
     INCLUDE
     FUNCTION
+    INVALID_IDENTIFIER
 
 
 State 112 conflicts: 2 shift/reduce
@@ -447,262 +448,263 @@ Terminals, with rules where they appear
     COUT <str> (342) 205
     ENDL <str> (343) 207 208
     IDENTIFIER <str> (344) 1 17 18 125 126 143 144 145 156 175 176 213 235 260 261
-    DECIMAL_LITERAL <str> (345) 5
-    DOUBLE_LITERAL <str> (346) 9
-    EXPONENT_LITERAL <str> (347) 8
-    CHARACTER_LITERAL <str> (348) 6
-    STRING_LITERAL <str> (349) 7
-    LOWER_THAN_ELSE (350)
+    INVALID_IDENTIFIER <str> (345)
+    DECIMAL_LITERAL <str> (346) 5
+    DOUBLE_LITERAL <str> (347) 9
+    EXPONENT_LITERAL <str> (348) 8
+    CHARACTER_LITERAL <str> (349) 6
+    STRING_LITERAL <str> (350) 7
+    LOWER_THAN_ELSE (351)
 
 
 Nonterminals, with rules where they appear
 
-    $accept (96)
+    $accept (97)
         on left: 0
-    primary_expression <node> (97)
+    primary_expression <node> (98)
         on left: 1 2 3 4
         on right: 13
-    constant <node> (98)
+    constant <node> (99)
         on left: 5 6 7 8 9 10 11 12
         on right: 2
-    postfix_expression <node> (99)
+    postfix_expression <node> (100)
         on left: 13 14 15 16 17 18 19 20
         on right: 14 15 16 17 18 19 20 23
-    argument_expression_list <node> (100)
+    argument_expression_list <node> (101)
         on left: 21 22
         on right: 16 22 50
-    unary_expression <node> (101)
+    unary_expression <node> (102)
         on left: 23 24 25 26 27 28 29 30
         on right: 24 25 27 53 86
-    unary_operator <node> (102)
+    unary_operator <str> (103)
         on left: 31 32 33 34 35 36
         on right: 26
-    new_expression <node> (103)
+    new_expression <node> (104)
         on left: 37 38 39 40 41 42 43 44
         on right: 30
-    pointer_opt <node> (104)
+    pointer_opt <node> (105)
         on left: 45 46
         on right: 37 39 40 41 45
-    new_declarator <node> (105)
+    new_declarator <node> (106)
         on left: 47 48
         on right: 37 38 40 42 48
-    scalar_new_init_opt <node> (106)
+    scalar_new_init_opt <node> (107)
         on left: 49 50
         on right: 37 38 39 43
-    delete_expression <node> (107)
+    delete_expression <node> (108)
         on left: 51 52
         on right: 29
-    cast_expression <node> (108)
+    cast_expression <node> (109)
         on left: 53 54
         on right: 26 51 52 54 55 56 57 58
-    multiplicative_expression <node> (109)
+    multiplicative_expression <node> (110)
         on left: 55 56 57 58
         on right: 56 57 58 59 60 61
-    additive_expression <node> (110)
+    additive_expression <node> (111)
         on left: 59 60 61
         on right: 60 61 62 63 64
-    shift_expression <node> (111)
+    shift_expression <node> (112)
         on left: 62 63 64
         on right: 63 64 65 66 67 68 69
-    relational_expression <node> (112)
+    relational_expression <node> (113)
         on left: 65 66 67 68 69
         on right: 66 67 68 69 70 71 72
-    equality_expression <node> (113)
+    equality_expression <node> (114)
         on left: 70 71 72
         on right: 71 72 73 74
-    and_expression <node> (114)
+    and_expression <node> (115)
         on left: 73 74
         on right: 74 75 76
-    exclusive_or_expression <node> (115)
+    exclusive_or_expression <node> (116)
         on left: 75 76
         on right: 76 77 78
-    inclusive_or_expression <node> (116)
+    inclusive_or_expression <node> (117)
         on left: 77 78
         on right: 78 79 80
-    logical_and_expression <node> (117)
+    logical_and_expression <node> (118)
         on left: 79 80
         on right: 80 81 82
-    logical_or_expression <node> (118)
+    logical_or_expression <node> (119)
         on left: 81 82
         on right: 82 83 84
-    conditional_expression <node> (119)
+    conditional_expression <node> (120)
         on left: 83 84
         on right: 84 85 100
-    assignment_expression <node> (120)
+    assignment_expression <node> (121)
         on left: 85 86
         on right: 21 22 86 98 99 191 206 209 211 212
-    assignment_operator <node> (121)
+    assignment_operator <str> (122)
         on left: 87 88 89 90 91 92 93 94 95 96 97
         on right: 86
-    expression <node> (122)
+    expression <node> (123)
         on left: 98 99
         on right: 3 14 47 48 84 99 224 225 226 227 228 229 230 232 239
-    constant_expression <node> (123)
+    constant_expression <node> (124)
         on left: 100
         on right: 158 184 186 214
-    declaration <node> (124)
+    declaration <node> (125)
         on left: 101 102 103
         on right: 221 234 245
-    declaration_specifiers <node> (125)
+    declaration_specifiers <node> (126)
         on left: 104 105 106 107 108 109
         on right: 101 102 105 107 109 172 173 174 246
-    init_declarator_list <node> (126)
+    init_declarator_list <node> (127)
         on left: 110 111
         on right: 102 111
-    init_declarator <node> (127)
+    init_declarator <node> (128)
         on left: 112 113
         on right: 110 111 148
-    storage_class_specifier <node> (128)
+    storage_class_specifier <node> (129)
         on left: 114 115 116
         on right: 104 105
-    type_specifier <node> (129)
+    type_specifier <str> (130)
         on left: 117 118 119 120 121 122 123 124
         on right: 37 38 39 40 41 42 43 44 106 107 149 150
-    struct_or_class_specifier <node> (130)
+    struct_or_class_specifier <node> (131)
         on left: 125 126
         on right: 139 244
-    struct_or_class <node> (131)
+    struct_or_class <node> (132)
         on left: 127 128
         on right: 125 126
-    struct_or_class_member_list <node> (132)
+    struct_or_class_member_list <node> (133)
         on left: 129 130
         on right: 125 130
-    struct_or_class_member <node> (133)
+    struct_or_class_member <node> (134)
         on left: 131 132
         on right: 129 130
-    access_specifier_label <node> (134)
+    access_specifier_label <node> (135)
         on left: 133 134 135
         on right: 131
-    member_declaration <node> (135)
+    member_declaration <node> (136)
         on left: 136 137 138 139 140 141 142
         on right: 132
-    constructor_definition <node> (136)
+    constructor_definition <node> (137)
         on left: 143 144
         on right: 141
-    destructor_definition <node> (137)
+    destructor_definition <node> (138)
         on left: 145
         on right: 142
-    struct_declarator_list <node> (138)
+    struct_declarator_list <node> (139)
         on left: 146 147
         on right: 136 147
-    struct_declarator <node> (139)
+    struct_declarator <node> (140)
         on left: 148
         on right: 146 147
-    specifier_qualifier_list <node> (140)
+    specifier_qualifier_list <node> (141)
         on left: 149 150 151 152
         on right: 136 137 138 149 151 177 178
-    type_qualifier <node> (141)
+    type_qualifier <node> (142)
         on left: 153
         on right: 108 109 151 152 167 168
-    declarator <node> (142)
+    declarator <node> (143)
         on left: 154 155
         on right: 112 113 138 157 172 246 247
-    direct_declarator <node> (143)
+    direct_declarator <node> (144)
         on left: 156 157 158 159 160 161 162
         on right: 154 155 158 159 160 161 162
-    pointer <node> (144)
+    pointer <node> (145)
         on left: 163 164 165 166
         on right: 154 165 166 179 181
-    type_qualifier_list <node> (145)
+    type_qualifier_list <node> (146)
         on left: 167 168
         on right: 164 166 168
-    parameter_type_list <node> (146)
+    parameter_type_list <node> (147)
         on left: 169
         on right: 160 188 190
-    parameter_list <node> (147)
+    parameter_list <node> (148)
         on left: 170 171
         on right: 143 169 171 253
-    parameter_declaration <node> (148)
+    parameter_declaration <node> (149)
         on left: 172 173 174
         on right: 170 171
-    identifier_list <node> (149)
+    identifier_list <node> (150)
         on left: 175 176
         on right: 161 176
-    type_name <node> (150)
+    type_name <node> (151)
         on left: 177 178
         on right: 28 54 255
-    abstract_declarator <node> (151)
+    abstract_declarator <node> (152)
         on left: 179 180 181
         on right: 173 178 182
-    direct_abstract_declarator <node> (152)
+    direct_abstract_declarator <node> (153)
         on left: 182 183 184 185 186 187 188 189 190
         on right: 180 181 185 186 189 190
-    initializer <node> (153)
+    initializer <node> (154)
         on left: 191 192 193
         on right: 113 194 195
-    initializer_list <node> (154)
+    initializer_list <node> (155)
         on left: 194 195
         on right: 192 193 195
-    statement <node> (155)
+    statement <node> (156)
         on left: 196 197 198 199 200 201 202
         on right: 213 214 215 220 225 226 227 228 229 230 231 232
-    io_statement <node> (156)
+    io_statement <node> (157)
         on left: 203 204
         on right: 202
-    cout_expression <node> (157)
+    cout_expression <node> (158)
         on left: 205
         on right: 203
-    insertion_list <node> (158)
+    insertion_list <node> (159)
         on left: 206 207 208 209
         on right: 205 208 209
-    cin_expression <node> (159)
+    cin_expression <node> (160)
         on left: 210
         on right: 204
-    extraction_list <node> (160)
+    extraction_list <node> (161)
         on left: 211 212
         on right: 210 212
-    labeled_statement <node> (161)
+    labeled_statement <node> (162)
         on left: 213 214 215
         on right: 196
-    compound_statement <node> (162)
+    compound_statement <node> (163)
         on left: 216 217
         on right: 138 143 144 145 197 246 247 249 250
-    statement_list <node> (163)
+    statement_list <node> (164)
         on left: 218 219
         on right: 217 219
-    block_item <node> (164)
+    block_item <node> (165)
         on left: 220 221 222
         on right: 218 219
-    expression_statement <node> (165)
+    expression_statement <node> (166)
         on left: 223 224
         on right: 198 231 232 233
-    selection_statement <node> (166)
+    selection_statement <node> (167)
         on left: 225 226 227
         on right: 199
-    iteration_statement <node> (167)
+    iteration_statement <node> (168)
         on left: 228 229 230 231 232
         on right: 200
-    for_init_statement <node> (168)
+    for_init_statement <node> (169)
         on left: 233 234
         on right: 231 232
-    jump_statement <node> (169)
+    jump_statement <node> (170)
         on left: 235 236 237 238 239
         on right: 201
-    translation_unit <node> (170)
+    translation_unit <node> (171)
         on left: 240 241 242
         on right: 0 241
-    external_declaration <node> (171)
+    external_declaration <node> (172)
         on left: 243 244 245
         on right: 240 241
-    function_definition <node> (172)
+    function_definition <node> (173)
         on left: 246 247 248
         on right: 243
-    lambda_expression <node> (173)
+    lambda_expression <node> (174)
         on left: 249 250
         on right: 4
-    lambda_declarator <node> (174)
+    lambda_declarator <node> (175)
         on left: 251
         on right: 249
-    lambda_parameter_clause <node> (175)
+    lambda_parameter_clause <node> (176)
         on left: 252 253
         on right: 251
-    trailing_return_opt <node> (176)
+    trailing_return_opt <node> (177)
         on left: 254 255
         on right: 251
-    lambda_capture_clause <node> (177)
+    lambda_capture_clause <node> (178)
         on left: 256 257 258 259
         on right: 249 250
-    capture_list <node> (178)
+    capture_list <node> (179)
         on left: 260 261
         on right: 257 258 259 261
 

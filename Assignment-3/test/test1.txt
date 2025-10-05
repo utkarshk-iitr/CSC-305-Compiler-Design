@@ -1,36 +1,8 @@
-#include <stdio.h>
+class abcd{
+    public:
+    int x;
+};
 
 int main() {
-    int Age ;
-    bool Flag_1 , Flag_2;
-    string Name;
-    char FirstLetter ;
-    double Salary;
-    long BigNumbre;
-    const int MOD = 1e9+7;
-    auto WhatIsThis = 3.14 ;
-    int* Iptr = nullptr ;
-    char *Arr = new int(26);
-    Iptr = &Age;
-    static int stval = 90;
-    cout<<*Iptr<<"\n";
-    cin>>Name;
-    cin >> Salary ;
-    cout<< MOD<< "\n";
-
-    delete Iptr;
-
-    Flag_1 = true ;
-    Flag_2= false;
-    int 122aa;
-    
-    if(a) {
-        cout<<"Boi"<<endl;
-    }
-
-    if(a<<<b) {
-        cout<<"Hello"<<endl;
-    }
-
-    return 0;
+    int x=8-9;
 }

@@ -44,6 +44,13 @@
 #if YYDEBUG
 extern int yydebug;
 #endif
+/* "%code requires" blocks.  */
+#line 1 "src/parser.y"
+
+    struct Node;
+    struct Symbol;
+
+#line 54 "src/parser.tab.h"
 
 /* Token kinds.  */
 #ifndef YYTOKENTYPE
@@ -141,12 +148,13 @@ extern int yydebug;
     COUT = 342,                    /* COUT  */
     ENDL = 343,                    /* ENDL  */
     IDENTIFIER = 344,              /* IDENTIFIER  */
-    DECIMAL_LITERAL = 345,         /* DECIMAL_LITERAL  */
-    DOUBLE_LITERAL = 346,          /* DOUBLE_LITERAL  */
-    EXPONENT_LITERAL = 347,        /* EXPONENT_LITERAL  */
-    CHARACTER_LITERAL = 348,       /* CHARACTER_LITERAL  */
-    STRING_LITERAL = 349,          /* STRING_LITERAL  */
-    LOWER_THAN_ELSE = 350          /* LOWER_THAN_ELSE  */
+    INVALID_IDENTIFIER = 345,      /* INVALID_IDENTIFIER  */
+    DECIMAL_LITERAL = 346,         /* DECIMAL_LITERAL  */
+    DOUBLE_LITERAL = 347,          /* DOUBLE_LITERAL  */
+    EXPONENT_LITERAL = 348,        /* EXPONENT_LITERAL  */
+    CHARACTER_LITERAL = 349,       /* CHARACTER_LITERAL  */
+    STRING_LITERAL = 350,          /* STRING_LITERAL  */
+    LOWER_THAN_ELSE = 351          /* LOWER_THAN_ELSE  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -155,12 +163,12 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 111 "src/parser.y"
+#line 126 "src/parser.y"
 
     char* str;
     Node* node;
 
-#line 164 "src/parser.tab.h"
+#line 172 "src/parser.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;
