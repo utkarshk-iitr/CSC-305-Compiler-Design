@@ -98,13 +98,17 @@
         return nullptr;
     }
 
-    bool declareSymbol(const string &name, const string &type, bool isFunc=false, int params=0) {
+    bool declareSymbol(const string &name, const string &type, const string k="",bool isFunc=false, int params=0) {
         if (symStack.empty()) pushScope();
         auto &cur = symStack.back();
         if (cur.find(name) != cur.end()) {
             return false;
         }
-        Symbol s; s.name = name; s.type = type; s.isFunction = isFunc; s.paramCount = params; s.isDeclared = true;
+        Symbol s; 
+        s.name = name; s.type = type; s.kind = k; 
+        s.isFunction = isFunc;
+        s.paramCount = params;
+        s.isDeclared = true;
         cur[name] = s;
         return true;
     }
@@ -185,8 +189,8 @@
 /* declare types for nonterminals */
 %type<node> struct_or_class_specifier struct_or_class struct_or_class_member_list struct_or_class_member
 %type<node> access_specifier_label member_declaration constructor_definition destructor_definition
-%type<node> struct_declarator_list struct_declarator specifier_qualifier_list type_qualifier
-%type<node> declarator direct_declarator pointer type_qualifier_list parameter_list
+%type<node> struct_declarator_list struct_declarator specifier_qualifier_list const_opt
+%type<node> pointer type_qualifier_list parameter_list
 %type<node> parameter_declaration identifier_list type_name abstract_declarator direct_abstract_declarator
 %type<node> initializer initializer_list statement compound_statement statement_list labeled_statement
 %type<node> selection_statement iteration_statement jump_statement io_statement cout_expression
@@ -199,8 +203,8 @@
 %type<node> logical_and_expression logical_or_expression conditional_expression block_item
 %type<node> assignment_expression expression constant_expression declaration init_declarator
 %type<node> init_declarator_list constant new_expression new_declarator delete_expression  
-%type<node> scalar_new_init_opt declaration_specifiers function_header
-%type<node> storage_class_specifier expression_statement translation_unit for_init_statement;
+%type<node> scalar_new_init_opt declaration_specifiers function_header square_opt
+%type<node> static_opt expression_statement translation_unit for_init_statement;
 %type<str> type_specifier assignment_operator unary_operator return_type pointer_opt
 
 %start translation_unit
@@ -594,6 +598,7 @@ new_expression
       }
 	;
 
+// Done
 pointer_opt 
 	: STAR pointer_opt { 
         dbg("pointer_opt -> * pointer_opt");
@@ -968,42 +973,27 @@ constant_expression
         $$ = $1; }
 	;
 
+// Done
 declaration
-	: declaration_specifiers SEMICOLON {
-          dbg("declaration -> declaration_specifiers ;");
-          Node* n = new Node();
-          $$ = n;
-      }
-	| declaration_specifiers init_declarator_list SEMICOLON {
-            dbg("declaration -> declaration_specifiers init_declarator_list ;");
+	: declaration_specifiers { lastDeclType = string($1); } 
+        init_declarator_list SEMICOLON {
+          dbg("declaration -> declaration_specifiers init_declarator_list ;");
           $$ = $2;
       }
     | error SEMICOLON {yyerrok;}
     ;
 
+// Done
 declaration_specifiers
-	: storage_class_specifier { 
-        dbg("declaration_specifiers -> storage_class_specifier");
-        $$ = new Node(); }
-	| storage_class_specifier declaration_specifiers { 
-        dbg("declaration_specifiers -> storage_class_specifier declaration_specifiers");
-        $$ = $2; }
-	| type_specifier { 
-        dbg("declaration_specifiers -> type_specifier");
-        lastDeclType = string($1); $$ = new Node(); }
-	| type_specifier declaration_specifiers { 
-        dbg("declaration_specifiers -> type_specifier declaration_specifiers");
-        lastDeclType = string($1); $$ = $2; }
-	| type_qualifier { 
-        dbg("declaration_specifiers -> type_qualifier");
-        $$ = new Node(); }
-	| type_qualifier declaration_specifiers { 
-        dbg("declaration_specifiers -> type_qualifier declaration_specifiers");
-        $$ = $2; }
+    : static_opt const_opt type_specifier {
+        dbg("declaration_specifiers -> static_opt const_opt return_type");
+        $$ = strcat($1, $2, $3);
+	}
 	;
 
+// Done
 init_declarator_list
-	: init_declarator { 
+	: init_declarator {
         dbg("init_declarator_list -> init_declarator");
         $$ = $1; }
 	| init_declarator_list COMMA init_declarator {
@@ -1014,42 +1004,148 @@ init_declarator_list
       }
 	;
 
+// Done
 init_declarator
-	: declarator {
-            dbg("init_declarator -> declarator");
-          Node* n = new Node();
-          if ($1) {
-              string name = $1->place;
-              bool ok = declareSymbol(name, lastDeclType);
-              if (!ok) {
-                  yyerror("Duplicate declaration of '" + name + "' in same scope.");
-              }
-              n->place = name; n->type = lastDeclType;
-          }
-          $$ = n;
-      }
-	| declarator ASSIGN initializer {
-            dbg("init_declarator -> declarator = initializer");
-          Node* lhs = $1;
-          Node* rhs = $3;
-          Node* n = new Node();
-          n->code = rhs->code;
-          string name = lhs->place;
-          bool ok = declareSymbol(name, lastDeclType);
-          if (!ok) yyerror("Duplicate declaration of '" + name + "' in same scope.");
-          n->code.push_back(name + " = " + rhs->place + ";");
-          n->place = name; n->type = lastDeclType;
-          if (!rhs->type.empty() && rhs->type != lastDeclType) {
-              yyerror("Initializing '" + name + "' of type " + lastDeclType + " with incompatible type " + rhs->type + ".");
-          }
-          $$ = n;
-      }
+	: pointer_opt IDENTIFIER square_opt
+    {
+         
+        dbg("init_declarator -> pointer_opt direct_declarator");
+        Node* n = new Node();
+        n->place = strdup($2);
+
+        string stars = string($1);
+        for (int i = 0; i < $3->argCount; i++) {
+            stars += "*";
+        }
+        
+        n->type = lastDeclType + stars;
+        n->code = $3->code;
+
+        bool ok = declareSymbol(name, lastDeclType);
+        if (!ok) {
+            yyerror("Duplicate declaration of '" + name + "' in same scope.");
+        }
+        $$ = n;
+    }
+	| pointer_opt IDENTIFIER square_opt ASSIGN initializer 
+    {
+        dbg("init_declarator -> pointer_opt IDENTIFIER square_opt = initializer ");
+        Node* n = new Node();
+        string name = string($2);
+        n->place = name;
+
+        string stars = string($1);
+        for(int i=0;i<$3->argCount;i++){
+            stars += "*";
+        }
+        
+        n->type = lastDeclType + stars;
+        n->code = $3->code;
+        n->code.insert(n->code.end(), $5->code.begin(), $5->code.end());
+        n->code.push_back(n->place + " = " + $5->place + ";");
+
+        // if array, array size check
+        if($3->argCount && $3->syn.size()!=$5->syn.size()){
+            yyerror("Array size mismatch in initialization of '" + name + "'.");
+        }
+        // if array, each dimension size check
+        for(int i=0;i<$3->syn.size();i++){
+            if($3->syn[i]!= $5->syn[i]){
+                yyerror("Array size mismatch in initialization of '" + name + "'.");
+            }
+        }
+        // not array, not pointer
+        if(stars.empty()){
+            if(n->type != $5->type){
+                yyerror("Type mismatch in initialization of '" + name + "'.");
+            }
+        }
+        // not array
+        else if($3->argCount==0) 
+        {
+            if ($5->kind!=stars || $5->type!=lastDeclType){
+                yyerror("Type mismatch in initialization of '" + name + "'."); 
+            }
+        }
+        // array not pointer
+        else if(stars.size()==$3->argCount){
+            if ($5->type!=lastDeclType){
+                yyerror("Type mismatch in initialization of '" + name + "'.");
+            }
+        }
+        // pointer & array
+        else{
+            yyerror("Not recognized initialization of '" + name + "'.");
+        }
+        
+        n->kind = "";
+        for(int i=0;i<$3->syn.size();i++){
+            n->kind += "[" + $3->syn[i] + "]";
+        }
+
+        bool ok = declareSymbol(n->place,n->type,n->kind);
+        if (!ok) {
+            yyerror("Duplicate declaration of '" + name + "' in same scope.");
+        }
+        $$ = n;
+    }
     ;
 
-storage_class_specifier
+// Done
+square_opt
+    : square_list{
+        dbg("square_opt -> square_list");
+        $$ = $1;
+    }
+    |  
+    {
+        dbg("square_opt -> <empty>");
+        Node* n = new Node();
+        n->argCount = 0;
+        $$ = n;
+    }
+    ;
+
+square_list
+    : square_list LSQUARE constant_expression RSQUARE
+    {
+        dbg("square_list -> square_list [ constant_expression ]");
+        Node* n = new Node();
+        n->argCount = $1->argCount+1;
+        n->code = $1->code;
+        n->syn = $1->syn;
+        n->code.insert(n->code.end(),$3->code.begin(),$3->code.end());
+
+        if($3->type!="int"){
+            yyerror("Array size must be of type int.");
+        }
+        n->syn.push_back(to_string($3->argCount));
+        $$ = n;
+    }
+    | LSQUARE constant_expression RSQUARE
+    {
+        dbg("square_opt -> [ constant_expression ]");
+        Node* n = new Node();
+        n->argCount = 1;
+        n->code = $2->code;
+        n->syn.push_back(to_string($2->argCount));
+
+        if($2->type!="int"){
+            yyerror("Array size must be of type int.");
+        }
+        $$ = n;
+    }
+    ;
+
+
+// Done
+static_opt
 	: STATIC { 
-        dbg("storage_class_specifier -> STATIC");
-        $$ = new Node(); }
+        dbg("static_opt -> STATIC");
+        $$ = strdup("static"); }
+    |  { 
+        dbg("static_opt -> <empty>");
+        $$ = strdup(""); }
 	;
 
 type_specifier
@@ -1195,55 +1291,24 @@ specifier_qualifier_list
 	| type_specifier { 
         dbg("specifier_qualifier_list -> type_specifier");
         $$ = new Node(); }
-	| type_qualifier specifier_qualifier_list { 
-        dbg("specifier_qualifier_list -> type_qualifier specifier_qualifier_list");
+	| const_opt specifier_qualifier_list { 
+        dbg("specifier_qualifier_list -> const_opt specifier_qualifier_list");
         $$ = new Node(); }
-	| type_qualifier { 
-        dbg("specifier_qualifier_list -> type_qualifier");
+	| const_opt { 
+        dbg("specifier_qualifier_list -> const_opt");
         $$ = new Node(); }
 	;
 
-type_qualifier
+// Done
+const_opt
 	: CONST { 
-        dbg("type_qualifier -> CONST");
-        $$ = new Node(); }
+        dbg("const_opt -> CONST");
+        $$ = strdup("const") }
+    |  {
+        dbg("const_opt -> <empty>");
+        $$ = strdup("") }
 	;
 
-declarator
-	: pointer direct_declarator { 
-        dbg("declarator -> pointer direct_declarator");
-        $$ = $2; }
-	| direct_declarator { 
-        dbg("declarator -> direct_declarator");
-        $$ = $1; }
-	;
-
-direct_declarator
-	: IDENTIFIER {
-            dbg("direct_declarator -> IDENTIFIER");
-          Node* n = new Node();
-          n->place = string($1);
-          $$ = n;
-      }
-	| LROUND declarator RROUND { 
-        dbg("direct_declarator -> ( declarator )");
-        $$ = $2; }
-	| direct_declarator LSQUARE constant_expression RSQUARE { 
-        dbg("direct_declarator -> direct_declarator [ constant_expression ]");
-        $$ = $1; }
-	| direct_declarator LSQUARE RSQUARE { 
-        dbg("direct_declarator -> direct_declarator [ ]");
-        $$ = $1; }
-	| direct_declarator LROUND parameter_list RROUND { 
-        dbg("direct_declarator -> direct_declarator ( parameter_list )");
-        $$ = $1; }
-	| direct_declarator LROUND identifier_list RROUND { 
-        dbg("direct_declarator -> direct_declarator ( identifier_list )");
-        $$ = $1; }
-	| direct_declarator LROUND RROUND { 
-        dbg("direct_declarator -> direct_declarator ( )");
-        $$ = $1; }
-	;
 
 pointer
 	: STAR { 
@@ -1261,11 +1326,11 @@ pointer
 	;
 
 type_qualifier_list
-	: type_qualifier { 
-        dbg("type_qualifier_list -> type_qualifier");
+	: const_opt { 
+        dbg("type_qualifier_list -> const_opt");
         $$ = new Node(); }
-	| type_qualifier_list type_qualifier { 
-        dbg("type_qualifier_list -> type_qualifier_list type_qualifier");
+	| type_qualifier_list const_opt { 
+        dbg("type_qualifier_list -> type_qualifier_list const_opt");
         $$ = new Node(); }
 	;
 
@@ -1707,7 +1772,7 @@ external_declaration
 function_header
 	: return_type IDENTIFIER LROUND RROUND 
         {
-            dbg("function_definition -> return_type direct_declarator compound_statement");
+            dbg("function_definition -> return_type IDENTIFIER ( ) compound_statement");
             string fname = string($2);
 
             if(funcTable.find(fname)!=funcTable.end())
