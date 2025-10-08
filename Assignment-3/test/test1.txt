@@ -1,7 +1,18 @@
-void f(int a,int b){
-    int c = a+b;
+int fn(int a, int b)
+{
+
 }
 
-int main(){
-    x=8-9;
+int f(char c){}
+
+int main()
+{
+    char** a;
+
+    char b;
+
+    char c[5][7];
+
+    char d = 'a';
+
 }
