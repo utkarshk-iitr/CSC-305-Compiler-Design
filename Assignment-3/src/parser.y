@@ -1049,7 +1049,7 @@ init_declarator
         dbg("init_declarator -> IDENTIFIER ");
         Node* n = new Node();
         n->place = string($1 ? $1 : "");
-        n->code = {n->place + " = " + defaultValue(lastDeclType) + ";"};
+        n->code = {n->place + " = " + '0' + ";"};
         n->argCount = 0;
         n->type = lastDeclType;
         n->kind = "";
@@ -1161,31 +1161,33 @@ init_declarator
         string name = string($1);
         n->place = name;
         n->type = lastDeclType;
-        n->code = $2->code;
-        n->code.insert(n->code.end(), $4->code.begin(), $4->code.end());
+        
+        n->code = $4->code;
 
-        n->code.push_back(n->place + " = " + $4->place + ";");
-
-        if($2->syn.size()!=$4->syn.size()){
-            yyerror("Array size mismatch in initialization of '" + name + "'.");
-        }
-        // if array, each dimension size check
-        for(int i = 0; i < $2->syn.size(); i++)
+        int p = 1;
+        for(int i = 0; i < $2->argCount; i++)
         {
-            if($2->syn[i] != $4->syn[i])
-            {
-                yyerror("Array size mismatch in initialization of '" + name + "'.");
-            }
+            n->kind += "[" + $2->syn[i] + "]";
+            n->type += "*";
+            p = p * stoi($2->syn[i]);
+            dbg("");
+            dbg("Array dimension " + to_string(i) + " is " + $2->syn[i]);
         }
 
-        if ($4->type != n->type){
+        if(lastDeclType != $4->type){
             yyerror("Type mismatch in initialization of '" + name + "'.");
         }
 
-        n->kind = "";
-        for(int i = 0; i < $2->syn.size(); i++){
-            n->kind += "[" + $2->syn[i] + "]";
+        dbg("");
+        dbg("Array size is " + to_string(p) + ", initializer size is " + to_string($4->argCount));
+        dbg("");
+
+        if(p < $4->argCount){
+            yyerror("Number of elements in initializer is greater than array size for '" + name + "'.");
         }
+
+        n->argCount = $4->argCount;
+        n->code.push_back("// array initialization of '" + name + "' with " + to_string(n->argCount) + " elements");
 
         bool ok = declareSymbol(n->place,n->type,n->kind);
         if (!ok) {
@@ -1196,47 +1198,23 @@ init_declarator
     ;
 
 initializer
-	: assignment_expression 
-    { 
-        dbg("initializer -> assignment_expression");
-        Node * n = new Node();
-        n->code = $1->code;
-        n->type = $1->type;
-        n->argCount = 1;
-        n->syn.push_back("1");
-        $$ = n;
-    }
-	| LCURLY initializer_list RCURLY 
+	: LCURLY initializer_list RCURLY 
     { 
         dbg("initializer -> { initializer_list }");
         Node* n = new Node();
         n->code = $2->code;
         n->type = $2->type;
-
-        for(int i = 0; i < $2->syn.size(); i++)
-        {
-            if(i >= n->syn.size())
-                n->syn.push_back($2->syn[i]);
-            else
-                n->syn[i] = max(n->syn[i], $2->syn[i]);
-        }
-        if($2->syn.size() >= n->syn.size())
-            n->syn.push_back(to_string(n->argCount)); // if fewer dimensions, last dimension size is number of elements
-        else
-            n->syn[$2->syn.size()] = max(stoi(n->syn[$2->syn.size()]), n->argCount); // last dimension size is number of elements
+        n->syn = $2->syn;
+        n->argCount = $2->argCount;
         $$ = n;
-
-        dbg("Initializer dimensions: ");
-        for(int i = 0; i < n->syn.size(); i++)
-            dbg(" " + n->syn[i]);
     }
 	;
 
 // {{1},{1}}
 initializer_list
-	: initializer 
+	: assignment_expression 
     { 
-        dbg("initializer_list -> initializer");
+        dbg("initializer_list -> assignment_expression");
         Node * n = new Node();
         n->code = $1->code;
         n->type = $1->type;
@@ -1244,9 +1222,9 @@ initializer_list
         n->argCount = 1;
         $$ = n;
     }
-	| initializer_list COMMA initializer 
+	| initializer_list COMMA assignment_expression 
     {
-        dbg("initializer_list -> initializer_list , initializer");
+        dbg("initializer_list -> initializer_list , assignment_expression");
         Node* n = $1; 
 
         if(n->type != $3->type)

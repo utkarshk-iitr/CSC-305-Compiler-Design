@@ -1,6 +1,6 @@
 int fn(int a, int b)
 {
-
+    int c = a + b;
 }
 
 int f(char c){}
@@ -15,4 +15,15 @@ int main()
 
     char d = 'a';
 
+    //char e[2][2] = {'a','b','c','d'};
+
+    //int f[2][3] = {2,1};
+
+    void ds;
+
+    int f = 'a';
+
+    f = 5;
+
+    f = (int)'c';
 }
