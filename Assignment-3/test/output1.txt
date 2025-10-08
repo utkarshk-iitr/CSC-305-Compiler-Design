@@ -1,3 +1,10 @@
----- Errors found ----
-Error at line 24 : Type mismatch in initialization of 'f'.
-Error at line 28 : Type mismatch in assignment to 'f' (int = char).
+[1] fn:
+[2] fn.t1 = a + b;
+[3] c = fn.t1;
+[4] f:
+[5] main:
+[6] b = 0;
+[7] d = 'a';
+[8] ds = 0;
+[9] f = 7;
+[10] f = 5;

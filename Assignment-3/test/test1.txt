@@ -21,9 +21,8 @@ int main()
 
     void ds;
 
-    int f = 'a';
+    int f = 7;
 
     f = 5;
 
-    f = (int)'c';
 }
