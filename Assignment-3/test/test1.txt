@@ -3,7 +3,7 @@ int fn(int a, int b)
     int c = a + b;
 }
 
-int f(char c){}
+int* f(char c){}
 
 int main()
 {
@@ -11,7 +11,7 @@ int main()
 
     char b;
 
-    char c[5][7];
+    char* c[5][7];
 
     char d = 'a';
 

@@ -15,11 +15,7 @@ Debug: function_definition -> return_type IDENTIFIER ( parameter_list ) compound
 Debug: static_opt -> <empty>
 Debug: const_opt -> <empty>
 Debug: type_specifier -> INT
-Debug: we are in declaration_specifiers
 Debug: declaration_specifiers -> static_opt const_opt type_specifier
-Debug: Type specifier is 000: int
-Debug: 
-Debug: 
 Debug: primary_expression -> IDENTIFIER
 Debug: postfix_expression -> primary_expression
 Debug: unary_expression -> postfix_expression
@@ -42,10 +38,8 @@ Debug: logical_and_expression -> inclusive_or_expression
 Debug: logical_or_expression -> logical_and_expression
 Debug: conditional_expression -> logical_or_expression
 Debug: assignment_expression -> conditional_expression
-Debug: init_declarator -> IDENTIFIER = initializer 
-Debug: LEAVE init_declarator: created Node for 'c' with type int
+Debug: init_declarator -> IDENTIFIER = assignment_expression 
 Debug: init_declarator_list -> init_declarator
-Debug: we are in declaration
 Debug: declaration -> declaration_specifiers init_declarator_list ;
 Debug: block_item -> declaration
 Debug: statement_list -> block_item
@@ -54,7 +48,8 @@ Debug: function_definition -> function_header compound_statement
 Debug: external_declaration -> function_definition
 Debug: translation_unit -> external_declaration
 Debug: type_specifier -> INT
-Debug: pointer_opt -> <empty>
+Debug: pointer_list -> *
+Debug: pointer_opt -> pointer_list
 Debug: return_type -> type_specifier pointer_opt
 Debug: type_specifier -> CHAR
 Debug: pointer_opt -> <empty>
@@ -73,43 +68,27 @@ Debug: function_header -> return_type IDENTIFIER ( ) compound_statement
 Debug: static_opt -> <empty>
 Debug: const_opt -> <empty>
 Debug: type_specifier -> CHAR
-Debug: we are in declaration_specifiers
 Debug: declaration_specifiers -> static_opt const_opt type_specifier
-Debug: Type specifier is 000: char
-Debug: 
-Debug: 
 Debug: pointer_list -> *
-Debug: pointer_list -> * pointer_list
+Debug: pointer_list -> pointer_list *
 Debug: init_declarator -> pointer_list IDENTIFIER 
-Debug: LEAVE init_declarator: created Node for 'a' with type char**
 Debug: init_declarator_list -> init_declarator
-Debug: we are in declaration
 Debug: declaration -> declaration_specifiers init_declarator_list ;
 Debug: block_item -> declaration
 Debug: statement_list -> block_item
 Debug: static_opt -> <empty>
 Debug: const_opt -> <empty>
 Debug: type_specifier -> CHAR
-Debug: we are in declaration_specifiers
 Debug: declaration_specifiers -> static_opt const_opt type_specifier
-Debug: Type specifier is 000: char
-Debug: 
-Debug: 
 Debug: init_declarator -> IDENTIFIER 
-Debug: LEAVE init_declarator: created Node for 'b' with type char
 Debug: init_declarator_list -> init_declarator
-Debug: we are in declaration
 Debug: declaration -> declaration_specifiers init_declarator_list ;
 Debug: block_item -> declaration
 Debug: statement_list -> statement_list block_item
 Debug: static_opt -> <empty>
 Debug: const_opt -> <empty>
 Debug: type_specifier -> CHAR
-Debug: we are in declaration_specifiers
 Debug: declaration_specifiers -> static_opt const_opt type_specifier
-Debug: Type specifier is 000: char
-Debug: 
-Debug: 
 Debug: constant -> DECIMAL_LITERAL
 Debug: primary_expression -> constant
 Debug: postfix_expression -> primary_expression
@@ -147,20 +126,14 @@ Debug: conditional_expression -> logical_or_expression
 Debug: constant_expression -> conditional_expression
 Debug: square_list -> square_list [ constant_expression ]
 Debug: init_declarator -> IDENTIFIER square_list 
-Debug: LEAVE init_declarator: created Node for 'c' with type char**
 Debug: init_declarator_list -> init_declarator
-Debug: we are in declaration
 Debug: declaration -> declaration_specifiers init_declarator_list ;
 Debug: block_item -> declaration
 Debug: statement_list -> statement_list block_item
 Debug: static_opt -> <empty>
 Debug: const_opt -> <empty>
 Debug: type_specifier -> CHAR
-Debug: we are in declaration_specifiers
 Debug: declaration_specifiers -> static_opt const_opt type_specifier
-Debug: Type specifier is 000: char
-Debug: 
-Debug: 
 Debug: constant -> CHARACTER_LITERAL
 Debug: primary_expression -> constant
 Debug: postfix_expression -> primary_expression
@@ -178,36 +151,24 @@ Debug: logical_and_expression -> inclusive_or_expression
 Debug: logical_or_expression -> logical_and_expression
 Debug: conditional_expression -> logical_or_expression
 Debug: assignment_expression -> conditional_expression
-Debug: init_declarator -> IDENTIFIER = initializer 
-Debug: LEAVE init_declarator: created Node for 'd' with type char
+Debug: init_declarator -> IDENTIFIER = assignment_expression 
 Debug: init_declarator_list -> init_declarator
-Debug: we are in declaration
 Debug: declaration -> declaration_specifiers init_declarator_list ;
 Debug: block_item -> declaration
 Debug: statement_list -> statement_list block_item
 Debug: static_opt -> <empty>
 Debug: const_opt -> <empty>
 Debug: type_specifier -> VOID
-Debug: we are in declaration_specifiers
 Debug: declaration_specifiers -> static_opt const_opt type_specifier
-Debug: Type specifier is 000: void
-Debug: 
-Debug: 
 Debug: init_declarator -> IDENTIFIER 
-Debug: LEAVE init_declarator: created Node for 'ds' with type void
 Debug: init_declarator_list -> init_declarator
-Debug: we are in declaration
 Debug: declaration -> declaration_specifiers init_declarator_list ;
 Debug: block_item -> declaration
 Debug: statement_list -> statement_list block_item
 Debug: static_opt -> <empty>
 Debug: const_opt -> <empty>
 Debug: type_specifier -> INT
-Debug: we are in declaration_specifiers
 Debug: declaration_specifiers -> static_opt const_opt type_specifier
-Debug: Type specifier is 000: int
-Debug: 
-Debug: 
 Debug: constant -> DECIMAL_LITERAL
 Debug: primary_expression -> constant
 Debug: postfix_expression -> primary_expression
@@ -225,10 +186,8 @@ Debug: logical_and_expression -> inclusive_or_expression
 Debug: logical_or_expression -> logical_and_expression
 Debug: conditional_expression -> logical_or_expression
 Debug: assignment_expression -> conditional_expression
-Debug: init_declarator -> IDENTIFIER = initializer 
-Debug: LEAVE init_declarator: created Node for 'f' with type int
+Debug: init_declarator -> IDENTIFIER = assignment_expression 
 Debug: init_declarator_list -> init_declarator
-Debug: we are in declaration
 Debug: declaration -> declaration_specifiers init_declarator_list ;
 Debug: block_item -> declaration
 Debug: statement_list -> statement_list block_item

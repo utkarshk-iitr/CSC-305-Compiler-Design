@@ -207,7 +207,7 @@
 %type<node> init_declarator_list constant new_expression new_declarator delete_expression  
 %type<node> scalar_new_init_opt function_header square_opt
 %type<node> expression_statement translation_unit for_init_statement;
-%type<node> square_list
+%type<node> square_list switch_head switch_statement case_item
 %type<str> type_specifier assignment_operator unary_operator return_type pointer_opt pointer_list static_opt const_opt
 %type<str> declaration_specifiers
 
@@ -974,14 +974,11 @@ constant_expression
 declaration
 	: declaration_specifiers init_declarator_list SEMICOLON
     {
-        dbg("we are in declaration");
-
         dbg("declaration -> declaration_specifiers init_declarator_list ;");
         $$ = $2;
     }
     | error SEMICOLON
     {
-        dbg("declaration -> error ;");
         yyerror("Invalid declaration.");
     }
     ;
@@ -989,12 +986,9 @@ declaration
 // Done
 declaration_specifiers
     : static_opt const_opt type_specifier {
-        dbg("we are in declaration_specifiers");
         dbg("declaration_specifiers -> static_opt const_opt type_specifier");
-        dbg("Type specifier is 000: " + lastDeclType);
-        dbg("");
-        dbg("");
-        $$ = strdup( (string($1) + string($2) + string($3)).c_str() );
+        lastDeclType = string($1)+string($2)+string($3);
+        $$ = strdup(lastDeclType.c_str());
 	}
 	;
 
@@ -1021,7 +1015,7 @@ pointer_opt
         dbg("pointer_opt -> pointer_list");
         $$ = $1;
     }
-    | /* empty */
+    | 
     {
         dbg("pointer_opt -> <empty>");
         $$ = strdup("");
@@ -1032,8 +1026,8 @@ pointer_opt
 pointer_list
     : pointer_list STAR
     {
-        dbg("pointer_list -> * pointer_list");
-        $$ = strdup( (string("*") + string($1)).c_str() );
+        dbg("pointer_list -> pointer_list *");
+        $$ = strdup((string("*")+string($1)).c_str());
     }
     | STAR
     {
@@ -1042,115 +1036,150 @@ pointer_list
     }
     ;
 
-
+// Done
 init_declarator
     : IDENTIFIER
     {
         dbg("init_declarator -> IDENTIFIER ");
+
+        if(lastDeclType.find("const")!=string::npos){
+            yyerror("Const variable '" + string($1) + "' must be initialized.");
+        }
         Node* n = new Node();
-        n->place = string($1 ? $1 : "");
-        n->code = {n->place + " = " + '0' + ";"};
-        n->argCount = 0;
+        n->place = string($1);
+        // n->code = {n->place + " = " + '0' + ";"};
         n->type = lastDeclType;
         n->kind = "";
+
+        if(n->type.find("static")!=string::npos){
+            n->type.erase(0,7);
+            n->kind += "static";
+        }
+        n->argCount = 0;
         bool ok = declareSymbol(n->place, n->type, n->kind);
         if (!ok) {
             yyerror("Duplicate declaration of '" + n->place + "' in same scope.");
         }
 
-        dbg("LEAVE init_declarator: created Node for '" + n->place + "' with type " + n->type);
         $$ = n;
     }
     | IDENTIFIER square_list 
     {    
         dbg("init_declarator -> IDENTIFIER square_list ");
+        if(lastDeclType.find("const")!=string::npos){
+            yyerror("Const variable '" + string($1) + "' must be initialized.");
+        }
         Node* n = new Node();
-        n->place = string($1 ? $1 : "");   /* restore actual place */
+        n->place = string($1);
         n->code = $2->code;
         n->argCount = $2->argCount;
         n->type = lastDeclType;
-        n->kind = "";
+        n->kind = "array";
+        n->syn = $2->syn;
+        if(n->type.find("static")!=string::npos){
+            n->type.erase(0,7);
+            n->kind += " static";
+        }
         for(int i = 0; i < $2->argCount; i++)
         {
-            n->kind += "[" + $2->syn[i] + "]";
             n->type += "*";
         }
         bool ok = declareSymbol(n->place, n->type, n->kind);
         if (!ok) {
             yyerror("Duplicate declaration of '" + n->place + "' in same scope.");
         }
-        dbg("LEAVE init_declarator: created Node for '" + n->place + "' with type " + n->type);
         $$ = n;
     }
 	| pointer_list IDENTIFIER
     {    
         dbg("init_declarator -> pointer_list IDENTIFIER ");
+
+        if(lastDeclType.find("const")!=string::npos){
+            yyerror("Const variable '" + string($1) + "' must be initialized.");
+        }
+
         Node* n = new Node();
-        n->place = string($2 ? $2 : "");   /* restore actual place */
+        n->place = string($2);
         n->code = {};
         n->argCount = 0;
         string stars = string($1);
         n->type = lastDeclType + stars;
         n->kind = "pointer";
+
+        if(n->type.find("static")!=string::npos){
+            n->type.erase(0,7);
+            n->kind += " static";
+        }
         bool ok = declareSymbol(n->place, n->type, n->kind);
         if (!ok) {
             yyerror("Duplicate declaration of '" + n->place + "' in same scope.");
         }
-        dbg("LEAVE init_declarator: created Node for '" + n->place + "'" + " with type " + n->type);
         $$ = n;
     }
     // not array, not pointer
     | IDENTIFIER ASSIGN assignment_expression 
     {
-        dbg("init_declarator -> IDENTIFIER = initializer ");
+        dbg("init_declarator -> IDENTIFIER = assignment_expression ");
         Node* n = new Node();
         string name = string($1);
         n->place = name;
         n->type = lastDeclType;
         n->code = $3->code;
+        n->argCount = 0;
+        n->kind = "";
+
+        if(n->type.find("static")!=string::npos){
+            n->type.erase(0,7);
+            n->kind += "static";
+        }
+        if(n->type.find("const")!=string::npos){
+            n->type.erase(0,6);
+            n->kind += "const";
+        }
         n->code.push_back(n->place + " = " + $3->place + ";");
 
         if(n->type != $3->type){
             yyerror("Type mismatch in initialization of '" + name + "'.");
         }
-        
-        n->kind = "";
 
         bool ok = declareSymbol(n->place,n->type,n->kind);
         if (!ok) {
             yyerror("Duplicate declaration of '" + name + "' in same scope.");
         }
-        dbg("LEAVE init_declarator: created Node for '" + n->place + "'" + " with type " + n->type);
-
         $$ = n;
     }
     // pointer not array
     | pointer_list IDENTIFIER ASSIGN assignment_expression 
     {
-        dbg("init_declarator -> pointer_list IDENTIFIER = initializer ");
+        dbg("init_declarator -> pointer_list IDENTIFIER = assignment_expression ");
         Node* n = new Node();
         string name = string($2);
         n->place = name;
-
         string stars = string($1);
         
         n->type = lastDeclType + stars;
         n->code = $4->code;
         n->code.push_back(n->place + " = " + $4->place + ";");
+        n->argCount = 0;
+        n->kind = "pointer";
 
-        // stars represent pointer
-        if ($4->kind !=stars || $4->type!=lastDeclType){
+        if(n->type.find("static")!=string::npos){
+            n->type.erase(0,7);
+            n->kind += " static";
+        }
+        if(n->type.find("const")!=string::npos){
+            n->type.erase(0,6);
+            n->kind += " const";
+        }
+        
+        if ($4->type!=n->type){
             yyerror("Type mismatch in initialization of '" + name + "'."); 
         }
-
-        n->kind = "pointer";
 
         bool ok = declareSymbol(n->place,n->type,n->kind);
         if (!ok) {
             yyerror("Duplicate declaration of '" + name + "' in same scope.");
         }
-
-        dbg("LEAVE init_declarator: created Node for '" + n->place + "'" + " with type " + n->type);
         $$ = n;
     }
     // array not pointer
@@ -1161,33 +1190,79 @@ init_declarator
         string name = string($1);
         n->place = name;
         n->type = lastDeclType;
+        n->kind = "array";
+        n->syn = $2->syn;
+        n->argCount = $2->argCount;
+        n->code = $2->code;
+        n->code.insert(n->code.end(), $4->code.begin(), $4->code.end());
         
-        n->code = $4->code;
+        if(n->type.find("static")!=string::npos){
+            n->type.erase(0,7);
+            n->kind += " static";
+        }
+        if(n->type.find("const")!=string::npos){
+            n->type.erase(0,6);
+            n->kind += " const";
+        }
 
         int p = 1;
-        for(int i = 0; i < $2->argCount; i++)
+        for(int i = 0; i < n->argCount; i++)
         {
-            n->kind += "[" + $2->syn[i] + "]";
             n->type += "*";
             p = p * stoi($2->syn[i]);
-            dbg("");
-            dbg("Array dimension " + to_string(i) + " is " + $2->syn[i]);
         }
 
         if(lastDeclType != $4->type){
             yyerror("Type mismatch in initialization of '" + name + "'.");
         }
 
-        dbg("");
-        dbg("Array size is " + to_string(p) + ", initializer size is " + to_string($4->argCount));
-        dbg("");
-
         if(p < $4->argCount){
             yyerror("Number of elements in initializer is greater than array size for '" + name + "'.");
         }
 
-        n->argCount = $4->argCount;
-        n->code.push_back("// array initialization of '" + name + "' with " + to_string(n->argCount) + " elements");
+        bool ok = declareSymbol(n->place,n->type,n->kind);
+        if (!ok) {
+            yyerror("Duplicate declaration of '" + name + "' in same scope.");
+        }
+        $$ = n;
+    }
+    | pointer_list IDENTIFIER square_list ASSIGN initializer
+    {
+        dbg("init_declarator -> pointer_list IDENTIFIER square_list = initializer ");
+        Node* n = new Node();
+        string name = string($2);
+        n->place = name;
+        string stars = string($1);
+        n->type = lastDeclType + stars;
+        n->kind = "pointer array";
+        n->syn = $3->syn;
+        n->argCount = $3->argCount;
+        n->code = $3->code;
+        n->code.insert(n->code.end(), $5->code.begin(), $5->code.end());
+
+        if(n->type.find("static")!=string::npos){
+            n->type.erase(0,7);
+            n->kind += " static";
+        }
+        if(n->type.find("const")!=string::npos){
+            n->type.erase(0,6);
+            n->kind += " const";
+        }
+
+        int p = 1;
+        for(int i = 0; i < n->argCount; i++)
+        {
+            n->type += "*";
+            p = p * stoi($3->syn[i]);
+        }
+
+        if(lastDeclType != $5->type){
+            yyerror("Type mismatch in initialization of '" + name + "'.");
+        }
+
+        if(p < $5->argCount){
+            yyerror("Number of elements in initializer is greater than array size for '" + name + "'.");
+        }
 
         bool ok = declareSymbol(n->place,n->type,n->kind);
         if (!ok) {
@@ -1197,28 +1272,21 @@ init_declarator
     }
     ;
 
+// Done
 initializer
 	: LCURLY initializer_list RCURLY 
     { 
         dbg("initializer -> { initializer_list }");
-        Node* n = new Node();
-        n->code = $2->code;
-        n->type = $2->type;
-        n->syn = $2->syn;
-        n->argCount = $2->argCount;
-        $$ = n;
+        $$ = $2;
     }
 	;
 
-// {{1},{1}}
+// Done
 initializer_list
 	: assignment_expression 
     { 
         dbg("initializer_list -> assignment_expression");
-        Node * n = new Node();
-        n->code = $1->code;
-        n->type = $1->type;
-        n->syn = $1->syn;
+        Node * n = $1;
         n->argCount = 1;
         $$ = n;
     }
@@ -1233,14 +1301,12 @@ initializer_list
         }
 
         n->code.insert(n->code.end(), $3->code.begin(), $3->code.end());
-
         n->argCount = n->argCount + 1;
-
         $$ = n;
     }
 	;
 
-// Done
+// ----- 
 square_opt
     : square_list{
         dbg("square_opt -> square_list");
@@ -1255,20 +1321,19 @@ square_opt
     }
     ;
 
+// Done
 square_list
     : square_list LSQUARE constant_expression RSQUARE
     {
         dbg("square_list -> square_list [ constant_expression ]");
-        Node* n = new Node();
-        n->argCount = $1->argCount+1;
-        n->code = $1->code;
-        n->syn = $1->syn;
+        Node* n = $1;
+        n->argCount = n->argCount + 1;
         n->code.insert(n->code.end(),$3->code.begin(),$3->code.end());
+        n->syn.push_back(to_string($3->argCount));
 
         if($3->type!="int"){
             yyerror("Array size must be of type int.");
         }
-        n->syn.push_back(to_string($3->argCount));
         $$ = n;
     }
     | LSQUARE constant_expression RSQUARE
@@ -1593,6 +1658,7 @@ statement
         $$ = $1; }
     ;
 
+// Done
 io_statement
     : cout_expression SEMICOLON { 
         dbg("io_statement -> cout_expression ;");
@@ -1602,27 +1668,34 @@ io_statement
         $$ = $1; }
     ;
 
+// Done
 cout_expression
     : COUT insertion_list { 
         dbg("cout_expression -> COUT insertion_list");
         $$ = $2; }
     ;
 
+// Done
 insertion_list
     : LEFT_SHIFT assignment_expression {
           dbg("insertion_list -> LEFT_SHIFT assignment_expression");
           Node* e = $2;
           Node* n = new Node();
-          n->code = e->code; n->code.push_back("print " + e->place + ";"); $$ = n;
+          n->code = e->code;
+          n->code.push_back("print " + e->place + ";"); 
+          $$ = n;
       }
 	| LEFT_SHIFT ENDL {
             dbg("insertion_list -> LEFT_SHIFT ENDL");
           Node* n = new Node();
-          n->code.push_back("print endl;"); $$ = n;
+          n->code.push_back("print endl;"); 
+          $$ = n;
       }
 	| insertion_list LEFT_SHIFT ENDL {
             dbg("insertion_list -> insertion_list LEFT_SHIFT ENDL");
-          Node* n = $1; n->code.push_back("print endl;"); $$ = n;
+          Node* n = $1; 
+          n->code.push_back("print endl;"); 
+          $$ = n;
       }
 	| insertion_list LEFT_SHIFT assignment_expression {
             dbg("insertion_list -> insertion_list LEFT_SHIFT assignment_expression");
@@ -1632,64 +1705,63 @@ insertion_list
       }
 	;
 
+// Done
 cin_expression
     : CIN extraction_list { 
         dbg("cin_expression -> CIN extraction_list");
         $$ = $2; }
     ;
 
+// Done
 extraction_list
     : RIGHT_SHIFT assignment_expression {
             dbg("extraction_list -> RIGHT_SHIFT assignment_expression");
-          Node* e = $2; Node* n = new Node();
-          n->code = e->code; n->code.push_back("read " + e->place + ";"); $$ = n;
+          Node* e = $2; 
+          Node* n = new Node();
+          n->code = e->code; 
+          n->code.push_back("read " + e->place + ";"); 
+          $$ = n;
       }
     | extraction_list RIGHT_SHIFT assignment_expression {
             dbg("extraction_list -> extraction_list RIGHT_SHIFT assignment_expression");
-          Node* n = $1; Node* e = $3;
+          Node* n = $1; 
+          Node* e = $3;
           n->code.insert(n->code.end(), e->code.begin(), e->code.end());
-          n->code.push_back("read " + e->place + ";"); $$ = n;
+          n->code.push_back("read " + e->place + ";"); 
+          $$ = n;
       }
     ;
 
+// Done
 labeled_statement
-	: IDENTIFIER COLON statement {
-          dbg("labeled_statement -> IDENTIFIER : statement");
-          Node* s = $3;
-          s->code.insert(s->code.begin(), string($1) + ":");
+	: IDENTIFIER COLON {
+            dbg("labeled_statement -> IDENTIFIER :");
+            if(!declareSymbol(string($1)),"label"){
+                yyerror("Duplicate '" + string($1) + "' in same function.");
+            }
+            Node* s = new Node();
+            string label = string($1);
+            s->code.push_back(label + ":");
           $$ = s;
-      }
-	| CASE constant_expression COLON statement {
-            dbg("labeled_statement -> CASE constant_expression : statement");
-          Node* s = $4;
-          s->code.insert(s->code.begin(), string("case ") + $2->place + ":");
-          $$ = s;
-      }
-	| DEFAULT COLON statement {
-            dbg("labeled_statement -> DEFAULT : statement");
-          Node* s = $3;
-          s->code.insert(s->code.begin(), string("default:"));
-          $$ = s;
-      }
+        }
 	;
 
+// Done
 compound_statement
 	: LCURLY RCURLY {
             dbg("compound_statement -> { }");
-          pushScope();
           Node* n = new Node();
-          popScope();
           $$ = n;
       }
-	| LCURLY statement_list RCURLY {
+	| LCURLY { pushScope();} statement_list RCURLY {
             dbg("compound_statement -> { statement_list }");
-          pushScope();
           Node* n = $2;
           popScope();
           $$ = n;
       }
 	;
 
+// Done
 statement_list
 	: block_item { 
         dbg("statement_list -> block_item");
@@ -1702,6 +1774,7 @@ statement_list
       }
 	;
 
+// Done
 block_item
     : statement { 
         dbg("block_item -> statement");
@@ -1709,9 +1782,9 @@ block_item
     | declaration { 
         dbg("block_item -> declaration");
         $$ = $1; }
-    | error RCURLY { yyerrok;}
+    | error SEMICOLON { yyerrok;}
     ;
-
+// Done
 expression_statement
 	: SEMICOLON { 
         dbg("expression_statement -> ;");
@@ -1747,9 +1820,58 @@ selection_statement
           n->code.push_back(Lend + ":");
           $$ = n;
       }
-	| SWITCH LROUND expression RROUND statement {
-            dbg("selection_statement -> SWITCH ( expression ) statement");
-          Node* n = $5; $$ = n;
+	| switch_head LCURLY switch_statement RCURLY {   
+            dbg("selection_statement -> switch_head { switch_statement }");
+          Node* cond = $1; Node* body = $3;
+          Node* n = new Node();
+          n->code = cond->code;
+          n->code.insert(n->code.end(), body->syn.begin(), body->syn.end());
+          n->code.insert(n->code.end(), body->code.begin(), body->code.end());
+          $$ = n;        
+      }
+    ;
+
+// Done
+switch_head
+    : SWITCH LROUND expression RROUND {
+            dbg("switch_head -> SWITCH ( expression )");
+            lastUsage = $3->place;
+            $$ = $3;
+      }
+    ;
+
+// Done
+switch_statement
+    : DEFAULT COLON statement {
+            dbg("switch_statement -> DEFAULT : statement");
+          Node* s = $3;
+          string caseLabel = newLabel();
+          s->syn.push_back(string("goto ")+caseLabel+";");
+            s->code.insert(s->code.begin(), caseLabel + ":");
+          $$ = s;
+      }
+    | case_item switch_statement{
+            dbg("switch_statement -> case_item switch_statement");
+          Node* n = $2; 
+          if ($1) n->code.insert(n->code.end(), $1->code.begin(), $1->code.end()); 
+          n->syn.insert(n->syn.begin(), $1->syn.begin(), $1->syn.end());
+          $$ = n;
+      }
+    | case_item{
+            dbg("case_list -> case_item");
+          $$ = $1;
+    }
+    ;
+
+// Done
+case_item
+	: CASE constant_expression COLON statement {
+            dbg("labeled_statement -> CASE constant_expression : statement");
+          Node* s = $4;
+          string caseLabel = newLabel();
+          s->syn.push_back(string("if ")+lastUsage+" == "+$2->place+" goto "+caseLabel+";");
+            s->code.insert(s->code.begin(), caseLabel + ":");
+          $$ = s;
       }
     ;
 
@@ -1875,7 +1997,6 @@ translation_unit
             finalRoot = a; $$ = a; }
           else { finalRoot = b; $$ = b; }
       }
-    | error { yyerrok;}
 	;
 
 // Done
@@ -1900,7 +2021,7 @@ external_declaration
 function_header
 	: return_type IDENTIFIER LROUND RROUND 
         {
-            dbg("function_header -> return_type IDENTIFIER ( ) compound_statement");
+            dbg("function_header -> return_type IDENTIFIER ( )");
             string fname = string($2);
 
             if(funcTable.find(fname)!=funcTable.end())
