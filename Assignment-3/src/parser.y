@@ -129,6 +129,51 @@
         }
     }
 
+    bool check_compatibility(const string &t1, const string &t2, const string &op) {
+        if(op=="="){
+            return t1==t2;
+        }
+        
+        string baseop = op.substr(0, op.size()-1);
+        if(baseop=="*" || baseop=="/"){
+            if(t1=="int" && t2=="int") return true;
+            if(t1=="long" && t2=="long") return true;
+            if(t1=="double" && t2=="double") return true;
+            return false;
+        }
+
+        if(baseop=="%" || baseop=="<<" || baseop==">>"){
+            if(t1=="int" && t2=="int") return true;
+            if(t1=="long" && t2=="long") return true;
+            return false;
+        }
+
+        if(baseop=="&" || baseop=="^" || baseop=="|"){
+            if(t1=="int" && t2=="int") return true;
+            if(t1=="long" && t2=="long") return true;
+            if(t1=="bool" && t2=="bool") return true;
+            return false;
+        }
+
+        if(baseop=="+"){
+            if(t1=="int" && t2=="int") return true;
+            if(t1=="long" && t2=="long") return true;
+            if(t1=="double" && t2=="double") return true;
+            if(t1=="string" && t2=="string") return true;
+            if(t1.back()=='*' && t2=="int") return true;
+            return false;
+        }
+
+        if(baseop=="-"){
+            if(t1=="int" && t2=="int") return true;
+            if(t1=="long" && t2=="long") return true;
+            if(t1=="double" && t2=="double") return true;
+            if(t1.back()=='*' && t2=="int") return true;
+            return false;
+        }
+        return false;
+    }
+
     extern int yylex();
     extern int yyparse();
 
@@ -876,6 +921,7 @@ conditional_expression
       }
 	;
 
+// Done
 assignment_expression
 	: conditional_expression { 
         dbg("assignment_expression -> conditional_expression");
@@ -888,8 +934,8 @@ assignment_expression
           n->code = left->code; 
           n->code.insert(n->code.end(),right->code.begin(),right->code.end());
           string op = string($2);
-          if (!left->type.empty() && !right->type.empty() && left->type != right->type) {
-              yyerror("Type mismatch in assignment to '" + left->place + "' (" + left->type + " = " + right->type + ").");
+          if (!check_compatibility(left->type,right->type,op)) {
+              yyerror("Type incompatibility in assignment to '" + left->place + "'.");
           }
           if(left->kind.find("const")!=string::npos){
               yyerror("Cannot assign to const variable '" + left->place + "'.");
@@ -904,6 +950,7 @@ assignment_expression
           $$ = n;
       }
 	;
+
 
 // Done
 assignment_operator
