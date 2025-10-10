@@ -882,88 +882,85 @@ assignment_expression
         $$ = $1; }
 	| unary_expression assignment_operator assignment_expression {
             dbg("assignment_expression -> unary_expression assignment_operator assignment_expression");
-          Node* left = $1; Node* right = $3;
+          Node* left = $1; 
+          Node* right = $3;
           Node* n = new Node();
-          n->code = left->code; n->code.insert(n->code.end(), right->code.begin(), right->code.end());
+          n->code = left->code; 
+          n->code.insert(n->code.end(),right->code.begin(),right->code.end());
           string op = string($2);
           if (!left->type.empty() && !right->type.empty() && left->type != right->type) {
               yyerror("Type mismatch in assignment to '" + left->place + "' (" + left->type + " = " + right->type + ").");
           }
+          if(left->kind.find("const")!=string::npos){
+              yyerror("Cannot assign to const variable '" + left->place + "'.");
+          }
           if (op == "=") {
               n->code.push_back(left->place + " = " + right->place + ";");
-          } else {
-              string baseop;
-              if (op == "+=") baseop = "+";
-              else if (op == "-=") baseop = "-";
-              else if (op == "*=") baseop = "*";
-              else if (op == "/=") baseop = "/";
-              else if (op == "%=") baseop = "%";
-              else if (op == "&=") baseop = "&";
-              else if (op == "|=") baseop = "|";
-              else if (op == "^=") baseop = "^";
-              else if (op == "<<=") baseop = "<<";
-              else if (op == ">>=") baseop = ">>";
-              else baseop = "";
-              if (baseop.empty()) n->code.push_back("// unknown compound assignment " + op);
-              else n->code.push_back(left->place + " = " + left->place + " " + baseop + " " + right->place + ";");
+          } 
+          else {
+              string baseop = op.substr(0,op.size()-1);
+              n->code.push_back(left->place + " = " + left->place + " " + baseop + " " + right->place);
           }
           $$ = n;
       }
 	;
 
+// Done
 assignment_operator
 	: ASSIGN { 
         dbg("assignment_operator -> =");
-        $$ = $1; }
+        $$ = strdup($1); }
 	| STAR_EQUAL { 
         dbg("assignment_operator -> *=");
-        $$ = $1; }
+        $$ = strdup($1); }
 	| DIV_EQUAL { 
         dbg("assignment_operator -> /=");
-        $$ = $1; }
+        $$ = strdup($1); }
 	| MOD_EQUAL { 
         dbg("assignment_operator -> %=");
-        $$ = $1; }
+        $$ = strdup($1); }
 	| PLUS_EQUAL { 
         dbg("assignment_operator -> +=");
-        $$ = $1; }
+        $$ = strdup($1); }
 	| MINUS_EQUAL { 
         dbg("assignment_operator -> -=");
-        $$ = $1; }
+        $$ = strdup($1); }
 	| LEFT_SHIFT_EQ { 
         dbg("assignment_operator -> <<=");
-        $$ = $1; }
+        $$ = strdup($1); }
 	| RIGHT_SHIFT_EQ { 
         dbg("assignment_operator -> >>=");
-        $$ = $1; }
+        $$ = strdup($1); }
 	| AND_EQUAL { 
         dbg("assignment_operator -> &=");
-        $$ = $1; }
+        $$ = strdup($1); }
 	| XOR_EQUAL { 
         dbg("assignment_operator -> ^=");
-        $$ = $1; }
+        $$ = strdup($1); }
 	| OR_EQUAL { 
         dbg("assignment_operator -> |=");
-        $$ = $1; }
+        $$ = strdup($1); }
 	;
 
+// Done
 expression
 	: assignment_expression 
     { 
         dbg("expression -> assignment_expression");
         $$ = $1; 
     }
-	| expression COMMA assignment_expression 
-    {
-        dbg("expression -> expression , assignment_expression");
-        Node* n = $1;
-        Node* e = $3;
-        n->code.insert(n->code.end(), e->code.begin(), e->code.end());
-        n->place = e->place;
-        $$ = n;
-    }
+	| expression COMMA assignment_expression
+        {
+            dbg("expression -> expression , assignment_expression");
+            Node* n = new Node();
+            n->code = $1->code;
+            n->code.insert(n->code.end(), $3->code.begin(), $3->code.end());
+            n->place = $3->place;
+            $$ = n;
+        }
 	;
 
+// Done
 constant_expression
 	: conditional_expression { 
         dbg("constant_expression -> conditional_expression");
@@ -1306,21 +1303,6 @@ initializer_list
     }
 	;
 
-// ----- 
-square_opt
-    : square_list{
-        dbg("square_opt -> square_list");
-        $$ = $1;
-    }
-    |  
-    {
-        dbg("square_opt -> <empty>");
-        Node* n = new Node();
-        n->argCount = 0;
-        $$ = n;
-    }
-    ;
-
 // Done
 square_list
     : square_list LSQUARE constant_expression RSQUARE
@@ -1362,6 +1344,7 @@ static_opt
         $$ = strdup(""); }
 	;
 
+// Done
 type_specifier
 	: VOID   { 
         dbg("type_specifier -> VOID");
@@ -1439,7 +1422,6 @@ access_specifier_label
         Node* n=new Node(); $$ = n; }
 	;
 
-declarator:;
 member_declaration
 	: specifier_qualifier_list struct_declarator_list SEMICOLON { 
         dbg("member_declaration -> specifier_qualifier_list struct_declarator_list ;");
@@ -1499,21 +1481,6 @@ struct_declarator
         $$ = $1; }
 	;
 
-specifier_qualifier_list
-	: type_specifier specifier_qualifier_list { 
-        dbg("specifier_qualifier_list -> type_specifier specifier_qualifier_list");
-        $$ = new Node(); }
-	| type_specifier { 
-        dbg("specifier_qualifier_list -> type_specifier");
-        $$ = new Node(); }
-	| const_opt specifier_qualifier_list { 
-        dbg("specifier_qualifier_list -> const_opt specifier_qualifier_list");
-        $$ = new Node(); }
-	| const_opt { 
-        dbg("specifier_qualifier_list -> const_opt");
-        $$ = new Node(); }
-	;
-
 // Done
 const_opt
 	: CONST { 
@@ -1524,31 +1491,7 @@ const_opt
         $$ = strdup(""); }
 	;
 
-
-pointer
-	: STAR { 
-        dbg("pointer -> *");
-        $$ = new Node(); }
-	| STAR type_qualifier_list { 
-        dbg("pointer -> * type_qualifier_list");
-        $$ = new Node(); }
-	| STAR pointer { 
-        dbg("pointer -> * pointer");
-        $$ = new Node(); }
-	| STAR type_qualifier_list pointer { 
-        dbg("pointer -> * type_qualifier_list pointer");
-        $$ = new Node(); }
-	;
-
-type_qualifier_list
-	: const_opt { 
-        dbg("type_qualifier_list -> const_opt");
-        $$ = new Node(); }
-	| type_qualifier_list const_opt { 
-        dbg("type_qualifier_list -> type_qualifier_list const_opt");
-        $$ = new Node(); }
-	;
-
+// Done
 parameter_list
 	: parameter_declaration { 
             dbg("parameter_list -> parameter_declaration");
@@ -1563,6 +1506,7 @@ parameter_list
         }
 	;
 
+// Done
 parameter_declaration
 	: return_type IDENTIFIER 
         {
@@ -1574,66 +1518,7 @@ parameter_declaration
         }
 	;
 
-identifier_list
-	: IDENTIFIER { 
-        dbg("identifier_list -> IDENTIFIER");
-        $$ = nullptr; }
-	| identifier_list COMMA IDENTIFIER { 
-        dbg("identifier_list -> identifier_list , IDENTIFIER");
-        $$ = nullptr; }
-	;
-
-type_name
-	: specifier_qualifier_list { 
-        dbg("type_name -> specifier_qualifier_list");
-        $$ = new Node(); }
-	| specifier_qualifier_list abstract_declarator { 
-        dbg("type_name -> specifier_qualifier_list abstract_declarator");
-        $$ = new Node(); }
-	;
-
-abstract_declarator
-	: pointer { 
-        dbg("abstract_declarator -> pointer");
-        $$ = new Node(); }
-	| direct_abstract_declarator { 
-        dbg("abstract_declarator -> direct_abstract_declarator");
-        $$ = new Node(); }
-	| pointer direct_abstract_declarator { 
-        dbg("abstract_declarator -> pointer direct_abstract_declarator");
-        $$ = new Node(); }
-	;
-
-direct_abstract_declarator
-	: LROUND abstract_declarator RROUND { 
-        dbg("direct_abstract_declarator -> ( abstract_declarator )");
-        $$ = new Node(); }
-	| LSQUARE RSQUARE { 
-        dbg("direct_abstract_declarator -> [ ]");
-        $$ = new Node(); }
-	| LSQUARE constant_expression RSQUARE { 
-        dbg("direct_abstract_declarator -> [ constant_expression ]");
-        $$ = new Node(); }
-	| direct_abstract_declarator LSQUARE RSQUARE { 
-        dbg("direct_abstract_declarator -> direct_abstract_declarator [ ]");
-        $$ = new Node(); }
-	| direct_abstract_declarator LSQUARE constant_expression RSQUARE { 
-        dbg("direct_abstract_declarator -> direct_abstract_declarator [ constant_expression ]");
-        $$ = new Node(); }
-	| LROUND RROUND { 
-        dbg("direct_abstract_declarator -> ( )");
-        $$ = new Node(); }
-	| LROUND parameter_list RROUND { 
-        dbg("direct_abstract_declarator -> ( parameter_list )");
-        $$ = new Node(); }
-	| direct_abstract_declarator LROUND RROUND { 
-        dbg("direct_abstract_declarator -> direct_abstract_declarator ( )");
-        $$ = new Node(); }
-	| direct_abstract_declarator LROUND parameter_list RROUND { 
-        dbg("direct_abstract_declarator -> direct_abstract_declarator ( parameter_list )");
-        $$ = new Node(); }
-	;
-
+// Done
 statement
 	: labeled_statement { 
         dbg("statement -> labeled_statement");
@@ -1796,82 +1681,47 @@ expression_statement
 
 selection_statement
 	: IF LROUND expression RROUND statement %prec LOWER_THAN_ELSE {
-          dbg("selection_statement -> IF ( expression ) statement");
-          Node* cond = $3; Node* thenS = $5;
+          dbg("selection_statement -> if ( expression ) statement");
+          string Ltrue = newLabel();
+          string Lend  = newLabel();
+          Node* e = $3;
+          Node* s1 = $5;
           Node* n = new Node();
-          string Lend = newLabel();
-          n->code = cond->code;
-          n->code.push_back("ifFalse " + cond->place + " goto " + Lend + ";");
-          n->code.insert(n->code.end(), thenS->code.begin(), thenS->code.end());
+          n->code = e->code;
+          n->code.push_back("if " + e->place + " goto " + Ltrue);
+          n->code.push_back("goto " + Lend);
+          n->code.push_back(Ltrue + ":");
+          n->code.insert(n->code.end(), s1->code.begin(), s1->code.end());
           n->code.push_back(Lend + ":");
           $$ = n;
       }
 	| IF LROUND expression RROUND statement ELSE statement {
-            dbg("selection_statement -> IF ( expression ) statement ELSE statement");
-          Node* cond = $3; Node* thenS = $5; Node* elseS = $7;
+            ddbg("selection_statement -> if ( expression ) statement else statement");
+
+          string Ltrue = newLabel();
+          string Lfalse = newLabel();
+          string Lend  = newLabel();
+
+          Node* e = $3;
+          Node* s1 = $5;
+          Node* s2 = $7;
+
           Node* n = new Node();
-          string Lelse = newLabel(); string Lend = newLabel();
-          n->code = cond->code;
-          n->code.push_back("ifFalse " + cond->place + " goto " + Lelse + ";");
-          n->code.insert(n->code.end(), thenS->code.begin(), thenS->code.end());
-          n->code.push_back("goto " + Lend + ";");
-          n->code.push_back(Lelse + ":");
-          n->code.insert(n->code.end(), elseS->code.begin(), elseS->code.end());
+          n->code = e->code;
+          n->code.push_back("if " + e->place + " goto " + Ltrue);
+          n->code.push_back("goto " + Lfalse);
+
+          n->code.push_back(Ltrue + ":");
+          n->code.insert(n->code.end(), s1->code.begin(), s1->code.end());
+          n->code.push_back("goto " + Lend);
+    
+          n->code.push_back(Lfalse + ":");
+          n->code.insert(n->code.end(), s2->code.begin(), s2->code.end());
           n->code.push_back(Lend + ":");
           $$ = n;
       }
 	| switch_head LCURLY switch_statement RCURLY {   
-            dbg("selection_statement -> switch_head { switch_statement }");
-          Node* cond = $1; Node* body = $3;
-          Node* n = new Node();
-          n->code = cond->code;
-          n->code.insert(n->code.end(), body->syn.begin(), body->syn.end());
-          n->code.insert(n->code.end(), body->code.begin(), body->code.end());
-          $$ = n;        
-      }
-    ;
-
-// Done
-switch_head
-    : SWITCH LROUND expression RROUND {
-            dbg("switch_head -> SWITCH ( expression )");
-            lastUsage = $3->place;
-            $$ = $3;
-      }
-    ;
-
-// Done
-switch_statement
-    : DEFAULT COLON statement {
-            dbg("switch_statement -> DEFAULT : statement");
-          Node* s = $3;
-          string caseLabel = newLabel();
-          s->syn.push_back(string("goto ")+caseLabel+";");
-            s->code.insert(s->code.begin(), caseLabel + ":");
-          $$ = s;
-      }
-    | case_item switch_statement{
-            dbg("switch_statement -> case_item switch_statement");
-          Node* n = $2; 
-          if ($1) n->code.insert(n->code.end(), $1->code.begin(), $1->code.end()); 
-          n->syn.insert(n->syn.begin(), $1->syn.begin(), $1->syn.end());
-          $$ = n;
-      }
-    | case_item{
-            dbg("case_list -> case_item");
-          $$ = $1;
-    }
-    ;
-
-// Done
-case_item
-	: CASE constant_expression COLON statement {
-            dbg("labeled_statement -> CASE constant_expression : statement");
-          Node* s = $4;
-          string caseLabel = newLabel();
-          s->syn.push_back(string("if ")+lastUsage+" == "+$2->place+" goto "+caseLabel+";");
-            s->code.insert(s->code.begin(), caseLabel + ":");
-          $$ = s;
+                 
       }
     ;
 
@@ -1955,6 +1805,7 @@ for_init_statement
         $$ = $1; }
     ;
 
+// Done
 jump_statement
 	: GOTO IDENTIFIER SEMICOLON {
             dbg("jump_statement -> GOTO IDENTIFIER ;");
@@ -1964,15 +1815,21 @@ jump_statement
       }
 	| CONTINUE SEMICOLON {
             dbg("jump_statement -> CONTINUE ;");
-          Node* n = new Node(); n->code.push_back("continue;"); $$ = n;
+          Node* n = new Node(); 
+          n->code.push_back("continue;"); 
+          $$ = n;
       }
 	| BREAK SEMICOLON {
             dbg("jump_statement -> BREAK ;");
-          Node* n = new Node(); n->code.push_back("break;"); $$ = n;
+          Node* n = new Node(); 
+          n->code.push_back("break;"); 
+          $$ = n;
       }
 	| RETURN SEMICOLON {
             dbg("jump_statement -> RETURN ;");
-          Node* n = new Node(); n->code.push_back("return;"); $$ = n;
+          Node* n = new Node(); 
+          n->code.push_back("return;"); 
+          $$ = n;
       }
 	| RETURN expression SEMICOLON {
             dbg("jump_statement -> RETURN expression ;");
