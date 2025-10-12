@@ -129,12 +129,11 @@
         }
     }
 
-    bool check_compatibility(const string &t1, const string &t2, const string &op) {
-        if(op=="="){
+    bool check_compatibility(const string &t1, const string &t2, const string &baseop) {
+        if(baseop==""){
             return t1==t2;
         }
         
-        string baseop = op.substr(0, op.size()-1);
         if(baseop=="*" || baseop=="/"){
             if(t1=="int" && t2=="int") return true;
             if(t1=="long" && t2=="long") return true;
@@ -171,6 +170,93 @@
             if(t1.back()=='*' && t2=="int") return true;
             return false;
         }
+        return false;
+    }
+
+    bool check_unary_comp(const string &t, const string &op) {
+        if(op=="&") return true;
+        if(op=="*"){
+            if(t.back()=='*') return true;
+            return false;
+        }
+        if(op=="+" || op=="-"){
+            if(t=="int" || t=="long" || t=="double") return true;
+            return false;
+        }
+        if(op=="~"){
+            if(t=="int" || t=="long") return true;
+            return false;
+        }
+        if(op=="!"){
+            if(t=="bool") return true;
+            return false;
+        }
+        if(op=="++" || op=="--"){
+            if(t=="int" || t=="long" || t=="double") return true;
+            return false;
+        }
+        return true;
+    }
+
+    bool check_casting(const string &from, const string &to) {
+        if(from==to) return true;
+        if(from=="int"){
+            if(to=="double" || to=="char" || to=="bool" || to=="string" || to=="long") return true;
+            return false;
+        } 
+        if(from=="double"){
+            if(to=="int" || to=="char" || to=="bool" || to=="string" || to=="long") return true;
+            return false;
+        }
+        if(from=="long"){
+            if(to=="int" || to=="char" || to=="bool" || to=="string" || to=="double") return true;
+            return false;
+        }
+        if(from=="char"){
+            if(to=="int" || to=="bool" || to=="string" || to=="double" || to=="long") return true;
+            return false;
+        }   
+        if(from=="bool"){
+            if(to=="int" || to=="char" || to=="string" || to=="double" || to=="long") return true;
+            return false;
+        }
+        if(from=="string"){
+            if(to=="int"){
+                try {
+                    size_t pos;
+                    stoi(s, &pos);
+                    return pos == s.size();
+                } 
+                catch (...) {
+                    return false;
+                }
+            }
+            if(to=="double"){
+                try {
+                    size_t pos;
+                    stod(s, &pos);
+                    return pos == s.size();
+                } 
+                catch (...) {
+                    return false;
+                }
+            }
+            if(to=="long"){
+                try {
+                    size_t pos;
+                    stol(s, &pos);
+                    return pos == s.size();
+                } 
+                catch (...) {
+                    return false;
+                }
+            }
+            if(to=="char") return false;
+            if(to=="bool") return true;
+            return false;
+        }
+        
+        if(from.back()=='*' && to.back()=='*') return true;
         return false;
     }
 
@@ -260,6 +346,7 @@
 
 %%
 
+// Done
 primary_expression
 	: IDENTIFIER {
             dbg("primary_expression -> IDENTIFIER");
@@ -287,45 +374,46 @@ primary_expression
         $$ = $1; }
 	;
 
+// Done
 constant
     : DECIMAL_LITERAL       {
           dbg("constant -> DECIMAL_LITERAL");
-          Node* n = new Node(string($1), "int", "constant");
+          Node* n = new Node(string($1), "int", "const");
           $$ = n;
       }
     | CHARACTER_LITERAL     {
             dbg("constant -> CHARACTER_LITERAL");
-          Node* n = new Node(string($1), "char", "constant");
+          Node* n = new Node(string($1), "char", "const");
           $$ = n;
       }
     | STRING_LITERAL        {
             dbg("constant -> STRING_LITERAL");
-          Node* n = new Node(string($1), "string", "constant");
+          Node* n = new Node(string($1), "string", "const");
           $$ = n;
       }
     | EXPONENT_LITERAL      {
             dbg("constant -> EXPONENT_LITERAL");
-          Node* n = new Node(string($1), "double", "constant");
+          Node* n = new Node(string($1), "double", "const");
           $$ = n;
       }
     | DOUBLE_LITERAL        {
             dbg("constant -> DOUBLE_LITERAL");
-          Node* n = new Node(string($1), "double", "constant");
+          Node* n = new Node(string($1), "double", "const");
           $$ = n;
       }
     | NULLPTR               {
             dbg("constant -> NULLPTR");
-          Node* n = new Node("0", "nullptr", "constant");
+          Node* n = new Node("0", "nullptr", "const");
           $$ = n;
       }
     | TRUE                  {
             dbg("constant -> TRUE");
-          Node* n = new Node("1", "bool", "constant");
+          Node* n = new Node("1", "bool", "const");
           $$ = n;
       }
     | FALSE                 {
             dbg("constant -> FALSE");
-          Node* n = new Node("0", "bool", "constant");
+          Node* n = new Node("0", "bool", "const");
           $$ = n;
       }
     ;
@@ -337,7 +425,7 @@ postfix_expression
 	| postfix_expression LSQUARE expression RSQUARE {
         dbg("postfix_expression -> postfix_expression [ expression ]");
           Node* base = $1; Node* idx = $3;
-          if(base->kind!="array" && base->kind!="pointer"){
+          if(base->kind.find("array") && base->kind!="pointer"){
               yyerror("Subscripted value is not an array or pointer.");
           }
           if(idx->type!="int"){
@@ -400,11 +488,11 @@ postfix_expression
             n->type = fun->type;
             n->code.insert(n->code.end(), args->code.begin(), args->code.end());
             if(fun->type=="void"){
-                n->code.push_back("call " + fun->place + ", " + to_string(args->argCount) + ";");
+                n->code.push_back("call " + fun->place + ", " + to_string(args->argCount));
             }
             else{
                 n->place = newTemp();
-                n->code.push_back(n->place + " = call " + fun->place + ", " + to_string(args->argCount) + ";");
+                n->code.push_back(n->place + " = call " + fun->place + ", " + to_string(args->argCount));
             }
             $$ = n;
       }
@@ -427,7 +515,7 @@ postfix_expression
             }
             else{
                 n->place = newTemp();
-                n->code.push_back(n->place + " = " + obj->place + "." + string($3) + ";");
+                n->code.push_back(n->place + " = " + obj->place + "." + string($3));
             }
             n->type = s->type;
             $$ = n;
@@ -447,7 +535,7 @@ postfix_expression
           }
           else{
               n->place = newTemp();
-              n->code.push_back(n->place + " = " + obj->place + "->" + string($3) + ";");
+              n->code.push_back(n->place + " = " + obj->place + "->" + string($3));
           }
           n->type = s->type;
           $$ = n;
@@ -455,18 +543,17 @@ postfix_expression
 	| postfix_expression INCREMENT {
           dbg("postfix_expression -> postfix_expression ++");
           Node* v = $1;
-          if(v->kind!="lvalue"){
-              yyerror("Lvalue required as increment operand.");
-          }
-          if(v->type=="bool" || v->type=="nullptr" || v->type=="string" || v->type=="char"){
+          if(check_unary_comp(v->type,"++")){
               yyerror("Invalid type '" + v->type + "' for increment.");
+          }
+          if(v->kind.find("const")!=string::npos){
+              yyerror("Cannot modify a const value.");
           }
           Node* n = new Node();
           n->code = v->code;
           string old = newTemp();
-            n->code.push_back(old + " = " + v->place + ";");          // load old value from address
+            n->code.push_back(old + " = " + v->place);          // load old value from address
             n->code.push_back(v->place + " = " + old + " + 1;");      // store back incremented value
-
             n->place = old;
           n->type = v->type;
           n->kind = "rvalue";
@@ -475,25 +562,24 @@ postfix_expression
 	| postfix_expression DECREMENT { 
             dbg("postfix_expression -> postfix_expression --");
           Node* v = $1;
-            if(v->kind!="lvalue"){
-                yyerror("Lvalue required as decrement operand.");
-            }
-            if(v->type=="bool" || v->type=="nullptr" || v->type=="string" || v->type=="char"){
-                yyerror("Invalid type '" + v->type + "' for decrement.");
-            }
+          if(check_unary_comp(v->type,"--")){
+              yyerror("Invalid type '" + v->type + "' for decrement.");
+          }
+          if(v->kind.find("const")!=string::npos){
+              yyerror("Cannot modify a const value.");
+          }
           Node* n = new Node();
           n->code = v->code;
           string old = newTemp();
-            n->code.push_back(old + " = " + v->place + ";");          // load old value from address
+            n->code.push_back(old + " = " + v->place);          // load old value from address
             n->code.push_back(v->place + " = " + old + " - 1;");      // store back incremented value
-
             n->place = old;
           n->type = v->type;
-          n->kind = "rvalue";
           $$ = n;
       }    
 	;
 
+// Done
 argument_expression_list
 	: assignment_expression {
           dbg("argument_expression_list -> assignment_expression");
@@ -503,8 +589,9 @@ argument_expression_list
           }
           Node* n = new Node();
           n->code = e->code;
+          n->syn.push_back(e->type);
           n->argCount = 1;
-          n->code.push_back("param " + e->place + ";");
+          n->code.push_back("param " + e->place);
           $$ = n;
       }
 	| argument_expression_list COMMA assignment_expression {
@@ -516,11 +603,13 @@ argument_expression_list
           Node* n = $1;
           n->code.insert(n->code.end(), e->code.begin(), e->code.end());
           n->argCount = n->argCount + 1;
-          n->code.push_back("param " + e->place + ";");
+            n->syn.push_back(e->type);
+          n->code.push_back("param " + e->place);
           $$ = n;
       }
 	;
 
+// Done
 unary_expression
 	: postfix_expression { 
         dbg("unary_expression -> postfix_expression");
@@ -528,6 +617,12 @@ unary_expression
 	| INCREMENT unary_expression {
           dbg("unary_expression -> ++ unary_expression");
           Node* v = $2;
+          if(!check_unary_comp(v->type,"++")){
+              yyerror("Invalid type '" + v->type + "' for increment.");
+          }
+          if(v->kind.find("const")!=string::npos){
+              yyerror("Cannot modify a const value.");
+          }
           Node* n = new Node();
           n->code = v->code;
           n->place = v->place;
@@ -537,6 +632,12 @@ unary_expression
 	| DECREMENT unary_expression {
             dbg("unary_expression -> -- unary_expression");
           Node* v = $2;
+          if(!check_unary_comp(v->type,"--")){
+              yyerror("Invalid type '" + v->type + "' for decrement.");
+          }
+          if(v->kind.find("const")!=string::npos){
+              yyerror("Cannot modify a const value.");
+          }
           Node* n = new Node();
           n->code = v->code;
           n->place = v->place;
@@ -549,39 +650,55 @@ unary_expression
           Node* n = new Node();
           n->code = rhs->code;
           string op = string($1);
+          if(!check_unary_comp(rhs->type,op)){
+              yyerror("Invalid operation '" + op + "' on type '" + rhs->type + "'.");
+            }
           if (op == "&") {
               n->place = newTemp();
-              n->code.push_back(n->place + " = &" + rhs->place + ";");
+              n->code.push_back(n->place + " = &" + rhs->place);
               n->type = rhs->type + "*";
           } else if (op == "*") {
               n->place = newTemp();
-              n->code.push_back(n->place + " = *" + rhs->place + ";");
-              n->type = rhs->type;
+              n->code.push_back(n->place + " = *" + rhs->place);
+              n->type = rhs->type.substr(0, rhs->type.size() - 1);
           } else if (op == "+") {
               n->place = rhs->place;
               n->type = rhs->type;
           } else if (op == "-") {
               n->place = newTemp();
-              n->code.push_back(n->place + " = 0 - " + rhs->place + ";");
+              n->code.push_back(n->place + " = 0 - " + rhs->place);
               n->type = rhs->type;
           } else if (op == "~") {
               n->place = newTemp();
-              n->code.push_back(n->place + " = ~" + rhs->place + ";");
+              n->code.push_back(n->place + " = ~" + rhs->place);
               n->type = rhs->type;
           } else if (op == "!") {
               n->place = newTemp();
-              n->code.push_back(n->place + " = !" + rhs->place + ";");
+              n->code.push_back(n->place + " = !" + rhs->place);
               n->type = "bool";
           }
           $$ = n;
       }
-	| SIZEOF unary_expression {
-          dbg("unary_expression -> sizeof unary_expression");
-          Node* n = new Node(); n->place = "sizeof"; $$ = n;
+	| SIZEOF LROUND unary_expression RROUND{
+          dbg("unary_expression -> sizeof ( unary_expression )");
+          Node* n = new Node(); 
+          n->place = newTemp(); 
+            n->code = $3->code;
+            string t = $3->type;
+            if(t.back()=='*') t = "nullptr";
+          n->code.push_back(n->place + " = " + to_string(typeSize[t]));
+            n->type = "int";
+          $$ = n;
       }
-	| SIZEOF LROUND type_name RROUND {
+	| SIZEOF LROUND return_type RROUND {
             dbg("unary_expression -> sizeof ( type_name )");
-          Node* n = new Node(); n->place = "sizeof"; $$ = n;
+          Node* n = new Node(); 
+          n->place = newTemp(); 
+            string t = $3;
+            if(t.back()=='*') t = "nullptr";
+          n->code.push_back(n->place + " = " + to_string(typeSize[t]));
+            n->type = "int";
+          $$ = n;
       }
 	| delete_expression { 
         dbg("unary_expression -> delete_expression");
@@ -591,57 +708,58 @@ unary_expression
         $$ = $1; }
 	;
 
+// Done
 unary_operator
 	: BITWISE_AND { 
         dbg("unary_operator -> &");
-        $$ = $1; }
+        $$ = strdup($1); }
 	| STAR { 
         dbg("unary_operator -> *");
-        $$ = $1; }
+        $$ = strdup($1); }
 	| PLUS { 
         dbg("unary_operator -> +");
-        $$ = $1; }
+        $$ = strdup($1); }
 	| MINUS { 
         dbg("unary_operator -> -");
-        $$ = $1; }
+        $$ = strdup($1); }
 	| TILDE { 
         dbg("unary_operator -> ~");
-        $$ = $1; }
+        $$ = strdup($1); }
 	| LOGICAL_NOT { 
         dbg("unary_operator -> !");
-        $$ = $1; }
+        $$ = strdup($1); }
 	;
 
 new_expression 
-	: NEW type_specifier pointer_opt new_declarator scalar_new_init_opt {
+	: NEW return_type new_declarator scalar_new_init_opt {
           dbg("new_expression -> NEW type_specifier pointer_opt new_declarator scalar_new_init_opt");
           Node* n = new Node();
           n->place = newTemp();
-          n->code.push_back(n->place + " = alloc " + lastDeclType + ";");
+          n->code.push_back(n->place + " = alloc " + lastDeclType);
           n->type = lastDeclType + "*";
           $$ = n;
       }
-	| NEW type_specifier pointer_opt scalar_new_init_opt {
+	| NEW return_type scalar_new_init_opt {
             dbg("new_expression -> NEW type_specifier pointer_opt scalar_new_init_opt");
           Node* n = new Node();
           n->place = newTemp();
-          n->code.push_back(n->place + " = alloc " + lastDeclType + ";");
+          n->code.push_back(n->place + " = alloc " + lastDeclType);
           n->type = lastDeclType + "*";
           $$ = n;
       }
-	| NEW type_specifier pointer_opt new_declarator {
+	| NEW return_type new_declarator {
             dbg("new_expression -> NEW type_specifier pointer_opt new_declarator");
           Node* n = new Node();
           n->place = newTemp();
-          n->code.push_back(n->place + " = alloc " + lastDeclType + ";");
+          n->code.push_back(n->place + " = alloc " + lastDeclType);
           n->type = lastDeclType + "*";
           $$ = n;
       }
-	| NEW type_specifier pointer_opt {
+	| NEW return_type {
             dbg("new_expression -> NEW type_specifier pointer_opt");
           Node* n = new Node();
           n->place = newTemp();
-          n->code.push_back(n->place + " = alloc " + lastDeclType + ";");
+          n->code.push_back(n->place + " = alloc " + lastDeclType);
           n->type = lastDeclType + "*";
           $$ = n;
       }
@@ -670,28 +788,39 @@ delete_expression
           dbg("delete_expression -> DELETE [ ] cast_expression");
           Node* n = new Node();
           n->code = $4->code;
-          n->code.push_back("free " + $4->place + ";");
+          n->code.push_back("free " + $4->place);
           $$ = n;
       }
 	| DELETE cast_expression {
             dbg("delete_expression -> DELETE cast_expression");
           Node* n = new Node();
           n->code = $2->code;
-          n->code.push_back("free " + $2->place + ";");
+          n->code.push_back("free " + $2->place);
           $$ = n;
       }
 	;
 
+// Done
 cast_expression
 	: unary_expression { 
         dbg("cast_expression -> unary_expression");
         $$ = $1; }
-	| LROUND type_name RROUND cast_expression {
+	| LROUND return_type RROUND cast_expression {
             dbg("cast_expression -> ( type_name ) cast_expression");
-          $$ = $4;
+            string a = $2; Node* b = $4;
+            if(!check_casting(b->type,a)){
+                yyerror("Unable to cast from '" + b->type + "' to '" + a->type + "'.");
+            }
+            Node* n = new Node();
+            n->code = b->code;
+            n->place = newTemp();
+            n->code.push_back(n->place + " = " + b->type + "_to_"+ a +" "+ b->place);
+            n->type = a;
+          $$ = n;
       }
 	;
 
+// Done
 multiplicative_expression
 	: cast_expression { 
         dbg("multiplicative_expression -> cast_expression");
@@ -699,35 +828,47 @@ multiplicative_expression
 	| multiplicative_expression STAR cast_expression {
         dbg("multiplicative_expression -> multiplicative_expression * cast_expression");
           Node* a = $1; Node* b = $3;
+          if(!check_compatibility(a->type,b->type,"*")){
+            yyerror("Type incompatibility in multiply.");
+          }
           Node* n = new Node();
           n->code = a->code; n->code.insert(n->code.end(), b->code.begin(), b->code.end());
           n->place = newTemp();
-          n->code.push_back(n->place + " = " + a->place + " * " + b->place + ";");
+          n->code.push_back(n->place + " = " + a->place + " * " + b->place);
           n->type = a->type;
           $$ = n;
       }
 	| multiplicative_expression DIVIDE cast_expression {
         dbg("multiplicative_expression -> multiplicative_expression / cast_expression");
           Node* a = $1; Node* b = $3;
+          if(!check_compatibility(a->type,b->type,"/")){
+            yyerror("Type incompatibility in divide.");
+          }
           Node* n = new Node();
-          n->code = a->code; n->code.insert(n->code.end(), b->code.begin(), b->code.end());
+          n->code = a->code; 
+          n->code.insert(n->code.end(), b->code.begin(), b->code.end());
           n->place = newTemp();
-          n->code.push_back(n->place + " = " + a->place + " / " + b->place + ";");
+          n->code.push_back(n->place + " = " + a->place + " / " + b->place);
           n->type = a->type;
           $$ = n;
       }
 	| multiplicative_expression MODULUS cast_expression {
         dbg("multiplicative_expression -> multiplicative_expression % cast_expression");
           Node* a = $1; Node* b = $3;
+          if(!check_compatibility(a->type,b->type,"%")){
+            yyerror("Type incompatibility in modulus.");
+          }
           Node* n = new Node();
-          n->code = a->code; n->code.insert(n->code.end(), b->code.begin(), b->code.end());
+          n->code = a->code; 
+          n->code.insert(n->code.end(), b->code.begin(), b->code.end());
           n->place = newTemp();
-          n->code.push_back(n->place + " = " + a->place + " % " + b->place + ";");
+          n->code.push_back(n->place + " = " + a->place + " % " + b->place);
           n->type = a->type;
           $$ = n;
       }
 	;
 
+// Done
 additive_expression
 	: multiplicative_expression { 
         dbg("additive_expression -> multiplicative_expression");
@@ -735,25 +876,34 @@ additive_expression
 	| additive_expression PLUS multiplicative_expression {
             dbg("additive_expression -> additive_expression + multiplicative_expression");
           Node* a = $1; Node* b = $3;
+          if(!check_compatibility(a->type,b->type,"+")){
+            yyerror("Type incompatibility in plus.");
+          }
           Node* n = new Node();
-          n->code = a->code; n->code.insert(n->code.end(), b->code.begin(), b->code.end());
+          n->code = a->code; 
+          n->code.insert(n->code.end(), b->code.begin(), b->code.end());
           n->place = newTemp();
-          n->code.push_back(n->place + " = " + a->place + " + " + b->place + ";");
+          n->code.push_back(n->place + " = " + a->place + " + " + b->place);
           n->type = a->type;
           $$ = n;
       }
 	| additive_expression MINUS multiplicative_expression {
             dbg("additive_expression -> additive_expression - multiplicative_expression");
           Node* a = $1; Node* b = $3;
+          if(!check_compatibility(a->type,b->type,"-")){
+            yyerror("Type incompatibility in minus.");
+          }
           Node* n = new Node();
-          n->code = a->code; n->code.insert(n->code.end(), b->code.begin(), b->code.end());
+          n->code = a->code; 
+          n->code.insert(n->code.end(), b->code.begin(), b->code.end());
           n->place = newTemp();
-          n->code.push_back(n->place + " = " + a->place + " - " + b->place + ";");
+          n->code.push_back(n->place + " = " + a->place + " - " + b->place);
           n->type = a->type;
           $$ = n;
       }
 	;
 
+// Done
 shift_expression
 	: additive_expression { 
         dbg("shift_expression -> additive_expression");
@@ -761,23 +911,34 @@ shift_expression
 	| shift_expression LEFT_SHIFT additive_expression {
             dbg("shift_expression -> shift_expression << additive_expression");
           Node* a = $1; Node* b = $3;
+          if(!check_compatibility(a->type,b->type,"<<")){
+            yyerror("Type incompatibility in left shift.");
+          }
           Node* n = new Node();
-          n->code = a->code; n->code.insert(n->code.end(), b->code.begin(), b->code.end());
+          n->code = a->code; 
+          n->code.insert(n->code.end(), b->code.begin(), b->code.end());
           n->place = newTemp();
-          n->code.push_back(n->place + " = " + a->place + " << " + b->place + ";");
-          n->type = a->type; $$ = n;
+          n->code.push_back(n->place + " = " + a->place + " << " + b->place);
+          n->type = a->type; 
+          $$ = n;
       }
 	| shift_expression RIGHT_SHIFT additive_expression {
             dbg("shift_expression -> shift_expression >> additive_expression");
           Node* a = $1; Node* b = $3;
+          if(!check_compatibility(a->type,b->type,">>")){
+            yyerror("Type incompatibility in right shift.");
+          }
           Node* n = new Node();
-          n->code = a->code; n->code.insert(n->code.end(), b->code.begin(), b->code.end());
+          n->code = a->code; 
+          n->code.insert(n->code.end(), b->code.begin(), b->code.end());
           n->place = newTemp();
-          n->code.push_back(n->place + " = " + a->place + " >> " + b->place + ";");
-          n->type = a->type; $$ = n;
+          n->code.push_back(n->place + " = " + a->place + " >> " + b->place);
+          n->type = a->type; 
+          $$ = n;
       }
 	;
 
+// Done
 relational_expression
 	: shift_expression { 
         dbg("relational_expression -> shift_expression");
@@ -785,33 +946,54 @@ relational_expression
 	| relational_expression GREATER_THAN shift_expression {
           dbg("relational_expression -> relational_expression > shift_expression");
           Node* a=$1; Node* b=$3; Node* n=new Node();
-          n->code=a->code; n->code.insert(n->code.end(), b->code.begin(), b->code.end());
-          n->place=newTemp(); n->code.push_back(n->place + " = " + a->place + " > " + b->place + ";");
+            if(a->type != b->type){
+                yyerror("Type incompatibility in relational expression.");
+            }
+          n->code=a->code; 
+          n->code.insert(n->code.end(), b->code.begin(), b->code.end());
+          n->place=newTemp(); 
+          n->code.push_back(n->place + " = " + a->place + " > " + b->place);
           n->type = "bool"; $$ = n;
       }
 	| relational_expression LESS_THAN shift_expression {
           dbg("relational_expression -> relational_expression < shift_expression");
           Node* a=$1; Node* b=$3; Node* n=new Node();
-          n->code=a->code; n->code.insert(n->code.end(), b->code.begin(), b->code.end());
-          n->place=newTemp(); n->code.push_back(n->place + " = " + a->place + " < " + b->place + ";");
+            if(a->type != b->type){
+                yyerror("Type incompatibility in relational expression.");
+            }
+          n->code=a->code; 
+          n->code.insert(n->code.end(), b->code.begin(), b->code.end());
+          n->place=newTemp(); 
+          n->code.push_back(n->place + " = " + a->place + " < " + b->place);
           n->type = "bool"; $$ = n;
       }
 	| relational_expression LESS_EQUAL shift_expression {
             dbg("relational_expression -> relational_expression <= shift_expression");
           Node* a=$1; Node* b=$3; Node* n=new Node();
-          n->code=a->code; n->code.insert(n->code.end(), b->code.begin(), b->code.end());
-          n->place=newTemp(); n->code.push_back(n->place + " = " + a->place + " <= " + b->place + ";");
+          if(a->type != b->type){
+                yyerror("Type incompatibility in relational expression.");
+            }
+          n->code=a->code; 
+          n->code.insert(n->code.end(), b->code.begin(), b->code.end());
+          n->place=newTemp(); 
+          n->code.push_back(n->place + " = " + a->place + " <= " + b->place);
           n->type = "bool"; $$ = n;
       }
 	| relational_expression GREATER_EQUAL shift_expression {
             dbg("relational_expression -> relational_expression >= shift_expression");
           Node* a=$1; Node* b=$3; Node* n=new Node();
-          n->code=a->code; n->code.insert(n->code.end(), b->code.begin(), b->code.end());
-          n->place=newTemp(); n->code.push_back(n->place + " = " + a->place + " >= " + b->place + ";");
+          if(a->type != b->type){
+                yyerror("Type incompatibility in relational expression.");
+            }
+          n->code=a->code; 
+          n->code.insert(n->code.end(), b->code.begin(), b->code.end());
+          n->place=newTemp(); 
+          n->code.push_back(n->place + " = " + a->place + " >= " + b->place);
           n->type = "bool"; $$ = n;
       }
 	;
 
+// Done
 equality_expression
 	: relational_expression { 
         dbg("equality_expression -> relational_expression");
@@ -819,19 +1001,32 @@ equality_expression
 	| equality_expression EQUAL relational_expression {
             dbg("equality_expression -> equality_expression == relational_expression");
           Node* a=$1; Node* b=$3; Node* n=new Node();
-          n->code=a->code; n->code.insert(n->code.end(), b->code.begin(), b->code.end());
-          n->place=newTemp(); n->code.push_back(n->place + " = " + a->place + " == " + b->place + ";");
-          n->type = "bool"; $$ = n;
+            if(a->type != b->type){
+                yyerror("Type incompatibility in equality expression.");
+            }
+          n->code=a->code; 
+          n->code.insert(n->code.end(), b->code.begin(), b->code.end());
+          n->place=newTemp(); 
+          n->code.push_back(n->place + " = " + a->place + " == " + b->place);
+          n->type = "bool"; 
+          $$ = n;
       }
 	| equality_expression NOT_EQUAL relational_expression {
             dbg("equality_expression -> equality_expression != relational_expression");
           Node* a=$1; Node* b=$3; Node* n=new Node();
-          n->code=a->code; n->code.insert(n->code.end(), b->code.begin(), b->code.end());
-          n->place=newTemp(); n->code.push_back(n->place + " = " + a->place + " != " + b->place + ";");
-          n->type = "bool"; $$ = n;
+          if(a->type != b->type){
+              yyerror("Type incompatibility in equality expression.");
+          }
+          n->code=a->code; 
+          n->code.insert(n->code.end(), b->code.begin(), b->code.end());
+          n->place=newTemp(); 
+          n->code.push_back(n->place + " = " + a->place + " != " + b->place);
+          n->type = "bool"; 
+          $$ = n;
       }
 	;
 
+// Done
 and_expression
 	: equality_expression { 
         dbg("and_expression -> equality_expression");
@@ -839,12 +1034,19 @@ and_expression
 	| and_expression BITWISE_AND equality_expression {
             dbg("and_expression -> and_expression & equality_expression");
           Node* a=$1; Node* b=$3; Node* n=new Node();
-          n->code=a->code; n->code.insert(n->code.end(), b->code.begin(), b->code.end());
-          n->place=newTemp(); n->code.push_back(n->place + " = " + a->place + " & " + b->place + ";");
+            if(!check_compatibility(a->type,b->type,"&")){
+                yyerror("Type incompatibility in bitwise AND expression.");
+            }
+          n->code=a->code; 
+          n->code.insert(n->code.end(), b->code.begin(), b->code.end());
+          n->place=newTemp(); 
+          n->code.push_back(n->place + " = " + a->place + " & " + b->place);
+          n->type = a->type;
           $$ = n;
       }
 	;
 
+// Done
 exclusive_or_expression
 	: and_expression { 
         dbg("exclusive_or_expression -> and_expression");
@@ -852,12 +1054,19 @@ exclusive_or_expression
 	| exclusive_or_expression BITWISE_XOR and_expression {
             dbg("exclusive_or_expression -> exclusive_or_expression ^ and_expression");
           Node* a=$1; Node* b=$3; Node* n=new Node();
-          n->code=a->code; n->code.insert(n->code.end(), b->code.begin(), b->code.end());
-          n->place=newTemp(); n->code.push_back(n->place + " = " + a->place + " ^ " + b->place + ";");
+            if(!check_compatibility(a->type,b->type,"^")){
+                yyerror("Type incompatibility in bitwise XOR expression.");
+            }
+          n->code=a->code; 
+          n->code.insert(n->code.end(), b->code.begin(), b->code.end());
+          n->place=newTemp(); 
+          n->code.push_back(n->place + " = " + a->place + " ^ " + b->place);
+            n->type = a->type;
           $$ = n;
       }
 	;
 
+// Done
 inclusive_or_expression
 	: exclusive_or_expression { 
         dbg("inclusive_or_expression -> exclusive_or_expression");
@@ -865,12 +1074,19 @@ inclusive_or_expression
 	| inclusive_or_expression BITWISE_OR exclusive_or_expression {
             dbg("inclusive_or_expression -> inclusive_or_expression | exclusive_or_expression");
           Node* a=$1; Node* b=$3; Node* n=new Node();
-          n->code=a->code; n->code.insert(n->code.end(), b->code.begin(), b->code.end());
-          n->place=newTemp(); n->code.push_back(n->place + " = " + a->place + " | " + b->place + ";");
+          if(!check_compatibility(a->type,b->type,"|")){
+              yyerror("Type incompatibility in bitwise OR expression.");
+          }
+          n->code=a->code; 
+          n->code.insert(n->code.end(), b->code.begin(), b->code.end());
+          n->place=newTemp(); 
+          n->code.push_back(n->place + " = " + a->place + " | " + b->place);
+            n->type = a->type;
           $$ = n;
       }
 	;
 
+// Done
 logical_and_expression
 	: inclusive_or_expression { 
         dbg("logical_and_expression -> inclusive_or_expression");
@@ -878,12 +1094,19 @@ logical_and_expression
 	| logical_and_expression LOGICAL_AND inclusive_or_expression {
             dbg("logical_and_expression -> logical_and_expression && inclusive_or_expression");
           Node* a=$1; Node* b=$3; Node* n=new Node();
-          n->code=a->code; n->code.insert(n->code.end(), b->code.begin(), b->code.end());
-          n->place=newTemp(); n->code.push_back(n->place + " = " + a->place + " && " + b->place + ";");
-          n->type = "bool"; $$ = n;
+            if(a->type!="bool" || b->type!="bool"){
+                yyerror("Type incompatibility in logical AND expression.");
+            }
+          n->code=a->code; 
+          n->code.insert(n->code.end(), b->code.begin(), b->code.end());
+          n->place=newTemp(); 
+          n->code.push_back(n->place + " = " + a->place + " && " + b->place);
+          n->type = "bool"; 
+          $$ = n;
       }
 	;
 
+// Done
 logical_or_expression
 	: logical_and_expression { 
         dbg("logical_or_expression -> logical_and_expression");
@@ -891,9 +1114,15 @@ logical_or_expression
 	| logical_or_expression LOGICAL_OR logical_and_expression {
             dbg("logical_or_expression -> logical_or_expression || logical_and_expression");
           Node* a=$1; Node* b=$3; Node* n=new Node();
-          n->code=a->code; n->code.insert(n->code.end(), b->code.begin(), b->code.end());
-          n->place=newTemp(); n->code.push_back(n->place + " = " + a->place + " || " + b->place + ";");
-          n->type = "bool"; $$ = n;
+          if(a->type!="bool" || b->type!="bool"){
+              yyerror("Type incompatibility in logical OR expression.");
+          }
+          n->code=a->code; 
+          n->code.insert(n->code.end(), b->code.begin(), b->code.end());
+          n->place=newTemp(); 
+          n->code.push_back(n->place + " = " + a->place + " || " + b->place);
+          n->type = "bool"; 
+          $$ = n;
       }
 	;
 
@@ -909,13 +1138,13 @@ conditional_expression
           string Lend = newLabel();
           n->code = cond->code;
           n->place = newTemp();
-          n->code.push_back("ifFalse " + cond->place + " goto " + Lfalse + ";");
+          n->code.push_back("ifFalse " + cond->place + " goto " + Lfalse);
           n->code.insert(n->code.end(), e1->code.begin(), e1->code.end());
-          n->code.push_back(n->place + " = " + e1->place + ";");
-          n->code.push_back("goto " + Lend + ";");
+          n->code.push_back(n->place + " = " + e1->place);
+          n->code.push_back("goto " + Lend);
           n->code.push_back(Lfalse + ":");
           n->code.insert(n->code.end(), e2->code.begin(), e2->code.end());
-          n->code.push_back(n->place + " = " + e2->place + ";");
+          n->code.push_back(n->place + " = " + e2->place);
           n->code.push_back(Lend + ":");
           $$ = n;
       }
@@ -934,17 +1163,17 @@ assignment_expression
           n->code = left->code; 
           n->code.insert(n->code.end(),right->code.begin(),right->code.end());
           string op = string($2);
-          if (!check_compatibility(left->type,right->type,op)) {
+            string baseop = op.substr(0,op.size()-1);
+          if (!check_compatibility(left->type,right->type,baseop)) {
               yyerror("Type incompatibility in assignment to '" + left->place + "'.");
           }
           if(left->kind.find("const")!=string::npos){
               yyerror("Cannot assign to const variable '" + left->place + "'.");
           }
           if (op == "=") {
-              n->code.push_back(left->place + " = " + right->place + ";");
+              n->code.push_back(left->place + " = " + right->place);
           } 
           else {
-              string baseop = op.substr(0,op.size()-1);
               n->code.push_back(left->place + " = " + left->place + " " + baseop + " " + right->place);
           }
           $$ = n;
@@ -1091,7 +1320,7 @@ init_declarator
         }
         Node* n = new Node();
         n->place = string($1);
-        // n->code = {n->place + " = " + '0' + ";"};
+        // n->code = {n->place + " = " + '0'};
         n->type = lastDeclType;
         n->kind = "";
 
@@ -1180,7 +1409,7 @@ init_declarator
             n->type.erase(0,6);
             n->kind += "const";
         }
-        n->code.push_back(n->place + " = " + $3->place + ";");
+        n->code.push_back(n->place + " = " + $3->place);
 
         if(n->type != $3->type){
             yyerror("Type mismatch in initialization of '" + name + "'.");
@@ -1203,7 +1432,7 @@ init_declarator
         
         n->type = lastDeclType + stars;
         n->code = $4->code;
-        n->code.push_back(n->place + " = " + $4->place + ";");
+        n->code.push_back(n->place + " = " + $4->place);
         n->argCount = 0;
         n->kind = "pointer";
 
@@ -1614,7 +1843,7 @@ insertion_list
           Node* e = $2;
           Node* n = new Node();
           n->code = e->code;
-          n->code.push_back("print " + e->place + ";"); 
+          n->code.push_back("print " + e->place); 
           $$ = n;
       }
 	| LEFT_SHIFT ENDL {
@@ -1633,7 +1862,7 @@ insertion_list
             dbg("insertion_list -> insertion_list LEFT_SHIFT assignment_expression");
           Node* n = $1; Node* e = $3;
           n->code.insert(n->code.end(), e->code.begin(), e->code.end());
-          n->code.push_back("print " + e->place + ";"); $$ = n;
+          n->code.push_back("print " + e->place); $$ = n;
       }
 	;
 
@@ -1651,7 +1880,7 @@ extraction_list
           Node* e = $2; 
           Node* n = new Node();
           n->code = e->code; 
-          n->code.push_back("read " + e->place + ";"); 
+          n->code.push_back("read " + e->place); 
           $$ = n;
       }
     | extraction_list RIGHT_SHIFT assignment_expression {
@@ -1659,7 +1888,7 @@ extraction_list
           Node* n = $1; 
           Node* e = $3;
           n->code.insert(n->code.end(), e->code.begin(), e->code.end());
-          n->code.push_back("read " + e->place + ";"); 
+          n->code.push_back("read " + e->place); 
           $$ = n;
       }
     ;
@@ -1780,9 +2009,9 @@ iteration_statement
           string Lbegin = newLabel(), Lend = newLabel();
           n->code.insert(n->code.end(), cond->code.begin(), cond->code.end());
           n->code.push_back(Lbegin + ":");
-          n->code.push_back("ifFalse " + cond->place + " goto " + Lend + ";");
+          n->code.push_back("ifFalse " + cond->place + " goto " + Lend);
           n->code.insert(n->code.end(), body->code.begin(), body->code.end());
-          n->code.push_back("goto " + Lbegin + ";");
+          n->code.push_back("goto " + Lbegin);
           n->code.push_back(Lend + ":");
           $$ = n;
       }
@@ -1794,7 +2023,7 @@ iteration_statement
           n->code.push_back(Lbegin + ":");
           n->code.insert(n->code.end(), body->code.begin(), body->code.end());
           n->code.insert(n->code.end(), cond->code.begin(), cond->code.end());
-          n->code.push_back("ifTrue " + cond->place + " goto " + Lbegin + ";");
+          n->code.push_back("ifTrue " + cond->place + " goto " + Lbegin);
           $$ = n;
       }
 	| DO statement WHILE LROUND expression RROUND SEMICOLON {
@@ -1805,7 +2034,7 @@ iteration_statement
           n->code.push_back(Lbegin + ":");
           n->code.insert(n->code.end(), body->code.begin(), body->code.end());
           n->code.insert(n->code.end(), cond->code.begin(), cond->code.end());
-          n->code.push_back("ifTrue " + cond->place + " goto " + Lbegin + ";");
+          n->code.push_back("ifTrue " + cond->place + " goto " + Lbegin);
           $$ = n;
       }
 	| FOR LROUND for_init_statement expression_statement RROUND statement {
@@ -1817,10 +2046,10 @@ iteration_statement
           n->code.push_back(Lbegin + ":");
           if (cond) {
               n->code.insert(n->code.end(), cond->code.begin(), cond->code.end());
-              n->code.push_back("ifFalse " + cond->place + " goto " + Lend + ";");
+              n->code.push_back("ifFalse " + cond->place + " goto " + Lend);
           }
           n->code.insert(n->code.end(), body->code.begin(), body->code.end());
-          n->code.push_back("goto " + Lbegin + ";");
+          n->code.push_back("goto " + Lbegin);
           n->code.push_back(Lend + ":");
           $$ = n;
       }
@@ -1833,11 +2062,11 @@ iteration_statement
           n->code.push_back(Lbegin + ":");
           if (cond) {
               n->code.insert(n->code.end(), cond->code.begin(), cond->code.end());
-              n->code.push_back("ifFalse " + cond->place + " goto " + Lend + ";");
+              n->code.push_back("ifFalse " + cond->place + " goto " + Lend);
           }
           n->code.insert(n->code.end(), body->code.begin(), body->code.end());
           if (iter) n->code.insert(n->code.end(), iter->code.begin(), iter->code.end());
-          n->code.push_back("goto " + Lbegin + ";");
+          n->code.push_back("goto " + Lbegin);
           n->code.push_back(Lend + ":");
           $$ = n;
       }
@@ -1857,7 +2086,7 @@ jump_statement
 	: GOTO IDENTIFIER SEMICOLON {
             dbg("jump_statement -> GOTO IDENTIFIER ;");
           Node* n = new Node();
-          n->code.push_back("goto " + string($2) + ";");
+          n->code.push_back("goto " + string($2));
           $$ = n;
       }
 	| CONTINUE SEMICOLON {
@@ -1883,7 +2112,7 @@ jump_statement
           Node* expr = $2;
           Node* n = new Node();
           n->code = expr->code;
-          n->code.push_back("return " + expr->place + ";");
+          n->code.push_back("return " + expr->place);
           $$ = n;
       }
     ;
