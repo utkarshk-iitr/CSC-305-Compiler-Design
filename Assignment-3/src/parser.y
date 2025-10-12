@@ -33,9 +33,10 @@
         string kind;
         bool isFunction = false;
         int paramCount = 0;
+        vector<int> dim;
         bool isDeclared = true;
         Symbol() : name(""), type(""), kind(""), isFunction(false), paramCount(0), isDeclared(true) {}
-        Symbol(string n, string t, string k, bool f, int p) : name(n), type(t), kind(k), isFunction(f), paramCount(p) {}
+        Symbol(string n, string t, string k,vector<int> s, bool f=false, int p=0) : name(n), type(t), kind(k),dim(s), isFunction(f), paramCount(p) {}
     };
 
     struct funcInfo {
@@ -99,6 +100,12 @@
         }
         return nullptr;
     }
+
+    funcInfo* lookupFunction(const string &name) {
+        auto it = funcTable.find(name);
+        if (it != funcTable.end()) return &it->second;
+        return nullptr;
+    }    
 
     bool declareSymbol(const string &name, const string &type, const string k="",bool isFunc=false, int params=0) {
         if (symStack.empty()) pushScope();
@@ -335,8 +342,8 @@
 %type<node> equality_expression and_expression exclusive_or_expression inclusive_or_expression
 %type<node> logical_and_expression logical_or_expression conditional_expression block_item
 %type<node> assignment_expression expression constant_expression declaration init_declarator
-%type<node> init_declarator_list constant new_expression new_declarator delete_expression  
-%type<node> scalar_new_init_opt function_header square_opt
+%type<node> init_declarator_list constant new_expression new_square delete_expression  
+%type<node> scalar_new_init function_header square_opt
 %type<node> expression_statement translation_unit for_init_statement;
 %type<node> square_list switch_head switch_statement case_item
 %type<str> type_specifier assignment_operator unary_operator return_type pointer_opt pointer_list static_opt const_opt
@@ -361,6 +368,7 @@ primary_expression
               n->kind = sym->kind;
               n->type = sym->type;
           }
+
           $$ = n;
       }
 	| constant { 
@@ -425,7 +433,7 @@ postfix_expression
 	| postfix_expression LSQUARE expression RSQUARE {
         dbg("postfix_expression -> postfix_expression [ expression ]");
           Node* base = $1; Node* idx = $3;
-          if(base->kind.find("array") && base->kind!="pointer"){
+          if(base->type.back()!='*'){
               yyerror("Subscripted value is not an array or pointer.");
           }
           if(idx->type!="int"){
@@ -435,23 +443,21 @@ postfix_expression
           Node* n = new Node();
           n->code = base->code;
           n->code.insert(n->code.end(), idx->code.begin(), idx->code.end());
-
-          if(lastUsage=="lvalue"){
-            n->place = base->place + "[" + idx->place + "]";
-          }
-          else{
+          string offset = newTemp();
+            string type = base->type.substr(0,base->type.size()-1);
+            if(type.back()=='*') type = "nullptr";
+            n->code.push_back(offset + " = " + idx->place + " * " + to_string(typeSize[type]));
             n->place = newTemp();
-            n->code.push_back(n->place + " = " + base->place + "[" + idx->place + "];");
-          }
-          n->type = base->type;
-          n->kind = lastUsage;          
-          
+            n->code.push_back(n->place + " = " + base->place + " + " + offset);
+            n->place = "*" + n->place;
+          n->type = base->type.substr(0,base->type.size()-1);
+          n->kind = base->kind;
           $$ = n;
       }
 	| postfix_expression LROUND RROUND {
         dbg("postfix_expression -> postfix_expression ( )");
             Node* fun = $1;
-            Symbol* s = lookupSymbol(fun->place);
+            Symbol* s = lookupFunction(fun->place);
             check_access(s);
             if(!s || !s->isFunction){
                 yyerror("Call to non-function '" + fun->place + "'.");
@@ -730,72 +736,71 @@ unary_operator
         $$ = strdup($1); }
 	;
 
+// Done
 new_expression 
-	: NEW return_type new_declarator scalar_new_init_opt {
-          dbg("new_expression -> NEW type_specifier pointer_opt new_declarator scalar_new_init_opt");
+	: NEW return_type new_square {
+            dbg("new_expression -> NEW type_specifier pointer_opt new_square");
           Node* n = new Node();
-          n->place = newTemp();
-          n->code.push_back(n->place + " = alloc " + lastDeclType);
-          n->type = lastDeclType + "*";
-          $$ = n;
-      }
-	| NEW return_type scalar_new_init_opt {
-            dbg("new_expression -> NEW type_specifier pointer_opt scalar_new_init_opt");
-          Node* n = new Node();
-          n->place = newTemp();
-          n->code.push_back(n->place + " = alloc " + lastDeclType);
-          n->type = lastDeclType + "*";
-          $$ = n;
-      }
-	| NEW return_type new_declarator {
-            dbg("new_expression -> NEW type_specifier pointer_opt new_declarator");
-          Node* n = new Node();
-          n->place = newTemp();
-          n->code.push_back(n->place + " = alloc " + lastDeclType);
-          n->type = lastDeclType + "*";
+            string tmp = newTemp();
+            string w = string($2);
+            if(string($2).back()=='*') w = "nullptr";
+            n->code = $3->code;
+            n->place = newTemp();
+            n->code.push_back(tmp+ " = " + $3->place + " * " + to_string(typeSize[w]));
+            n->code.push_back(n->place + " = call malloc, "+tmp);
+            n->type = string($2) + $3->type + "*";
           $$ = n;
       }
 	| NEW return_type {
-            dbg("new_expression -> NEW type_specifier pointer_opt");
+            dbg("new_expression -> NEW return_type");
           Node* n = new Node();
           n->place = newTemp();
-          n->code.push_back(n->place + " = alloc " + lastDeclType);
-          n->type = lastDeclType + "*";
+          string w = string($2);
+          if(string($2).back()=='*') w = "nullptr";
+          n->code.push_back(n->place + " = call malloc, "+to_string(typeSize[w]));
+          n->type = string($2) + "*";
           $$ = n;
       }
 	;
 
-new_declarator 
+// Done
+new_square 
 	: LSQUARE expression RSQUARE { 
-        dbg("new_declarator -> [ expression ]");
-        $$ = $2; }
-	| new_declarator LSQUARE expression RSQUARE { 
-        dbg("new_declarator -> new_declarator [ expression ]");
-        $$ = $3; }
+            dbg("new_square -> [ expression ]");
+            Node* n = new Node();
+            n->code = $2->code;
+            n->place = $2->place;
+            n->type = "*";
+            n->argCount = 1;
+            $$ = n; 
+        }
+	| new_square LSQUARE expression RSQUARE { 
+            dbg("new_square -> new_square [ expression ]");
+            Node* n = $1; Node* e = $3;
+            n->code.insert(n->code.end(), e->code.begin(), e->code.end());
+            string temp1 = newTemp();
+            n->code.push_back(temp1 + " = " + n->place + " * "+e->place);
+            n->place = temp1;
+            n->type = n->type + "*";
+            n->argCount = n->argCount + 1;
+            $$ = n;
+          }
 	;
 
-scalar_new_init_opt 
-	: LROUND RROUND { 
-        dbg("scalar_new_init_opt -> ( )");
-        $$ = nullptr; }
-	| LROUND argument_expression_list RROUND { 
-        dbg("scalar_new_init_opt -> ( argument_expression_list )");
-        $$ = $2; }
-	;
-
+// Done
 delete_expression
 	: DELETE LSQUARE RSQUARE cast_expression {
           dbg("delete_expression -> DELETE [ ] cast_expression");
           Node* n = new Node();
           n->code = $4->code;
-          n->code.push_back("free " + $4->place);
+          n->code.push_back("call free, " + $4->place);
           $$ = n;
       }
 	| DELETE cast_expression {
             dbg("delete_expression -> DELETE cast_expression");
           Node* n = new Node();
           n->code = $2->code;
-          n->code.push_back("free " + $2->place);
+          n->code.push_back("call free, " + $2->place);
           $$ = n;
       }
 	;
@@ -1349,6 +1354,7 @@ init_declarator
         n->type = lastDeclType;
         n->kind = "array";
         n->syn = $2->syn;
+        vector<int> v;
         if(n->type.find("static")!=string::npos){
             n->type.erase(0,7);
             n->kind += " static";
@@ -1356,8 +1362,9 @@ init_declarator
         for(int i = 0; i < $2->argCount; i++)
         {
             n->type += "*";
+            v.push_back(stoi(n->syn[i]));
         }
-        bool ok = declareSymbol(n->place, n->type, n->kind);
+        bool ok = declareSymbol(n->place, n->type, n->kind,v);
         if (!ok) {
             yyerror("Duplicate declaration of '" + n->place + "' in same scope.");
         }
@@ -1479,10 +1486,12 @@ init_declarator
         }
 
         int p = 1;
+        vector<int> v;
         for(int i = 0; i < n->argCount; i++)
         {
             n->type += "*";
             p = p * stoi($2->syn[i]);
+            v.push_back(stoi($2->syn[i]));
         }
 
         if(lastDeclType != $4->type){
@@ -1493,7 +1502,7 @@ init_declarator
             yyerror("Number of elements in initializer is greater than array size for '" + name + "'.");
         }
 
-        bool ok = declareSymbol(n->place,n->type,n->kind);
+        bool ok = declareSymbol(n->place,n->type,n->kind,v);
         if (!ok) {
             yyerror("Duplicate declaration of '" + name + "' in same scope.");
         }
@@ -1523,10 +1532,12 @@ init_declarator
         }
 
         int p = 1;
+        vector<int> v;
         for(int i = 0; i < n->argCount; i++)
         {
             n->type += "*";
             p = p * stoi($3->syn[i]);
+            v.push_back(stoi($3->syn[i]));
         }
 
         if(lastDeclType != $5->type){
@@ -1537,7 +1548,7 @@ init_declarator
             yyerror("Number of elements in initializer is greater than array size for '" + name + "'.");
         }
 
-        bool ok = declareSymbol(n->place,n->type,n->kind);
+        bool ok = declareSymbol(n->place,n->type,n->kind,v);
         if (!ok) {
             yyerror("Duplicate declaration of '" + name + "' in same scope.");
         }
@@ -1714,30 +1725,6 @@ member_declaration
 	| SEMICOLON { 
         dbg("member_declaration -> ;");
         Node* n=new Node(); $$ = n; }
-	| constructor_definition { 
-        dbg("member_declaration -> constructor_definition");
-        $$ = $1; }
-	| destructor_definition { 
-        dbg("member_declaration -> destructor_definition");
-        $$ = $1; }
-	;
-
-constructor_definition
-	: IDENTIFIER LROUND parameter_list RROUND compound_statement {
-        dbg("constructor_definition -> IDENTIFIER ( parameter_list ) compound_statement");
-          Node* n = new Node(); $$ = n;
-      }
-	| IDENTIFIER LROUND RROUND compound_statement {
-        dbg("constructor_definition -> IDENTIFIER ( ) compound_statement");
-          Node* n = new Node(); $$ = n;
-      }
-	;
-
-destructor_definition
-	: TILDE IDENTIFIER LROUND RROUND compound_statement {
-        dbg("destructor_definition -> ~ IDENTIFIER ( ) compound_statement");
-          Node* n = new Node(); $$ = n;
-      }
 	;
 
 struct_declarator_list
@@ -1849,13 +1836,13 @@ insertion_list
 	| LEFT_SHIFT ENDL {
             dbg("insertion_list -> LEFT_SHIFT ENDL");
           Node* n = new Node();
-          n->code.push_back("print endl;"); 
+          n->code.push_back("print newline"); 
           $$ = n;
       }
 	| insertion_list LEFT_SHIFT ENDL {
             dbg("insertion_list -> insertion_list LEFT_SHIFT ENDL");
           Node* n = $1; 
-          n->code.push_back("print endl;"); 
+          n->code.push_back("print newline"); 
           $$ = n;
       }
 	| insertion_list LEFT_SHIFT assignment_expression {
