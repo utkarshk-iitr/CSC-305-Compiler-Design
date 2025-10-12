@@ -33,7 +33,7 @@
         string kind;
         bool isFunction = false;
         int paramCount = 0;
-        vector<int> dim;
+        vector<string> dim;
         bool isDeclared = true;
         Symbol() : name(""), type(""), kind(""), isFunction(false), paramCount(0), isDeclared(true) {}
         Symbol(string n, string t, string k,vector<int> s, bool f=false, int p=0) : name(n), type(t), kind(k),dim(s), isFunction(f), paramCount(p) {}
@@ -41,6 +41,7 @@
 
     struct funcInfo {
         string returnType;
+        string kind;
         bool hasReturn = false;
         vector<string> paramTypes;
         int paramCount = 0;
@@ -128,6 +129,14 @@
     }
 
     void check_access(Symbol* sym) {
+        if(sym->kind.find("private") != string::npos){
+            yyerror("Can't access private member '" + sym->name + "'.");
+        }
+        else if(sym->kind.find("protected") != string::npos){
+            yyerror("Can't access protected member '" + sym->name + "'.");
+        }
+    }
+    void check_func_access(funcInfo* sym) {
         if(sym->kind.find("private") != string::npos){
             yyerror("Can't access private member '" + sym->name + "'.");
         }
@@ -367,6 +376,7 @@ primary_expression
               check_access(sym);
               n->kind = sym->kind;
               n->type = sym->type;
+              n->syn = sym->dim;
           }
 
           $$ = n;
@@ -439,32 +449,47 @@ postfix_expression
           if(idx->type!="int"){
               yyerror("Index is not an integer.");
           }
+          if(base->kind.find("const")!=string::npos){
+              yyerror("Cannot modify a const value.");
+          }
+          if(syn.empty()){
+              yyerror("Too many dimensions for array.");
+          }
 
           Node* n = new Node();
           n->code = base->code;
           n->code.insert(n->code.end(), idx->code.begin(), idx->code.end());
+
+          int p=1;
+          for(auto x:base->syn) p = p * stoi(x);
+          p /= stoi(base->syn.front());
           string offset = newTemp();
             string type = base->type.substr(0,base->type.size()-1);
             if(type.back()=='*') type = "nullptr";
-            n->code.push_back(offset + " = " + idx->place + " * " + to_string(typeSize[type]));
+            n->code.push_back(offset + " = " + idx->place + " * " + p);
+            n->code.push_back(offset + " = " + offset +" * "+to_string(typeSize[type]));
             n->place = newTemp();
             n->code.push_back(n->place + " = " + base->place + " + " + offset);
-            n->place = "*" + n->place;
           n->type = base->type.substr(0,base->type.size()-1);
           n->kind = base->kind;
+            n->syn = vector<string>(base->syn.begin()+1, base->syn.end());
+            if(n->syn.empty()){
+                n->place = "*" + n->place;
+            }
           $$ = n;
       }
 	| postfix_expression LROUND RROUND {
         dbg("postfix_expression -> postfix_expression ( )");
             Node* fun = $1;
-            Symbol* s = lookupFunction(fun->place);
-            check_access(s);
-            if(!s || !s->isFunction){
+            funcInfo* s = lookupFunction(fun->place);
+            check_func_access(s);
+            if(!s){
                 yyerror("Call to non-function '" + fun->place + "'.");
             }
-            if(s->isFunction && s->paramCount != 0){
+            if(s->paramCount != 0){
                 yyerror("Call to function '" + fun->place + "' with incorrect number of arguments.");
             }
+
             Node* n = new Node();
             n->code = fun->code;
             n->type = fun->type;
@@ -481,13 +506,19 @@ postfix_expression
 	| postfix_expression LROUND argument_expression_list RROUND {
         dbg("postfix_expression -> postfix_expression ( argument_expression_list )");
             Node* fun = $1; Node* args = $3;
-            Symbol* s = lookupSymbol(fun->place);
-            check_access(s);
-            if(!s || !s->isFunction){
+            funcInfo* s = lookupFunction(fun->place);
+            check_func_access(s);
+            if(!s){
                 yyerror("Call to non-function '" + fun->place + "'.");
             }
-            if (s->isFunction && s->paramCount != args->argCount) {
+            if (s->paramCount != args->argCount) {
                 yyerror("Call to function '" + fun->place + "' with incorrect number of arguments.");
+            }
+
+            for(int i=0; i<args->argCount; i++){
+                if(s->paramTypes[i]!=args->syn[i]){
+                    yyerror("Type mismatch in argument " + to_string(i+1) + " of function '" + fun->place + "'.");
+                }
             }
             Node* n = new Node();
             n->code = fun->code;
@@ -505,46 +536,71 @@ postfix_expression
 	| postfix_expression DOT IDENTIFIER {
         dbg("postfix_expression -> postfix_expression . IDENTIFIER");
             Node* obj = $1;
-            if(obj->kind=="pointer"){
-                yyerror("Member access through pointer must use '->' operator.");
+            if(obj->type!="struct" && obj->type!="class"){
+                yyerror("Dot operator can only be applied to struct or class.");
             }
-            Symbol* s = lookupSymbol(obj->type + "." + string($3));
-            if(!s){
-                yyerror("No member named '" + string($3) + "' in '" + obj->type + "'.");
-            }
-            check_access(s);
-            Node* n = new Node();
-            n->code = obj->code;
+            string nm = obj->place + "." + string($3);
+            Symbol* s = lookupSymbol(nm);
+            functionInfo* f = lookupFunction(nm);
 
-            if(lastUsage=="lvalue"){
-                n->place = obj->place + "." + string($3);
+            Node* n = new Node();
+            if(s){
+                check_access(s);
+                n->type = s->type;
+                n->kind = s->kind;
+            }
+            else if(f){
+                check_func_access(f);
+                n->type = f->returnType;
             }
             else{
-                n->place = newTemp();
-                n->code.push_back(n->place + " = " + obj->place + "." + string($3));
+                yyerror("No member or function named '" + nm+"'.");
             }
-            n->type = s->type;
+            n->code = obj->code;
+            n->place = newTemp();
+            n->code.push_back(n->place + " = " + nm);
             $$ = n;
       }
 	| postfix_expression ARROW IDENTIFIER {
         dbg("postfix_expression -> postfix_expression ARROW IDENTIFIER");
           Node* obj = $1;
-          Symbol* s = lookupSymbol(obj->type + "." + string($3));
-            if(!s){
-                yyerror("No member named '" + string($3) + "' in '" + obj->type + "'.");
+          if(obj->type.back()!='*'){
+              yyerror("Arrow operator can only be applied to pointer.");
+          }
+
+            Symbol* sym = lookupSymbol(obj->type.substr(0,obj->type.size()-1));
+            if(!sym){
+                yyerror("Pointer must be to struct or class.");
             }
-            check_access(s);
-          Node* n = new Node();
-          n->code = obj->code;
-          if(lastUsage=="lvalue"){
-              n->place = obj->place + "->" + string($3);
-          }
-          else{
-              n->place = newTemp();
-              n->code.push_back(n->place + " = " + obj->place + "->" + string($3));
-          }
-          n->type = s->type;
-          $$ = n;
+            if(sym->type!="struct" && sym->type!="class"){
+                yyerror("Pointer must be to struct or class.");
+            }
+
+            Node* n = new Node();
+            n->code = obj->code;
+            string tmp = newTemp();
+            n->code.push_back(tmp + " = *" + obj->place);
+            string nm = obj->place + "->" + string($3);
+            Symbol* s = lookupSymbol(nm);
+            functionInfo* f = lookupFunction(nm);
+            n->code = obj->code;
+            if(s){
+                check_access(s);
+                n->type = s->type;
+                n->kind = s->kind;
+                // string offset = newTemp();
+                // n->code.push_back(offset + " = " + n->place + " + " + to_string(paramCount));
+            }
+            else if(f){
+                check_func_access(f);
+                n->type = f->returnType;
+            }
+            else{
+                yyerror("No member or function named '" + nm+"'.");
+            }
+            n->place = newTemp();
+            n->code.push_back(n->place + " = " + tmp + "." + string($3));
+            $$ = n;
       }
 	| postfix_expression INCREMENT {
           dbg("postfix_expression -> postfix_expression ++");
@@ -1354,7 +1410,6 @@ init_declarator
         n->type = lastDeclType;
         n->kind = "array";
         n->syn = $2->syn;
-        vector<int> v;
         if(n->type.find("static")!=string::npos){
             n->type.erase(0,7);
             n->kind += " static";
@@ -1362,9 +1417,8 @@ init_declarator
         for(int i = 0; i < $2->argCount; i++)
         {
             n->type += "*";
-            v.push_back(stoi(n->syn[i]));
         }
-        bool ok = declareSymbol(n->place, n->type, n->kind,v);
+        bool ok = declareSymbol(n->place, n->type, n->kind,n->syn);
         if (!ok) {
             yyerror("Duplicate declaration of '" + n->place + "' in same scope.");
         }
@@ -1486,12 +1540,10 @@ init_declarator
         }
 
         int p = 1;
-        vector<int> v;
         for(int i = 0; i < n->argCount; i++)
         {
             n->type += "*";
             p = p * stoi($2->syn[i]);
-            v.push_back(stoi($2->syn[i]));
         }
 
         if(lastDeclType != $4->type){
@@ -1502,7 +1554,7 @@ init_declarator
             yyerror("Number of elements in initializer is greater than array size for '" + name + "'.");
         }
 
-        bool ok = declareSymbol(n->place,n->type,n->kind,v);
+        bool ok = declareSymbol(n->place,n->type,n->kind,n->syn);
         if (!ok) {
             yyerror("Duplicate declaration of '" + name + "' in same scope.");
         }
@@ -1532,12 +1584,10 @@ init_declarator
         }
 
         int p = 1;
-        vector<int> v;
         for(int i = 0; i < n->argCount; i++)
         {
             n->type += "*";
             p = p * stoi($3->syn[i]);
-            v.push_back(stoi($3->syn[i]));
         }
 
         if(lastDeclType != $5->type){
@@ -1548,7 +1598,7 @@ init_declarator
             yyerror("Number of elements in initializer is greater than array size for '" + name + "'.");
         }
 
-        bool ok = declareSymbol(n->place,n->type,n->kind,v);
+        bool ok = declareSymbol(n->place,n->type,n->kind,n->syn);
         if (!ok) {
             yyerror("Duplicate declaration of '" + name + "' in same scope.");
         }
