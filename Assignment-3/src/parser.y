@@ -36,20 +36,28 @@
         vector<string> dim;
         bool isDeclared = true;
         Symbol() : name(""), type(""), kind(""), isFunction(false), paramCount(0), isDeclared(true) {}
-        Symbol(string n, string t, string k,vector<int> s, bool f=false, int p=0) : name(n), type(t), kind(k),dim(s), isFunction(f), paramCount(p) {}
+        Symbol(string n, string t, string k,vector<string> s, bool f=false, int p=0) : name(n), type(t), kind(k),dim(s), isFunction(f), paramCount(p) {}
     };
 
     struct funcInfo {
-        string returnType;
+        string place;
         string kind;
+        string returnType;
         bool hasReturn = false;
         vector<string> paramTypes;
         int paramCount = 0;
         funcInfo() : returnType("void"), hasReturn(false) {}
     };
 
-    unordered_map<string, funcInfo> funcTable;
+    struct memberInfo {
+        string place;
+        int offset;
+        string type;
+        string kind;
+    };
 
+    unordered_map<string, funcInfo> funcTable;
+    unordered_map<string, unordered_map<string,memberInfo>> classTable;
     vector< unordered_map<string, Symbol> > symStack;
 
     unordered_map<string,int> typeSize = {
@@ -60,8 +68,9 @@
     static string currentFunction = "global";
     static int globalTemp = 0, globalLabel = 0;
     static int localTemp = 0, localLabel = 0;
-    
+    static int classOffset = 0;
     static string lastDeclType = "int";
+    static string lastClassType = "";
     static string lastUsage = "rvalue";
 
     Node* finalRoot = nullptr;
@@ -108,7 +117,7 @@
         return nullptr;
     }    
 
-    bool declareSymbol(const string &name, const string &type, const string k="",bool isFunc=false, int params=0) {
+    bool declareSymbol(const string &name, const string &type, const string k="",vector<string> syn=vector<string>(),bool isFunc=false, int params=0) {
         if (symStack.empty()) pushScope();
         auto &cur = symStack.back();
         if (cur.find(name) != cur.end()) {
@@ -116,6 +125,7 @@
         }
         Symbol s; 
         s.name = name; s.type = type; s.kind = k; 
+        s.dim = syn;
         s.isFunction = isFunc;
         s.paramCount = params;
         s.isDeclared = true;
@@ -136,12 +146,13 @@
             yyerror("Can't access protected member '" + sym->name + "'.");
         }
     }
+
     void check_func_access(funcInfo* sym) {
         if(sym->kind.find("private") != string::npos){
-            yyerror("Can't access private member '" + sym->name + "'.");
+            yyerror("Can't access private member function '" + sym->place + "'.");
         }
         else if(sym->kind.find("protected") != string::npos){
-            yyerror("Can't access protected member '" + sym->name + "'.");
+            yyerror("Can't access protected member function '" + sym->place + "'.");
         }
     }
 
@@ -214,7 +225,7 @@
         return true;
     }
 
-    bool check_casting(const string &from, const string &to) {
+    bool check_casting(const string &from, const string &to, const string &s="") {
         if(from==to) return true;
         if(from=="int"){
             if(to=="double" || to=="char" || to=="bool" || to=="string" || to=="long") return true;
@@ -337,26 +348,27 @@
 
 /* declare types for nonterminals */
 %type<node> struct_or_class_specifier struct_or_class struct_or_class_member_list struct_or_class_member
-%type<node> access_specifier_label member_declaration constructor_definition destructor_definition
-%type<node> struct_declarator_list struct_declarator specifier_qualifier_list
-%type<node> pointer type_qualifier_list parameter_list
-%type<node> parameter_declaration identifier_list type_name abstract_declarator direct_abstract_declarator
+%type<node> access_specifier_label member_declaration
+%type<node> struct_declarator_list struct_declarator
+%type<node> parameter_list
+%type<node> parameter_declaration
 %type<node> initializer initializer_list statement compound_statement statement_list labeled_statement
 %type<node> selection_statement iteration_statement jump_statement io_statement cout_expression
 %type<node> insertion_list cin_expression extraction_list external_declaration 
-%type<node> function_definition lambda_expression lambda_declarator lambda_parameter_clause
-%type<node> trailing_return_opt lambda_capture_clause capture_list primary_expression
+%type<node> function_definition primary_expression 
+/* %type<node> trailing_return_opt lambda_capture_clause capture_list lambda_expression lambda_declarator lambda_parameter_clause */
 %type<node> postfix_expression argument_expression_list unary_expression cast_expression
 %type<node> multiplicative_expression additive_expression shift_expression relational_expression
 %type<node> equality_expression and_expression exclusive_or_expression inclusive_or_expression
 %type<node> logical_and_expression logical_or_expression conditional_expression block_item
 %type<node> assignment_expression expression constant_expression declaration init_declarator
 %type<node> init_declarator_list constant new_expression new_square delete_expression  
-%type<node> scalar_new_init function_header square_opt
+%type<node> function_header
 %type<node> expression_statement translation_unit for_init_statement;
-%type<node> square_list switch_head switch_statement case_item
 %type<str> type_specifier assignment_operator unary_operator return_type pointer_opt pointer_list static_opt const_opt
 %type<str> declaration_specifiers
+%type<node> square_list
+/* %type<node> switch_head switch_statement case_item */
 
 %start translation_unit
 
@@ -364,41 +376,60 @@
 
 // Done
 primary_expression
-	: IDENTIFIER {
-            dbg("primary_expression -> IDENTIFIER");
-          Node* n = new Node();
-          string name = string($1);
-          n->place = name;
-          Symbol* sym = lookupSymbol(name);
-          if (!sym) {
-              yyerror("Use of undeclared identifier '" + name + "'.");
-          } else {
-              check_access(sym);
-              n->kind = sym->kind;
-              n->type = sym->type;
-              n->syn = sym->dim;
-          }
+	: IDENTIFIER 
+    {
+        dbg("primary_expression -> IDENTIFIER");
+        Node* n = new Node();
+        string name = string($1);
+        n->place = name;
+        Symbol* sym = lookupSymbol(name);
+        if (!sym) {
+            yyerror("Use of undeclared identifier '" + name + "'.");
+        } else {
+            // check_access(sym);
+            dbg("");
+            dbg("Found symbol: " + name);
+            dbg("Type: " + sym->type);
+            dbg("Kind: " + sym->kind);
+            dbg("Dimensions: " + to_string(sym->dim.size()));
+            for (const auto& d : sym->dim) {
+                dbg(" - " + d);
+            }
+            dbg("");
+            n->kind = sym->kind;
+            n->type = sym->type;
+            n->syn = sym->dim;
+        }
 
-          $$ = n;
-      }
-	| constant { 
+        $$ = n;
+    }
+	| constant 
+    { 
         dbg("primary_expression -> constant");
-        $$ = $1; }
-	| LROUND expression RROUND { 
+        $$ = $1;
+    }
+	| LROUND expression RROUND 
+    {
         dbg("primary_expression -> ( expression )");
-        $$ = $2; }
-    | lambda_expression { 
+        $$ = $2;
+    }
+    /* | lambda_expression {
         dbg("primary_expression -> lambda_expression");
-        $$ = $1; }
+        $$ = $1; } */
 	;
 
 // Done
 constant
-    : DECIMAL_LITERAL       {
-          dbg("constant -> DECIMAL_LITERAL");
-          Node* n = new Node(string($1), "int", "const");
-          $$ = n;
-      }
+    : DECIMAL_LITERAL       
+    {
+        dbg("constant -> DECIMAL_LITERAL");
+        Node* n = new Node(string($1), "int", "const");
+        n->argCount = stoi(string($1));
+        dbg("");
+        dbg("Integer constant value: " + to_string(n->argCount));
+        dbg("");
+        $$ = n;
+    }
     | CHARACTER_LITERAL     {
             dbg("constant -> CHARACTER_LITERAL");
           Node* n = new Node(string($1), "char", "const");
@@ -437,47 +468,63 @@ constant
     ;
 
 postfix_expression
-	: primary_expression { 
+	: primary_expression 
+    { 
         dbg("postfix_expression -> primary_expression");
-        $$ = $1; }
-	| postfix_expression LSQUARE expression RSQUARE {
+        $$ = $1; 
+    }
+	| postfix_expression LSQUARE expression RSQUARE 
+    {
         dbg("postfix_expression -> postfix_expression [ expression ]");
-          Node* base = $1; Node* idx = $3;
-          if(base->type.back()!='*'){
-              yyerror("Subscripted value is not an array or pointer.");
-          }
-          if(idx->type!="int"){
-              yyerror("Index is not an integer.");
-          }
-          if(base->kind.find("const")!=string::npos){
-              yyerror("Cannot modify a const value.");
-          }
-          if(syn.empty()){
-              yyerror("Too many dimensions for array.");
-          }
+        Node* base = $1; 
+        Node* idx = $3;
+        if(base->type.back()!='*'){
+            yyerror("Subscripted value is not an array or pointer.");
+        }
+        if(idx->type!="int"){
+            yyerror("Index is not an integer.");
+        }
+        if(base->kind.find("const")!=string::npos){
+            yyerror("Cannot modify a const value.");
+        }
+        if(base->syn.empty()){
+            yyerror("Too many dimensions for array.");
+        }
+        Node* n = new Node();
+        n->code = base->code;
+        n->code.insert(n->code.end(), idx->code.begin(), idx->code.end());
 
-          Node* n = new Node();
-          n->code = base->code;
-          n->code.insert(n->code.end(), idx->code.begin(), idx->code.end());
+        int p=1;
+        dbg("");
+        dbg("Array dimensions: ");
+        dbg(to_string(base->syn.size()));
 
-          int p=1;
-          for(auto x:base->syn) p = p * stoi(x);
-          p /= stoi(base->syn.front());
-          string offset = newTemp();
-            string type = base->type.substr(0,base->type.size()-1);
-            if(type.back()=='*') type = "nullptr";
-            n->code.push_back(offset + " = " + idx->place + " * " + p);
-            n->code.push_back(offset + " = " + offset +" * "+to_string(typeSize[type]));
-            n->place = newTemp();
-            n->code.push_back(n->place + " = " + base->place + " + " + offset);
-          n->type = base->type.substr(0,base->type.size()-1);
-          n->kind = base->kind;
-            n->syn = vector<string>(base->syn.begin()+1, base->syn.end());
-            if(n->syn.empty()){
-                n->place = "*" + n->place;
-            }
-          $$ = n;
-      }
+
+        for(auto x:base->syn)
+        { 
+            dbg("Dimension size: " + x);
+            p = p * stoi(x);
+        }
+        dbg("");
+        
+        p /= stoi(base->syn.front());
+        string offset = newTemp();
+        
+        string type = base->type.substr(0,base->type.size()-base->syn.size());
+        
+        n->code.push_back(offset + " = " + idx->place + " * " + to_string(p));
+        n->code.push_back(offset + " = " + offset +" * "+to_string(typeSize[type]));
+        n->place = newTemp();
+        n->code.push_back(n->place + " = " + base->place + " + " + offset);
+        n->type = base->type.substr(0,base->type.size()-1);
+        n->kind = base->kind;
+        n->syn = vector<string>(base->syn.begin()+1, base->syn.end());
+        
+        if(n->syn.empty()){
+            n->place = "*" + n->place;
+        }
+        $$ = n;
+    }
 	| postfix_expression LROUND RROUND {
         dbg("postfix_expression -> postfix_expression ( )");
             Node* fun = $1;
@@ -541,7 +588,7 @@ postfix_expression
             }
             string nm = obj->place + "." + string($3);
             Symbol* s = lookupSymbol(nm);
-            functionInfo* f = lookupFunction(nm);
+            funcInfo* f = lookupFunction(nm);
 
             Node* n = new Node();
             if(s){
@@ -582,7 +629,7 @@ postfix_expression
             n->code.push_back(tmp + " = *" + obj->place);
             string nm = obj->place + "->" + string($3);
             Symbol* s = lookupSymbol(nm);
-            functionInfo* f = lookupFunction(nm);
+            funcInfo* f = lookupFunction(nm);
             n->code = obj->code;
             if(s){
                 check_access(s);
@@ -870,7 +917,7 @@ cast_expression
             dbg("cast_expression -> ( type_name ) cast_expression");
             string a = $2; Node* b = $4;
             if(!check_casting(b->type,a)){
-                yyerror("Unable to cast from '" + b->type + "' to '" + a->type + "'.");
+                yyerror("Unable to cast from '" + b->type + "' to '" + a + "'.");
             }
             Node* n = new Node();
             n->code = b->code;
@@ -1188,9 +1235,11 @@ logical_or_expression
 	;
 
 conditional_expression
-	: logical_or_expression { 
+	: logical_or_expression 
+    { 
         dbg("conditional_expression -> logical_or_expression");
-        $$ = $1; }
+        $$ = $1; 
+    }
 	| logical_or_expression QUESTION_MARK expression COLON conditional_expression {
             dbg("conditional_expression -> logical_or_expression ? expression : conditional_expression");
           Node* cond = $1; Node* e1 = $3; Node* e2 = $5;
@@ -1299,9 +1348,11 @@ expression
 
 // Done
 constant_expression
-	: conditional_expression { 
+	: conditional_expression 
+    { 
         dbg("constant_expression -> conditional_expression");
-        $$ = $1; }
+        $$ = $1; 
+    }
 	;
 
 // Done
@@ -1390,10 +1441,29 @@ init_declarator
             n->kind += "static";
         }
         n->argCount = 0;
-        bool ok = declareSymbol(n->place, n->type, n->kind);
-        if (!ok) {
-            yyerror("Duplicate declaration of '" + n->place + "' in same scope.");
+        if(lastClassType == "")
+        {
+            bool ok = declareSymbol(n->place, n->type, n->kind);
+            if (!ok) {
+                yyerror("Duplicate declaration of '" + n->place + "' in same scope.");
+            }
         }
+        if(lastClassType != "")
+        {
+            if(classTable[lastClassType].find(n->place) != classTable[lastClassType].end()){
+                yyerror("Duplicate declaration of member '" + n->place + "' in class '" + lastClassType + "'.");
+            } else 
+            {
+                classTable[lastClassType][n->place].offset = classOffset;
+                classOffset += typeSize[n->type];
+                classTable[lastClassType][n->place].type = n->type;
+                classTable[lastClassType][n->place].kind = lastUsage;
+            }
+        }
+
+        dbg("");
+        dbg("Declared variable: " + n->place + " of type: " + n->type + " and kind: " + n->kind);
+        dbg("");
 
         $$ = n;
     }
@@ -1410,6 +1480,13 @@ init_declarator
         n->type = lastDeclType;
         n->kind = "array";
         n->syn = $2->syn;
+
+        dbg("");
+        dbg("Array dimensions: ");
+        for (const auto& dim : n->syn) {
+            dbg(" - " + dim);
+        }
+        dbg("");
         if(n->type.find("static")!=string::npos){
             n->type.erase(0,7);
             n->kind += " static";
@@ -1418,10 +1495,40 @@ init_declarator
         {
             n->type += "*";
         }
-        bool ok = declareSymbol(n->place, n->type, n->kind,n->syn);
-        if (!ok) {
-            yyerror("Duplicate declaration of '" + n->place + "' in same scope.");
+
+        if(lastClassType == "")
+        {
+            bool ok = declareSymbol(n->place, n->type, n->kind, n->syn);
+            if (!ok) {
+                yyerror("Duplicate declaration of '" + n->place + "' in same scope.");
+            }
         }
+        if(lastClassType != "")
+        {
+            if(classTable[lastClassType].find(n->place) != classTable[lastClassType].end()){
+                yyerror("Duplicate declaration of member '" + n->place + "' in class '" + lastClassType + "'.");
+            } 
+            else 
+            {
+                classTable[lastClassType][n->place].offset = classOffset;
+                int p = 1;
+                for(int i = 0; i < n->argCount; i++)
+                {
+                    p *= stoi(n->syn[i]);
+                }
+                classOffset += p * typeSize[n->type.substr(0, n->type.size() - n->argCount)];
+                classTable[lastClassType][n->place].type = n->type;
+                classTable[lastClassType][n->place].kind = lastUsage;
+            }
+        }
+
+        dbg("");
+        dbg("Declared array: " + n->place + " of type: " + n->type + " and kind: " + n->kind);
+        for(int i = 0; i < n->argCount; i++)
+        {
+            dbg("Dimension " + to_string(i+1) + ": " + n->syn[i]);
+        }
+        dbg("");
         $$ = n;
     }
 	| pointer_list IDENTIFIER
@@ -1444,10 +1551,31 @@ init_declarator
             n->type.erase(0,7);
             n->kind += " static";
         }
-        bool ok = declareSymbol(n->place, n->type, n->kind);
-        if (!ok) {
-            yyerror("Duplicate declaration of '" + n->place + "' in same scope.");
+        
+        if(lastClassType == "")
+        {
+            bool ok = declareSymbol(n->place, n->type, n->kind);
+            if (!ok) {
+                yyerror("Duplicate declaration of '" + n->place + "' in same scope.");
+            }
         }
+        if(lastClassType != "")
+        {
+            if(classTable[lastClassType].find(n->place) != classTable[lastClassType].end()){
+                yyerror("Duplicate declaration of member '" + n->place + "' in class '" + lastClassType + "'.");
+            } 
+            else 
+            {
+                classTable[lastClassType][n->place].offset = classOffset;
+                classOffset += typeSize["nullptr"];
+                classTable[lastClassType][n->place].type = n->type;
+                classTable[lastClassType][n->place].kind = lastUsage;
+            }
+        }
+
+        dbg("");
+        dbg("Declared pointer: " + n->place + " of type: " + n->type + " and kind: " + n->kind);
+        dbg("");
         $$ = n;
     }
     // not array, not pointer
@@ -1476,10 +1604,30 @@ init_declarator
             yyerror("Type mismatch in initialization of '" + name + "'.");
         }
 
-        bool ok = declareSymbol(n->place,n->type,n->kind);
-        if (!ok) {
-            yyerror("Duplicate declaration of '" + name + "' in same scope.");
+        if(lastClassType == "")
+        {
+            bool ok = declareSymbol(n->place,n->type,n->kind);
+            if (!ok) {
+                yyerror("Duplicate declaration of '" + name + "' in same scope.");
+            }
         }
+        if(lastClassType != "")
+        {
+            if(classTable[lastClassType].find(n->place) != classTable[lastClassType].end()){
+                yyerror("Duplicate declaration of member '" + n->place + "' in class '" + lastClassType + "'.");
+            } 
+            else 
+            {
+                classTable[lastClassType][n->place].offset = classOffset;
+                classOffset += typeSize[n->type];
+                classTable[lastClassType][n->place].type = n->type;
+                classTable[lastClassType][n->place].kind = lastUsage;
+            }
+        }
+
+        dbg("");
+        dbg("Declared variable: " + n->place + " of type: " + n->type + " and kind: " + n->kind);
+        dbg("");
         $$ = n;
     }
     // pointer not array
@@ -1510,10 +1658,30 @@ init_declarator
             yyerror("Type mismatch in initialization of '" + name + "'."); 
         }
 
-        bool ok = declareSymbol(n->place,n->type,n->kind);
-        if (!ok) {
-            yyerror("Duplicate declaration of '" + name + "' in same scope.");
+        if(lastClassType == "")
+        {
+            bool ok = declareSymbol(n->place,n->type,n->kind);
+            if (!ok) {
+                yyerror("Duplicate declaration of '" + name + "' in same scope.");
+            }
         }
+        if(lastClassType != "")
+        {
+            if(classTable[lastClassType].find(n->place) != classTable[lastClassType].end()){
+                yyerror("Duplicate declaration of member '" + n->place + "' in class '" + lastClassType + "'.");
+            } 
+            else 
+            {
+                classTable[lastClassType][n->place].offset = classOffset;
+                classOffset += typeSize["nullptr"];
+                classTable[lastClassType][n->place].type = n->type;
+                classTable[lastClassType][n->place].kind = lastUsage;
+            }
+        }
+
+        dbg("");
+        dbg("Declared pointer: " + n->place + " of type: " + n->type + " and kind: " + n->kind);
+        dbg("");
         $$ = n;
     }
     // array not pointer
@@ -1554,13 +1722,37 @@ init_declarator
             yyerror("Number of elements in initializer is greater than array size for '" + name + "'.");
         }
 
-        bool ok = declareSymbol(n->place,n->type,n->kind,n->syn);
-        if (!ok) {
-            yyerror("Duplicate declaration of '" + name + "' in same scope.");
+        if(lastClassType == "")
+        {
+            bool ok = declareSymbol(n->place,n->type,n->kind,n->syn);
+            if (!ok) {
+                yyerror("Duplicate declaration of '" + name + "' in same scope.");
+            }
         }
+        if(lastClassType != "")
+        {
+            if(classTable[lastClassType].find(n->place) != classTable[lastClassType].end()){
+                yyerror("Duplicate declaration of member '" + n->place + "' in class '" + lastClassType + "'.");
+            } 
+            else 
+            {
+                classTable[lastClassType][n->place].offset = classOffset;
+                classOffset += p * typeSize[n->type.substr(0, n->type.size() - n->argCount)];
+                classTable[lastClassType][n->place].type = n->type;
+                classTable[lastClassType][n->place].kind = lastUsage;
+            }
+        }
+
+        dbg("");
+        dbg("Declared array: " + n->place + " of type: " + n->type + " and kind: " + n->kind);
+        for(int i = 0; i < n->argCount; i++)
+        {
+            dbg("Dimension " + to_string(i+1) + ": " + n->syn[i]);
+        }
+        dbg("");
         $$ = n;
     }
-    | pointer_list IDENTIFIER square_list ASSIGN initializer
+    /* | pointer_list IDENTIFIER square_list ASSIGN initializer
     {
         dbg("init_declarator -> pointer_list IDENTIFIER square_list = initializer ");
         Node* n = new Node();
@@ -1598,13 +1790,38 @@ init_declarator
             yyerror("Number of elements in initializer is greater than array size for '" + name + "'.");
         }
 
-        bool ok = declareSymbol(n->place,n->type,n->kind,n->syn);
-        if (!ok) {
-            yyerror("Duplicate declaration of '" + name + "' in same scope.");
+        if(lastClassType == "")
+        {
+            bool ok = declareSymbol(n->place,n->type,n->kind,n->syn);
+            if (!ok) {
+                yyerror("Duplicate declaration of '" + name + "' in same scope.");
+            }
         }
+        if(lastClassType != "")
+        {
+            if(classTable[lastClassType].find(n->place) != classTable[lastClassType].end()){
+                yyerror("Duplicate declaration of member '" + n->place + "' in class '" + lastClassType + "'.");
+            } 
+            else 
+            {
+                classTable[lastClassType][n->place].offset = classOffset;
+                classOffset += p * typeSize["nullptr"];
+                classTable[lastClassType][n->place].type = n->type;
+                classTable[lastClassType][n->place].kind = lastUsage;
+            }
+        }
+
+        dbg("");
+        dbg("Declared pointer array: " + n->place + " of type: " + n->type + " and kind: " + n->kind);
+        for(int i = 0; i < n->argCount; i++)
+        {
+            dbg("Dimension " + to_string(i+1) + ": " + n->syn[i]);
+        }
+        dbg("");
         $$ = n;
-    }
+    } */
     ;
+
 
 // Done
 initializer
@@ -1653,6 +1870,7 @@ square_list
         if($3->type!="int"){
             yyerror("Array size must be of type int.");
         }
+
         $$ = n;
     }
     | LSQUARE constant_expression RSQUARE
@@ -1709,89 +1927,137 @@ type_specifier
         $$ = $1; lastDeclType = string($1); }
 	;
 
+// Done
 struct_or_class_specifier
-	: struct_or_class IDENTIFIER LCURLY struct_or_class_member_list RCURLY { 
+	: struct_or_class IDENTIFIER LCURLY 
+    { 
+        lastClassType = string($2); 
+        if(typeSize.find(lastClassType) != typeSize.end()){
+            yyerror("Redefinition of class/struct '" + lastClassType + "'.");
+        }
+        typeSize[lastClassType] = 0;
+        classOffset = 0;
+        pushScope();
+    } struct_or_class_member_list RCURLY 
+    { 
         dbg("struct_or_class_specifier -> struct_or_class IDENTIFIER { struct_or_class_member_list }");
-        Node* n = new Node(); $$ = n; }
-	| struct_or_class IDENTIFIER { 
-        dbg("struct_or_class_specifier -> struct_or_class IDENTIFIER");
-        Node* n = new Node(); $$ = n; }
-	;
+        popScope();
+        $$ = $5; 
+        lastClassType = "";
+    }
+    ;
 
+// Done
 struct_or_class
-	: STRUCT { 
+	: STRUCT 
+    { 
         dbg("struct_or_class -> STRUCT");
-        $$ = new Node(); }
-	| CLASS { 
+        $$ = new Node(); 
+        lastUsage = "public";
+    }
+	| CLASS 
+    { 
         dbg("struct_or_class -> CLASS");
-        $$ = new Node(); }
+        $$ = new Node(); 
+        lastUsage = "private";
+    }
 	;
 
+// Done
 struct_or_class_member_list
-	: struct_or_class_member { 
-        dbg("struct_or_class_member_list -> struct_or_class_member");
-        $$ = $1; }
-	| struct_or_class_member_list struct_or_class_member { 
+	:  
+    { 
+        dbg("struct_or_class_member_list -> <empty>");
+        $$ = new Node(); 
+    }
+	| struct_or_class_member_list struct_or_class_member 
+    { 
         dbg("struct_or_class_member_list -> struct_or_class_member_list struct_or_class_member");
         Node* n = $1; 
-        if ($2) n->code.insert(n->code.end(), $2->code.begin(), $2->code.end()); 
-        $$ = n; }
+        n->code.insert(n->code.end(), $2->code.begin(), $2->code.end()); 
+        $$ = n; 
+    }
 	;
 
 struct_or_class_member
-	: access_specifier_label { 
+	: access_specifier_label 
+    { 
         dbg("struct_or_class_member -> access_specifier_label");
-        $$ = $1; }
-	| member_declaration { 
+        lastUsage = string($1->place);
+        $$ = $1; 
+    }
+	| member_declaration 
+    { 
         dbg("struct_or_class_member -> member_declaration");
-        $$ = $1; }
+        $$ = $1; 
+    }
 	;
 
 access_specifier_label
-	: PUBLIC COLON { 
+	: PUBLIC COLON 
+    { 
         dbg("access_specifier_label -> PUBLIC :");
-        Node* n=new Node(); $$ = n; }
-	| PRIVATE COLON { 
+        Node* n=new Node(); 
+        n->place = "public";
+        $$ = n; 
+    }
+	| PRIVATE COLON 
+    { 
         dbg("access_specifier_label -> PRIVATE :");
-        Node* n=new Node(); $$ = n; }
-	| PROTECTED COLON { 
+        Node* n=new Node(); 
+        n->place = "private";
+        $$ = n; 
+    }
+	| PROTECTED COLON 
+    { 
         dbg("access_specifier_label -> PROTECTED :");
-        Node* n=new Node(); $$ = n; }
+        Node* n=new Node(); 
+        n->place = "protected";
+        $$ = n; 
+    }
 	;
 
 member_declaration
-	: specifier_qualifier_list struct_declarator_list SEMICOLON { 
-        dbg("member_declaration -> specifier_qualifier_list struct_declarator_list ;");
-        Node* n=new Node(); $$ = n; }
-	| specifier_qualifier_list SEMICOLON { 
-        dbg("member_declaration -> specifier_qualifier_list ;");
-        Node* n=new Node(); $$ = n; }
-	| specifier_qualifier_list declarator compound_statement { 
-        dbg("member_declaration -> specifier_qualifier_list declarator compound_statement");
-        Node* n=new Node(); $$ = n; }
-	| struct_or_class_specifier SEMICOLON { 
+	: const_opt return_type {lastDeclType = string($1)+string($2);} struct_declarator_list SEMICOLON 
+    { 
+        dbg("member_declaration -> const_opt return_type struct_declarator_list ;");
+        $$ = $4; 
+    }
+	| function_header compound_statement 
+    { 
+        dbg("member_declaration -> function_header compound_statement");
+        Node* n = $1;
+        n->code.push_back(lastClassType + "." + n->place + ":");
+        n->code.insert(n->code.end(), $2->code.begin(), $2->code.end());
+        $$ = n;
+    }
+    
+	/* | struct_or_class_specifier SEMICOLON { 
         dbg("member_declaration -> struct_or_class_specifier ;");
-        Node* n=new Node(); $$ = n; }
-	| SEMICOLON { 
-        dbg("member_declaration -> ;");
-        Node* n=new Node(); $$ = n; }
+        Node* n=new Node(); $$ = n; } */
 	;
 
 struct_declarator_list
-	: struct_declarator { 
+	: struct_declarator 
+    { 
         dbg("struct_declarator_list -> struct_declarator");
-        $$ = $1; }
-	| struct_declarator_list COMMA struct_declarator { 
+        $$ = $1; 
+    }
+	| struct_declarator_list COMMA struct_declarator 
+    { 
         dbg("struct_declarator_list -> struct_declarator_list , struct_declarator");
         Node* n = $1; 
         if ($3) n->code.insert(n->code.end(), $3->code.begin(), $3->code.end()); 
-        $$ = n; }
+        $$ = n; 
+    }
 	;
 
 struct_declarator
-	: init_declarator { 
+	: init_declarator 
+    { 
         dbg("struct_declarator -> init_declarator");
-        $$ = $1; }
+        $$ = $1; 
+    }
 	;
 
 // Done
@@ -1934,7 +2200,7 @@ extraction_list
 labeled_statement
 	: IDENTIFIER COLON {
             dbg("labeled_statement -> IDENTIFIER :");
-            if(!declareSymbol(string($1)),"label"){
+            if(!declareSymbol(string($1),string("label"))){
                 yyerror("Duplicate '" + string($1) + "' in same function.");
             }
             Node* s = new Node();
@@ -1953,7 +2219,7 @@ compound_statement
       }
 	| LCURLY { pushScope();} statement_list RCURLY {
             dbg("compound_statement -> { statement_list }");
-          Node* n = $2;
+          Node* n = $3;
           popScope();
           $$ = n;
       }
@@ -2009,7 +2275,7 @@ selection_statement
           $$ = n;
       }
 	| IF LROUND expression RROUND statement ELSE statement {
-            ddbg("selection_statement -> if ( expression ) statement else statement");
+            dbg("selection_statement -> if ( expression ) statement else statement");
 
           string Ltrue = newLabel();
           string Lfalse = newLabel();
@@ -2033,9 +2299,9 @@ selection_statement
           n->code.push_back(Lend + ":");
           $$ = n;
       }
-	| switch_head LCURLY switch_statement RCURLY {   
+	/* | switch_head LCURLY switch_statement RCURLY {   
                  
-      }
+      } */
     ;
 
 iteration_statement
@@ -2273,7 +2539,7 @@ return_type
     }
     ;
 
-lambda_expression
+/* lambda_expression
     : LSQUARE lambda_capture_clause RSQUARE lambda_declarator compound_statement { 
         dbg("lambda_expression -> [ lambda_capture_clause ] lambda_declarator compound_statement");
         Node* n=new Node(); $$ = n; }
@@ -2328,7 +2594,7 @@ capture_list
     | capture_list COMMA IDENTIFIER {
         dbg("capture_list -> capture_list , IDENTIFIER"); 
         Node* n=$1; $$ = n; }
-    ;
+    ; */
 
 %%
 
