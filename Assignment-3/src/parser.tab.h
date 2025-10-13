@@ -129,32 +129,30 @@ extern int yydebug;
     DOUBLE = 323,                  /* DOUBLE  */
     CHAR = 324,                    /* CHAR  */
     BOOL = 325,                    /* BOOL  */
-    STRING = 326,                  /* STRING  */
-    LONG = 327,                    /* LONG  */
-    TRUE = 328,                    /* TRUE  */
-    FALSE = 329,                   /* FALSE  */
-    NULLPTR = 330,                 /* NULLPTR  */
-    AUTO = 331,                    /* AUTO  */
-    STATIC = 332,                  /* STATIC  */
-    CONST = 333,                   /* CONST  */
-    CLASS = 334,                   /* CLASS  */
-    STRUCT = 335,                  /* STRUCT  */
-    PUBLIC = 336,                  /* PUBLIC  */
-    PRIVATE = 337,                 /* PRIVATE  */
-    PROTECTED = 338,               /* PROTECTED  */
-    DELETE = 339,                  /* DELETE  */
-    NEW = 340,                     /* NEW  */
-    CIN = 341,                     /* CIN  */
-    COUT = 342,                    /* COUT  */
-    ENDL = 343,                    /* ENDL  */
-    IDENTIFIER = 344,              /* IDENTIFIER  */
-    INVALID_IDENTIFIER = 345,      /* INVALID_IDENTIFIER  */
-    DECIMAL_LITERAL = 346,         /* DECIMAL_LITERAL  */
-    DOUBLE_LITERAL = 347,          /* DOUBLE_LITERAL  */
-    EXPONENT_LITERAL = 348,        /* EXPONENT_LITERAL  */
-    CHARACTER_LITERAL = 349,       /* CHARACTER_LITERAL  */
-    STRING_LITERAL = 350,          /* STRING_LITERAL  */
-    LOWER_THAN_ELSE = 351          /* LOWER_THAN_ELSE  */
+    LONG = 326,                    /* LONG  */
+    TRUE = 327,                    /* TRUE  */
+    FALSE = 328,                   /* FALSE  */
+    NULLPTR = 329,                 /* NULLPTR  */
+    AUTO = 330,                    /* AUTO  */
+    STATIC = 331,                  /* STATIC  */
+    CONST = 332,                   /* CONST  */
+    CLASS = 333,                   /* CLASS  */
+    STRUCT = 334,                  /* STRUCT  */
+    PUBLIC = 335,                  /* PUBLIC  */
+    PRIVATE = 336,                 /* PRIVATE  */
+    PROTECTED = 337,               /* PROTECTED  */
+    DELETE = 338,                  /* DELETE  */
+    NEW = 339,                     /* NEW  */
+    CIN = 340,                     /* CIN  */
+    COUT = 341,                    /* COUT  */
+    ENDL = 342,                    /* ENDL  */
+    IDENTIFIER = 343,              /* IDENTIFIER  */
+    INVALID_IDENTIFIER = 344,      /* INVALID_IDENTIFIER  */
+    DECIMAL_LITERAL = 345,         /* DECIMAL_LITERAL  */
+    DOUBLE_LITERAL = 346,          /* DOUBLE_LITERAL  */
+    EXPONENT_LITERAL = 347,        /* EXPONENT_LITERAL  */
+    CHARACTER_LITERAL = 348,       /* CHARACTER_LITERAL  */
+    LOWER_THAN_ELSE = 349          /* LOWER_THAN_ELSE  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -163,12 +161,12 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 301 "src/parser.y"
+#line 302 "src/parser.y"
 
     char* str;
     Node* node;
 
-#line 172 "src/parser.tab.h"
+#line 170 "src/parser.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

@@ -90,6 +90,11 @@
         }
     }
 
+    ofstream dbgfile("debug.txt");
+    void dbg(const string &msg) {
+        dbgfile << "Debug: " << msg << endl;
+    }
+
     extern bool is_type_name(char const* s) {
         return typeSize.find(s) != typeSize.end();
     }
@@ -115,8 +120,8 @@
         auto it = funcTable.find(name);
         if (it != funcTable.end()) return &(it->second);
         return nullptr;
-    }    
-
+    }   
+    
     bool declareSymbol(const string &name, const string &type, const string k="",vector<string> syn=vector<string>(),bool isFunc=false, int params=0) {
         if (symStack.empty()) pushScope();
         auto &cur = symStack.back();
@@ -139,6 +144,7 @@
     }
 
     void check_access(Symbol* sym) {
+        if(sym==nullptr) return;
         if(sym->kind.find("private") != string::npos){
             yyerror("Can't access private member '" + sym->name + "'.");
         }
@@ -291,11 +297,6 @@
     extern int yylex();
     extern int yyparse();
 
-    ofstream dbgfile("debug.txt");
-    void dbg(const string &msg) {
-        dbgfile << "Debug: " << msg << endl;
-    }
-
 %}
 
 %union {
@@ -321,14 +322,14 @@
 %token<str> IF ELSE SWITCH CASE DEFAULT WHILE DO FOR GOTO CONTINUE BREAK RETURN UNTIL
 %token<str> SIZEOF
 
-%token<str> VOID INT DOUBLE CHAR BOOL STRING LONG
+%token<str> VOID INT DOUBLE CHAR BOOL LONG
 %token<str> TRUE FALSE NULLPTR
 %token<str> AUTO STATIC CONST
 %token<str> CLASS STRUCT PUBLIC PRIVATE PROTECTED
 %token<str> DELETE NEW CIN COUT ENDL
 
 %token<str> IDENTIFIER INVALID_IDENTIFIER
-%token<str> DECIMAL_LITERAL DOUBLE_LITERAL EXPONENT_LITERAL CHARACTER_LITERAL STRING_LITERAL
+%token<str> DECIMAL_LITERAL DOUBLE_LITERAL EXPONENT_LITERAL CHARACTER_LITERAL
 
 %left LOGICAL_OR
 %left LOGICAL_AND
@@ -384,9 +385,15 @@ primary_expression
         string name = string($1);
         n->place = name;
         Symbol* sym = lookupSymbol(name);
+        dbg("");
+        dbg("Looking up symbol: " + name);
+        dbg("");
         if (!sym) {
+            dbg("Symbol not found: " + name);
             yyerror("Use of undeclared identifier '" + name + "'.");
-        } else {
+            n = nullptr;
+        } 
+        else{
             check_access(sym);
             dbg("");
             dbg("Found symbol: " + name);
@@ -439,12 +446,12 @@ constant
         dbg("");
         $$ = n;
     }
-    | STRING_LITERAL        
+    /* | STRING_LITERAL        
     {
         dbg("constant -> STRING_LITERAL");
-        Node* n = new Node(string($1), "string", "const");
+        Node* n = new Node(string($1), "char*", "const");
         $$ = n;
-    }
+    } */
     | EXPONENT_LITERAL      
     {
         dbg("constant -> EXPONENT_LITERAL");
@@ -457,21 +464,24 @@ constant
         Node* n = new Node(string($1), "double", "const");
         $$ = n;
     }
-    | NULLPTR               {
-            dbg("constant -> NULLPTR");
-          Node* n = new Node("0", "nullptr", "const");
-          $$ = n;
-      }
-    | TRUE                  {
-            dbg("constant -> TRUE");
-          Node* n = new Node("1", "bool", "const");
-          $$ = n;
-      }
-    | FALSE                 {
-            dbg("constant -> FALSE");
-          Node* n = new Node("0", "bool", "const");
-          $$ = n;
-      }
+    | NULLPTR               
+    {
+        dbg("constant -> NULLPTR");
+        Node* n = new Node("0", "nullptr", "const");
+        $$ = n;
+    }
+    | TRUE                  
+    {
+        dbg("constant -> TRUE");
+        Node* n = new Node("1", "bool", "const");
+        $$ = n;
+    }
+    | FALSE                 
+    {
+        dbg("constant -> FALSE");
+        Node* n = new Node("0", "bool", "const");
+        $$ = n;
+    }
     ;
 
 postfix_expression
@@ -485,6 +495,13 @@ postfix_expression
         dbg("postfix_expression -> postfix_expression [ expression ]");
         Node* base = $1; 
         Node* idx = $3;
+        Node* n = new Node();
+
+        if(!base || !idx) {
+            yyerror("Invalid array subscript operation.");
+        }
+        else{
+
         if(base->type.back()!='*'){
             yyerror("Subscripted value is not an array or pointer.");
         }
@@ -497,7 +514,6 @@ postfix_expression
         if(base->syn.empty()){
             yyerror("Too many dimensions for array.");
         }
-        Node* n = new Node();
         n->code = base->code;
         n->code.insert(n->code.end(), idx->code.begin(), idx->code.end());
 
@@ -505,7 +521,6 @@ postfix_expression
         dbg("");
         dbg("Array dimensions: ");
         dbg(to_string(base->syn.size()));
-
 
         for(auto x:base->syn)
         { 
@@ -529,6 +544,7 @@ postfix_expression
         
         if(n->syn.empty()){
             n->place = "*" + n->place;
+        }
         }
         $$ = n;
     }
@@ -1954,9 +1970,9 @@ type_specifier
 	| BOOL   { 
         dbg("type_specifier -> BOOL");
         $$ = strdup("bool"); lastDeclType = "bool"; }
-	| STRING { 
+	/* | STRING { 
         dbg("type_specifier -> STRING");
-        $$ = strdup("string"); lastDeclType = "string"; }
+        $$ = strdup("string"); lastDeclType = "string"; } */
 	| TYPE_NAME { 
         dbg("type_specifier -> TYPE_NAME");
         $$ = $1; lastDeclType = string($1); }
