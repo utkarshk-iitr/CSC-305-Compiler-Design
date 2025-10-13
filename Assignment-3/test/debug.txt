@@ -1,6 +1,414 @@
 Debug: type_specifier -> INT
 Debug: pointer_opt -> <empty>
 Debug: return_type -> type_specifier pointer_opt
+Debug: type_specifier -> INT
+Debug: pointer_opt -> <empty>
+Debug: return_type -> type_specifier pointer_opt
+Debug: parameter_declaration -> return_type IDENTIFIER
+Debug: parameter_list -> parameter_declaration
+Debug: type_specifier -> INT
+Debug: pointer_opt -> <empty>
+Debug: return_type -> type_specifier pointer_opt
+Debug: parameter_declaration -> return_type IDENTIFIER
+Debug: parameter_list -> parameter_list , parameter_declaration
+Debug: function_definition -> return_type IDENTIFIER ( parameter_list ) compound_statement
+Debug: 
+Debug: Function 'fn_int_int' with return type 'int' declared.
+Debug: Parameter: x of type int
+Debug: Parameter: y of type int
+Debug: 
+Debug: primary_expression -> IDENTIFIER
+Debug: 
+Debug: Looking up symbol: y
+Debug: 
+Debug: 
+Debug: Found symbol: y
+Debug: Type: int
+Debug: Kind: 
+Debug: Dimensions: 0
+Debug: 
+Debug: postfix_expression -> primary_expression
+Debug: unary_expression -> postfix_expression
+Debug: cast_expression -> unary_expression
+Debug: multiplicative_expression -> cast_expression
+Debug: additive_expression -> multiplicative_expression
+Debug: primary_expression -> IDENTIFIER
+Debug: 
+Debug: Looking up symbol: x
+Debug: 
+Debug: 
+Debug: Found symbol: x
+Debug: Type: int
+Debug: Kind: 
+Debug: Dimensions: 0
+Debug: 
+Debug: postfix_expression -> primary_expression
+Debug: unary_expression -> postfix_expression
+Debug: cast_expression -> unary_expression
+Debug: multiplicative_expression -> cast_expression
+Debug: additive_expression -> additive_expression - multiplicative_expression
+Debug: shift_expression -> additive_expression
+Debug: relational_expression -> shift_expression
+Debug: equality_expression -> relational_expression
+Debug: and_expression -> equality_expression
+Debug: exclusive_or_expression -> and_expression
+Debug: inclusive_or_expression -> exclusive_or_expression
+Debug: logical_and_expression -> inclusive_or_expression
+Debug: logical_or_expression -> logical_and_expression
+Debug: conditional_expression -> logical_or_expression
+Debug: assignment_expression -> conditional_expression
+Debug: expression -> assignment_expression
+Debug: jump_statement -> RETURN expression ;
+Debug: statement -> jump_statement
+Debug: block_item -> statement
+Debug: statement_list -> block_item
+Debug: compound_statement -> { statement_list }
+Debug: function_definition -> function_header compound_statement
+Debug: external_declaration -> function_definition
+Debug: translation_unit -> external_declaration
+Debug: type_specifier -> INT
+Debug: pointer_opt -> <empty>
+Debug: return_type -> type_specifier pointer_opt
+Debug: type_specifier -> INT
+Debug: pointer_opt -> <empty>
+Debug: return_type -> type_specifier pointer_opt
+Debug: parameter_declaration -> return_type IDENTIFIER
+Debug: parameter_list -> parameter_declaration
+Debug: type_specifier -> INT
+Debug: pointer_opt -> <empty>
+Debug: return_type -> type_specifier pointer_opt
+Debug: parameter_declaration -> return_type IDENTIFIER
+Debug: parameter_list -> parameter_list , parameter_declaration
+Debug: function_definition -> return_type IDENTIFIER ( parameter_list ) compound_statement
+Debug: 
+Debug: Function 'func_int_int' with return type 'int' declared.
+Debug: Parameter: a of type int
+Debug: Parameter: b of type int
+Debug: 
+Debug: static_opt -> <empty>
+Debug: const_opt -> <empty>
+Debug: type_specifier -> INT
+Debug: declaration_specifiers -> static_opt const_opt type_specifier
+Debug: primary_expression -> IDENTIFIER
+Debug: 
+Debug: Looking up symbol: a
+Debug: 
+Debug: 
+Debug: Found symbol: a
+Debug: Type: int
+Debug: Kind: 
+Debug: Dimensions: 0
+Debug: 
+Debug: postfix_expression -> primary_expression
+Debug: unary_expression -> postfix_expression
+Debug: cast_expression -> unary_expression
+Debug: multiplicative_expression -> cast_expression
+Debug: additive_expression -> multiplicative_expression
+Debug: primary_expression -> IDENTIFIER
+Debug: 
+Debug: Looking up symbol: b
+Debug: 
+Debug: 
+Debug: Found symbol: b
+Debug: Type: int
+Debug: Kind: 
+Debug: Dimensions: 0
+Debug: 
+Debug: postfix_expression -> primary_expression
+Debug: unary_expression -> postfix_expression
+Debug: cast_expression -> unary_expression
+Debug: multiplicative_expression -> cast_expression
+Debug: additive_expression -> additive_expression + multiplicative_expression
+Debug: shift_expression -> additive_expression
+Debug: relational_expression -> shift_expression
+Debug: equality_expression -> relational_expression
+Debug: and_expression -> equality_expression
+Debug: exclusive_or_expression -> and_expression
+Debug: inclusive_or_expression -> exclusive_or_expression
+Debug: logical_and_expression -> inclusive_or_expression
+Debug: logical_or_expression -> logical_and_expression
+Debug: conditional_expression -> logical_or_expression
+Debug: assignment_expression -> conditional_expression
+Debug: init_declarator -> IDENTIFIER = assignment_expression 
+Debug: 
+Debug: Declared variable: c of type: int and kind: 
+Debug: 
+Debug: init_declarator_list -> init_declarator
+Debug: declaration -> declaration_specifiers init_declarator_list ;
+Debug: block_item -> declaration
+Debug: statement_list -> block_item
+Debug: primary_expression -> IDENTIFIER
+Debug: 
+Debug: Looking up symbol: c
+Debug: 
+Debug: 
+Debug: Found symbol: c
+Debug: Type: int
+Debug: Kind: 
+Debug: Dimensions: 0
+Debug: 
+Debug: postfix_expression -> primary_expression
+Debug: unary_expression -> postfix_expression
+Debug: cast_expression -> unary_expression
+Debug: multiplicative_expression -> cast_expression
+Debug: additive_expression -> multiplicative_expression
+Debug: shift_expression -> additive_expression
+Debug: relational_expression -> shift_expression
+Debug: equality_expression -> relational_expression
+Debug: and_expression -> equality_expression
+Debug: exclusive_or_expression -> and_expression
+Debug: inclusive_or_expression -> exclusive_or_expression
+Debug: logical_and_expression -> inclusive_or_expression
+Debug: logical_or_expression -> logical_and_expression
+Debug: conditional_expression -> logical_or_expression
+Debug: assignment_expression -> conditional_expression
+Debug: expression -> assignment_expression
+Debug: jump_statement -> RETURN expression ;
+Debug: statement -> jump_statement
+Debug: block_item -> statement
+Debug: statement_list -> statement_list block_item
+Debug: compound_statement -> { statement_list }
+Debug: function_definition -> function_header compound_statement
+Debug: external_declaration -> function_definition
+Debug: translation_unit -> translation_unit external_declaration
+Debug: type_specifier -> CHAR
+Debug: pointer_opt -> <empty>
+Debug: return_type -> type_specifier pointer_opt
+Debug: type_specifier -> CHAR
+Debug: pointer_opt -> <empty>
+Debug: return_type -> type_specifier pointer_opt
+Debug: parameter_declaration -> return_type IDENTIFIER
+Debug: parameter_list -> parameter_declaration
+Debug: function_definition -> return_type IDENTIFIER ( parameter_list ) compound_statement
+Debug: 
+Debug: Function 'c_char' with return type 'char' declared.
+Debug: Parameter: p of type char
+Debug: 
+Debug: type_specifier -> CHAR
+Debug: pointer_opt -> <empty>
+Debug: return_type -> type_specifier pointer_opt
+Debug: primary_expression -> IDENTIFIER
+Debug: 
+Debug: Looking up symbol: p
+Debug: 
+Debug: 
+Debug: Found symbol: p
+Debug: Type: char
+Debug: Kind: 
+Debug: Dimensions: 0
+Debug: 
+Debug: postfix_expression -> primary_expression
+Debug: unary_expression -> postfix_expression
+Debug: cast_expression -> unary_expression
+Debug: cast_expression -> ( type_name ) cast_expression
+Debug: multiplicative_expression -> cast_expression
+Debug: additive_expression -> multiplicative_expression
+Debug: shift_expression -> additive_expression
+Debug: relational_expression -> shift_expression
+Debug: equality_expression -> relational_expression
+Debug: and_expression -> equality_expression
+Debug: exclusive_or_expression -> and_expression
+Debug: inclusive_or_expression -> exclusive_or_expression
+Debug: logical_and_expression -> inclusive_or_expression
+Debug: logical_or_expression -> logical_and_expression
+Debug: conditional_expression -> logical_or_expression
+Debug: assignment_expression -> conditional_expression
+Debug: expression -> assignment_expression
+Debug: jump_statement -> RETURN expression ;
+Debug: statement -> jump_statement
+Debug: block_item -> statement
+Debug: statement_list -> block_item
+Debug: compound_statement -> { statement_list }
+Debug: function_definition -> function_header compound_statement
+Debug: external_declaration -> function_definition
+Debug: translation_unit -> translation_unit external_declaration
+Debug: type_specifier -> INT
+Debug: pointer_opt -> <empty>
+Debug: return_type -> type_specifier pointer_opt
+Debug: type_specifier -> INT
+Debug: pointer_opt -> <empty>
+Debug: return_type -> type_specifier pointer_opt
+Debug: parameter_declaration -> return_type IDENTIFIER
+Debug: parameter_list -> parameter_declaration
+Debug: type_specifier -> CHAR
+Debug: pointer_opt -> <empty>
+Debug: return_type -> type_specifier pointer_opt
+Debug: parameter_declaration -> return_type IDENTIFIER
+Debug: parameter_list -> parameter_list , parameter_declaration
+Debug: function_definition -> return_type IDENTIFIER ( parameter_list ) compound_statement
+Debug: 
+Debug: Function 'fn_int_char' with return type 'int' declared.
+Debug: Parameter: x of type int
+Debug: Parameter: y of type char
+Debug: 
+Debug: primary_expression -> IDENTIFIER
+Debug: 
+Debug: Looking up symbol: x
+Debug: 
+Debug: 
+Debug: Found symbol: x
+Debug: Type: int
+Debug: Kind: 
+Debug: Dimensions: 0
+Debug: 
+Debug: postfix_expression -> primary_expression
+Debug: unary_expression -> postfix_expression
+Debug: cast_expression -> unary_expression
+Debug: multiplicative_expression -> cast_expression
+Debug: additive_expression -> multiplicative_expression
+Debug: shift_expression -> additive_expression
+Debug: relational_expression -> shift_expression
+Debug: equality_expression -> relational_expression
+Debug: and_expression -> equality_expression
+Debug: exclusive_or_expression -> and_expression
+Debug: inclusive_or_expression -> exclusive_or_expression
+Debug: logical_and_expression -> inclusive_or_expression
+Debug: logical_or_expression -> logical_and_expression
+Debug: conditional_expression -> logical_or_expression
+Debug: assignment_expression -> conditional_expression
+Debug: expression -> assignment_expression
+Debug: jump_statement -> RETURN expression ;
+Debug: statement -> jump_statement
+Debug: block_item -> statement
+Debug: statement_list -> block_item
+Debug: compound_statement -> { statement_list }
+Debug: function_definition -> function_header compound_statement
+Debug: external_declaration -> function_definition
+Debug: translation_unit -> translation_unit external_declaration
+Debug: type_specifier -> CHAR
+Debug: pointer_opt -> <empty>
+Debug: return_type -> type_specifier pointer_opt
+Debug: type_specifier -> INT
+Debug: pointer_opt -> <empty>
+Debug: return_type -> type_specifier pointer_opt
+Debug: parameter_declaration -> return_type IDENTIFIER
+Debug: parameter_list -> parameter_declaration
+Debug: function_definition -> return_type IDENTIFIER ( parameter_list ) compound_statement
+Debug: 
+Debug: Function 'fn_int' with return type 'char' declared.
+Debug: Parameter: x of type int
+Debug: 
+Debug: type_specifier -> CHAR
+Debug: pointer_opt -> <empty>
+Debug: return_type -> type_specifier pointer_opt
+Debug: primary_expression -> IDENTIFIER
+Debug: 
+Debug: Looking up symbol: x
+Debug: 
+Debug: 
+Debug: Found symbol: x
+Debug: Type: int
+Debug: Kind: 
+Debug: Dimensions: 0
+Debug: 
+Debug: postfix_expression -> primary_expression
+Debug: unary_expression -> postfix_expression
+Debug: cast_expression -> unary_expression
+Debug: cast_expression -> ( type_name ) cast_expression
+Debug: multiplicative_expression -> cast_expression
+Debug: additive_expression -> multiplicative_expression
+Debug: shift_expression -> additive_expression
+Debug: relational_expression -> shift_expression
+Debug: equality_expression -> relational_expression
+Debug: and_expression -> equality_expression
+Debug: exclusive_or_expression -> and_expression
+Debug: inclusive_or_expression -> exclusive_or_expression
+Debug: logical_and_expression -> inclusive_or_expression
+Debug: logical_or_expression -> logical_and_expression
+Debug: conditional_expression -> logical_or_expression
+Debug: assignment_expression -> conditional_expression
+Debug: expression -> assignment_expression
+Debug: jump_statement -> RETURN expression ;
+Debug: statement -> jump_statement
+Debug: block_item -> statement
+Debug: statement_list -> block_item
+Debug: compound_statement -> { statement_list }
+Debug: function_definition -> function_header compound_statement
+Debug: external_declaration -> function_definition
+Debug: translation_unit -> translation_unit external_declaration
+Debug: type_specifier -> CHAR
+Debug: pointer_opt -> <empty>
+Debug: return_type -> type_specifier pointer_opt
+Debug: type_specifier -> CHAR
+Debug: pointer_opt -> <empty>
+Debug: return_type -> type_specifier pointer_opt
+Debug: parameter_declaration -> return_type IDENTIFIER
+Debug: parameter_list -> parameter_declaration
+Debug: function_definition -> return_type IDENTIFIER ( parameter_list ) compound_statement
+Debug: 
+Debug: Function 'fn_char' with return type 'char' declared.
+Debug: Parameter: x of type char
+Debug: 
+Debug: primary_expression -> IDENTIFIER
+Debug: 
+Debug: Looking up symbol: x
+Debug: 
+Debug: 
+Debug: Found symbol: x
+Debug: Type: char
+Debug: Kind: 
+Debug: Dimensions: 0
+Debug: 
+Debug: postfix_expression -> primary_expression
+Debug: unary_expression -> postfix_expression
+Debug: cast_expression -> unary_expression
+Debug: multiplicative_expression -> cast_expression
+Debug: additive_expression -> multiplicative_expression
+Debug: shift_expression -> additive_expression
+Debug: relational_expression -> shift_expression
+Debug: equality_expression -> relational_expression
+Debug: and_expression -> equality_expression
+Debug: exclusive_or_expression -> and_expression
+Debug: inclusive_or_expression -> exclusive_or_expression
+Debug: logical_and_expression -> inclusive_or_expression
+Debug: logical_or_expression -> logical_and_expression
+Debug: conditional_expression -> logical_or_expression
+Debug: assignment_expression -> conditional_expression
+Debug: expression -> assignment_expression
+Debug: jump_statement -> RETURN expression ;
+Debug: statement -> jump_statement
+Debug: block_item -> statement
+Debug: statement_list -> block_item
+Debug: compound_statement -> { statement_list }
+Debug: function_definition -> function_header compound_statement
+Debug: external_declaration -> function_definition
+Debug: translation_unit -> translation_unit external_declaration
+Debug: type_specifier -> INT
+Debug: pointer_opt -> <empty>
+Debug: return_type -> type_specifier pointer_opt
+Debug: function_header -> return_type IDENTIFIER ( )
+Debug: constant -> DECIMAL_LITERAL
+Debug: 
+Debug: Integer constant value: 5
+Debug: 
+Debug: primary_expression -> constant
+Debug: postfix_expression -> primary_expression
+Debug: unary_expression -> postfix_expression
+Debug: cast_expression -> unary_expression
+Debug: multiplicative_expression -> cast_expression
+Debug: additive_expression -> multiplicative_expression
+Debug: shift_expression -> additive_expression
+Debug: relational_expression -> shift_expression
+Debug: equality_expression -> relational_expression
+Debug: and_expression -> equality_expression
+Debug: exclusive_or_expression -> and_expression
+Debug: inclusive_or_expression -> exclusive_or_expression
+Debug: logical_and_expression -> inclusive_or_expression
+Debug: logical_or_expression -> logical_and_expression
+Debug: conditional_expression -> logical_or_expression
+Debug: assignment_expression -> conditional_expression
+Debug: expression -> assignment_expression
+Debug: jump_statement -> RETURN expression ;
+Debug: statement -> jump_statement
+Debug: block_item -> statement
+Debug: statement_list -> block_item
+Debug: compound_statement -> { statement_list }
+Debug: function_definition -> function_header compound_statement
+Debug: external_declaration -> function_definition
+Debug: translation_unit -> translation_unit external_declaration
+Debug: type_specifier -> INT
+Debug: pointer_opt -> <empty>
+Debug: return_type -> type_specifier pointer_opt
 Debug: function_header -> return_type IDENTIFIER ( )
 Debug: static_opt -> <empty>
 Debug: const_opt -> <empty>
@@ -86,9 +494,16 @@ Debug: type_specifier -> CHAR
 Debug: declaration_specifiers -> static_opt const_opt type_specifier
 Debug: primary_expression -> IDENTIFIER
 Debug: 
-Debug: Looking up symbol: c
+Debug: Looking up symbol: c1
 Debug: 
-Debug: Symbol not found: c
+Debug: 
+Debug: Found symbol: c1
+Debug: Type: char**
+Debug: Kind: array
+Debug: Dimensions: 2
+Debug:  - 2
+Debug:  - 2
+Debug: 
 Debug: postfix_expression -> primary_expression
 Debug: constant -> DECIMAL_LITERAL
 Debug: 
@@ -112,6 +527,39 @@ Debug: conditional_expression -> logical_or_expression
 Debug: assignment_expression -> conditional_expression
 Debug: expression -> assignment_expression
 Debug: postfix_expression -> postfix_expression [ expression ]
+Debug: 
+Debug: Array dimensions: 
+Debug: 2
+Debug: Dimension size: 2
+Debug: Dimension size: 2
+Debug: 
+Debug: constant -> DECIMAL_LITERAL
+Debug: 
+Debug: Integer constant value: 1
+Debug: 
+Debug: primary_expression -> constant
+Debug: postfix_expression -> primary_expression
+Debug: unary_expression -> postfix_expression
+Debug: cast_expression -> unary_expression
+Debug: multiplicative_expression -> cast_expression
+Debug: additive_expression -> multiplicative_expression
+Debug: shift_expression -> additive_expression
+Debug: relational_expression -> shift_expression
+Debug: equality_expression -> relational_expression
+Debug: and_expression -> equality_expression
+Debug: exclusive_or_expression -> and_expression
+Debug: inclusive_or_expression -> exclusive_or_expression
+Debug: logical_and_expression -> inclusive_or_expression
+Debug: logical_or_expression -> logical_and_expression
+Debug: conditional_expression -> logical_or_expression
+Debug: assignment_expression -> conditional_expression
+Debug: expression -> assignment_expression
+Debug: postfix_expression -> postfix_expression [ expression ]
+Debug: 
+Debug: Array dimensions: 
+Debug: 1
+Debug: Dimension size: 2
+Debug: 
 Debug: unary_expression -> postfix_expression
 Debug: cast_expression -> unary_expression
 Debug: multiplicative_expression -> cast_expression
@@ -134,7 +582,1232 @@ Debug: init_declarator_list -> init_declarator
 Debug: declaration -> declaration_specifiers init_declarator_list ;
 Debug: block_item -> declaration
 Debug: statement_list -> statement_list block_item
+Debug: static_opt -> <empty>
+Debug: const_opt -> <empty>
+Debug: type_specifier -> INT
+Debug: declaration_specifiers -> static_opt const_opt type_specifier
+Debug: primary_expression -> IDENTIFIER
+Debug: 
+Debug: Looking up symbol: func
+Debug: 
+Debug: 
+Debug: Found symbol: func
+Debug: Type: function
+Debug: Kind: function
+Debug: Dimensions: 0
+Debug: 
+Debug: postfix_expression -> primary_expression
+Debug: constant -> DECIMAL_LITERAL
+Debug: 
+Debug: Integer constant value: 3
+Debug: 
+Debug: primary_expression -> constant
+Debug: postfix_expression -> primary_expression
+Debug: unary_expression -> postfix_expression
+Debug: cast_expression -> unary_expression
+Debug: multiplicative_expression -> cast_expression
+Debug: additive_expression -> multiplicative_expression
+Debug: shift_expression -> additive_expression
+Debug: relational_expression -> shift_expression
+Debug: equality_expression -> relational_expression
+Debug: and_expression -> equality_expression
+Debug: exclusive_or_expression -> and_expression
+Debug: inclusive_or_expression -> exclusive_or_expression
+Debug: logical_and_expression -> inclusive_or_expression
+Debug: logical_or_expression -> logical_and_expression
+Debug: conditional_expression -> logical_or_expression
+Debug: assignment_expression -> conditional_expression
+Debug: argument_expression_list -> assignment_expression
+Debug: 
+Debug: argcount is 1, type is int
+Debug: 
+Debug: constant -> DECIMAL_LITERAL
+Debug: 
+Debug: Integer constant value: 4
+Debug: 
+Debug: primary_expression -> constant
+Debug: postfix_expression -> primary_expression
+Debug: unary_expression -> postfix_expression
+Debug: cast_expression -> unary_expression
+Debug: multiplicative_expression -> cast_expression
+Debug: additive_expression -> multiplicative_expression
+Debug: shift_expression -> additive_expression
+Debug: relational_expression -> shift_expression
+Debug: equality_expression -> relational_expression
+Debug: and_expression -> equality_expression
+Debug: exclusive_or_expression -> and_expression
+Debug: inclusive_or_expression -> exclusive_or_expression
+Debug: logical_and_expression -> inclusive_or_expression
+Debug: logical_or_expression -> logical_and_expression
+Debug: conditional_expression -> logical_or_expression
+Debug: assignment_expression -> conditional_expression
+Debug: argument_expression_list -> argument_expression_list , assignment_expression
+Debug: 
+Debug: argcount is 2, type is int
+Debug: 
+Debug: postfix_expression -> postfix_expression ( argument_expression_list )
+Debug: 
+Debug: argCount is:2
+Debug: type is int
+Debug: type is int
+Debug: name is: func_int_int
+Debug: YES
+Debug: 
+Debug: unary_expression -> postfix_expression
+Debug: cast_expression -> unary_expression
+Debug: multiplicative_expression -> cast_expression
+Debug: additive_expression -> multiplicative_expression
+Debug: shift_expression -> additive_expression
+Debug: relational_expression -> shift_expression
+Debug: equality_expression -> relational_expression
+Debug: and_expression -> equality_expression
+Debug: exclusive_or_expression -> and_expression
+Debug: inclusive_or_expression -> exclusive_or_expression
+Debug: logical_and_expression -> inclusive_or_expression
+Debug: logical_or_expression -> logical_and_expression
+Debug: conditional_expression -> logical_or_expression
+Debug: assignment_expression -> conditional_expression
+Debug: expression -> assignment_expression
+Debug: primary_expression -> ( expression )
+Debug: postfix_expression -> primary_expression
+Debug: unary_expression -> postfix_expression
+Debug: cast_expression -> unary_expression
+Debug: multiplicative_expression -> cast_expression
+Debug: additive_expression -> multiplicative_expression
+Debug: shift_expression -> additive_expression
+Debug: relational_expression -> shift_expression
+Debug: equality_expression -> relational_expression
+Debug: and_expression -> equality_expression
+Debug: exclusive_or_expression -> and_expression
+Debug: inclusive_or_expression -> exclusive_or_expression
+Debug: logical_and_expression -> inclusive_or_expression
+Debug: logical_or_expression -> logical_and_expression
+Debug: conditional_expression -> logical_or_expression
+Debug: assignment_expression -> conditional_expression
+Debug: init_declarator -> IDENTIFIER = assignment_expression 
+Debug: 
+Debug: Declared variable: z of type: int and kind: 
+Debug: 
+Debug: init_declarator_list -> init_declarator
+Debug: declaration -> declaration_specifiers init_declarator_list ;
+Debug: block_item -> declaration
+Debug: statement_list -> statement_list block_item
+Debug: primary_expression -> IDENTIFIER
+Debug: 
+Debug: Looking up symbol: z
+Debug: 
+Debug: 
+Debug: Found symbol: z
+Debug: Type: int
+Debug: Kind: 
+Debug: Dimensions: 0
+Debug: 
+Debug: postfix_expression -> primary_expression
+Debug: unary_expression -> postfix_expression
+Debug: assignment_operator -> =
+Debug: primary_expression -> IDENTIFIER
+Debug: 
+Debug: Looking up symbol: fn
+Debug: 
+Debug: 
+Debug: Found symbol: fn
+Debug: Type: function
+Debug: Kind: function
+Debug: Dimensions: 0
+Debug: 
+Debug: postfix_expression -> primary_expression
+Debug: postfix_expression -> postfix_expression ( )
+Debug: unary_expression -> postfix_expression
+Debug: cast_expression -> unary_expression
+Debug: multiplicative_expression -> cast_expression
+Debug: additive_expression -> multiplicative_expression
+Debug: shift_expression -> additive_expression
+Debug: relational_expression -> shift_expression
+Debug: equality_expression -> relational_expression
+Debug: and_expression -> equality_expression
+Debug: exclusive_or_expression -> and_expression
+Debug: inclusive_or_expression -> exclusive_or_expression
+Debug: logical_and_expression -> inclusive_or_expression
+Debug: logical_or_expression -> logical_and_expression
+Debug: conditional_expression -> logical_or_expression
+Debug: assignment_expression -> conditional_expression
+Debug: assignment_expression -> unary_expression assignment_operator assignment_expression
+Debug: expression -> assignment_expression
+Debug: expression_statement -> expression ;
+Debug: statement -> expression_statement
+Debug: block_item -> statement
+Debug: statement_list -> statement_list block_item
+Debug: static_opt -> <empty>
+Debug: const_opt -> <empty>
+Debug: type_specifier -> CHAR
+Debug: declaration_specifiers -> static_opt const_opt type_specifier
+Debug: primary_expression -> IDENTIFIER
+Debug: 
+Debug: Looking up symbol: c
+Debug: 
+Debug: 
+Debug: Found symbol: c
+Debug: Type: function
+Debug: Kind: function
+Debug: Dimensions: 0
+Debug: 
+Debug: postfix_expression -> primary_expression
+Debug: constant -> CHARACTER_LITERAL
+Debug: 
+Debug: Character constant value: a
+Debug: 
+Debug: primary_expression -> constant
+Debug: postfix_expression -> primary_expression
+Debug: unary_expression -> postfix_expression
+Debug: cast_expression -> unary_expression
+Debug: multiplicative_expression -> cast_expression
+Debug: additive_expression -> multiplicative_expression
+Debug: shift_expression -> additive_expression
+Debug: relational_expression -> shift_expression
+Debug: equality_expression -> relational_expression
+Debug: and_expression -> equality_expression
+Debug: exclusive_or_expression -> and_expression
+Debug: inclusive_or_expression -> exclusive_or_expression
+Debug: logical_and_expression -> inclusive_or_expression
+Debug: logical_or_expression -> logical_and_expression
+Debug: conditional_expression -> logical_or_expression
+Debug: assignment_expression -> conditional_expression
+Debug: argument_expression_list -> assignment_expression
+Debug: 
+Debug: argcount is 1, type is char
+Debug: 
+Debug: postfix_expression -> postfix_expression ( argument_expression_list )
+Debug: 
+Debug: argCount is:1
+Debug: type is char
+Debug: name is: c_char
+Debug: YES
+Debug: 
+Debug: unary_expression -> postfix_expression
+Debug: cast_expression -> unary_expression
+Debug: multiplicative_expression -> cast_expression
+Debug: additive_expression -> multiplicative_expression
+Debug: shift_expression -> additive_expression
+Debug: relational_expression -> shift_expression
+Debug: equality_expression -> relational_expression
+Debug: and_expression -> equality_expression
+Debug: exclusive_or_expression -> and_expression
+Debug: inclusive_or_expression -> exclusive_or_expression
+Debug: logical_and_expression -> inclusive_or_expression
+Debug: logical_or_expression -> logical_and_expression
+Debug: conditional_expression -> logical_or_expression
+Debug: assignment_expression -> conditional_expression
+Debug: init_declarator -> IDENTIFIER = assignment_expression 
+Debug: 
+Debug: Declared variable: y of type: char and kind: 
+Debug: 
+Debug: init_declarator_list -> init_declarator
+Debug: declaration -> declaration_specifiers init_declarator_list ;
+Debug: block_item -> declaration
+Debug: statement_list -> statement_list block_item
+Debug: static_opt -> <empty>
+Debug: const_opt -> <empty>
+Debug: type_specifier -> INT
+Debug: declaration_specifiers -> static_opt const_opt type_specifier
+Debug: primary_expression -> IDENTIFIER
+Debug: 
+Debug: Looking up symbol: fn
+Debug: 
+Debug: 
+Debug: Found symbol: fn
+Debug: Type: function
+Debug: Kind: function
+Debug: Dimensions: 0
+Debug: 
+Debug: postfix_expression -> primary_expression
+Debug: constant -> DECIMAL_LITERAL
+Debug: 
+Debug: Integer constant value: 3
+Debug: 
+Debug: primary_expression -> constant
+Debug: postfix_expression -> primary_expression
+Debug: unary_expression -> postfix_expression
+Debug: cast_expression -> unary_expression
+Debug: multiplicative_expression -> cast_expression
+Debug: additive_expression -> multiplicative_expression
+Debug: shift_expression -> additive_expression
+Debug: relational_expression -> shift_expression
+Debug: equality_expression -> relational_expression
+Debug: and_expression -> equality_expression
+Debug: exclusive_or_expression -> and_expression
+Debug: inclusive_or_expression -> exclusive_or_expression
+Debug: logical_and_expression -> inclusive_or_expression
+Debug: logical_or_expression -> logical_and_expression
+Debug: conditional_expression -> logical_or_expression
+Debug: assignment_expression -> conditional_expression
+Debug: argument_expression_list -> assignment_expression
+Debug: 
+Debug: argcount is 1, type is int
+Debug: 
+Debug: constant -> DECIMAL_LITERAL
+Debug: 
+Debug: Integer constant value: 5
+Debug: 
+Debug: primary_expression -> constant
+Debug: postfix_expression -> primary_expression
+Debug: unary_expression -> postfix_expression
+Debug: cast_expression -> unary_expression
+Debug: multiplicative_expression -> cast_expression
+Debug: additive_expression -> multiplicative_expression
+Debug: shift_expression -> additive_expression
+Debug: relational_expression -> shift_expression
+Debug: equality_expression -> relational_expression
+Debug: and_expression -> equality_expression
+Debug: exclusive_or_expression -> and_expression
+Debug: inclusive_or_expression -> exclusive_or_expression
+Debug: logical_and_expression -> inclusive_or_expression
+Debug: logical_or_expression -> logical_and_expression
+Debug: conditional_expression -> logical_or_expression
+Debug: assignment_expression -> conditional_expression
+Debug: argument_expression_list -> argument_expression_list , assignment_expression
+Debug: 
+Debug: argcount is 2, type is int
+Debug: 
+Debug: postfix_expression -> postfix_expression ( argument_expression_list )
+Debug: 
+Debug: argCount is:2
+Debug: type is int
+Debug: type is int
+Debug: name is: fn_int_int
+Debug: YES
+Debug: 
+Debug: unary_expression -> postfix_expression
+Debug: cast_expression -> unary_expression
+Debug: multiplicative_expression -> cast_expression
+Debug: additive_expression -> multiplicative_expression
+Debug: shift_expression -> additive_expression
+Debug: relational_expression -> shift_expression
+Debug: equality_expression -> relational_expression
+Debug: and_expression -> equality_expression
+Debug: exclusive_or_expression -> and_expression
+Debug: inclusive_or_expression -> exclusive_or_expression
+Debug: logical_and_expression -> inclusive_or_expression
+Debug: logical_or_expression -> logical_and_expression
+Debug: conditional_expression -> logical_or_expression
+Debug: assignment_expression -> conditional_expression
+Debug: init_declarator -> IDENTIFIER = assignment_expression 
+Debug: 
+Debug: Declared variable: x of type: int and kind: 
+Debug: 
+Debug: init_declarator_list -> init_declarator
+Debug: declaration -> declaration_specifiers init_declarator_list ;
+Debug: block_item -> declaration
+Debug: statement_list -> statement_list block_item
+Debug: primary_expression -> IDENTIFIER
+Debug: 
+Debug: Looking up symbol: x
+Debug: 
+Debug: 
+Debug: Found symbol: x
+Debug: Type: int
+Debug: Kind: 
+Debug: Dimensions: 0
+Debug: 
+Debug: postfix_expression -> primary_expression
+Debug: unary_expression -> postfix_expression
+Debug: assignment_operator -> =
+Debug: primary_expression -> IDENTIFIER
+Debug: 
+Debug: Looking up symbol: func
+Debug: 
+Debug: 
+Debug: Found symbol: func
+Debug: Type: function
+Debug: Kind: function
+Debug: Dimensions: 0
+Debug: 
+Debug: postfix_expression -> primary_expression
+Debug: constant -> DECIMAL_LITERAL
+Debug: 
+Debug: Integer constant value: 3
+Debug: 
+Debug: primary_expression -> constant
+Debug: postfix_expression -> primary_expression
+Debug: unary_expression -> postfix_expression
+Debug: cast_expression -> unary_expression
+Debug: multiplicative_expression -> cast_expression
+Debug: additive_expression -> multiplicative_expression
+Debug: shift_expression -> additive_expression
+Debug: relational_expression -> shift_expression
+Debug: equality_expression -> relational_expression
+Debug: and_expression -> equality_expression
+Debug: exclusive_or_expression -> and_expression
+Debug: inclusive_or_expression -> exclusive_or_expression
+Debug: logical_and_expression -> inclusive_or_expression
+Debug: logical_or_expression -> logical_and_expression
+Debug: conditional_expression -> logical_or_expression
+Debug: assignment_expression -> conditional_expression
+Debug: argument_expression_list -> assignment_expression
+Debug: 
+Debug: argcount is 1, type is int
+Debug: 
+Debug: constant -> DECIMAL_LITERAL
+Debug: 
+Debug: Integer constant value: 7
+Debug: 
+Debug: primary_expression -> constant
+Debug: postfix_expression -> primary_expression
+Debug: unary_expression -> postfix_expression
+Debug: cast_expression -> unary_expression
+Debug: multiplicative_expression -> cast_expression
+Debug: additive_expression -> multiplicative_expression
+Debug: shift_expression -> additive_expression
+Debug: relational_expression -> shift_expression
+Debug: equality_expression -> relational_expression
+Debug: and_expression -> equality_expression
+Debug: exclusive_or_expression -> and_expression
+Debug: inclusive_or_expression -> exclusive_or_expression
+Debug: logical_and_expression -> inclusive_or_expression
+Debug: logical_or_expression -> logical_and_expression
+Debug: conditional_expression -> logical_or_expression
+Debug: assignment_expression -> conditional_expression
+Debug: argument_expression_list -> argument_expression_list , assignment_expression
+Debug: 
+Debug: argcount is 2, type is int
+Debug: 
+Debug: postfix_expression -> postfix_expression ( argument_expression_list )
+Debug: 
+Debug: argCount is:2
+Debug: type is int
+Debug: type is int
+Debug: name is: func_int_int
+Debug: YES
+Debug: 
+Debug: unary_expression -> postfix_expression
+Debug: cast_expression -> unary_expression
+Debug: multiplicative_expression -> cast_expression
+Debug: additive_expression -> multiplicative_expression
+Debug: shift_expression -> additive_expression
+Debug: relational_expression -> shift_expression
+Debug: equality_expression -> relational_expression
+Debug: and_expression -> equality_expression
+Debug: exclusive_or_expression -> and_expression
+Debug: inclusive_or_expression -> exclusive_or_expression
+Debug: logical_and_expression -> inclusive_or_expression
+Debug: logical_or_expression -> logical_and_expression
+Debug: conditional_expression -> logical_or_expression
+Debug: assignment_expression -> conditional_expression
+Debug: assignment_expression -> unary_expression assignment_operator assignment_expression
+Debug: expression -> assignment_expression
+Debug: expression_statement -> expression ;
+Debug: statement -> expression_statement
+Debug: block_item -> statement
+Debug: statement_list -> statement_list block_item
+Debug: static_opt -> <empty>
+Debug: const_opt -> <empty>
+Debug: type_specifier -> CHAR
+Debug: declaration_specifiers -> static_opt const_opt type_specifier
+Debug: primary_expression -> IDENTIFIER
+Debug: 
+Debug: Looking up symbol: c
+Debug: 
+Debug: 
+Debug: Found symbol: c
+Debug: Type: function
+Debug: Kind: function
+Debug: Dimensions: 0
+Debug: 
+Debug: postfix_expression -> primary_expression
+Debug: constant -> CHARACTER_LITERAL
+Debug: 
+Debug: Character constant value: b
+Debug: 
+Debug: primary_expression -> constant
+Debug: postfix_expression -> primary_expression
+Debug: unary_expression -> postfix_expression
+Debug: cast_expression -> unary_expression
+Debug: multiplicative_expression -> cast_expression
+Debug: additive_expression -> multiplicative_expression
+Debug: shift_expression -> additive_expression
+Debug: relational_expression -> shift_expression
+Debug: equality_expression -> relational_expression
+Debug: and_expression -> equality_expression
+Debug: exclusive_or_expression -> and_expression
+Debug: inclusive_or_expression -> exclusive_or_expression
+Debug: logical_and_expression -> inclusive_or_expression
+Debug: logical_or_expression -> logical_and_expression
+Debug: conditional_expression -> logical_or_expression
+Debug: assignment_expression -> conditional_expression
+Debug: argument_expression_list -> assignment_expression
+Debug: 
+Debug: argcount is 1, type is char
+Debug: 
+Debug: postfix_expression -> postfix_expression ( argument_expression_list )
+Debug: 
+Debug: argCount is:1
+Debug: type is char
+Debug: name is: c_char
+Debug: YES
+Debug: 
+Debug: unary_expression -> postfix_expression
+Debug: cast_expression -> unary_expression
+Debug: multiplicative_expression -> cast_expression
+Debug: additive_expression -> multiplicative_expression
+Debug: shift_expression -> additive_expression
+Debug: relational_expression -> shift_expression
+Debug: equality_expression -> relational_expression
+Debug: and_expression -> equality_expression
+Debug: exclusive_or_expression -> and_expression
+Debug: inclusive_or_expression -> exclusive_or_expression
+Debug: logical_and_expression -> inclusive_or_expression
+Debug: logical_or_expression -> logical_and_expression
+Debug: conditional_expression -> logical_or_expression
+Debug: assignment_expression -> conditional_expression
+Debug: init_declarator -> IDENTIFIER = assignment_expression 
+Debug: 
+Debug: Declared variable: c of type: char and kind: 
+Debug: 
+Debug: init_declarator_list -> init_declarator
+Debug: declaration -> declaration_specifiers init_declarator_list ;
+Debug: block_item -> declaration
+Debug: statement_list -> statement_list block_item
+Debug: primary_expression -> IDENTIFIER
+Debug: 
+Debug: Looking up symbol: x
+Debug: 
+Debug: 
+Debug: Found symbol: x
+Debug: Type: int
+Debug: Kind: 
+Debug: Dimensions: 0
+Debug: 
+Debug: postfix_expression -> primary_expression
+Debug: unary_expression -> postfix_expression
+Debug: assignment_operator -> =
+Debug: primary_expression -> IDENTIFIER
+Debug: 
+Debug: Looking up symbol: fn
+Debug: 
+Debug: 
+Debug: Found symbol: fn
+Debug: Type: function
+Debug: Kind: function
+Debug: Dimensions: 0
+Debug: 
+Debug: postfix_expression -> primary_expression
+Debug: constant -> DECIMAL_LITERAL
+Debug: 
+Debug: Integer constant value: 4
+Debug: 
+Debug: primary_expression -> constant
+Debug: postfix_expression -> primary_expression
+Debug: unary_expression -> postfix_expression
+Debug: cast_expression -> unary_expression
+Debug: multiplicative_expression -> cast_expression
+Debug: additive_expression -> multiplicative_expression
+Debug: shift_expression -> additive_expression
+Debug: relational_expression -> shift_expression
+Debug: equality_expression -> relational_expression
+Debug: and_expression -> equality_expression
+Debug: exclusive_or_expression -> and_expression
+Debug: inclusive_or_expression -> exclusive_or_expression
+Debug: logical_and_expression -> inclusive_or_expression
+Debug: logical_or_expression -> logical_and_expression
+Debug: conditional_expression -> logical_or_expression
+Debug: assignment_expression -> conditional_expression
+Debug: argument_expression_list -> assignment_expression
+Debug: 
+Debug: argcount is 1, type is int
+Debug: 
+Debug: constant -> CHARACTER_LITERAL
+Debug: 
+Debug: Character constant value: b
+Debug: 
+Debug: primary_expression -> constant
+Debug: postfix_expression -> primary_expression
+Debug: unary_expression -> postfix_expression
+Debug: cast_expression -> unary_expression
+Debug: multiplicative_expression -> cast_expression
+Debug: additive_expression -> multiplicative_expression
+Debug: shift_expression -> additive_expression
+Debug: relational_expression -> shift_expression
+Debug: equality_expression -> relational_expression
+Debug: and_expression -> equality_expression
+Debug: exclusive_or_expression -> and_expression
+Debug: inclusive_or_expression -> exclusive_or_expression
+Debug: logical_and_expression -> inclusive_or_expression
+Debug: logical_or_expression -> logical_and_expression
+Debug: conditional_expression -> logical_or_expression
+Debug: assignment_expression -> conditional_expression
+Debug: argument_expression_list -> argument_expression_list , assignment_expression
+Debug: 
+Debug: argcount is 2, type is char
+Debug: 
+Debug: postfix_expression -> postfix_expression ( argument_expression_list )
+Debug: 
+Debug: argCount is:2
+Debug: type is int
+Debug: type is char
+Debug: name is: fn_int_char
+Debug: YES
+Debug: 
+Debug: unary_expression -> postfix_expression
+Debug: cast_expression -> unary_expression
+Debug: multiplicative_expression -> cast_expression
+Debug: additive_expression -> multiplicative_expression
+Debug: shift_expression -> additive_expression
+Debug: relational_expression -> shift_expression
+Debug: equality_expression -> relational_expression
+Debug: and_expression -> equality_expression
+Debug: exclusive_or_expression -> and_expression
+Debug: inclusive_or_expression -> exclusive_or_expression
+Debug: logical_and_expression -> inclusive_or_expression
+Debug: logical_or_expression -> logical_and_expression
+Debug: conditional_expression -> logical_or_expression
+Debug: assignment_expression -> conditional_expression
+Debug: assignment_expression -> unary_expression assignment_operator assignment_expression
+Debug: expression -> assignment_expression
+Debug: expression_statement -> expression ;
+Debug: statement -> expression_statement
+Debug: block_item -> statement
+Debug: statement_list -> statement_list block_item
+Debug: primary_expression -> IDENTIFIER
+Debug: 
+Debug: Looking up symbol: c
+Debug: 
+Debug: 
+Debug: Found symbol: c
+Debug: Type: char
+Debug: Kind: 
+Debug: Dimensions: 0
+Debug: 
+Debug: postfix_expression -> primary_expression
+Debug: unary_expression -> postfix_expression
+Debug: assignment_operator -> =
+Debug: primary_expression -> IDENTIFIER
+Debug: 
+Debug: Looking up symbol: fn
+Debug: 
+Debug: 
+Debug: Found symbol: fn
+Debug: Type: function
+Debug: Kind: function
+Debug: Dimensions: 0
+Debug: 
+Debug: postfix_expression -> primary_expression
+Debug: constant -> DECIMAL_LITERAL
+Debug: 
+Debug: Integer constant value: 7
+Debug: 
+Debug: primary_expression -> constant
+Debug: postfix_expression -> primary_expression
+Debug: unary_expression -> postfix_expression
+Debug: cast_expression -> unary_expression
+Debug: multiplicative_expression -> cast_expression
+Debug: additive_expression -> multiplicative_expression
+Debug: shift_expression -> additive_expression
+Debug: relational_expression -> shift_expression
+Debug: equality_expression -> relational_expression
+Debug: and_expression -> equality_expression
+Debug: exclusive_or_expression -> and_expression
+Debug: inclusive_or_expression -> exclusive_or_expression
+Debug: logical_and_expression -> inclusive_or_expression
+Debug: logical_or_expression -> logical_and_expression
+Debug: conditional_expression -> logical_or_expression
+Debug: assignment_expression -> conditional_expression
+Debug: argument_expression_list -> assignment_expression
+Debug: 
+Debug: argcount is 1, type is int
+Debug: 
+Debug: postfix_expression -> postfix_expression ( argument_expression_list )
+Debug: 
+Debug: argCount is:1
+Debug: type is int
+Debug: name is: fn_int
+Debug: YES
+Debug: 
+Debug: unary_expression -> postfix_expression
+Debug: cast_expression -> unary_expression
+Debug: multiplicative_expression -> cast_expression
+Debug: additive_expression -> multiplicative_expression
+Debug: shift_expression -> additive_expression
+Debug: relational_expression -> shift_expression
+Debug: equality_expression -> relational_expression
+Debug: and_expression -> equality_expression
+Debug: exclusive_or_expression -> and_expression
+Debug: inclusive_or_expression -> exclusive_or_expression
+Debug: logical_and_expression -> inclusive_or_expression
+Debug: logical_or_expression -> logical_and_expression
+Debug: conditional_expression -> logical_or_expression
+Debug: assignment_expression -> conditional_expression
+Debug: assignment_expression -> unary_expression assignment_operator assignment_expression
+Debug: expression -> assignment_expression
+Debug: expression_statement -> expression ;
+Debug: statement -> expression_statement
+Debug: block_item -> statement
+Debug: statement_list -> statement_list block_item
+Debug: primary_expression -> IDENTIFIER
+Debug: 
+Debug: Looking up symbol: c
+Debug: 
+Debug: 
+Debug: Found symbol: c
+Debug: Type: char
+Debug: Kind: 
+Debug: Dimensions: 0
+Debug: 
+Debug: postfix_expression -> primary_expression
+Debug: unary_expression -> postfix_expression
+Debug: assignment_operator -> =
+Debug: primary_expression -> IDENTIFIER
+Debug: 
+Debug: Looking up symbol: fn
+Debug: 
+Debug: 
+Debug: Found symbol: fn
+Debug: Type: function
+Debug: Kind: function
+Debug: Dimensions: 0
+Debug: 
+Debug: postfix_expression -> primary_expression
+Debug: constant -> CHARACTER_LITERAL
+Debug: 
+Debug: Character constant value: v
+Debug: 
+Debug: primary_expression -> constant
+Debug: postfix_expression -> primary_expression
+Debug: unary_expression -> postfix_expression
+Debug: cast_expression -> unary_expression
+Debug: multiplicative_expression -> cast_expression
+Debug: additive_expression -> multiplicative_expression
+Debug: shift_expression -> additive_expression
+Debug: relational_expression -> shift_expression
+Debug: equality_expression -> relational_expression
+Debug: and_expression -> equality_expression
+Debug: exclusive_or_expression -> and_expression
+Debug: inclusive_or_expression -> exclusive_or_expression
+Debug: logical_and_expression -> inclusive_or_expression
+Debug: logical_or_expression -> logical_and_expression
+Debug: conditional_expression -> logical_or_expression
+Debug: assignment_expression -> conditional_expression
+Debug: argument_expression_list -> assignment_expression
+Debug: 
+Debug: argcount is 1, type is char
+Debug: 
+Debug: postfix_expression -> postfix_expression ( argument_expression_list )
+Debug: 
+Debug: argCount is:1
+Debug: type is char
+Debug: name is: fn_char
+Debug: YES
+Debug: 
+Debug: unary_expression -> postfix_expression
+Debug: cast_expression -> unary_expression
+Debug: multiplicative_expression -> cast_expression
+Debug: additive_expression -> multiplicative_expression
+Debug: shift_expression -> additive_expression
+Debug: relational_expression -> shift_expression
+Debug: equality_expression -> relational_expression
+Debug: and_expression -> equality_expression
+Debug: exclusive_or_expression -> and_expression
+Debug: inclusive_or_expression -> exclusive_or_expression
+Debug: logical_and_expression -> inclusive_or_expression
+Debug: logical_or_expression -> logical_and_expression
+Debug: conditional_expression -> logical_or_expression
+Debug: assignment_expression -> conditional_expression
+Debug: assignment_expression -> unary_expression assignment_operator assignment_expression
+Debug: expression -> assignment_expression
+Debug: expression_statement -> expression ;
+Debug: statement -> expression_statement
+Debug: block_item -> statement
+Debug: statement_list -> statement_list block_item
+Debug: static_opt -> <empty>
+Debug: const_opt -> <empty>
+Debug: type_specifier -> INT
+Debug: declaration_specifiers -> static_opt const_opt type_specifier
+Debug: constant -> DECIMAL_LITERAL
+Debug: 
+Debug: Integer constant value: 3
+Debug: 
+Debug: primary_expression -> constant
+Debug: postfix_expression -> primary_expression
+Debug: unary_expression -> postfix_expression
+Debug: cast_expression -> unary_expression
+Debug: multiplicative_expression -> cast_expression
+Debug: additive_expression -> multiplicative_expression
+Debug: shift_expression -> additive_expression
+Debug: relational_expression -> shift_expression
+Debug: equality_expression -> relational_expression
+Debug: and_expression -> equality_expression
+Debug: exclusive_or_expression -> and_expression
+Debug: inclusive_or_expression -> exclusive_or_expression
+Debug: logical_and_expression -> inclusive_or_expression
+Debug: logical_or_expression -> logical_and_expression
+Debug: conditional_expression -> logical_or_expression
+Debug: constant_expression -> conditional_expression
+Debug: square_opt -> [ constant_expression ]
+Debug: constant -> DECIMAL_LITERAL
+Debug: 
+Debug: Integer constant value: 4
+Debug: 
+Debug: primary_expression -> constant
+Debug: postfix_expression -> primary_expression
+Debug: unary_expression -> postfix_expression
+Debug: cast_expression -> unary_expression
+Debug: multiplicative_expression -> cast_expression
+Debug: additive_expression -> multiplicative_expression
+Debug: shift_expression -> additive_expression
+Debug: relational_expression -> shift_expression
+Debug: equality_expression -> relational_expression
+Debug: and_expression -> equality_expression
+Debug: exclusive_or_expression -> and_expression
+Debug: inclusive_or_expression -> exclusive_or_expression
+Debug: logical_and_expression -> inclusive_or_expression
+Debug: logical_or_expression -> logical_and_expression
+Debug: conditional_expression -> logical_or_expression
+Debug: constant_expression -> conditional_expression
+Debug: square_list -> square_list [ constant_expression ]
+Debug: constant -> DECIMAL_LITERAL
+Debug: 
+Debug: Integer constant value: 5
+Debug: 
+Debug: primary_expression -> constant
+Debug: postfix_expression -> primary_expression
+Debug: unary_expression -> postfix_expression
+Debug: cast_expression -> unary_expression
+Debug: multiplicative_expression -> cast_expression
+Debug: additive_expression -> multiplicative_expression
+Debug: shift_expression -> additive_expression
+Debug: relational_expression -> shift_expression
+Debug: equality_expression -> relational_expression
+Debug: and_expression -> equality_expression
+Debug: exclusive_or_expression -> and_expression
+Debug: inclusive_or_expression -> exclusive_or_expression
+Debug: logical_and_expression -> inclusive_or_expression
+Debug: logical_or_expression -> logical_and_expression
+Debug: conditional_expression -> logical_or_expression
+Debug: constant_expression -> conditional_expression
+Debug: square_list -> square_list [ constant_expression ]
+Debug: init_declarator -> IDENTIFIER square_list 
+Debug: 
+Debug: Array dimensions: 
+Debug:  - 3
+Debug:  - 4
+Debug:  - 5
+Debug: 
+Debug: 
+Debug: Declared array: d of type: int*** and kind: array
+Debug: Dimension 1: 3
+Debug: Dimension 2: 4
+Debug: Dimension 3: 5
+Debug: 
+Debug: init_declarator_list -> init_declarator
+Debug: declaration -> declaration_specifiers init_declarator_list ;
+Debug: block_item -> declaration
+Debug: statement_list -> statement_list block_item
+Debug: static_opt -> <empty>
+Debug: const_opt -> <empty>
+Debug: type_specifier -> INT
+Debug: declaration_specifiers -> static_opt const_opt type_specifier
+Debug: constant -> DECIMAL_LITERAL
+Debug: 
+Debug: Integer constant value: 2
+Debug: 
+Debug: primary_expression -> constant
+Debug: postfix_expression -> primary_expression
+Debug: unary_expression -> postfix_expression
+Debug: cast_expression -> unary_expression
+Debug: multiplicative_expression -> cast_expression
+Debug: additive_expression -> multiplicative_expression
+Debug: shift_expression -> additive_expression
+Debug: relational_expression -> shift_expression
+Debug: equality_expression -> relational_expression
+Debug: and_expression -> equality_expression
+Debug: exclusive_or_expression -> and_expression
+Debug: inclusive_or_expression -> exclusive_or_expression
+Debug: logical_and_expression -> inclusive_or_expression
+Debug: logical_or_expression -> logical_and_expression
+Debug: conditional_expression -> logical_or_expression
+Debug: constant_expression -> conditional_expression
+Debug: square_opt -> [ constant_expression ]
+Debug: constant -> DECIMAL_LITERAL
+Debug: 
+Debug: Integer constant value: 2
+Debug: 
+Debug: primary_expression -> constant
+Debug: postfix_expression -> primary_expression
+Debug: unary_expression -> postfix_expression
+Debug: cast_expression -> unary_expression
+Debug: multiplicative_expression -> cast_expression
+Debug: additive_expression -> multiplicative_expression
+Debug: shift_expression -> additive_expression
+Debug: relational_expression -> shift_expression
+Debug: equality_expression -> relational_expression
+Debug: and_expression -> equality_expression
+Debug: exclusive_or_expression -> and_expression
+Debug: inclusive_or_expression -> exclusive_or_expression
+Debug: logical_and_expression -> inclusive_or_expression
+Debug: logical_or_expression -> logical_and_expression
+Debug: conditional_expression -> logical_or_expression
+Debug: constant_expression -> conditional_expression
+Debug: square_list -> square_list [ constant_expression ]
+Debug: constant -> DECIMAL_LITERAL
+Debug: 
+Debug: Integer constant value: 1
+Debug: 
+Debug: primary_expression -> constant
+Debug: postfix_expression -> primary_expression
+Debug: unary_expression -> postfix_expression
+Debug: cast_expression -> unary_expression
+Debug: multiplicative_expression -> cast_expression
+Debug: additive_expression -> multiplicative_expression
+Debug: shift_expression -> additive_expression
+Debug: relational_expression -> shift_expression
+Debug: equality_expression -> relational_expression
+Debug: and_expression -> equality_expression
+Debug: exclusive_or_expression -> and_expression
+Debug: inclusive_or_expression -> exclusive_or_expression
+Debug: logical_and_expression -> inclusive_or_expression
+Debug: logical_or_expression -> logical_and_expression
+Debug: conditional_expression -> logical_or_expression
+Debug: assignment_expression -> conditional_expression
+Debug: initializer_list -> assignment_expression
+Debug: constant -> DECIMAL_LITERAL
+Debug: 
+Debug: Integer constant value: 2
+Debug: 
+Debug: primary_expression -> constant
+Debug: postfix_expression -> primary_expression
+Debug: unary_expression -> postfix_expression
+Debug: cast_expression -> unary_expression
+Debug: multiplicative_expression -> cast_expression
+Debug: additive_expression -> multiplicative_expression
+Debug: shift_expression -> additive_expression
+Debug: relational_expression -> shift_expression
+Debug: equality_expression -> relational_expression
+Debug: and_expression -> equality_expression
+Debug: exclusive_or_expression -> and_expression
+Debug: inclusive_or_expression -> exclusive_or_expression
+Debug: logical_and_expression -> inclusive_or_expression
+Debug: logical_or_expression -> logical_and_expression
+Debug: conditional_expression -> logical_or_expression
+Debug: assignment_expression -> conditional_expression
+Debug: initializer_list -> initializer_list , assignment_expression
+Debug: constant -> DECIMAL_LITERAL
+Debug: 
+Debug: Integer constant value: 3
+Debug: 
+Debug: primary_expression -> constant
+Debug: postfix_expression -> primary_expression
+Debug: unary_expression -> postfix_expression
+Debug: cast_expression -> unary_expression
+Debug: multiplicative_expression -> cast_expression
+Debug: additive_expression -> multiplicative_expression
+Debug: shift_expression -> additive_expression
+Debug: relational_expression -> shift_expression
+Debug: equality_expression -> relational_expression
+Debug: and_expression -> equality_expression
+Debug: exclusive_or_expression -> and_expression
+Debug: inclusive_or_expression -> exclusive_or_expression
+Debug: logical_and_expression -> inclusive_or_expression
+Debug: logical_or_expression -> logical_and_expression
+Debug: conditional_expression -> logical_or_expression
+Debug: assignment_expression -> conditional_expression
+Debug: initializer_list -> initializer_list , assignment_expression
+Debug: constant -> DECIMAL_LITERAL
+Debug: 
+Debug: Integer constant value: 4
+Debug: 
+Debug: primary_expression -> constant
+Debug: postfix_expression -> primary_expression
+Debug: unary_expression -> postfix_expression
+Debug: cast_expression -> unary_expression
+Debug: multiplicative_expression -> cast_expression
+Debug: additive_expression -> multiplicative_expression
+Debug: shift_expression -> additive_expression
+Debug: relational_expression -> shift_expression
+Debug: equality_expression -> relational_expression
+Debug: and_expression -> equality_expression
+Debug: exclusive_or_expression -> and_expression
+Debug: inclusive_or_expression -> exclusive_or_expression
+Debug: logical_and_expression -> inclusive_or_expression
+Debug: logical_or_expression -> logical_and_expression
+Debug: conditional_expression -> logical_or_expression
+Debug: assignment_expression -> conditional_expression
+Debug: initializer_list -> initializer_list , assignment_expression
+Debug: initializer -> { initializer_list }
+Debug: init_declarator -> IDENTIFIER square_list = initializer 
+Debug: 
+Debug: Declared array: uk of type: int** and kind: array
+Debug: Dimension 1: 2
+Debug: Dimension 2: 2
+Debug: 
+Debug: init_declarator_list -> init_declarator
+Debug: declaration -> declaration_specifiers init_declarator_list ;
+Debug: block_item -> declaration
+Debug: statement_list -> statement_list block_item
+Debug: primary_expression -> IDENTIFIER
+Debug: 
+Debug: Looking up symbol: d
+Debug: 
+Debug: 
+Debug: Found symbol: d
+Debug: Type: int***
+Debug: Kind: array
+Debug: Dimensions: 3
+Debug:  - 3
+Debug:  - 4
+Debug:  - 5
+Debug: 
+Debug: postfix_expression -> primary_expression
+Debug: constant -> DECIMAL_LITERAL
+Debug: 
+Debug: Integer constant value: 2
+Debug: 
+Debug: primary_expression -> constant
+Debug: postfix_expression -> primary_expression
+Debug: unary_expression -> postfix_expression
+Debug: cast_expression -> unary_expression
+Debug: multiplicative_expression -> cast_expression
+Debug: additive_expression -> multiplicative_expression
+Debug: shift_expression -> additive_expression
+Debug: relational_expression -> shift_expression
+Debug: equality_expression -> relational_expression
+Debug: and_expression -> equality_expression
+Debug: exclusive_or_expression -> and_expression
+Debug: inclusive_or_expression -> exclusive_or_expression
+Debug: logical_and_expression -> inclusive_or_expression
+Debug: logical_or_expression -> logical_and_expression
+Debug: conditional_expression -> logical_or_expression
+Debug: assignment_expression -> conditional_expression
+Debug: expression -> assignment_expression
+Debug: postfix_expression -> postfix_expression [ expression ]
+Debug: 
+Debug: Array dimensions: 
+Debug: 3
+Debug: Dimension size: 3
+Debug: Dimension size: 4
+Debug: Dimension size: 5
+Debug: 
+Debug: constant -> DECIMAL_LITERAL
+Debug: 
+Debug: Integer constant value: 2
+Debug: 
+Debug: primary_expression -> constant
+Debug: postfix_expression -> primary_expression
+Debug: unary_expression -> postfix_expression
+Debug: cast_expression -> unary_expression
+Debug: multiplicative_expression -> cast_expression
+Debug: additive_expression -> multiplicative_expression
+Debug: shift_expression -> additive_expression
+Debug: relational_expression -> shift_expression
+Debug: equality_expression -> relational_expression
+Debug: and_expression -> equality_expression
+Debug: exclusive_or_expression -> and_expression
+Debug: inclusive_or_expression -> exclusive_or_expression
+Debug: logical_and_expression -> inclusive_or_expression
+Debug: logical_or_expression -> logical_and_expression
+Debug: conditional_expression -> logical_or_expression
+Debug: assignment_expression -> conditional_expression
+Debug: expression -> assignment_expression
+Debug: postfix_expression -> postfix_expression [ expression ]
+Debug: 
+Debug: Array dimensions: 
+Debug: 2
+Debug: Dimension size: 4
+Debug: Dimension size: 5
+Debug: 
+Debug: constant -> DECIMAL_LITERAL
+Debug: 
+Debug: Integer constant value: 4
+Debug: 
+Debug: primary_expression -> constant
+Debug: postfix_expression -> primary_expression
+Debug: unary_expression -> postfix_expression
+Debug: cast_expression -> unary_expression
+Debug: multiplicative_expression -> cast_expression
+Debug: additive_expression -> multiplicative_expression
+Debug: shift_expression -> additive_expression
+Debug: relational_expression -> shift_expression
+Debug: equality_expression -> relational_expression
+Debug: and_expression -> equality_expression
+Debug: exclusive_or_expression -> and_expression
+Debug: inclusive_or_expression -> exclusive_or_expression
+Debug: logical_and_expression -> inclusive_or_expression
+Debug: logical_or_expression -> logical_and_expression
+Debug: conditional_expression -> logical_or_expression
+Debug: assignment_expression -> conditional_expression
+Debug: expression -> assignment_expression
+Debug: postfix_expression -> postfix_expression [ expression ]
+Debug: 
+Debug: Array dimensions: 
+Debug: 1
+Debug: Dimension size: 5
+Debug: 
+Debug: unary_expression -> postfix_expression
+Debug: assignment_operator -> =
+Debug: constant -> DECIMAL_LITERAL
+Debug: 
+Debug: Integer constant value: 11
+Debug: 
+Debug: primary_expression -> constant
+Debug: postfix_expression -> primary_expression
+Debug: unary_expression -> postfix_expression
+Debug: cast_expression -> unary_expression
+Debug: multiplicative_expression -> cast_expression
+Debug: additive_expression -> multiplicative_expression
+Debug: shift_expression -> additive_expression
+Debug: relational_expression -> shift_expression
+Debug: equality_expression -> relational_expression
+Debug: and_expression -> equality_expression
+Debug: exclusive_or_expression -> and_expression
+Debug: inclusive_or_expression -> exclusive_or_expression
+Debug: logical_and_expression -> inclusive_or_expression
+Debug: logical_or_expression -> logical_and_expression
+Debug: conditional_expression -> logical_or_expression
+Debug: assignment_expression -> conditional_expression
+Debug: assignment_expression -> unary_expression assignment_operator assignment_expression
+Debug: expression -> assignment_expression
+Debug: expression_statement -> expression ;
+Debug: statement -> expression_statement
+Debug: block_item -> statement
+Debug: statement_list -> statement_list block_item
+Debug: static_opt -> <empty>
+Debug: const_opt -> <empty>
+Debug: type_specifier -> INT
+Debug: declaration_specifiers -> static_opt const_opt type_specifier
+Debug: constant -> DECIMAL_LITERAL
+Debug: 
+Debug: Integer constant value: 1
+Debug: 
+Debug: primary_expression -> constant
+Debug: postfix_expression -> primary_expression
+Debug: unary_expression -> postfix_expression
+Debug: cast_expression -> unary_expression
+Debug: multiplicative_expression -> cast_expression
+Debug: additive_expression -> multiplicative_expression
+Debug: shift_expression -> additive_expression
+Debug: relational_expression -> shift_expression
+Debug: equality_expression -> relational_expression
+Debug: and_expression -> equality_expression
+Debug: exclusive_or_expression -> and_expression
+Debug: inclusive_or_expression -> exclusive_or_expression
+Debug: logical_and_expression -> inclusive_or_expression
+Debug: logical_or_expression -> logical_and_expression
+Debug: conditional_expression -> logical_or_expression
+Debug: assignment_expression -> conditional_expression
+Debug: init_declarator -> IDENTIFIER = assignment_expression 
+Debug: 
+Debug: Declared variable: p of type: int and kind: 
+Debug: 
+Debug: init_declarator_list -> init_declarator
+Debug: declaration -> declaration_specifiers init_declarator_list ;
+Debug: block_item -> declaration
+Debug: statement_list -> statement_list block_item
+Debug: static_opt -> <empty>
+Debug: const_opt -> <empty>
+Debug: type_specifier -> BOOL
+Debug: declaration_specifiers -> static_opt const_opt type_specifier
+Debug: constant -> TRUE
+Debug: primary_expression -> constant
+Debug: postfix_expression -> primary_expression
+Debug: unary_expression -> postfix_expression
+Debug: cast_expression -> unary_expression
+Debug: multiplicative_expression -> cast_expression
+Debug: additive_expression -> multiplicative_expression
+Debug: shift_expression -> additive_expression
+Debug: relational_expression -> shift_expression
+Debug: equality_expression -> relational_expression
+Debug: and_expression -> equality_expression
+Debug: exclusive_or_expression -> and_expression
+Debug: inclusive_or_expression -> exclusive_or_expression
+Debug: logical_and_expression -> inclusive_or_expression
+Debug: logical_or_expression -> logical_and_expression
+Debug: conditional_expression -> logical_or_expression
+Debug: assignment_expression -> conditional_expression
+Debug: init_declarator -> IDENTIFIER = assignment_expression 
+Debug: 
+Debug: Declared variable: a of type: bool and kind: 
+Debug: 
+Debug: init_declarator_list -> init_declarator
+Debug: declaration -> declaration_specifiers init_declarator_list ;
+Debug: block_item -> declaration
+Debug: statement_list -> statement_list block_item
+Debug: primary_expression -> IDENTIFIER
+Debug: 
+Debug: Looking up symbol: a
+Debug: 
+Debug: 
+Debug: Found symbol: a
+Debug: Type: bool
+Debug: Kind: 
+Debug: Dimensions: 0
+Debug: 
+Debug: postfix_expression -> primary_expression
+Debug: unary_expression -> postfix_expression
+Debug: assignment_operator -> =
+Debug: type_specifier -> BOOL
+Debug: pointer_opt -> <empty>
+Debug: return_type -> type_specifier pointer_opt
+Debug: constant -> DECIMAL_LITERAL
+Debug: 
+Debug: Integer constant value: 5
+Debug: 
+Debug: primary_expression -> constant
+Debug: postfix_expression -> primary_expression
+Debug: unary_expression -> postfix_expression
+Debug: cast_expression -> unary_expression
+Debug: cast_expression -> ( type_name ) cast_expression
+Debug: multiplicative_expression -> cast_expression
+Debug: additive_expression -> multiplicative_expression
+Debug: shift_expression -> additive_expression
+Debug: relational_expression -> shift_expression
+Debug: equality_expression -> relational_expression
+Debug: and_expression -> equality_expression
+Debug: exclusive_or_expression -> and_expression
+Debug: inclusive_or_expression -> exclusive_or_expression
+Debug: logical_and_expression -> inclusive_or_expression
+Debug: logical_or_expression -> logical_and_expression
+Debug: conditional_expression -> logical_or_expression
+Debug: assignment_expression -> conditional_expression
+Debug: assignment_expression -> unary_expression assignment_operator assignment_expression
+Debug: expression -> assignment_expression
+Debug: expression_statement -> expression ;
+Debug: statement -> expression_statement
+Debug: block_item -> statement
+Debug: statement_list -> statement_list block_item
+Debug: static_opt -> <empty>
+Debug: const_opt -> <empty>
+Debug: type_specifier -> INT
+Debug: declaration_specifiers -> static_opt const_opt type_specifier
+Debug: type_specifier -> INT
+Debug: pointer_opt -> <empty>
+Debug: return_type -> type_specifier pointer_opt
+Debug: constant -> CHARACTER_LITERAL
+Debug: 
+Debug: Character constant value: a
+Debug: 
+Debug: primary_expression -> constant
+Debug: postfix_expression -> primary_expression
+Debug: unary_expression -> postfix_expression
+Debug: cast_expression -> unary_expression
+Debug: cast_expression -> ( type_name ) cast_expression
+Debug: multiplicative_expression -> cast_expression
+Debug: additive_expression -> multiplicative_expression
+Debug: shift_expression -> additive_expression
+Debug: relational_expression -> shift_expression
+Debug: equality_expression -> relational_expression
+Debug: and_expression -> equality_expression
+Debug: exclusive_or_expression -> and_expression
+Debug: inclusive_or_expression -> exclusive_or_expression
+Debug: logical_and_expression -> inclusive_or_expression
+Debug: logical_or_expression -> logical_and_expression
+Debug: conditional_expression -> logical_or_expression
+Debug: assignment_expression -> conditional_expression
+Debug: init_declarator -> IDENTIFIER = assignment_expression 
+Debug: 
+Debug: Declared variable: b of type: int and kind: 
+Debug: 
+Debug: init_declarator_list -> init_declarator
+Debug: declaration -> declaration_specifiers init_declarator_list ;
+Debug: block_item -> declaration
+Debug: statement_list -> statement_list block_item
 Debug: compound_statement -> { statement_list }
 Debug: function_definition -> function_header compound_statement
 Debug: external_declaration -> function_definition
-Debug: translation_unit -> external_declaration
+Debug: translation_unit -> translation_unit external_declaration

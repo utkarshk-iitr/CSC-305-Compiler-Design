@@ -2430,7 +2430,8 @@ for_init_statement
 	: expression_statement { 
         dbg("for_init_statement -> expression_statement");
         $$ = $1; }
-	| declaration { 
+	| declaration 
+    { 
         dbg("for_init_statement -> declaration");
         $$ = $1; }
     ;
@@ -2494,14 +2495,17 @@ external_declaration
 	| struct_or_class_specifier SEMICOLON { 
         dbg("external_declaration -> struct_or_class_specifier ;");
         $$ = $1; }
-	| declaration {
+	| declaration 
+    {
         dbg("external_declaration -> declaration");
-         $$ = $1; }
+        $$ = $1; 
+    }
     | TYPEDEF return_type IDENTIFIER SEMICOLON {
         dbg("external_declaration -> TYPEDEF return_type IDENTIFIER ;");
         typeSize[string($3)] = typeSize[string($2)];
         $$ = new Node();
-        }
+    }
+    | error SEMICOLON { yyerrok;}   
     ;
 
 // Done
@@ -2621,7 +2625,7 @@ lambda_parameter_clause
         dbg("lambda_parameter_clause -> ( )");
         $$ = new Node(); }
     | LROUND parameter_list RROUND {
-        dbg("lambda_parameter_clause -> ( parameter_list )");
+        dbg("lambda_parameter_clause -> ( padeclarationrameter_list )");
          $$ = $2; }
     ;
 

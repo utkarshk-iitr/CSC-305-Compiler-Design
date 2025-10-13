@@ -1,4 +1,73 @@
----- Errors found ----
-Error at line 5 : Use of undeclared identifier 'c'.
-Error at line 5 : Invalid array subscript operation.
-Error at line 5 : Type mismatch in initialization of 'd1'.
+[1] fn_int_int:
+[2] fn_int_int.t1 = y - x
+[3] return fn_int_int.t1
+[4] func_int_int:
+[5] func_int_int.t1 = a + b
+[6] c = func_int_int.t1
+[7] return c
+[8] c_char:
+[9] c_char.t1 = char_to_char p
+[10] return c_char.t1
+[11] fn_int_char:
+[12] return x
+[13] fn_int:
+[14] fn_int.t1 = int_to_char x
+[15] return fn_int.t1
+[16] fn_char:
+[17] return x
+[18] fn:
+[19] return 5
+[20] main:
+[21] main.t1 = 1 * 2
+[22] main.t1 = main.t1 * 1
+[23] main.t2 = c1 + main.t1
+[24] main.t3 = 1 * 1
+[25] main.t3 = main.t3 * 1
+[26] main.t4 = main.t2 + main.t3
+[27] d1 = *main.t4
+[28] param 3
+[29] param 4
+[30] main.t5 = call func, 2
+[31] z = main.t5
+[32] main.t6 = call fn, 0;
+[33] z = main.t6
+[34] param 'a'
+[35] main.t7 = call c, 1
+[36] y = main.t7
+[37] param 3
+[38] param 5
+[39] main.t8 = call fn, 2
+[40] x = main.t8
+[41] param 3
+[42] param 7
+[43] main.t9 = call func, 2
+[44] x = main.t9
+[45] param 'b'
+[46] main.t10 = call c, 1
+[47] c = main.t10
+[48] param 4
+[49] param 'b'
+[50] main.t11 = call fn, 2
+[51] x = main.t11
+[52] param 7
+[53] main.t12 = call fn, 1
+[54] c = main.t12
+[55] param 'v'
+[56] main.t13 = call fn, 1
+[57] c = main.t13
+[58] main.t14 = 2 * 20
+[59] main.t14 = main.t14 * 4
+[60] main.t15 = d + main.t14
+[61] main.t16 = 2 * 5
+[62] main.t16 = main.t16 * 4
+[63] main.t17 = main.t15 + main.t16
+[64] main.t18 = 4 * 1
+[65] main.t18 = main.t18 * 4
+[66] main.t19 = main.t17 + main.t18
+[67] *main.t19 = 11
+[68] p = 1
+[69] a = 1
+[70] main.t20 = int_to_bool 5
+[71] a = main.t20
+[72] main.t21 = char_to_int 'a'
+[73] b = main.t21
