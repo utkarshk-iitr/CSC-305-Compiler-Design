@@ -1,6 +1,67 @@
+int fn(int x, int y)
+{
+    return y - x;
+}
+
+int func(int a, int b)
+{
+    int c = a + b;
+    return c;
+}
+
+char c(char p)
+{
+    return (char)p;
+}
+
+int fn(int x, char y)
+{
+    return x;
+}
+
+char fn(int x)
+{
+    return (char)x;
+}
+
+char fn(char x)
+{
+    return x;
+}
+
+int fn()
+{
+    return 5;
+}
+
 int main()
 {
-    const int d[3][4][5];
+    int z = (func(3, 4));
+    z= fn();
+    char y = c('a');
+
+    int x = fn(3,5);
+
+    x=func(3,7);
+
+    char c = c('b');
+
+    x= fn(4,'b');
+
+    c = fn(7);
+
+    c = fn('v');
+
+    int d[3][4][5];
+
+    int uk[2][2] ={1,2,3,4};
 
     d[2][2][4] = 11;
+    int p = 1;
+
+    bool a = true;
+
+    a = (bool)5;
+
+    int b = (int)'a';
 }

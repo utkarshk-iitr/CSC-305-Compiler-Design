@@ -1,40 +1,35 @@
-#include <stdio.h>
+int func(int a, int b)
+{
+    int c = a + b;
+    return c;
+}
 
-int main() {
-    long a = 5 , b ,aa , bb ,cc , dd,ff,gg;
-    cin>>b;
-    int c= a+b;
-    int d =a-b;
-    int e = a*b ;
-    int f=a/b;
-    while(b < 0) b++;
-    int g =a%b;
-    c*=d;
-    if(!e) d/=e;
+char c(char p)
+{
+    return (char)p;
+}
 
-    f|= a;
-    g ^=c;
-    e&=99999;
+int fn(int x, int y)
+{
+    return y - x;
+}
 
-    a>>=2;
-    b<<=4;
+int main()
+{
+    int z = (func(3, 4));
 
-    cout<< (g ==9? a >>3: b<<2)<<"\n";
+    char y = c('a');
 
-    until(b < 0) b--;
-    int s = sizeof(a);
+    int x = fn(2);
 
-    a+= 5 ;
-    b -=6;
-    g = b;
+    int d[3][4][5];
 
-    dd =sizeof(f);
-    bb = a|b;
-    cc=a&b;
-    dd= a^b ;
-    long ee=~e;
+    d[2][2][4] = 11;
+    int p = 1;
 
-    // yahoo
-    
-    return 0;
+    bool a = true;
+
+    a = (bool)5;
+
+    int b = (int)'a';
 }

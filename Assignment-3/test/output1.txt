@@ -1,3 +1,66 @@
----- Errors found ----
-Error at line 3 : Const variable 'd' must be initialized.
-Error at line 5 : Type incompatibility in assignment to '*main.t6'.
+[1] fn_int_int:
+[2] fn_int_int.t1 = y - x
+[3] return fn_int_int.t1
+[4] func_int_int:
+[5] func_int_int.t1 = a + b
+[6] c = func_int_int.t1
+[7] return c
+[8] c_char:
+[9] c_char.t1 = char_to_char p
+[10] return c_char.t1
+[11] fn_int_char:
+[12] return x
+[13] fn_int:
+[14] fn_int.t1 = int_to_char x
+[15] return fn_int.t1
+[16] fn_char:
+[17] return x
+[18] fn:
+[19] return 5
+[20] main:
+[21] param 3
+[22] param 4
+[23] main.t1 = call func, 2
+[24] z = main.t1
+[25] main.t2 = call fn, 0;
+[26] z = main.t2
+[27] param 'a'
+[28] main.t3 = call c, 1
+[29] y = main.t3
+[30] param 3
+[31] param 5
+[32] main.t4 = call fn, 2
+[33] x = main.t4
+[34] param 3
+[35] param 7
+[36] main.t5 = call func, 2
+[37] x = main.t5
+[38] param 'b'
+[39] main.t6 = call c, 1
+[40] c = main.t6
+[41] param 4
+[42] param 'b'
+[43] main.t7 = call fn, 2
+[44] x = main.t7
+[45] param 7
+[46] main.t8 = call fn, 1
+[47] c = main.t8
+[48] param 'v'
+[49] main.t9 = call fn, 1
+[50] c = main.t9
+[51] main.t10 = 2 * 20
+[52] main.t10 = main.t10 * 4
+[53] main.t11 = d + main.t10
+[54] main.t12 = 2 * 5
+[55] main.t12 = main.t12 * 4
+[56] main.t13 = main.t11 + main.t12
+[57] main.t14 = 4 * 1
+[58] main.t14 = main.t14 * 4
+[59] main.t15 = main.t13 + main.t14
+[60] *main.t15 = 11
+[61] p = 1
+[62] a = 1
+[63] main.t16 = int_to_bool 5
+[64] a = main.t16
+[65] main.t17 = char_to_int 'a'
+[66] b = main.t17

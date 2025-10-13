@@ -113,7 +113,7 @@
 
     funcInfo* lookupFunction(const string &name) {
         auto it = funcTable.find(name);
-        if (it != funcTable.end()) return &it->second;
+        if (it != funcTable.end()) return &(it->second);
         return nullptr;
     }    
 
@@ -148,6 +148,7 @@
     }
 
     void check_func_access(funcInfo* sym) {
+        if(sym==nullptr) return;
         if(sym->kind.find("private") != string::npos){
             yyerror("Can't access private member function '" + sym->place + "'.");
         }
@@ -386,7 +387,7 @@ primary_expression
         if (!sym) {
             yyerror("Use of undeclared identifier '" + name + "'.");
         } else {
-            // check_access(sym);
+            check_access(sym);
             dbg("");
             dbg("Found symbol: " + name);
             dbg("Type: " + sym->type);
@@ -400,7 +401,6 @@ primary_expression
             n->type = sym->type;
             n->syn = sym->dim;
         }
-
         $$ = n;
     }
 	| constant 
@@ -430,26 +430,33 @@ constant
         dbg("");
         $$ = n;
     }
-    | CHARACTER_LITERAL     {
-            dbg("constant -> CHARACTER_LITERAL");
-          Node* n = new Node(string($1), "char", "const");
-          $$ = n;
-      }
-    | STRING_LITERAL        {
-            dbg("constant -> STRING_LITERAL");
-          Node* n = new Node(string($1), "string", "const");
-          $$ = n;
-      }
-    | EXPONENT_LITERAL      {
-            dbg("constant -> EXPONENT_LITERAL");
-          Node* n = new Node(string($1), "double", "const");
-          $$ = n;
-      }
-    | DOUBLE_LITERAL        {
-            dbg("constant -> DOUBLE_LITERAL");
-          Node* n = new Node(string($1), "double", "const");
-          $$ = n;
-      }
+    | CHARACTER_LITERAL     
+    {
+        dbg("constant -> CHARACTER_LITERAL");
+        Node* n = new Node(string($1), "char", "const");
+        dbg("");
+        dbg("Character constant value: " + string(1, $1[1]));
+        dbg("");
+        $$ = n;
+    }
+    | STRING_LITERAL        
+    {
+        dbg("constant -> STRING_LITERAL");
+        Node* n = new Node(string($1), "string", "const");
+        $$ = n;
+    }
+    | EXPONENT_LITERAL      
+    {
+        dbg("constant -> EXPONENT_LITERAL");
+        Node* n = new Node(string($1), "double", "const");
+        $$ = n;
+    }
+    | DOUBLE_LITERAL       
+    {
+        dbg("constant -> DOUBLE_LITERAL");
+        Node* n = new Node(string($1), "double", "const");
+        $$ = n;
+    }
     | NULLPTR               {
             dbg("constant -> NULLPTR");
           Node* n = new Node("0", "nullptr", "const");
@@ -525,61 +532,84 @@ postfix_expression
         }
         $$ = n;
     }
-	| postfix_expression LROUND RROUND {
+	| postfix_expression LROUND RROUND 
+    {
         dbg("postfix_expression -> postfix_expression ( )");
-            Node* fun = $1;
-            funcInfo* s = lookupFunction(fun->place);
-            check_func_access(s);
-            if(!s){
-                yyerror("Call to non-function '" + fun->place + "'.");
-            }
-            if(s->paramCount != 0){
-                yyerror("Call to function '" + fun->place + "' with incorrect number of arguments.");
-            }
-
-            Node* n = new Node();
-            n->code = fun->code;
-            n->type = fun->type;
-
-            if(fun->type=="void"){
-                n->code.push_back("call " + fun->place + ", 0;");
-            }
-            else{
-                n->place = newTemp();
-                n->code.push_back(n->place + " = call " + fun->place + ", 0;");
-            }
-            $$ = n;
+        Node* fun = $1;
+        funcInfo* s = lookupFunction(fun->place);
+        check_func_access(s);
+        if(!s){
+            yyerror("Call to non-function '" + fun->place + "'.");
         }
-	| postfix_expression LROUND argument_expression_list RROUND {
-        dbg("postfix_expression -> postfix_expression ( argument_expression_list )");
-            Node* fun = $1; Node* args = $3;
-            funcInfo* s = lookupFunction(fun->place);
-            check_func_access(s);
-            if(!s){
-                yyerror("Call to non-function '" + fun->place + "'.");
-            }
-            if (s->paramCount != args->argCount) {
-                yyerror("Call to function '" + fun->place + "' with incorrect number of arguments.");
-            }
+        if(s->paramCount != 0){
+            yyerror("Call to function '" + fun->place + "' with incorrect number of arguments.");
+        }
 
+        Node* n = new Node();
+        n->code = fun->code;
+        n->type = s->returnType;
+
+        if(fun->type=="void"){
+            n->code.push_back("call " + fun->place + ", 0;");
+        }
+        else{
+            n->place = newTemp();
+            n->code.push_back(n->place + " = call " + fun->place + ", 0;");
+        }
+        $$ = n;
+    }
+	| postfix_expression LROUND argument_expression_list RROUND 
+    {
+        dbg("postfix_expression -> postfix_expression ( argument_expression_list )");
+        Node* fun = $1;
+        string name = fun->place;
+        string original = fun->place;
+        Node* args = $3;
+
+        dbg("");
+        dbg("argCount is:" + to_string(args->argCount));
+        for(int i = 0; i < args->argCount;i++)
+        {
+            dbg("type is " + args->syn[i]);
+            name += "_" + args->syn[i];
+            
+        }
+        dbg("name is: " + name);
+
+        funcInfo* s = lookupFunction(name);
+        if(s)
+            dbg("YES");
+        dbg("");
+        check_func_access(s);
+        Node* n = new Node();
+        if(!s){
+            yyerror("Function '" + original + "' with given argument types not found.");
+        }
+        else if (s->paramCount != args->argCount) {
+            yyerror("Call to function '" + original + "' with incorrect number of arguments.");
+        }
+        if(s)
+        {
             for(int i=0; i<args->argCount; i++){
                 if(s->paramTypes[i]!=args->syn[i]){
-                    yyerror("Type mismatch in argument " + to_string(i+1) + " of function '" + fun->place + "'.");
+                    yyerror("Type mismatch in argument " + to_string(i+1) + " of function '" + original + "'.");
                 }
             }
-            Node* n = new Node();
             n->code = fun->code;
-            n->type = fun->type;
+            n->type = s->returnType;
             n->code.insert(n->code.end(), args->code.begin(), args->code.end());
-            if(fun->type=="void"){
-                n->code.push_back("call " + fun->place + ", " + to_string(args->argCount));
+            
+            if(s->returnType=="void") {
+                n->type = "";
+                n->code.push_back("call " + original + ", " + to_string(args->argCount));
             }
             else{
                 n->place = newTemp();
-                n->code.push_back(n->place + " = call " + fun->place + ", " + to_string(args->argCount));
+                n->code.push_back(n->place + " = call " + original + ", " + to_string(args->argCount));
             }
-            $$ = n;
-      }
+        }
+        $$ = n;
+    }
 	| postfix_expression DOT IDENTIFIER {
         dbg("postfix_expression -> postfix_expression . IDENTIFIER");
             Node* obj = $1;
@@ -690,32 +720,41 @@ postfix_expression
 
 // Done
 argument_expression_list
-	: assignment_expression {
-          dbg("argument_expression_list -> assignment_expression");
-          Node* e = $1;
-          if(e->place.empty()){
-              yyerror("Void expression cannot be used as function argument.");
-          }
-          Node* n = new Node();
-          n->code = e->code;
-          n->syn.push_back(e->type);
-          n->argCount = 1;
-          n->code.push_back("param " + e->place);
-          $$ = n;
-      }
-	| argument_expression_list COMMA assignment_expression {
-            dbg("argument_expression_list -> argument_expression_list , assignment_expression");
-            Node* e = $3;
-            if(e->place.empty()){
-                yyerror("Void expression cannot be used as function argument.");
-            }
-          Node* n = $1;
-          n->code.insert(n->code.end(), e->code.begin(), e->code.end());
-          n->argCount = n->argCount + 1;
-            n->syn.push_back(e->type);
-          n->code.push_back("param " + e->place);
-          $$ = n;
-      }
+	: assignment_expression 
+    {
+        dbg("argument_expression_list -> assignment_expression");
+        Node* e = $1;
+        if(e->place.empty()) {
+            yyerror("Void expression cannot be used as function argument.");
+        }
+        Node* n = new Node();
+        n->code = e->code;
+        n->syn.push_back(e->type);
+        n->argCount = 1;
+        n->code.push_back("param " + e->place);
+        n->type = e->type;
+        dbg("");
+        dbg("argcount is "+ to_string(n->argCount)+", type is "+n->type);
+        dbg("");
+        $$ = n;
+    }
+	| argument_expression_list COMMA assignment_expression 
+    {
+        dbg("argument_expression_list -> argument_expression_list , assignment_expression");
+        Node* e = $3;
+        if(e->place.empty()){
+            yyerror("Void expression cannot be used as function argument.");
+        }
+        Node* n = $1;
+        n->code.insert(n->code.end(), e->code.begin(), e->code.end());
+        n->argCount = n->argCount + 1;
+        n->syn.push_back(e->type);
+        n->code.push_back("param " + e->place);
+        dbg("");
+        dbg("argcount is " + to_string(n->argCount) + ", type is " + e->type);
+        dbg("");
+        $$ = n;
+    }
 	;
 
 // Done
@@ -1361,10 +1400,6 @@ declaration
     {
         dbg("declaration -> declaration_specifiers init_declarator_list ;");
         $$ = $2;
-    }
-    | error SEMICOLON
-    {
-        yyerror("Invalid declaration.");
     }
     ;
     
@@ -2470,11 +2505,13 @@ function_header
             funcTable[fname].paramCount = 0;
             // dbg("Function '" + fname + "' with return type '" + funcTable[fname].returnType + "' declared.");
             // dbg("Function '" + fname + "' with " + to_string(funcTable[fname].paramCount) + " parameters declared.");
-
+            if(lookupSymbol(fname) == nullptr)
+                declareSymbol(fname,"function","function",vector<string>(),true);
             currentFunction = fname;
             localTemp = 0; localLabel = 0;
             Node* n = new Node();
             n->code.push_back(fname + ":");
+
             pushScope(); 
             $$ = n;
         }
@@ -2484,6 +2521,14 @@ function_header
             dbg("function_definition -> return_type IDENTIFIER ( parameter_list ) compound_statement");
             string fname = string($2);
 
+            if(lookupSymbol(fname) == nullptr)
+                declareSymbol(fname,"function","function",vector<string>(),true);
+            for (int i=0;i<$4->syn.size();i+=2)
+            {
+                fname += "_" + $4->syn[i];
+            }
+
+
             if(funcTable.find(fname) != funcTable.end())
                 yyerror("Function redeclaration: " + fname);
             
@@ -2492,13 +2537,14 @@ function_header
                        
             funcTable[fname].returnType = string($1); 
             funcTable[fname].paramCount = $4->syn.size()/2;
-            // dbg("Function '" + fname + "' with return type '" + funcTable[fname].returnType + "' declared.");
-            // dbg("Function '" + fname + "' with " + to_string(funcTable[fname].paramCount) + " parameters declared.");
+            dbg("");
+            dbg("Function '" + fname + "' with return type '" + funcTable[fname].returnType + "' declared.");
 
             for (int i=0;i<$4->syn.size();i+=2){
                 funcTable[fname].paramTypes.push_back($4->syn[i]);
-                // dbg("Parameter: " + $4->syn[i+1] + " of type " + $4->syn[i]);
+                dbg("Parameter: " + $4->syn[i+1] + " of type " + $4->syn[i]);
             }
+            dbg("");
             
             currentFunction = fname;
             localTemp = 0; localLabel = 0;
