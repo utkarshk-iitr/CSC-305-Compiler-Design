@@ -1,51 +1,18 @@
 class A
 {
-    int a = 7;
+    public:
+    int p = 7;
     int fn()
     {
-        return 9;
-    }
-
-    int f()
-    {
-        int d = a;
-        return d;
+        int c;
+        return c;
     }
 };
 
-int x;
-static int y = 7;
-
-int* z = &x;
-
-int *fn()
-{
-    return &x;
-}
-
-int a = 5,b = 8,c;
-
-int* main(int a, int* b)
-{
-    return b;
-}
-
-char*** c(char c, int d)
-{
-    char *p = &c;
-    char **q = &p;
-    char ***o = &q;
-    return o;
-}
-
 int main()
 {
-    char * c;
-    int *q;
-    int *p= main(7,q);
-
-    static int pp = 7;
-
-    const int pppp = 8;
     A a;
+    a_p = 8;
+    int c = a_fn();
+
 }

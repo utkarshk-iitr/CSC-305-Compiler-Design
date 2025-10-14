@@ -371,7 +371,7 @@
 %type<node> expression_statement translation_unit for_init_statement;
 %type<str> type_specifier assignment_operator unary_operator return_type pointer_opt pointer_list static_opt const_opt
 %type<str> declaration_specifiers
-%type<node> square_list members external
+%type<node> square_list members external declare
 /* %type<node> switch_head switch_statement case_item */
 
 %start translation_unit
@@ -630,32 +630,34 @@ postfix_expression
     }
 	| postfix_expression DOT IDENTIFIER {
         dbg("postfix_expression -> postfix_expression . IDENTIFIER");
-            Node* obj = $1;
-            if(obj->type!="struct" && obj->type!="class"){
-                yyerror("Dot operator can only be applied to struct or class.");
-            }
-            string nm = obj->place + "." + string($3);
-            Symbol* s = lookupSymbol(nm);
-            funcInfo* f = lookupFunction(nm);
+        Node* obj = $1;
+        string currentType = obj->type;
+        dbg("currentType is " + currentType);
+        if(obj->type!="struct" && obj->type!="class" && classTable.find(currentType) == classTable.end()){
+            yyerror("Dot operator can not be applied here.");
+        }
+        string nm = obj->place + "." + string($3);
+        Symbol* s = lookupSymbol(nm);
+        funcInfo* f = lookupFunction(nm);
 
-            Node* n = new Node();
-            if(s){
-                check_access(s);
-                n->type = s->type;
-                n->kind = s->kind;
-            }
-            else if(f){
-                check_func_access(f);
-                n->type = f->returnType;
-            }
-            else{
-                yyerror("No member or function named '" + nm+"'.");
-            }
-            n->code = obj->code;
-            n->place = newTemp();
-            n->code.push_back(n->place + " = " + nm);
-            $$ = n;
-      }
+        Node* n = new Node();
+        if(s){
+            check_access(s);
+            n->type = s->type;
+            n->kind = s->kind;
+        }
+        else if(f){
+            check_func_access(f);
+            n->type = f->returnType;
+        }
+        else{
+            yyerror("No member or function named '" + nm+"'.");
+        }
+        n->code = obj->code;
+        n->place = newTemp();
+        n->code.push_back(n->place + " = " + nm);
+        $$ = n;
+    }
 	| postfix_expression ARROW IDENTIFIER {
         dbg("postfix_expression -> postfix_expression ARROW IDENTIFIER");
           Node* obj = $1;
@@ -1519,8 +1521,11 @@ init_declarator
             yyerror("Duplicate declaration of '" + n->place + "' in same scope.");
         }
         
-        if(lastClassType != "")
+        if(lastClassType != "" && currentFunction == "global")
         {
+            dbg("12" + n->place);
+            dbg(currentFunction);
+            dbg("13");
             if(classTable[lastClassType].find(n->place) != classTable[lastClassType].end()){
                 yyerror("Duplicate declaration of member '" + n->place + "' in class '" + lastClassType + "'.");
             } else 
@@ -1534,6 +1539,35 @@ init_declarator
 
         dbg("");
         dbg("Declared variable is: " + n->place + " of type: " + n->type + " and kind: " + n->kind);
+        dbg("");
+
+        if(n->type.find("void")!=string::npos){
+            yyerror("Variable '" + n->place + "' cannot be of type void.");
+        }
+
+        dbg("");
+        if(classTable.find(n->type) != classTable.end())
+        {
+            for(const auto& member : classTable[n->type])
+            {
+                if(member.second.kind == "function")
+                {
+                    string name = n->place + "_" + member.first;
+                    if(lookupSymbol(name) == nullptr)
+                        declareSymbol(name, "function","function",vector<string>(),true);
+                    
+                    funcInfo f = member.second.method;
+                    funcTable[name] = f;
+                    dbg("Function '" + name + "' with return type '" + funcTable[name].returnType + "' declared.");
+                }
+                else
+                {
+                    string name = n->place + "_" + member.first;
+                    bool ok = declareSymbol(name, member.second.type, member.second.kind);
+                    dbg("Variable '" + name + "' with type '" + member.second.type + "' declared.");
+                }
+            }
+        }
         dbg("");
 
         $$ = n;
@@ -2037,7 +2071,7 @@ struct_or_class_specifier
         popScope();
         $$ = $5; 
         typeSize[lastClassType] = classOffset;   // NEW: store computed size
-      lastClassType.clear(); 
+        lastClassType.clear(); 
     }
     ;
 
@@ -2601,19 +2635,35 @@ jump_statement
         Node* expr = $2;
         if(expr == nullptr)
             yyerror("Return statement must return a value.");
-        dbg("Return type: " + expr->type + ", Expected type: " + funcTable[currentFunction].returnType);
-
-        dbg("");
-        dbg("lastDeclType: " + lastDeclType);
-        dbg("currentFunction: " + currentFunction);
-        dbg("");
-        if(expr->type != funcTable[currentFunction].returnType){
-            yyerror("Return type mismatch in function '" + currentFunction + "'.");
-        }
-        dbg("Function '" + currentFunction + "' has return statement returning '" + expr->place + "'.");
+        
         Node* n = new Node();
-        n->code = expr->code;
-        n->code.push_back("return " + expr->place);
+        if(lastClassType == "")
+        {
+            dbg("Return type: " + expr->type + ", Expected type: " + funcTable[currentFunction].returnType);
+
+            dbg("");
+            dbg("lastDeclType: " + lastDeclType);
+            dbg("currentFunction: " + currentFunction);
+            dbg("");
+            if(expr->type != funcTable[currentFunction].returnType){
+                yyerror("Return type mismatch in function '" + currentFunction + "'.");
+            }
+            dbg("Function '" + currentFunction + "' has return statement returning '" + expr->place + "'.");
+            n->code = expr->code;
+            n->code.push_back("return " + expr->place);
+        }
+        else
+        {
+            dbg("3");
+            dbg(currentFunction);
+            dbg("Return type: " + expr->type + ", Expected type: " + classTable[lastClassType][currentFunction].method.returnType);
+            if(expr->type != classTable[lastClassType][currentFunction].method.returnType){
+                yyerror("Return type mismatch in method '" + currentFunction + "'.");
+            }
+            dbg("Method '" + currentFunction + "' has return statement returning '" + expr->place + "'.");
+            n->code = expr->code;
+            n->code.push_back("return " + expr->place);
+        }
         $$ = n;
     }
     ;
@@ -2645,17 +2695,21 @@ external_declaration
         dbg("external_declaration -> type_specifier pointer_list external");
         $$ = $4; 
     }  
-    | STATIC type_specifier 
-    {
-        dbg("declaration_specifiers -> static type_specifier");
-        lastDeclType = string($1)+string($2);
+    | struct_or_class_specifier SEMICOLON 
+    { 
+        dbg("external_declaration -> struct_or_class_specifier ;");
+        $$ = $1; 
+    } 
+    | TYPEDEF return_type IDENTIFIER SEMICOLON {
+        dbg("external_declaration -> TYPEDEF return_type IDENTIFIER ;");
+        typeSize[string($3)] = typeSize[string($2)];
+        $$ = new Node();
     }
-    init_declarator_list SEMICOLON 
-    {
-        dbg("declaration_specifiers -> static type_specifier init_declarator_list ;");
-        $$ = $4;
-    }
-    | CONST type_specifier 
+    | declare
+    ;
+
+declare
+    : CONST type_specifier 
     {
         dbg("declaration_specifiers -> const type_specifier");
         lastDeclType = string($1)+string($2);
@@ -2675,17 +2729,17 @@ external_declaration
         dbg("declaration_specifiers -> static const type_specifier init_declarator_list ;");
         $$ = $5;
     }
-	| struct_or_class_specifier SEMICOLON 
-    { 
-        dbg("external_declaration -> struct_or_class_specifier ;");
-        $$ = $1; 
+    | STATIC type_specifier 
+    {
+        dbg("declaration_specifiers -> static type_specifier");
+        lastDeclType = string($1)+string($2);
     }
-    | TYPEDEF return_type IDENTIFIER SEMICOLON {
-        dbg("external_declaration -> TYPEDEF return_type IDENTIFIER ;");
-        typeSize[string($3)] = typeSize[string($2)];
-        $$ = new Node();
-    }  
-    ;
+    init_declarator_list SEMICOLON 
+    {
+        dbg("declaration_specifiers -> static type_specifier init_declarator_list ;");
+        $$ = $4;
+    } 
+	;
 
 external 
     : IDENTIFIER LROUND RROUND 
@@ -2713,8 +2767,6 @@ external
         }// dbg("Function '" + fname + "' with " + to_string(funcTable[fname].paramCount) + " parameters declared.");
         else
         {
-            fname = lastClassType + "." + fname;
-
             if(classTable[lastClassType].find(string($1)) != classTable[lastClassType].end())
                 yyerror("Method redeclaration: " + fname);
             classTable[lastClassType][string($1)].kind = "function";
@@ -2727,6 +2779,9 @@ external
             if(string(lastFnType) == "void") f.hasReturn = false;
             else f.hasReturn = true;
             classTable[lastClassType][string($1)].method = f;
+            dbg("1");
+            dbg("Method '" + fname + "' with return type '" + f.returnType + "' declared.");
+            dbg("2");
         }
         currentFunction = fname;
         localTemp = 0; localLabel = 0;
@@ -2837,7 +2892,7 @@ external
         popScope(); 
 
         if(lastClassType != "")
-            fname = lastClassType + "." + string($1);
+            fname = lastClassType + "." + fname;
         n->code.push_back(fname + ":");
 
         if($6) n->code.insert(n->code.end(),$6->code.begin(),$6->code.end());
@@ -2848,10 +2903,11 @@ external
         $$ = n;
     }
     | init_declarator_list SEMICOLON 
-    { 
-        dbg("external -> init_declarator_list ;");
-        $$ = $1; 
-    }
+        { 
+            dbg("external -> init_declarator_list ;");
+            $$ = $1; 
+        }
+    ;
 
 // Done
 function_header

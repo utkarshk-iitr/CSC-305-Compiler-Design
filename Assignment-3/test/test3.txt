@@ -1,12 +1,12 @@
 class A
 {
-    int a = 7;
+    int p = 7;
     int fn()
     {
-        return 7+5;
+        return 9 + p;
     }
 
-    int f()
+    int func(int a)
     {
         int d = a;
         return d;
@@ -14,7 +14,7 @@ class A
 };
 
 int x;
-static int y;
+static int y = 7;
 
 int* z = &x;
 
@@ -23,13 +23,33 @@ int *fn()
     return &x;
 }
 
-int a = 5,b = 8,c;
+int a = 5,b = 8, **c = &z;
 
 int* main(int a, int* b)
 {
     return b;
 }
 
+char*** c(char c, int d)
+{
+    char *p = &c;
+    char **q = &p;
+    char ***o = &q;
+    return o;
+}
+
+int *uk = &y;
+
+int **uk1=&uk;
+
 int main()
 {
+    char * c;
+    int *q;
+    int *p= main(7,q);
+
+    static int pp = 7;
+
+    const int pppp = 8;
+    A a;
 }
