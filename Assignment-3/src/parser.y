@@ -75,6 +75,8 @@
     static string lastUsage = "rvalue";
     static string lastFnType = "int";
 
+    vector<string> globalCode;
+
     Node* finalRoot = nullptr;
 
     string newTemp() {
@@ -868,12 +870,12 @@ unary_expression
             n->type = "int";
           $$ = n;
       }
-	| delete_expression { 
+	/* | delete_expression { 
         dbg("unary_expression -> delete_expression");
         $$ = $1; }
 	| new_expression { 
         dbg("unary_expression -> new_expression");
-        $$ = $1; }
+        $$ = $1; } */
 	;
 
 // Done
@@ -897,7 +899,7 @@ unary_operator
         dbg("unary_operator -> !");
         $$ = strdup($1); }
 	;
-
+/* 
 // Done
 new_expression 
 	: NEW return_type new_square {
@@ -965,7 +967,7 @@ delete_expression
           n->code.push_back("call free, " + $2->place);
           $$ = n;
       }
-	;
+	; */
 
 // Done
 cast_expression
@@ -1345,6 +1347,8 @@ assignment_expression
           else {
               n->code.push_back(left->place + " = " + left->place + " " + baseop + " " + right->place);
           }
+          n->place = left->place;
+          n->type = left->type;
           $$ = n;
       }
 	;
@@ -1419,7 +1423,13 @@ declaration
 	: declaration_specifiers init_declarator_list SEMICOLON
     {
         dbg("declaration -> declaration_specifiers init_declarator_list ;");
-        $$ = $2;
+        if(lastDeclType.find("static")!=string::npos){ 
+            globalCode.insert(globalCode.end(), $2->code.begin(), $2->code.end());
+            $$ = new Node();
+        }
+        else{
+            $$ = $2;
+        }
     }
     ;
     
@@ -1830,6 +1840,14 @@ init_declarator
         if (!ok) {
             yyerror("Duplicate declaration of '" + name + "' in same scope.");
         }
+
+        string tmp = newTemp();
+        n->code.push_back(tmp + " = &" + n->place);
+        for(int i = 0; i < $4->argCount; i++)
+        {
+            n->code.push_back("*(" + tmp + " + " + to_string(i*typeSize[$4->type]) + ") = " + $4->syn[i]);
+        }
+
        
         if(lastClassType != "")
         {
@@ -1939,6 +1957,10 @@ initializer_list
         dbg("initializer_list -> assignment_expression");
         Node * n = $1;
         n->argCount = 1;
+        if(n->place == ""){
+            yyerror("Initializer type incorrect.");
+        }
+        n->syn.push_back(n->place);
         $$ = n;
     }
 	| initializer_list COMMA assignment_expression 
@@ -1952,6 +1974,10 @@ initializer_list
         }
 
         n->code.insert(n->code.end(), $3->code.begin(), $3->code.end());
+        if($3->place == ""){
+            yyerror("Initializer type incorrect.");
+        }
+        n->syn.push_back($3->place);
         n->argCount = n->argCount + 1;
         $$ = n;
     }
@@ -2336,7 +2362,8 @@ statement
 	| jump_statement { 
         dbg("statement -> jump_statement");
         $$ = $1; }
-	| io_statement { 
+    ;
+	/* | io_statement { 
         dbg("statement -> io_statement");
         $$ = $1; }
     ;
@@ -2413,7 +2440,7 @@ extraction_list
           n->code.push_back("read " + e->place); 
           $$ = n;
       }
-    ;
+    ; */
 
 // Done
 labeled_statement
@@ -2705,7 +2732,11 @@ external_declaration
         typeSize[string($3)] = typeSize[string($2)];
         $$ = new Node();
     }
-    | declare
+    | declare {
+        dbg("external_declaration -> declare");
+        globalCode.insert(globalCode.begin(),$1->code.begin(),$1->code.end());
+        $$ = new Node();
+    }
     ;
 
 declare
@@ -2905,7 +2936,8 @@ external
     | init_declarator_list SEMICOLON 
         { 
             dbg("external -> init_declarator_list ;");
-            $$ = $1; 
+            globalCode.insert(globalCode.begin(),$1->code.begin(),$1->code.end());
+            $$ = new Node();
         }
     ;
 
@@ -3025,6 +3057,7 @@ int main(int argc, char** argv){
         return 1;
     }
 
+    finalRoot->code.insert(finalRoot->code.begin(),globalCode.begin(),globalCode.end());
     if(finalRoot){
         for(int i=0;i<finalRoot->code.size();i++) {
             cout<<"["<<(i+1)<<"] "<<finalRoot->code[i]<<"\n";

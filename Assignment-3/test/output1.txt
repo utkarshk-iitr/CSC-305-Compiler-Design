@@ -1,7 +1,5 @@
-[1] p = 7
-[2] A.fn:
-[3] return c
-[4] main:
-[5] a_p = 8
-[6] main.t1 = call a_fn, 0;
-[7] c = main.t1
+[1] main:
+[2] main.t1 = &arr
+[3] *( main.t1 + 0 ) = 1.1
+[4] *( main.t1 + 8 ) = 2e5
+[5] *( main.t1 + 16 ) = 3.3
