@@ -38,7 +38,7 @@ int main()
 {
     char c1[2][2]={'a'};
 
-    char d1 = c[1][1];
+    char d1 = c1[1][1];
     int z = (func(3, 4));
     z= fn();
     char y = c('a');

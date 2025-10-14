@@ -1,34 +1,35 @@
-#include <stdio.h>
+class A
+{
+    int a = 7;
+    int fn()
+    {
+        return 7+5;
+    }
 
-struct Node {
-    bool flag ;
-    int val ;
-    string name ;
-    static int id ;  
+    int f()
+    {
+        int d = a;
+        return d;
+    }
+};
+
+int x;
+static int y;
+
+int* z = &x;
+
+int *fn()
+{
+    return &x;
 }
 
-class Trie{
-    private :
-    Node *root;
+int a = 5,b = 8,c;
 
-    public :
-    int lol ;
-    bool flag ;
-    string name;
+int* main(int a, int* b)
+{
+    return b;
 }
 
-int main() {
-    Trie PrefixString ;
-    string lol = "HelloWorld" ;
-
-    PrefixString.name = lol;
-    PrefixString.lol = 930;
-
-    Trie* boi = &PrefixString;
-    cout<<boi->name<<endl;
-    cout<<*boi.lol<<endl;
-
-    cout<<"Adesh$$$"<<endl;
-    cout<<"Adesh$$$;
-    return 0;
+int main()
+{
 }
