@@ -16,7 +16,6 @@
     #include <cstdlib>
     using namespace std;
 
-
     struct Node {
         vector<string> code;
         vector<string> syn;
@@ -369,14 +368,10 @@
 %type<node> assignment_expression expression constant_expression declaration init_declarator
 %type<node> init_declarator_list constant new_expression new_square delete_expression  
 %type<node> function_header
-%type<node> expression_statement translation_unit for_init_statement
+%type<node> expression_statement translation_unit for_init_statement;
 %type<str> type_specifier assignment_operator unary_operator return_type pointer_opt pointer_list static_opt const_opt
 %type<str> declaration_specifiers
-<<<<<<< HEAD
 %type<node> square_list members external
-=======
-%type<node> square_list default_label case_label case_list switch_block
->>>>>>> f20b7f7f09f370d3630bcfd92726a1942d8f6f10
 /* %type<node> switch_head switch_statement case_item */
 
 %start translation_unit
@@ -2488,29 +2483,9 @@ selection_statement
           n->code.push_back(Lend + ":");
           $$ = n;
       }
-	| SWITCH LROUND expression RROUND switch_block
-    ;
-
-switch_block
-    : LCURLY case_list RCURLY {
-            dbg("switch_block -> { case_list }");
-          Node* n = $2; $$ = n;
-      }
-    ;
-
-case_list
-    : case_list case_label statement_list
-    | case_list default_label statement_list
-    | case_label statement_list
-    | default_label statement_list
-    ;
-
-case_label
-    : CASE constant_expression COLON
-    ;
-
-default_label
-    : DEFAULT COLON
+	/* | switch_head LCURLY switch_statement RCURLY {   
+                 
+      } */
     ;
 
 iteration_statement
