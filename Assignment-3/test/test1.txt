@@ -1,18 +1,24 @@
 class A
 {
     public:
-    int p = 7;
-    int fn()
+    int d;
+    public:
+    char fn(int d)
     {
-        int c;
+        char c;
         return c;
     }
+
+    protected:
+    int p;
 };
 
-int main()
+char fn(int p){
+    return 'a';
+}
+
+char main()
 {
     A a;
-    a_p = 8;
-    int c = a_fn();
-
+    char c = a.fn(7);
 }

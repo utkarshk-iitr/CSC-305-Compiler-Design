@@ -1,7 +1,4 @@
-[1] p = 7
-[2] A.fn:
-[3] return c
-[4] main:
-[5] a_p = 8
-[6] main.t1 = call a_fn, 0;
-[7] c = main.t1
+---- Errors found ----
+Error at line 23 : No member or function named 'a.fn'.
+Error at line 23 : Function '' with given argument types not found.
+Error at line 23 : Type mismatch in initialization of 'c'.

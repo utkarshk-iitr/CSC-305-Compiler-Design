@@ -33,7 +33,7 @@
         string kind;
         bool isFunction = false;
         int paramCount = 0;
-        vector<string> dim;
+        vector<string> dim; 
         bool isDeclared = true;
         Symbol() : name(""), type(""), kind(""), isFunction(false), paramCount(0), isDeclared(true) {}
         Symbol(string n, string t, string k,vector<string> s, bool f=false, int p=0) : name(n), type(t), kind(k),dim(s), isFunction(f), paramCount(p) {}
@@ -74,6 +74,8 @@
     static string lastClassType = "";
     static string lastUsage = "rvalue";
     static string lastFnType = "int";
+
+    vector<string> globalCode;
 
     Node* finalRoot = nullptr;
 
@@ -386,6 +388,7 @@ primary_expression
         Node* n = new Node();
         string name = string($1);
         n->place = name;
+        dbg(name);
         Symbol* sym = lookupSymbol(name);
         dbg("");
         dbg("Looking up symbol: " + name);
@@ -502,77 +505,81 @@ postfix_expression
         if(!base || !idx) {
             yyerror("Invalid array subscript operation.");
         }
-        else{
+        else
+        {
+            if(base->type.back()!='*'){
+                yyerror("Subscripted value is not an array or pointer.");
+            }
+            if(idx->type!="int"){
+                yyerror("Index is not an integer.");
+            }
+            if(base->kind.find("const")!=string::npos){
+                yyerror("Cannot modify a const value.");
+            }
+            if(base->syn.empty()){
+                yyerror("Too many dimensions for array.");
+            }
+            n->code = base->code;
+            n->code.insert(n->code.end(), idx->code.begin(), idx->code.end());
 
-        if(base->type.back()!='*'){
-            yyerror("Subscripted value is not an array or pointer.");
-        }
-        if(idx->type!="int"){
-            yyerror("Index is not an integer.");
-        }
-        if(base->kind.find("const")!=string::npos){
-            yyerror("Cannot modify a const value.");
-        }
-        if(base->syn.empty()){
-            yyerror("Too many dimensions for array.");
-        }
-        n->code = base->code;
-        n->code.insert(n->code.end(), idx->code.begin(), idx->code.end());
+            int p=1;
+            dbg("");
+            dbg("Array dimensions: ");
+            dbg(to_string(base->syn.size()));
 
-        int p=1;
-        dbg("");
-        dbg("Array dimensions: ");
-        dbg(to_string(base->syn.size()));
-
-        for(auto x:base->syn)
-        { 
-            dbg("Dimension size: " + x);
-            p = p * stoi(x);
-        }
-        dbg("");
-        
-        p /= stoi(base->syn.front());
-        string offset = newTemp();
-        
-        string type = base->type.substr(0,base->type.size()-base->syn.size());
-        
-        n->code.push_back(offset + " = " + idx->place + " * " + to_string(p));
-        n->code.push_back(offset + " = " + offset +" * "+to_string(typeSize[type]));
-        n->place = newTemp();
-        n->code.push_back(n->place + " = " + base->place + " + " + offset);
-        n->type = base->type.substr(0,base->type.size()-1);
-        n->kind = base->kind;
-        n->syn = vector<string>(base->syn.begin()+1, base->syn.end());
-        
-        if(n->syn.empty()){
-            n->place = "*" + n->place;
-        }
-        }
+            for(auto x:base->syn)
+            { 
+                dbg("Dimension size: " + x);
+                p = p * stoi(x);
+            }
+            dbg("");
+            
+            p /= stoi(base->syn.front());
+            string offset = newTemp();
+            
+            string type = base->type.substr(0,base->type.size()-base->syn.size());
+            
+            n->code.push_back(offset + " = " + idx->place + " * " + to_string(p));
+            n->code.push_back(offset + " = " + offset +" * "+to_string(typeSize[type]));
+            n->place = newTemp();
+            n->code.push_back(n->place + " = " + base->place + " + " + offset);
+            n->type = base->type.substr(0,base->type.size()-1);
+            n->kind = base->kind;
+            n->syn = vector<string>(base->syn.begin()+1, base->syn.end());
+            
+            if(n->syn.empty()){
+                n->place = "*" + n->place;
+            }
+        }   
         $$ = n;
     }
 	| postfix_expression LROUND RROUND 
     {
         dbg("postfix_expression -> postfix_expression ( )");
         Node* fun = $1;
+        dbg(fun->place);
         funcInfo* s = lookupFunction(fun->place);
         check_func_access(s);
+        Node* n = new Node();
         if(!s){
             yyerror("Call to non-function '" + fun->place + "'.");
         }
-        if(s->paramCount != 0){
-            yyerror("Call to function '" + fun->place + "' with incorrect number of arguments.");
-        }
+        if(s)
+        {
+            if(s->paramCount != 0){
+                yyerror("Call to function '" + fun->place + "' with incorrect number of arguments.");
+            }
 
-        Node* n = new Node();
-        n->code = fun->code;
-        n->type = s->returnType;
+            n->code = fun->code;
+            n->type = s->returnType;
 
-        if(fun->type=="void"){
-            n->code.push_back("call " + fun->place + ", 0;");
-        }
-        else{
-            n->place = newTemp();
-            n->code.push_back(n->place + " = call " + fun->place + ", 0;");
+            if(fun->type=="void"){
+                n->code.push_back("call " + fun->place + ", 0;");
+            }
+            else{
+                n->place = newTemp();
+                n->code.push_back(n->place + " = call " + fun->place + ", 0;");
+            }
         }
         $$ = n;
     }
@@ -580,6 +587,8 @@ postfix_expression
     {
         dbg("postfix_expression -> postfix_expression ( argument_expression_list )");
         Node* fun = $1;
+        dbg("");
+        dbg(fun->place);
         string name = fun->place;
         string original = fun->place;
         Node* args = $3;
@@ -603,11 +612,11 @@ postfix_expression
         if(!s){
             yyerror("Function '" + original + "' with given argument types not found.");
         }
-        else if (s->paramCount != args->argCount) {
-            yyerror("Call to function '" + original + "' with incorrect number of arguments.");
-        }
         if(s)
         {
+            if (s->paramCount != args->argCount) {
+                yyerror("Call to function '" + original + "' with incorrect number of arguments.");
+            }
             for(int i=0; i<args->argCount; i++){
                 if(s->paramTypes[i]!=args->syn[i]){
                     yyerror("Type mismatch in argument " + to_string(i+1) + " of function '" + original + "'.");
@@ -637,25 +646,43 @@ postfix_expression
             yyerror("Dot operator can not be applied here.");
         }
         string nm = obj->place + "." + string($3);
+
+        dbg("");
+        dbg(nm);
+        dbg("");
         Symbol* s = lookupSymbol(nm);
         funcInfo* f = lookupFunction(nm);
 
+        if(!s)
+            dbg("YES");
+
         Node* n = new Node();
-        if(s){
-            check_access(s);
-            n->type = s->type;
-            n->kind = s->kind;
-        }
-        else if(f){
-            check_func_access(f);
-            n->type = f->returnType;
+        if(s) 
+        {
+            if(s->isFunction)
+            {
+                dbg("function");
+                check_func_access(f);
+                dbg(f->returnType);
+                n->type = f->returnType;
+                n->place = f->place;
+                n->kind = f->kind;
+            }
+            else
+            {
+                check_access(s);
+                n->place = s->name;
+                n->type = s->type;
+                n->kind = s->kind;
+            }
         }
         else{
             yyerror("No member or function named '" + nm+"'.");
         }
-        n->code = obj->code;
-        n->place = newTemp();
-        n->code.push_back(n->place + " = " + nm);
+
+        // n->code = obj->code;
+        dbg("1");
+        // n->code.push_back(n->place + " = " + nm);
         $$ = n;
     }
 	| postfix_expression ARROW IDENTIFIER {
@@ -696,7 +723,7 @@ postfix_expression
                 yyerror("No member or function named '" + nm+"'.");
             }
             n->place = newTemp();
-            n->code.push_back(n->place + " = " + tmp + "." + string($3));
+            // n->code.push_back(n->place + " = " + tmp + "." + string($3));
             $$ = n;
       }
 	| postfix_expression INCREMENT {
@@ -868,12 +895,12 @@ unary_expression
             n->type = "int";
           $$ = n;
       }
-	| delete_expression { 
+	/* | delete_expression { 
         dbg("unary_expression -> delete_expression");
         $$ = $1; }
 	| new_expression { 
         dbg("unary_expression -> new_expression");
-        $$ = $1; }
+        $$ = $1; } */
 	;
 
 // Done
@@ -897,7 +924,7 @@ unary_operator
         dbg("unary_operator -> !");
         $$ = strdup($1); }
 	;
-
+/* 
 // Done
 new_expression 
 	: NEW return_type new_square {
@@ -965,26 +992,27 @@ delete_expression
           n->code.push_back("call free, " + $2->place);
           $$ = n;
       }
-	;
+	; */
 
 // Done
 cast_expression
 	: unary_expression { 
         dbg("cast_expression -> unary_expression");
         $$ = $1; }
-	| LROUND return_type RROUND cast_expression {
-            dbg("cast_expression -> ( type_name ) cast_expression");
-            string a = $2; Node* b = $4;
-            if(!check_casting(b->type,a)){
-                yyerror("Unable to cast from '" + b->type + "' to '" + a + "'.");
-            }
-            Node* n = new Node();
-            n->code = b->code;
-            n->place = newTemp();
-            n->code.push_back(n->place + " = " + b->type + "_to_"+ a +" "+ b->place);
-            n->type = a;
-          $$ = n;
-      }
+	| LROUND return_type RROUND cast_expression 
+    {
+        dbg("cast_expression -> ( type_name ) cast_expression");
+        string a = $2; Node* b = $4;
+        if(!check_casting(b->type,a)){
+            yyerror("Unable to cast from '" + b->type + "' to '" + a + "'.");
+        }
+        Node* n = new Node();
+        n->code = b->code;
+        n->place = newTemp();
+        n->code.push_back(n->place + " = " + b->type + "_to_"+ a +" "+ b->place);
+        n->type = a;
+        $$ = n;
+    }
 	;
 
 // Done
@@ -992,33 +1020,35 @@ multiplicative_expression
 	: cast_expression { 
         dbg("multiplicative_expression -> cast_expression");
         $$ = $1; }
-	| multiplicative_expression STAR cast_expression {
+	| multiplicative_expression STAR cast_expression 
+    {
         dbg("multiplicative_expression -> multiplicative_expression * cast_expression");
-          Node* a = $1; Node* b = $3;
-          if(!check_compatibility(a->type,b->type,"*")){
-            yyerror("Type incompatibility in multiply.");
-          }
-          Node* n = new Node();
-          n->code = a->code; n->code.insert(n->code.end(), b->code.begin(), b->code.end());
-          n->place = newTemp();
-          n->code.push_back(n->place + " = " + a->place + " * " + b->place);
-          n->type = a->type;
-          $$ = n;
-      }
-	| multiplicative_expression DIVIDE cast_expression {
+        Node* a = $1; Node* b = $3;
+        if(!check_compatibility(a->type,b->type,"*")){
+        yyerror("Type incompatibility in multiply.");
+        }
+        Node* n = new Node();
+        n->code = a->code; n->code.insert(n->code.end(), b->code.begin(), b->code.end());
+        n->place = newTemp();
+        n->code.push_back(n->place + " = " + a->place + " * " + b->place);
+        n->type = a->type;
+        $$ = n;
+    }
+	| multiplicative_expression DIVIDE cast_expression 
+    {
         dbg("multiplicative_expression -> multiplicative_expression / cast_expression");
-          Node* a = $1; Node* b = $3;
-          if(!check_compatibility(a->type,b->type,"/")){
+        Node* a = $1; Node* b = $3;
+        if(!check_compatibility(a->type,b->type,"/")){
             yyerror("Type incompatibility in divide.");
-          }
-          Node* n = new Node();
-          n->code = a->code; 
-          n->code.insert(n->code.end(), b->code.begin(), b->code.end());
-          n->place = newTemp();
-          n->code.push_back(n->place + " = " + a->place + " / " + b->place);
-          n->type = a->type;
-          $$ = n;
-      }
+        }
+        Node* n = new Node();
+        n->code = a->code; 
+        n->code.insert(n->code.end(), b->code.begin(), b->code.end());
+        n->place = newTemp();
+        n->code.push_back(n->place + " = " + a->place + " / " + b->place);
+        n->type = a->type;
+        $$ = n;
+    }
 	| multiplicative_expression MODULUS cast_expression {
         dbg("multiplicative_expression -> multiplicative_expression % cast_expression");
           Node* a = $1; Node* b = $3;
@@ -1345,6 +1375,8 @@ assignment_expression
           else {
               n->code.push_back(left->place + " = " + left->place + " " + baseop + " " + right->place);
           }
+          n->place = left->place;
+          n->type = left->type;
           $$ = n;
       }
 	;
@@ -1419,7 +1451,13 @@ declaration
 	: declaration_specifiers init_declarator_list SEMICOLON
     {
         dbg("declaration -> declaration_specifiers init_declarator_list ;");
-        $$ = $2;
+        if(lastDeclType.find("static")!=string::npos){ 
+            globalCode.insert(globalCode.end(), $2->code.begin(), $2->code.end());
+            $$ = new Node();
+        }
+        else{
+            $$ = $2;
+        }
     }
     ;
     
@@ -1552,17 +1590,18 @@ init_declarator
             {
                 if(member.second.kind == "function")
                 {
-                    string name = n->place + "_" + member.first;
+                    string name = n->place + "." + member.first;
                     if(lookupSymbol(name) == nullptr)
                         declareSymbol(name, "function","function",vector<string>(),true);
                     
                     funcInfo f = member.second.method;
+                    f.place = n->place + "." + f.place;
                     funcTable[name] = f;
                     dbg("Function '" + name + "' with return type '" + funcTable[name].returnType + "' declared.");
                 }
                 else
                 {
-                    string name = n->place + "_" + member.first;
+                    string name = n->place + "." + member.first;
                     bool ok = declareSymbol(name, member.second.type, member.second.kind);
                     dbg("Variable '" + name + "' with type '" + member.second.type + "' declared.");
                 }
@@ -1610,7 +1649,7 @@ init_declarator
             yyerror("Duplicate declaration of '" + n->place + "' in same scope.");
         }
         
-        if(lastClassType != "")
+        if(lastClassType != "" && currentFunction == "global")
         {
             if(classTable[lastClassType].find(n->place) != classTable[lastClassType].end()){
                 yyerror("Duplicate declaration of member '" + n->place + "' in class '" + lastClassType + "'.");
@@ -1634,6 +1673,35 @@ init_declarator
         for(int i = 0; i < n->argCount; i++)
         {
             dbg("Dimension " + to_string(i+1) + ": " + n->syn[i]);
+        }
+        dbg("");
+
+        if(n->type.find("void")!=string::npos){
+            yyerror("Variable '" + n->place + "' cannot be of type void.");
+        }
+
+        dbg("");
+        if(classTable.find(n->type) != classTable.end())
+        {
+            for(const auto& member : classTable[n->type])
+            {
+                if(member.second.kind == "function")
+                {
+                    string name = n->place + "." + member.first;
+                    if(lookupSymbol(name) == nullptr)
+                        declareSymbol(name, "function","function",vector<string>(),true);
+                    
+                    funcInfo f = member.second.method;
+                    funcTable[name] = f;
+                    dbg("Function '" + name + "' with return type '" + funcTable[name].returnType + "' declared.");
+                }
+                else
+                {
+                    string name = n->place + "." + member.first;
+                    bool ok = declareSymbol(name, member.second.type, member.second.kind);
+                    dbg("Variable '" + name + "' with type '" + member.second.type + "' declared.");
+                }
+            }
         }
         dbg("");
         $$ = n;
@@ -1667,7 +1735,7 @@ init_declarator
             yyerror("Duplicate declaration of '" + n->place + "' in same scope.");
         }
        
-        if(lastClassType != "")
+        if(lastClassType != "" && currentFunction == "global")
         {
             if(classTable[lastClassType].find(n->place) != classTable[lastClassType].end()){
                 yyerror("Duplicate declaration of member '" + n->place + "' in class '" + lastClassType + "'.");
@@ -1683,6 +1751,35 @@ init_declarator
 
         dbg("");
         dbg("Declared pointer: " + n->place + " of type: " + n->type + " and kind: " + n->kind);
+        dbg("");
+
+        if(n->type.find("void")!=string::npos){
+            yyerror("Variable '" + n->place + "' cannot be of type void.");
+        }
+
+        dbg("");
+        if(classTable.find(n->type) != classTable.end())
+        {
+            for(const auto& member : classTable[n->type])
+            {
+                if(member.second.kind == "function")
+                {
+                    string name = n->place + "." + member.first;
+                    if(lookupSymbol(name) == nullptr)
+                        declareSymbol(name, "function","function",vector<string>(),true);
+                    
+                    funcInfo f = member.second.method;
+                    funcTable[name] = f;
+                    dbg("Function '" + name + "' with return type '" + funcTable[name].returnType + "' declared.");
+                }
+                else
+                {
+                    string name = n->place + "." + member.first;
+                    bool ok = declareSymbol(name, member.second.type, member.second.kind);
+                    dbg("Variable '" + name + "' with type '" + member.second.type + "' declared.");
+                }
+            }
+        }
         dbg("");
         $$ = n;
     }
@@ -1717,7 +1814,7 @@ init_declarator
             yyerror("Duplicate declaration of '" + name + "' in same scope.");
         }
         
-        if(lastClassType != "")
+        if(lastClassType != "" && currentFunction == "global")
         {
             if(classTable[lastClassType].find(n->place) != classTable[lastClassType].end()){
                 yyerror("Duplicate declaration of member '" + n->place + "' in class '" + lastClassType + "'.");
@@ -1733,6 +1830,35 @@ init_declarator
 
         dbg("");
         dbg("Declared variable: " + n->place + " of type: " + n->type + " and kind: " + n->kind);
+        dbg("");
+
+        if(n->type.find("void")!=string::npos){
+            yyerror("Variable '" + n->place + "' cannot be of type void.");
+        }
+
+        dbg("");
+        if(classTable.find(n->type) != classTable.end())
+        {
+            for(const auto& member : classTable[n->type])
+            {
+                if(member.second.kind == "function")
+                {
+                    string name = n->place + "." + member.first;
+                    if(lookupSymbol(name) == nullptr)
+                        declareSymbol(name, "function","function",vector<string>(),true);
+                    
+                    funcInfo f = member.second.method;
+                    funcTable[name] = f;
+                    dbg("Function '" + name + "' with return type '" + funcTable[name].returnType + "' declared.");
+                }
+                else
+                {
+                    string name = n->place + "." + member.first;
+                    bool ok = declareSymbol(name, member.second.type, member.second.kind);
+                    dbg("Variable '" + name + "' with type '" + member.second.type + "' declared.");
+                }
+            }
+        }
         dbg("");
         $$ = n;
     }
@@ -1769,7 +1895,7 @@ init_declarator
             yyerror("Duplicate declaration of '" + name + "' in same scope.");
         }
        
-        if(lastClassType != "")
+        if(lastClassType != "" && currentFunction == "global")
         {
             if(classTable[lastClassType].find(n->place) != classTable[lastClassType].end()){
                 yyerror("Duplicate declaration of member '" + n->place + "' in class '" + lastClassType + "'.");
@@ -1785,6 +1911,35 @@ init_declarator
 
         dbg("");
         dbg("Declared pointer: " + n->place + " of type: " + n->type + " and kind: " + n->kind);
+        dbg("");
+
+        if(n->type.find("void")!=string::npos){
+            yyerror("Variable '" + n->place + "' cannot be of type void.");
+        }
+
+        dbg("");
+        if(classTable.find(n->type) != classTable.end())
+        {
+            for(const auto& member : classTable[n->type])
+            {
+                if(member.second.kind == "function")
+                {
+                    string name = n->place + "." + member.first;
+                    if(lookupSymbol(name) == nullptr)
+                        declareSymbol(name, "function","function",vector<string>(),true);
+                    
+                    funcInfo f = member.second.method;
+                    funcTable[name] = f;
+                    dbg("Function '" + name + "' with return type '" + funcTable[name].returnType + "' declared.");
+                }
+                else
+                {
+                    string name = n->place + "." + member.first;
+                    bool ok = declareSymbol(name, member.second.type, member.second.kind);
+                    dbg("Variable '" + name + "' with type '" + member.second.type + "' declared.");
+                }
+            }
+        }
         dbg("");
         $$ = n;
     }
@@ -1831,7 +1986,7 @@ init_declarator
             yyerror("Duplicate declaration of '" + name + "' in same scope.");
         }
        
-        if(lastClassType != "")
+        if(lastClassType != "" && currentFunction == "global")
         {
             if(classTable[lastClassType].find(n->place) != classTable[lastClassType].end()){
                 yyerror("Duplicate declaration of member '" + n->place + "' in class '" + lastClassType + "'.");
@@ -1850,6 +2005,43 @@ init_declarator
         for(int i = 0; i < n->argCount; i++)
         {
             dbg("Dimension " + to_string(i+1) + ": " + n->syn[i]);
+        }
+        dbg("");
+
+        
+        string tmp = newTemp();
+        n->code.push_back(tmp + " = &" + n->place);
+        for(int i = 0; i < $4->argCount; i++)
+        {
+            n->code.push_back("*(" + tmp + " + " + to_string(i*typeSize[$4->type]) + ") = " + $4->syn[i]);
+        }
+
+        if(n->type.find("void")!=string::npos){
+            yyerror("Variable '" + n->place + "' cannot be of type void.");
+        }
+
+        dbg("");
+        if(classTable.find(n->type) != classTable.end())
+        {
+            for(const auto& member : classTable[n->type])
+            {
+                if(member.second.kind == "function")
+                {
+                    string name = n->place + "." + member.first;
+                    if(lookupSymbol(name) == nullptr)
+                        declareSymbol(name, "function","function",vector<string>(),true);
+                    
+                    funcInfo f = member.second.method;
+                    funcTable[name] = f;
+                    dbg("Function '" + name + "' with return type '" + funcTable[name].returnType + "' declared.");
+                }
+                else
+                {
+                    string name = n->place + "." + member.first;
+                    bool ok = declareSymbol(name, member.second.type, member.second.kind);
+                    dbg("Variable '" + name + "' with type '" + member.second.type + "' declared.");
+                }
+            }
         }
         dbg("");
         $$ = n;
@@ -1939,6 +2131,10 @@ initializer_list
         dbg("initializer_list -> assignment_expression");
         Node * n = $1;
         n->argCount = 1;
+        if(n->place == ""){
+            yyerror("Initializer type incorrect.");
+        }
+        n->syn.push_back(n->place);
         $$ = n;
     }
 	| initializer_list COMMA assignment_expression 
@@ -1952,6 +2148,10 @@ initializer_list
         }
 
         n->code.insert(n->code.end(), $3->code.begin(), $3->code.end());
+        if($3->place == ""){
+            yyerror("Initializer type incorrect.");
+        }
+        n->syn.push_back($3->place);
         n->argCount = n->argCount + 1;
         $$ = n;
     }
@@ -2336,7 +2536,8 @@ statement
 	| jump_statement { 
         dbg("statement -> jump_statement");
         $$ = $1; }
-	| io_statement { 
+    ;
+	/* | io_statement { 
         dbg("statement -> io_statement");
         $$ = $1; }
     ;
@@ -2413,7 +2614,7 @@ extraction_list
           n->code.push_back("read " + e->place); 
           $$ = n;
       }
-    ;
+    ; */
 
 // Done
 labeled_statement
@@ -2705,7 +2906,11 @@ external_declaration
         typeSize[string($3)] = typeSize[string($2)];
         $$ = new Node();
     }
-    | declare
+    | declare {
+        dbg("external_declaration -> declare");
+        globalCode.insert(globalCode.begin(),$1->code.begin(),$1->code.end());
+        $$ = new Node();
+    }
     ;
 
 declare
@@ -2814,14 +3019,16 @@ external
         dbg("external -> IDENTIFIER ( parameter_list )");
         string fname = string($1);
         
-        for (int i=0;i<$3->syn.size();i+=2)
-        {
-            fname += "_" + $3->syn[i];
-        }
         if(lastClassType == "")
         {
             if(lookupSymbol(fname) == nullptr)
                 declareSymbol(fname,"function","function",vector<string>(),true);
+            
+            for (int i=0;i<$3->syn.size();i+=2)
+            {
+                fname += "_" + $3->syn[i];
+            }
+
             if(funcTable.find(fname) != funcTable.end())
                 yyerror("Function redeclaration: " + fname);
             
@@ -2841,6 +3048,10 @@ external
         }
         else
         {
+            for (int i=0;i<$3->syn.size();i+=2)
+            {
+                fname += "_" + $3->syn[i];
+            }
             string methodName = fname;
             if(classTable[lastClassType].find(methodName) != classTable[lastClassType].end())
                 yyerror("Method redeclaration: " + lastClassType + "." + methodName);
@@ -2905,7 +3116,8 @@ external
     | init_declarator_list SEMICOLON 
         { 
             dbg("external -> init_declarator_list ;");
-            $$ = $1; 
+            globalCode.insert(globalCode.begin(),$1->code.begin(),$1->code.end());
+            $$ = new Node();
         }
     ;
 
@@ -3025,6 +3237,7 @@ int main(int argc, char** argv){
         return 1;
     }
 
+    finalRoot->code.insert(finalRoot->code.begin(),globalCode.begin(),globalCode.end());
     if(finalRoot){
         for(int i=0;i<finalRoot->code.size();i++) {
             cout<<"["<<(i+1)<<"] "<<finalRoot->code[i]<<"\n";
