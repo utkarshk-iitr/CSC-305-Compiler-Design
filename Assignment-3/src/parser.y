@@ -28,6 +28,7 @@
     };
 
     struct Symbol {
+        string printName;
         string name;
         string type;
         string kind;
@@ -73,8 +74,9 @@
     static int classOffset = 0;
     static string lastDeclType = "int";
     static string lastClassType = "";
-    static string lastUsage = "rvalue";
+    static string lastUsage = "";
     static string lastFnType = "int";
+    static string currentScope = "";
 
     vector<string> globalCode;
 
@@ -126,6 +128,18 @@
         if (it != funcTable.end()) return &(it->second);
         return nullptr;
     }   
+
+    memberInfo* lookupClassMember(const string& c,const string& m){
+        auto it = classTable.find(c);
+        if(it!=classTable.end()){
+            auto y = it->second.find(m);
+            if(y!=it->second.end()){
+                return &(y->second);
+            }
+            return nullptr;
+        }
+        return nullptr;
+    }
     
     bool declareSymbol(const string &name, const string &type, const string k="",vector<string> syn=vector<string>(),bool isFunc=false, int params=0) {
         if (symStack.empty()) pushScope();
@@ -388,7 +402,6 @@ primary_expression
         dbg("primary_expression -> IDENTIFIER");
         Node* n = new Node();
         string name = string($1);
-        n->place = name;
         dbg(name);
         Symbol* sym = lookupSymbol(name);
         dbg("");
@@ -413,7 +426,9 @@ primary_expression
             n->kind = sym->kind;
             n->type = sym->type;
             n->syn = sym->dim;
+            n->place = sym->printName;
         }
+        dbg("n->place is " + n->place + ", n->name is " + name);
         $$ = n;
     }
 	| constant 
@@ -654,6 +669,7 @@ postfix_expression
         dbg("");
         Symbol* s = lookupSymbol(nm);
         funcInfo* f = lookupFunction(nm);
+        memberInfo* m = lookupClassMember(currentType,string($3));
 
         if(!s)
             dbg("YES");
@@ -674,11 +690,17 @@ postfix_expression
                 n->kind = s->kind;
             }
         }
+
+        else if(m){
+            n->type = m->type;
+            n->kind = m->kind;
+            n->place = nm;
+        }
         else{
             yyerror("No member or function named '" + nm+"'.");
         }
 
-        // n->code = obj->code;
+        n->code = obj->code;
         dbg("1");
         // n->code.push_back(n->place + " = " + nm);
         $$ = n;
@@ -1556,6 +1578,10 @@ init_declarator
         if (!ok) {
             yyerror("Duplicate declaration of '" + n->place + "' in same scope.");
         }
+
+        Symbol* sym = lookupSymbol(n->place);
+        string w = lastClassType+currentFunction+currentScope+n->place;
+        sym->printName = w;
         
         if(lastClassType != "" && currentFunction == "global")
         {
@@ -1589,14 +1615,7 @@ init_declarator
                 if(member.second.kind == "function")
                 {
                     string name = n->place + "." + member.first;
-                    
-                    dbg("1212");
                     string original = n->place + "." + member.second.method.original;
-                    // for(int i = 0 ; i < member.first.size(); i++)
-                    //     if(member.first[i] != '_')
-                    //         original += member.first[i];
-                    //     else break; 
-
                     if(lookupSymbol(original) == nullptr)
                         declareSymbol(original, "function","function",vector<string>(),true);
                     dbg(original);
@@ -1616,7 +1635,7 @@ init_declarator
             }
         }
         dbg("");
-
+        n->place = w;
         $$ = n;
     }
     | IDENTIFIER square_list 
@@ -1657,6 +1676,11 @@ init_declarator
             yyerror("Duplicate declaration of '" + n->place + "' in same scope.");
         }
         
+        Symbol* sym = lookupSymbol(n->place);
+        string w = lastClassType+currentFunction+currentScope+n->place;
+        sym->printName = w;
+        
+
         if(lastClassType != "" && currentFunction == "global")
         {
             if(classTable[lastClassType].find(n->place) != classTable[lastClassType].end()){
@@ -1696,10 +1720,14 @@ init_declarator
                 if(member.second.kind == "function")
                 {
                     string name = n->place + "." + member.first;
-                    if(lookupSymbol(name) == nullptr)
-                        declareSymbol(name, "function","function",vector<string>(),true);
-                    
+                    string original = n->place + "." + member.second.method.original;
+                    if(lookupSymbol(original) == nullptr)
+                        declareSymbol(original, "function","function",vector<string>(),true);
+                    dbg(original);
                     funcInfo f = member.second.method;
+                    f.place = n->place + "." + f.place;
+                    dbg("zz");
+                    dbg(f.place);
                     funcTable[name] = f;
                     dbg("Function '" + name + "' with return type '" + funcTable[name].returnType + "' declared.");
                 }
@@ -1712,6 +1740,7 @@ init_declarator
             }
         }
         dbg("");
+        n->place = w;
         $$ = n;
     }
 	| pointer_list IDENTIFIER
@@ -1742,6 +1771,10 @@ init_declarator
         if (!ok) {
             yyerror("Duplicate declaration of '" + n->place + "' in same scope.");
         }
+
+        Symbol* sym = lookupSymbol(n->place);
+        string w = lastClassType+currentFunction+currentScope+n->place;
+        sym->printName = w;
        
         if(lastClassType != "" && currentFunction == "global")
         {
@@ -1773,11 +1806,14 @@ init_declarator
                 if(member.second.kind == "function")
                 {
                     string name = n->place + "." + member.first;
-                    if(lookupSymbol(name) == nullptr)
-                        declareSymbol(name, "function","function",vector<string>(),true);
-                    
-                    
+                    string original = n->place + "." + member.second.method.original;
+                    if(lookupSymbol(original) == nullptr)
+                        declareSymbol(original, "function","function",vector<string>(),true);
+                    dbg(original);
                     funcInfo f = member.second.method;
+                    f.place = n->place + "." + f.place;
+                    dbg("zz");
+                    dbg(f.place);
                     funcTable[name] = f;
                     dbg("Function '" + name + "' with return type '" + funcTable[name].returnType + "' declared.");
                 }
@@ -1790,6 +1826,7 @@ init_declarator
             }
         }
         dbg("");
+        n->place = w;
         $$ = n;
     }
     // not array, not pointer
@@ -1812,7 +1849,6 @@ init_declarator
             n->type.erase(0,5);
             n->kind += "const";
         }
-        n->code.push_back(n->place + " = " + $3->place);
 
         if(n->type != $3->type){
             yyerror("Type mismatch in initialization of '" + name + "'.");
@@ -1822,6 +1858,10 @@ init_declarator
         if (!ok) {
             yyerror("Duplicate declaration of '" + name + "' in same scope.");
         }
+        Symbol* sym = lookupSymbol(n->place);
+        string w = lastClassType+currentFunction+currentScope+n->place;
+        sym->printName = w;
+        n->code.push_back(w + " = " + $3->place);
         
         if(lastClassType != "" && currentFunction == "global")
         {
@@ -1853,10 +1893,14 @@ init_declarator
                 if(member.second.kind == "function")
                 {
                     string name = n->place + "." + member.first;
-                    if(lookupSymbol(name) == nullptr)
-                        declareSymbol(name, "function","function",vector<string>(),true);
-                    
+                    string original = n->place + "." + member.second.method.original;
+                    if(lookupSymbol(original) == nullptr)
+                        declareSymbol(original, "function","function",vector<string>(),true);
+                    dbg(original);
                     funcInfo f = member.second.method;
+                    f.place = n->place + "." + f.place;
+                    dbg("zz");
+                    dbg(f.place);
                     funcTable[name] = f;
                     dbg("Function '" + name + "' with return type '" + funcTable[name].returnType + "' declared.");
                 }
@@ -1869,6 +1913,7 @@ init_declarator
             }
         }
         dbg("");
+        n->place = w;
         $$ = n;
     }
     // pointer not array
@@ -1882,7 +1927,6 @@ init_declarator
         
         n->type = lastDeclType + stars;
         n->code = $4->code;
-        n->code.push_back(n->place + " = " + $4->place);
         n->argCount = 0;
         n->kind = "pointer";
 
@@ -1903,6 +1947,11 @@ init_declarator
         if (!ok) {
             yyerror("Duplicate declaration of '" + name + "' in same scope.");
         }
+
+        Symbol* sym = lookupSymbol(n->place);
+        string w = lastClassType+currentFunction+currentScope+n->place;
+        sym->printName = w;
+        n->code.push_back(w + " = " + $4->place);
        
         if(lastClassType != "" && currentFunction == "global")
         {
@@ -1934,10 +1983,14 @@ init_declarator
                 if(member.second.kind == "function")
                 {
                     string name = n->place + "." + member.first;
-                    if(lookupSymbol(name) == nullptr)
-                        declareSymbol(name, "function","function",vector<string>(),true);
-                    
+                    string original = n->place + "." + member.second.method.original;
+                    if(lookupSymbol(original) == nullptr)
+                        declareSymbol(original, "function","function",vector<string>(),true);
+                    dbg(original);
                     funcInfo f = member.second.method;
+                    f.place = n->place + "." + f.place;
+                    dbg("zz");
+                    dbg(f.place);
                     funcTable[name] = f;
                     dbg("Function '" + name + "' with return type '" + funcTable[name].returnType + "' declared.");
                 }
@@ -1950,6 +2003,7 @@ init_declarator
             }
         }
         dbg("");
+        n->place = w;
         $$ = n;
     }
     // array not pointer
@@ -1995,6 +2049,10 @@ init_declarator
             yyerror("Duplicate declaration of '" + name + "' in same scope.");
         }
 
+        Symbol* sym = lookupSymbol(n->place);
+        string w = lastClassType+currentFunction+currentScope+n->place;
+        sym->printName = w;
+
         string tmp = newTemp();
         n->code.push_back(tmp + " = &" + n->place);
         for(int i = 0; i < $4->argCount; i++)
@@ -2036,10 +2094,14 @@ init_declarator
                 if(member.second.kind == "function")
                 {
                     string name = n->place + "." + member.first;
-                    if(lookupSymbol(name) == nullptr)
-                        declareSymbol(name, "function","function",vector<string>(),true);
-                    
+                    string original = n->place + "." + member.second.method.original;
+                    if(lookupSymbol(original) == nullptr)
+                        declareSymbol(original, "function","function",vector<string>(),true);
+                    dbg(original);
                     funcInfo f = member.second.method;
+                    f.place = n->place + "." + f.place;
+                    dbg("zz");
+                    dbg(f.place);
                     funcTable[name] = f;
                     dbg("Function '" + name + "' with return type '" + funcTable[name].returnType + "' declared.");
                 }
@@ -2052,6 +2114,7 @@ init_declarator
             }
         }
         dbg("");
+        n->place = w;
         $$ = n;
     }
     /* | pointer_list IDENTIFIER square_list ASSIGN initializer
@@ -2254,6 +2317,7 @@ translation_unit
             dbg("translation_unit -> translation_unit external_declaration");
           Node* a = $1; Node* b = $2;
           if (a) { 
+              b->code.push_back("");
             a->code.insert(a->code.end(), b->code.begin(), b->code.end()); 
             finalRoot = a; $$ = a; }
           else { finalRoot = b; $$ = b; }
@@ -2645,10 +2709,15 @@ compound_statement
           Node* n = new Node();
           $$ = n;
       }
-	| LCURLY { pushScope();} statement_list RCURLY {
+	| LCURLY 
+    {
+        currentScope += "$";
+        pushScope();
+    } statement_list RCURLY {
             dbg("compound_statement -> { statement_list }");
           Node* n = $3;
           popScope();
+          currentScope.pop_back();
           $$ = n;
       }
 	;
@@ -2835,6 +2904,8 @@ jump_statement
 	| RETURN SEMICOLON {
             dbg("jump_statement -> RETURN ;");
           Node* n = new Node(); 
+          if(lastFnType != "void")
+              yyerror("Return statement must return a value.");
           n->code.push_back("return;"); 
           $$ = n;
       }
@@ -3011,8 +3082,13 @@ external
         n->argCount = 0;
         n->kind = "function";
         string fname = string($1);
+
         if(lastClassType != "")
             fname = lastClassType + "." + fname;
+        if($5->code.back().substr(0,6) != "return")
+        {
+            yyerror("Missing return statement in function '" + fname + "'.");
+        }
         n->code.push_back(fname + ":");
         if($5) n->code.insert(n->code.end(),$5->code.begin(),$5->code.end());
         popScope();
@@ -3114,6 +3190,11 @@ external
 
         if(lastClassType != "")
             fname = lastClassType + "." + fname;
+
+        if($6->code.back().substr(0,6) != "return")
+        {
+            yyerror("Missing return statement in function '" + fname + "'.");
+        }
         n->code.push_back(fname + ":");
 
         if($6) n->code.insert(n->code.end(),$6->code.begin(),$6->code.end());
@@ -3247,8 +3328,9 @@ int main(int argc, char** argv){
         return 1;
     }
 
-    finalRoot->code.insert(finalRoot->code.begin(),globalCode.begin(),globalCode.end());
     if(finalRoot){
+        globalCode.push_back("");
+        finalRoot->code.insert(finalRoot->code.begin(),globalCode.begin(),globalCode.end());
         for(int i=0;i<finalRoot->code.size();i++) {
             cout<<"["<<(i+1)<<"] "<<finalRoot->code[i]<<"\n";
         }
