@@ -1,38 +1,18 @@
-[1] A.fn_int:
-[2] return c
-[3] A.fn_int*_int*_char**:
-[4] fn_int*_int*_char**.t1 = &o
-[5] p1 = fn_int*_int*_char**.t1
-[6] fn_int*_int*_char**.t2 = &p1
-[7] return fn_int*_int*_char**.t2
-[8] fn_int:
-[9] return 'a'
-[10] fn_int*:
-[11] return a
-[12] main:
-[13] param 7
-[14] main.t1 = call a.fn, 1
-[15] c = main.t1
-[16] main.t2 = &b
-[17] *(main.t2 + 0) = 1
-[18] *(main.t2 + 4) = 2
-[19] *(main.t2 + 8) = 3
-[20] param 8
-[21] main.t3 = call fn, 1
-[22] d = main.t3
-[23] p = 8
-[24] main.t4 = &o
-[25] p1 = main.t4
-[26] main.t5 = &p1
-[27] p2 = main.t5
-[28] main.t6 = &p
-[29] param main.t6
-[30] main.t7 = call fn, 1
-[31] param main.t7
-[32] main.t8 = &p
-[33] param main.t8
-[34] main.t9 = call fn, 1
-[35] param main.t9
-[36] param p2
-[37] main.t10 = call a.fn, 3
-[38] q = main.t10
+[1] globalg = 10
+[2] globalh = 10
+[3] 
+[4] 
+[5] fn:
+[6] fn$y = 6
+[7] return;
+[8] 
+[9] 
+[10] main:
+[11] main$y = main$arr
+[12] main.t1 = &ar
+[13] *(main.t1 + 0) = main$arr
+[14] *(main.t1 + 4) = main$arr
+[15] globalh = 8
+[16] globalg = 9
+[17] return 0
+[18] 

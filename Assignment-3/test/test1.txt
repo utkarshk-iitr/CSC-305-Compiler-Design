@@ -1,48 +1,23 @@
-class A
-{
+class A{
     public:
-    int d;
-    public:
-    char fn(int d)
-    {
-        char c;
-        return c;
-    }
-
-    char **fn(int* a, int *b, char**c)
-    {
-        char o;
-        char*p1=&o;
-        return &p1;
-    }
-
-    protected:
-    int p;
+    int a;
 };
 
-char fn(int p){
-    return 'a';
+int h = 10;
+
+void fn(){
+    int y=6;
+    return;
 }
 
-int* fn(int* a)
-{
-    return a;
-}
+int g = 10;
 
-char main()
-{
-    A a;
-    char c = a.fn(7);
+int main(){
+    A arr;
+    A y = arr;
 
-    int b[3] = {1, 2, 3};
-
-    char d = fn(8);
-
-    int p = 8;
-
-    char o;
-    char*p1=&o;
-    char**p2=&p1;
-
-    char **q = a.fn(fn(&p),fn(&p),p2);
+    A ar[2] = {arr, arr};
+    h = 8;
+    g = 9;
+    return 0;
 }
