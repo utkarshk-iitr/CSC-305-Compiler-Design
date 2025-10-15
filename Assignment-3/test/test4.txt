@@ -1,60 +1,49 @@
-#include <stdio.h>
-
-int main() {
-    int a = 5 , b = 7;
-
-    if(a>b) {
-        cout<<"Bada Hai"<<"\n";
-    }
-    else if(a <b) {
-        cout<<"Chota Hai"<<"\n" ;
-    }
-    else if(a==b) {
-        cout<<"Saman Hai"<<"\n";
+class A
+{
+    public:
+    int d;
+    public:
+    char fn(int d)
+    {
+        char c;
+        return c;
     }
 
-    if(a>= b) cout<<"Sure" <<"\n";
-    
-
-    if(a <=b) {
-        cout<< "Not Sure"<<"\n";
-
-        if(a <b && a== b ) cout<<"Is it possible"<<"\n";
+    char **fn(int* a, int *b, char**c)
+    {
+        char o;
+        char*p1=&o;
+        return &p1;
     }
 
-    if(a !=b) cout<<"Not Equal"<<"\n";
-    if(a==b || a!=b) cout<<"To be Printed"<<"\n";
-    
-    // yeh switch case
-    char x = 'I';
-    switch(x) {
-    case 'A'{
-        cout << "A";
-        break;
-    }
-    case 'B'{
-        cout << "B";
-        break;
-    }
-    default{
-        cout << "Other than A and B";
-    }
-    }
+    protected:
+    int p;
+};
 
-    goto skipItAll;
+char fn(int p){
+    return 'a';
+}
 
-    int a = **p;
-    int pd = &(&p);
-    double uk = 6.9;
-    skipItAll:
-    int count = 8;
-    while(count>0) count--;
-    count = -9;
-    do {
-        count++;
-    } while(count<0);
-    count =8;
-    until(count == 3) count--;
+int fn(int* a)
+{
+    return *a;
+}
 
-    return 0;
+char main()
+{
+    A a;
+    char c = a.fn(7);
+
+    int b[3] = {1, 2, 3};
+
+    char d = fn(8);
+
+    int p = 8;
+
+    char o;
+    char*p1=&o;
+    char**p2=&p1;
+
+    char **q = a.fn(fn(&p),fn(&p),p2);
+
 }

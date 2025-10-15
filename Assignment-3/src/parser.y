@@ -41,6 +41,7 @@
 
     struct funcInfo {
         string place;
+        string original;
         string kind;
         string returnType;
         bool hasReturn = false;
@@ -587,7 +588,7 @@ postfix_expression
     {
         dbg("postfix_expression -> postfix_expression ( argument_expression_list )");
         Node* fun = $1;
-        dbg("");
+        dbg("133");
         dbg(fun->place);
         string name = fun->place;
         string original = fun->place;
@@ -610,6 +611,7 @@ postfix_expression
         check_func_access(s);
         Node* n = new Node();
         if(!s){
+            dbg("121212121");
             yyerror("Function '" + original + "' with given argument types not found.");
         }
         if(s)
@@ -662,11 +664,7 @@ postfix_expression
             if(s->isFunction)
             {
                 dbg("function");
-                check_func_access(f);
-                dbg(f->returnType);
-                n->type = f->returnType;
-                n->place = f->place;
-                n->kind = f->kind;
+                n->place = nm;
             }
             else
             {
@@ -1591,11 +1589,21 @@ init_declarator
                 if(member.second.kind == "function")
                 {
                     string name = n->place + "." + member.first;
-                    if(lookupSymbol(name) == nullptr)
-                        declareSymbol(name, "function","function",vector<string>(),true);
                     
+                    dbg("1212");
+                    string original = n->place + "." + member.second.method.original;
+                    // for(int i = 0 ; i < member.first.size(); i++)
+                    //     if(member.first[i] != '_')
+                    //         original += member.first[i];
+                    //     else break; 
+
+                    if(lookupSymbol(original) == nullptr)
+                        declareSymbol(original, "function","function",vector<string>(),true);
+                    dbg(original);
                     funcInfo f = member.second.method;
                     f.place = n->place + "." + f.place;
+                    dbg("zz");
+                    dbg(f.place);
                     funcTable[name] = f;
                     dbg("Function '" + name + "' with return type '" + funcTable[name].returnType + "' declared.");
                 }
@@ -1767,6 +1775,7 @@ init_declarator
                     string name = n->place + "." + member.first;
                     if(lookupSymbol(name) == nullptr)
                         declareSymbol(name, "function","function",vector<string>(),true);
+                    
                     
                     funcInfo f = member.second.method;
                     funcTable[name] = f;
@@ -2015,15 +2024,6 @@ init_declarator
             dbg("Dimension " + to_string(i+1) + ": " + n->syn[i]);
         }
         dbg("");
-
-        
-        string tmp = newTemp();
-        n->code.push_back(tmp + " = &" + n->place);
-        for(int i = 0; i < $4->argCount; i++)
-        {
-            n->code.push_back("*(" + tmp + " + " + to_string(i*typeSize[$4->type]) + ") = " + $4->syn[i]);
-        }
-
         if(n->type.find("void")!=string::npos){
             yyerror("Variable '" + n->place + "' cannot be of type void.");
         }
@@ -2989,6 +2989,7 @@ external
             f.place = string($1);
             f.returnType = lastFnType;
             f.paramCount = 0;
+            f.original = string($1);
             if(string(lastFnType) == "void") f.hasReturn = false;
             else f.hasReturn = true;
             classTable[lastClassType][string($1)].method = f;
@@ -3069,6 +3070,7 @@ external
 
             funcInfo f;
             f.place = methodName;
+            f.original = string($1);
             f.returnType = lastFnType;
             f.paramCount = $3->syn.size()/2;
             if(string(lastFnType) == "void") f.hasReturn = false;
