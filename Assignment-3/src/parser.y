@@ -1985,6 +1985,14 @@ init_declarator
         if (!ok) {
             yyerror("Duplicate declaration of '" + name + "' in same scope.");
         }
+
+        string tmp = newTemp();
+        n->code.push_back(tmp + " = &" + n->place);
+        for(int i = 0; i < $4->argCount; i++)
+        {
+            n->code.push_back("*(" + tmp + " + " + to_string(i*typeSize[$4->type]) + ") = " + $4->syn[i]);
+        }
+
        
         if(lastClassType != "" && currentFunction == "global")
         {

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 Debug: struct_or_class -> CLASS
 Debug: named struct/class: A
 Debug: struct_or_class_member_list -> <empty>
@@ -128,6 +129,9 @@ Debug: struct_or_class_specifier -> struct_or_class IDENTIFIER { struct_or_class
 Debug: external_declaration -> struct_or_class_specifier ;
 Debug: translation_unit -> external_declaration
 Debug: type_specifier -> CHAR
+=======
+Debug: type_specifier -> INT
+>>>>>>> 9206846c8d3e7643dd696d2dbfd1365f1db852ec
 Debug: external_declaration -> type_specifier
 Debug: type_specifier -> INT
 Debug: pointer_opt -> <empty>
@@ -137,6 +141,7 @@ Debug: parameter_list -> parameter_declaration
 Debug: 
 Debug: lastDeclType in external: char
 Debug: 
+<<<<<<< HEAD
 Debug: external -> IDENTIFIER ( parameter_list )
 Debug: 
 Debug: Function 'fn_int' with return type 'char' declared.
@@ -145,6 +150,15 @@ Debug:
 Debug: constant -> CHARACTER_LITERAL
 Debug: 
 Debug: Character constant value: a
+=======
+Debug: external -> IDENTIFIER ( )
+Debug: Function 'main' with return type 'int' declared.
+Debug: type_specifier -> DOUBLE
+Debug: declaration_specifiers -> type_specifier
+Debug: constant -> DECIMAL_LITERAL
+Debug: 
+Debug: Integer constant value: 3
+>>>>>>> 9206846c8d3e7643dd696d2dbfd1365f1db852ec
 Debug: 
 Debug: primary_expression -> constant
 Debug: postfix_expression -> primary_expression
@@ -161,6 +175,7 @@ Debug: inclusive_or_expression -> exclusive_or_expression
 Debug: logical_and_expression -> inclusive_or_expression
 Debug: logical_or_expression -> logical_and_expression
 Debug: conditional_expression -> logical_or_expression
+<<<<<<< HEAD
 Debug: assignment_expression -> conditional_expression
 Debug: expression -> assignment_expression
 Debug: jump_statement -> RETURN expression ;
@@ -253,6 +268,13 @@ Debug: argCount is:1
 Debug: type is int
 Debug: name is: _int
 Debug: 
+=======
+Debug: constant_expression -> conditional_expression
+Debug: square_opt -> [ constant_expression ]
+Debug: constant -> DOUBLE_LITERAL
+Debug: primary_expression -> constant
+Debug: postfix_expression -> primary_expression
+>>>>>>> 9206846c8d3e7643dd696d2dbfd1365f1db852ec
 Debug: unary_expression -> postfix_expression
 Debug: cast_expression -> unary_expression
 Debug: multiplicative_expression -> cast_expression
@@ -267,17 +289,60 @@ Debug: logical_and_expression -> inclusive_or_expression
 Debug: logical_or_expression -> logical_and_expression
 Debug: conditional_expression -> logical_or_expression
 Debug: assignment_expression -> conditional_expression
-Debug: init_declarator -> IDENTIFIER = assignment_expression 
+Debug: initializer_list -> assignment_expression
+Debug: constant -> EXPONENT_LITERAL
+Debug: primary_expression -> constant
+Debug: postfix_expression -> primary_expression
+Debug: unary_expression -> postfix_expression
+Debug: cast_expression -> unary_expression
+Debug: multiplicative_expression -> cast_expression
+Debug: additive_expression -> multiplicative_expression
+Debug: shift_expression -> additive_expression
+Debug: relational_expression -> shift_expression
+Debug: equality_expression -> relational_expression
+Debug: and_expression -> equality_expression
+Debug: exclusive_or_expression -> and_expression
+Debug: inclusive_or_expression -> exclusive_or_expression
+Debug: logical_and_expression -> inclusive_or_expression
+Debug: logical_or_expression -> logical_and_expression
+Debug: conditional_expression -> logical_or_expression
+Debug: assignment_expression -> conditional_expression
+Debug: initializer_list -> initializer_list , assignment_expression
+Debug: constant -> DOUBLE_LITERAL
+Debug: primary_expression -> constant
+Debug: postfix_expression -> primary_expression
+Debug: unary_expression -> postfix_expression
+Debug: cast_expression -> unary_expression
+Debug: multiplicative_expression -> cast_expression
+Debug: additive_expression -> multiplicative_expression
+Debug: shift_expression -> additive_expression
+Debug: relational_expression -> shift_expression
+Debug: equality_expression -> relational_expression
+Debug: and_expression -> equality_expression
+Debug: exclusive_or_expression -> and_expression
+Debug: inclusive_or_expression -> exclusive_or_expression
+Debug: logical_and_expression -> inclusive_or_expression
+Debug: logical_or_expression -> logical_and_expression
+Debug: conditional_expression -> logical_or_expression
+Debug: assignment_expression -> conditional_expression
+Debug: initializer_list -> initializer_list , assignment_expression
+Debug: initializer -> { initializer_list }
+Debug: init_declarator -> IDENTIFIER square_list = initializer 
 Debug: 
+<<<<<<< HEAD
 Debug: Declared variable: c of type: char and kind: 
 Debug: 
 Debug: 
+=======
+Debug: Declared array: arr of type: double* and kind: array
+Debug: Dimension 1: 3
+>>>>>>> 9206846c8d3e7643dd696d2dbfd1365f1db852ec
 Debug: 
 Debug: init_declarator_list -> init_declarator
 Debug: declaration -> declaration_specifiers init_declarator_list ;
 Debug: block_item -> declaration
-Debug: statement_list -> statement_list block_item
+Debug: statement_list -> block_item
 Debug: compound_statement -> { statement_list }
 Debug: external -> IDENTIFIER ( ) compound_statement
 Debug: external_declaration -> type_specifier external
-Debug: translation_unit -> translation_unit external_declaration
+Debug: translation_unit -> external_declaration

@@ -1,4 +1,12 @@
+<<<<<<< HEAD
 ---- Errors found ----
 Error at line 23 : No member or function named 'a.fn'.
 Error at line 23 : Function '' with given argument types not found.
 Error at line 23 : Type mismatch in initialization of 'c'.
+=======
+[1] main:
+[2] main.t1 = &arr
+[3] *( main.t1 + 0 ) = 1.1
+[4] *( main.t1 + 8 ) = 2e5
+[5] *( main.t1 + 16 ) = 3.3
+>>>>>>> 9206846c8d3e7643dd696d2dbfd1365f1db852ec
