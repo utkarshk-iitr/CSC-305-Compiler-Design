@@ -1,18 +1,10 @@
-[1] globalg = 10
-[2] globalh = 10
-[3] 
-[4] 
-[5] fn:
-[6] fn$y = 6
-[7] return;
-[8] 
-[9] 
-[10] main:
-[11] main$y = main$arr
-[12] main.t1 = &ar
-[13] *(main.t1 + 0) = main$arr
-[14] *(main.t1 + 4) = main$arr
-[15] globalh = 8
-[16] globalg = 9
-[17] return 0
-[18] 
+[1] 
+[2] A.fn_int:
+[3] A.fn_int.x = 0
+[4] return A.fn_int.x
+[5] main:
+[6] param 7
+[7] main.t1 = call arr.fn, 1
+[8] main$z = main.t1
+[9] return 0
+[10] 

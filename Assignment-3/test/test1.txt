@@ -1,23 +1,16 @@
 class A{
     public:
     int a;
+
+    int fn(int x){
+        x = 0;
+        return x;
+    }
 };
-
-int h = 10;
-
-void fn(){
-    int y=6;
-    return;
-}
-
-int g = 10;
 
 int main(){
     A arr;
-    A y = arr;
-
-    A ar[2] = {arr, arr};
-    h = 8;
-    g = 9;
+    int z = arr.fn(7);
+    
     return 0;
 }

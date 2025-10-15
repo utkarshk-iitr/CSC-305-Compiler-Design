@@ -574,27 +574,35 @@ postfix_expression
         dbg("postfix_expression -> postfix_expression ( )");
         Node* fun = $1;
         dbg(fun->place);
-        funcInfo* s = lookupFunction(fun->place);
+
+        string funcName = fun->place;
+        
+        int idx=0;
+        for(int i=0;i<funcName.size();i++){
+            if(funcName[i]=='$') idx = i;
+        }
+        funcName.erase(0,idx);
+        funcInfo* s = lookupFunction(funcName);
         check_func_access(s);
         Node* n = new Node();
         if(!s){
-            yyerror("Call to non-function '" + fun->place + "'.");
+            yyerror("Call to non-function '" + funcName + "'.");
         }
         if(s)
         {
             if(s->paramCount != 0){
-                yyerror("Call to function '" + fun->place + "' with incorrect number of arguments.");
+                yyerror("Call to function '" + funcName + "' with incorrect number of arguments.");
             }
 
             n->code = fun->code;
             n->type = s->returnType;
 
             if(fun->type=="void"){
-                n->code.push_back("call " + fun->place + ", 0;");
+                n->code.push_back("call " + funcName + ", 0;");
             }
             else{
                 n->place = newTemp();
-                n->code.push_back(n->place + " = call " + fun->place + ", 0;");
+                n->code.push_back(n->place + " = call " + funcName + ", 0;");
             }
         }
         $$ = n;
@@ -608,6 +616,11 @@ postfix_expression
         string name = fun->place;
         string original = fun->place;
         Node* args = $3;
+        int idx=0;
+        for(int i=0;i<name.size();i++){
+            if(name[i]=='$') idx = i;
+        }
+        name.erase(0,idx);
 
         dbg("");
         dbg("argCount is:" + to_string(args->argCount));
@@ -662,7 +675,14 @@ postfix_expression
         if(obj->type!="struct" && obj->type!="class" && classTable.find(currentType) == classTable.end()){
             yyerror("Dot operator can not be applied here.");
         }
+
+        int idx=0;
+        for(int i=0;i<obj->place.size();i++){
+            if(obj->place[i]=='$') idx = i;
+        }
+        obj->place.erase(0,idx+1);
         string nm = obj->place + "." + string($3);
+
 
         dbg("");
         dbg(nm);
@@ -873,9 +893,11 @@ unary_expression
               n->code.push_back(n->place + " = &" + rhs->place);
               n->type = rhs->type + "*";
           } else if (op == "*") {
-              n->place = newTemp();
-              n->code.push_back(n->place + " = *" + rhs->place);
+            n = $2;
+            //   n->place = newTemp();
+            //   n->code.push_back(n->place + " = *" + rhs->place);
               n->type = rhs->type.substr(0, rhs->type.size() - 1);
+              n->place = "*" + rhs->place;
           } else if (op == "+") {
               n->place = rhs->place;
               n->type = rhs->type;
@@ -3168,6 +3190,9 @@ external
             string pname = $3->syn[i];
             string ptype = $3->syn[i-1];
             bool ok = declareSymbol(pname,ptype);
+            Symbol* sym = lookupSymbol(pname);
+            string w = lastClassType + "."+ currentFunction + currentScope + "." +pname;
+            sym->printName = w;
             if(!ok) yyerror("Duplicate parameter name '" + pname + "' in function '" + fname + "'.");
         }
     }
