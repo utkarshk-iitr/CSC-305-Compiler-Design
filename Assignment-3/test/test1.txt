@@ -1,16 +1,21 @@
-class A{
-    public:
-    int a;
-
-    int fn(int x){
-        x = 0;
-        return x;
-    }
-};
-
 int main(){
-    A arr;
-    int z = arr.fn(7);
-    
+    char w = 'a';
+    int c;
+
+    switch(w){
+        case 'a'{
+            c = 0;
+            break;
+        }
+        case 'b'{
+            c = 1;
+            break;
+        }
+        default{
+            c = 2;
+            break  ;
+        }
+    }
+
     return 0;
 }

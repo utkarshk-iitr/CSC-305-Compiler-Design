@@ -1,10 +1,18 @@
-[1] 
-[2] A.fn_int:
-[3] A.fn_int.x = 0
-[4] return A.fn_int.x
-[5] main:
-[6] param 7
-[7] main.t1 = call arr.fn, 1
-[8] main$z = main.t1
-[9] return 0
-[10] 
+    
+main:
+    main$w = 'a'
+    if w == 'a' goto main.L1
+    if w == 'b' goto main.L2
+    goto main.L3
+    goto main.L4
+main.L1:
+    c = 0
+    goto main.L4
+main.L2:
+    c = 1
+    goto main.L4
+main.L3:
+    c = 2
+    goto main.L4
+main.L4:
+    return 0

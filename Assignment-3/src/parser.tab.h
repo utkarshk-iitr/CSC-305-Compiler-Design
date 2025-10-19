@@ -141,18 +141,19 @@ extern int yydebug;
     PUBLIC = 335,                  /* PUBLIC  */
     PRIVATE = 336,                 /* PRIVATE  */
     PROTECTED = 337,               /* PROTECTED  */
-    DELETE = 338,                  /* DELETE  */
-    NEW = 339,                     /* NEW  */
-    CIN = 340,                     /* CIN  */
-    COUT = 341,                    /* COUT  */
-    ENDL = 342,                    /* ENDL  */
-    IDENTIFIER = 343,              /* IDENTIFIER  */
-    INVALID_IDENTIFIER = 344,      /* INVALID_IDENTIFIER  */
-    DECIMAL_LITERAL = 345,         /* DECIMAL_LITERAL  */
-    DOUBLE_LITERAL = 346,          /* DOUBLE_LITERAL  */
-    EXPONENT_LITERAL = 347,        /* EXPONENT_LITERAL  */
-    CHARACTER_LITERAL = 348,       /* CHARACTER_LITERAL  */
-    LOWER_THAN_ELSE = 349          /* LOWER_THAN_ELSE  */
+    STRING_LITERAL = 338,          /* STRING_LITERAL  */
+    DELETE = 339,                  /* DELETE  */
+    NEW = 340,                     /* NEW  */
+    CIN = 341,                     /* CIN  */
+    COUT = 342,                    /* COUT  */
+    ENDL = 343,                    /* ENDL  */
+    IDENTIFIER = 344,              /* IDENTIFIER  */
+    INVALID_IDENTIFIER = 345,      /* INVALID_IDENTIFIER  */
+    DECIMAL_LITERAL = 346,         /* DECIMAL_LITERAL  */
+    DOUBLE_LITERAL = 347,          /* DOUBLE_LITERAL  */
+    EXPONENT_LITERAL = 348,        /* EXPONENT_LITERAL  */
+    CHARACTER_LITERAL = 349,       /* CHARACTER_LITERAL  */
+    LOWER_THAN_ELSE = 350          /* LOWER_THAN_ELSE  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -161,12 +162,12 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 321 "src/parser.y"
+#line 344 "src/parser.y"
 
     char* str;
     Node* node;
 
-#line 170 "src/parser.tab.h"
+#line 171 "src/parser.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

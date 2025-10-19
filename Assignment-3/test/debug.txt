@@ -1,56 +1,114 @@
-Debug: struct_or_class -> CLASS
-Debug: named struct/class: A
-Debug: struct_or_class_member_list -> <empty>
-Debug: lastClassType: A
-Debug: access_specifier_label -> PUBLIC :
-Debug: lastClassType: A
-Debug: struct_or_class_member -> access_specifier_label
-Debug: lastClassType: A
-Debug: struct_or_class_member_list -> struct_or_class_member_list struct_or_class_member
-Debug: lastClassType: A
 Debug: type_specifier -> INT
 Debug: external_declaration -> type_specifier
-Debug: init_declarator -> IDENTIFIER 
-Debug: 12a
-Debug: global
-Debug: 13
 Debug: 
-Debug: Declared variable is: a of type: int and kind: 
+Debug: lastFnType in external: int
+Debug: 
+Debug: external -> IDENTIFIER ( )
+Debug: Function 'main' with return type 'int' declared.
+Debug: type_specifier -> CHAR
+Debug: declaration_specifiers -> type_specifier
+Debug: constant -> CHARACTER_LITERAL
+Debug: 
+Debug: Character constant value: a
+Debug: 
+Debug: primary_expression -> constant
+Debug: postfix_expression -> primary_expression
+Debug: unary_expression -> postfix_expression
+Debug: cast_expression -> unary_expression
+Debug: multiplicative_expression -> cast_expression
+Debug: additive_expression -> multiplicative_expression
+Debug: shift_expression -> additive_expression
+Debug: relational_expression -> shift_expression
+Debug: equality_expression -> relational_expression
+Debug: and_expression -> equality_expression
+Debug: exclusive_or_expression -> and_expression
+Debug: inclusive_or_expression -> exclusive_or_expression
+Debug: logical_and_expression -> inclusive_or_expression
+Debug: logical_or_expression -> logical_and_expression
+Debug: conditional_expression -> logical_or_expression
+Debug: assignment_expression -> conditional_expression
+Debug: init_declarator -> IDENTIFIER = assignment_expression 
+Debug: 
+Debug: Declared variable: w of type: char and kind: 
 Debug: 
 Debug: 
 Debug: 
 Debug: init_declarator_list -> init_declarator
-Debug: external -> init_declarator_list ;
-Debug: external_declaration -> type_specifier external
-Debug: struct_or_class_member -> member_declaration
-Debug: lastClassType: A
-Debug: 
-Debug: struct_or_class_member_list -> struct_or_class_member_list struct_or_class_member
-Debug: lastClassType: A
+Debug: declaration -> declaration_specifiers init_declarator_list ;
+Debug: block_item -> declaration
+Debug: statement_list -> block_item
 Debug: type_specifier -> INT
-Debug: external_declaration -> type_specifier
-Debug: type_specifier -> INT
-Debug: pointer_opt -> <empty>
-Debug: return_type -> type_specifier pointer_opt
-Debug: parameter_declaration -> return_type IDENTIFIER
-Debug: parameter_list -> parameter_declaration
+Debug: declaration_specifiers -> type_specifier
+Debug: init_declarator -> IDENTIFIER 
 Debug: 
-Debug: lastDeclType in external: int
+Debug: Declared variable is: c of type: int and kind: 
 Debug: 
-Debug: external -> IDENTIFIER ( parameter_list )
-Debug: Parameter: x of type int
+Debug: 
+Debug: 
+Debug: init_declarator_list -> init_declarator
+Debug: declaration -> declaration_specifiers init_declarator_list ;
+Debug: block_item -> declaration
+Debug: statement_list -> statement_list block_item
 Debug: primary_expression -> IDENTIFIER
-Debug: x
 Debug: 
-Debug: Looking up symbol: x
+Debug: Looking up symbol: w
 Debug: 
 Debug: 
-Debug: Found symbol: x
+Debug: Found symbol: w
+Debug: Type: char
+Debug: Kind: 
+Debug: Dimensions: 0
+Debug: 
+Debug: n->place is w, n->name is w
+Debug: postfix_expression -> primary_expression
+Debug: unary_expression -> postfix_expression
+Debug: cast_expression -> unary_expression
+Debug: multiplicative_expression -> cast_expression
+Debug: additive_expression -> multiplicative_expression
+Debug: shift_expression -> additive_expression
+Debug: relational_expression -> shift_expression
+Debug: equality_expression -> relational_expression
+Debug: and_expression -> equality_expression
+Debug: exclusive_or_expression -> and_expression
+Debug: inclusive_or_expression -> exclusive_or_expression
+Debug: logical_and_expression -> inclusive_or_expression
+Debug: logical_or_expression -> logical_and_expression
+Debug: conditional_expression -> logical_or_expression
+Debug: assignment_expression -> conditional_expression
+Debug: expression -> assignment_expression
+Debug: switch_head -> SWITCH ( expression )
+Debug: case_list -> <empty>
+Debug: constant -> CHARACTER_LITERAL
+Debug: 
+Debug: Character constant value: a
+Debug: 
+Debug: primary_expression -> constant
+Debug: postfix_expression -> primary_expression
+Debug: unary_expression -> postfix_expression
+Debug: cast_expression -> unary_expression
+Debug: multiplicative_expression -> cast_expression
+Debug: additive_expression -> multiplicative_expression
+Debug: shift_expression -> additive_expression
+Debug: relational_expression -> shift_expression
+Debug: equality_expression -> relational_expression
+Debug: and_expression -> equality_expression
+Debug: exclusive_or_expression -> and_expression
+Debug: inclusive_or_expression -> exclusive_or_expression
+Debug: logical_and_expression -> inclusive_or_expression
+Debug: logical_or_expression -> logical_and_expression
+Debug: conditional_expression -> logical_or_expression
+Debug: constant_expression -> conditional_expression
+Debug: primary_expression -> IDENTIFIER
+Debug: 
+Debug: Looking up symbol: c
+Debug: 
+Debug: 
+Debug: Found symbol: c
 Debug: Type: int
 Debug: Kind: 
 Debug: Dimensions: 0
 Debug: 
-Debug: n->place is A.fn_int.x, n->name is x
+Debug: n->place is c, n->name is c
 Debug: postfix_expression -> primary_expression
 Debug: unary_expression -> postfix_expression
 Debug: assignment_operator -> =
@@ -80,18 +138,19 @@ Debug: expression_statement -> expression ;
 Debug: statement -> expression_statement
 Debug: block_item -> statement
 Debug: statement_list -> block_item
-Debug: primary_expression -> IDENTIFIER
-Debug: x
+Debug: jump_statement -> BREAK ;
+Debug: statement -> jump_statement
+Debug: block_item -> statement
+Debug: statement_list -> statement_list block_item
+Debug: compound_statement -> { statement_list }
+Debug: statement -> compound_statement
+Debug: case_item -> CASE constant_expression : statement
+Debug: case_list -> case_list case_item
+Debug: constant -> CHARACTER_LITERAL
 Debug: 
-Debug: Looking up symbol: x
+Debug: Character constant value: b
 Debug: 
-Debug: 
-Debug: Found symbol: x
-Debug: Type: int
-Debug: Kind: 
-Debug: Dimensions: 0
-Debug: 
-Debug: n->place is A.fn_int.x, n->name is x
+Debug: primary_expression -> constant
 Debug: postfix_expression -> primary_expression
 Debug: unary_expression -> postfix_expression
 Debug: cast_expression -> unary_expression
@@ -106,77 +165,24 @@ Debug: inclusive_or_expression -> exclusive_or_expression
 Debug: logical_and_expression -> inclusive_or_expression
 Debug: logical_or_expression -> logical_and_expression
 Debug: conditional_expression -> logical_or_expression
-Debug: assignment_expression -> conditional_expression
-Debug: expression -> assignment_expression
-Debug: jump_statement -> RETURN expression ;
-Debug: 3
-Debug: fn_int
-Debug: Return type: int, Expected type: int
-Debug: Method 'fn_int' has return statement returning 'A.fn_int.x'.
-Debug: statement -> jump_statement
-Debug: block_item -> statement
-Debug: statement_list -> statement_list block_item
-Debug: compound_statement -> { statement_list }
-Debug: external -> IDENTIFIER ( parameter_list ) compound_statement
-Debug: external_declaration -> type_specifier external
-Debug: struct_or_class_member -> member_declaration
-Debug: lastClassType: A
-Debug: 
-Debug: struct_or_class_member_list -> struct_or_class_member_list struct_or_class_member
-Debug: lastClassType: A
-Debug: struct_or_class_specifier -> struct_or_class IDENTIFIER { struct_or_class_member_list }
-Debug: external_declaration -> struct_or_class_specifier ;
-Debug: translation_unit -> external_declaration
-Debug: type_specifier -> INT
-Debug: external_declaration -> type_specifier
-Debug: 
-Debug: lastFnType in external: int
-Debug: 
-Debug: external -> IDENTIFIER ( )
-Debug: Function 'main' with return type 'int' declared.
-Debug: type_specifier -> TYPE_NAME
-Debug: User defined type found: A
-Debug: declaration_specifiers -> type_specifier
-Debug: init_declarator -> IDENTIFIER 
-Debug: 
-Debug: Declared variable is: arr of type: A and kind: 
-Debug: 
-Debug: 
-Debug: arr.fn
-Debug: zz
-Debug: arr.fn_int
-Debug: Function 'arr.fn_int' with return type 'int' declared.
-Debug: Variable 'arr.a' with type 'int' declared.
-Debug: 
-Debug: init_declarator_list -> init_declarator
-Debug: declaration -> declaration_specifiers init_declarator_list ;
-Debug: block_item -> declaration
-Debug: statement_list -> block_item
-Debug: type_specifier -> INT
-Debug: declaration_specifiers -> type_specifier
+Debug: constant_expression -> conditional_expression
 Debug: primary_expression -> IDENTIFIER
-Debug: arr
 Debug: 
-Debug: Looking up symbol: arr
+Debug: Looking up symbol: c
 Debug: 
 Debug: 
-Debug: Found symbol: arr
-Debug: Type: A
+Debug: Found symbol: c
+Debug: Type: int
 Debug: Kind: 
 Debug: Dimensions: 0
 Debug: 
-Debug: n->place is main$arr, n->name is arr
+Debug: n->place is c, n->name is c
 Debug: postfix_expression -> primary_expression
-Debug: postfix_expression -> postfix_expression . IDENTIFIER
-Debug: currentType is A
-Debug: 
-Debug: arr.fn
-Debug: 
-Debug: function
-Debug: 1
+Debug: unary_expression -> postfix_expression
+Debug: assignment_operator -> =
 Debug: constant -> DECIMAL_LITERAL
 Debug: 
-Debug: Integer constant value: 7
+Debug: Integer constant value: 1
 Debug: 
 Debug: primary_expression -> constant
 Debug: postfix_expression -> primary_expression
@@ -194,19 +200,40 @@ Debug: logical_and_expression -> inclusive_or_expression
 Debug: logical_or_expression -> logical_and_expression
 Debug: conditional_expression -> logical_or_expression
 Debug: assignment_expression -> conditional_expression
-Debug: argument_expression_list -> assignment_expression
+Debug: assignment_expression -> unary_expression assignment_operator assignment_expression
+Debug: expression -> assignment_expression
+Debug: expression_statement -> expression ;
+Debug: statement -> expression_statement
+Debug: block_item -> statement
+Debug: statement_list -> block_item
+Debug: jump_statement -> BREAK ;
+Debug: statement -> jump_statement
+Debug: block_item -> statement
+Debug: statement_list -> statement_list block_item
+Debug: compound_statement -> { statement_list }
+Debug: statement -> compound_statement
+Debug: case_item -> CASE constant_expression : statement
+Debug: case_list -> case_list case_item
+Debug: primary_expression -> IDENTIFIER
 Debug: 
-Debug: argcount is 1, type is int
+Debug: Looking up symbol: c
 Debug: 
-Debug: postfix_expression -> postfix_expression ( argument_expression_list )
-Debug: 133
-Debug: arr.fn
 Debug: 
-Debug: argCount is:1
-Debug: type is int
-Debug: name is: arr.fn_int
-Debug: YES
+Debug: Found symbol: c
+Debug: Type: int
+Debug: Kind: 
+Debug: Dimensions: 0
 Debug: 
+Debug: n->place is c, n->name is c
+Debug: postfix_expression -> primary_expression
+Debug: unary_expression -> postfix_expression
+Debug: assignment_operator -> =
+Debug: constant -> DECIMAL_LITERAL
+Debug: 
+Debug: Integer constant value: 2
+Debug: 
+Debug: primary_expression -> constant
+Debug: postfix_expression -> primary_expression
 Debug: unary_expression -> postfix_expression
 Debug: cast_expression -> unary_expression
 Debug: multiplicative_expression -> cast_expression
@@ -221,15 +248,23 @@ Debug: logical_and_expression -> inclusive_or_expression
 Debug: logical_or_expression -> logical_and_expression
 Debug: conditional_expression -> logical_or_expression
 Debug: assignment_expression -> conditional_expression
-Debug: init_declarator -> IDENTIFIER = assignment_expression 
-Debug: 
-Debug: Declared variable: z of type: int and kind: 
-Debug: 
-Debug: 
-Debug: 
-Debug: init_declarator_list -> init_declarator
-Debug: declaration -> declaration_specifiers init_declarator_list ;
-Debug: block_item -> declaration
+Debug: assignment_expression -> unary_expression assignment_operator assignment_expression
+Debug: expression -> assignment_expression
+Debug: expression_statement -> expression ;
+Debug: statement -> expression_statement
+Debug: block_item -> statement
+Debug: statement_list -> block_item
+Debug: jump_statement -> BREAK ;
+Debug: statement -> jump_statement
+Debug: block_item -> statement
+Debug: statement_list -> statement_list block_item
+Debug: compound_statement -> { statement_list }
+Debug: statement -> compound_statement
+Debug: case_item -> DEFAULT : statement
+Debug: case_list -> case_list case_item
+Debug: selection_statement -> switch_head { case_list }
+Debug: statement -> selection_statement
+Debug: block_item -> statement
 Debug: statement_list -> statement_list block_item
 Debug: constant -> DECIMAL_LITERAL
 Debug: 
@@ -265,4 +300,4 @@ Debug: statement_list -> statement_list block_item
 Debug: compound_statement -> { statement_list }
 Debug: external -> IDENTIFIER ( ) compound_statement
 Debug: external_declaration -> type_specifier external
-Debug: translation_unit -> translation_unit external_declaration
+Debug: translation_unit -> external_declaration

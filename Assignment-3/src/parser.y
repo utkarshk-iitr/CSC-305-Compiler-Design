@@ -22,6 +22,7 @@
         string place;
         string type;
         string kind;
+        string printName;
         int argCount = 0;
         Node() : place(""), type("") , kind("") {}
         Node(string p, string t, string k) : place(p), type(t), kind(k) {}
@@ -160,6 +161,28 @@
     extern int yylineno;
     void yyerror(string s) {
         errors.push_back(string("Error at line ") + to_string(yylineno) + " : " + s);
+    }
+
+    vector<int> makeList(int index) {
+        vector<int> list;
+        list.push_back(index);
+        return list;
+    }
+
+    void backpatch(vector<string>& code, vector<int> list, string label) {
+        for(int i : list) {
+            // Replace the placeholder with the actual label
+            size_t pos = code[i].find("__");
+            if(pos != string::npos) {
+                code[i].replace(pos, 2, label);
+            }
+        }
+    }
+
+    vector<int> merge(vector<int> list1, vector<int> list2) {
+        vector<int> result = list1;
+        result.insert(result.end(), list2.begin(), list2.end());
+        return result;
     }
 
     void check_access(Symbol* sym) {
@@ -345,7 +368,7 @@
 %token<str> TRUE FALSE NULLPTR
 %token<str> AUTO STATIC CONST
 %token<str> CLASS STRUCT PUBLIC PRIVATE PROTECTED
-%token<str> DELETE NEW CIN COUT ENDL
+%token<str> STRING_LITERAL DELETE NEW CIN COUT ENDL
 
 %token<str> IDENTIFIER INVALID_IDENTIFIER
 %token<str> DECIMAL_LITERAL DOUBLE_LITERAL EXPONENT_LITERAL CHARACTER_LITERAL
@@ -389,7 +412,7 @@
 %type<str> type_specifier assignment_operator unary_operator return_type pointer_opt pointer_list static_opt const_opt
 %type<str> declaration_specifiers
 %type<node> square_list members external declare
-/* %type<node> switch_head switch_statement case_item */
+%type<node> switch_head case_list case_item 
 
 %start translation_unit
 
@@ -402,15 +425,19 @@ primary_expression
         dbg("primary_expression -> IDENTIFIER");
         Node* n = new Node();
         string name = string($1);
-        dbg(name);
         Symbol* sym = lookupSymbol(name);
         dbg("");
         dbg("Looking up symbol: " + name);
         dbg("");
         if (!sym) {
-            dbg("Symbol not found: " + name);
-            yyerror("Use of undeclared identifier '" + name + "'.");
-            n = nullptr;
+            if(name=="printf" || name=="scanf" || name=="malloc" || name=="free"){
+                n->place = name;
+                n->printName = name;
+            }
+            else{
+                dbg("Symbol not found: " + name);
+                yyerror("Use of undeclared identifier '" + name + "'.");
+            }
         } 
         else{
             check_access(sym);
@@ -426,7 +453,8 @@ primary_expression
             n->kind = sym->kind;
             n->type = sym->type;
             n->syn = sym->dim;
-            n->place = sym->printName;
+            n->place = sym->name;
+            n->printName = sym->printName;
         }
         dbg("n->place is " + n->place + ", n->name is " + name);
         $$ = n;
@@ -441,9 +469,11 @@ primary_expression
         dbg("primary_expression -> ( expression )");
         $$ = $2;
     }
-    /* | lambda_expression {
-        dbg("primary_expression -> lambda_expression");
-        $$ = $1; } */
+    | STRING_LITERAL        
+    {
+        dbg("constant -> STRING_LITERAL");
+        $$ = new Node(string($1), "string", "const");
+    }
 	;
 
 // Done
@@ -467,12 +497,6 @@ constant
         dbg("");
         $$ = n;
     }
-    /* | STRING_LITERAL        
-    {
-        dbg("constant -> STRING_LITERAL");
-        Node* n = new Node(string($1), "char*", "const");
-        $$ = n;
-    } */
     | EXPONENT_LITERAL      
     {
         dbg("constant -> EXPONENT_LITERAL");
@@ -576,12 +600,13 @@ postfix_expression
         dbg(fun->place);
 
         string funcName = fun->place;
-        
+        dbg("Function name before processing: " + funcName);
         int idx=0;
         for(int i=0;i<funcName.size();i++){
             if(funcName[i]=='$') idx = i;
         }
         funcName.erase(0,idx);
+        dbg("Function name after processing: " + funcName);
         funcInfo* s = lookupFunction(funcName);
         check_func_access(s);
         Node* n = new Node();
@@ -769,7 +794,7 @@ postfix_expression
 	| postfix_expression INCREMENT {
           dbg("postfix_expression -> postfix_expression ++");
           Node* v = $1;
-          if(check_unary_comp(v->type,"++")){
+          if(!check_unary_comp(v->type,"++")){
               yyerror("Invalid type '" + v->type + "' for increment.");
           }
           if(v->kind.find("const")!=string::npos){
@@ -788,7 +813,7 @@ postfix_expression
 	| postfix_expression DECREMENT { 
             dbg("postfix_expression -> postfix_expression --");
           Node* v = $1;
-          if(check_unary_comp(v->type,"--")){
+          if(!check_unary_comp(v->type,"--")){
               yyerror("Invalid type '" + v->type + "' for decrement.");
           }
           if(v->kind.find("const")!=string::npos){
@@ -1365,31 +1390,52 @@ logical_or_expression
       }
 	;
 
+// Done
 conditional_expression
-	: logical_or_expression 
+    : logical_or_expression 
     { 
         dbg("conditional_expression -> logical_or_expression");
         $$ = $1; 
     }
-	| logical_or_expression QUESTION_MARK expression COLON conditional_expression {
-            dbg("conditional_expression -> logical_or_expression ? expression : conditional_expression");
-          Node* cond = $1; Node* e1 = $3; Node* e2 = $5;
-          Node* n = new Node();
-          string Lfalse = newLabel();
-          string Lend = newLabel();
-          n->code = cond->code;
-          n->place = newTemp();
-          n->code.push_back("ifFalse " + cond->place + " goto " + Lfalse);
-          n->code.insert(n->code.end(), e1->code.begin(), e1->code.end());
-          n->code.push_back(n->place + " = " + e1->place);
-          n->code.push_back("goto " + Lend);
-          n->code.push_back(Lfalse + ":");
-          n->code.insert(n->code.end(), e2->code.begin(), e2->code.end());
-          n->code.push_back(n->place + " = " + e2->place);
-          n->code.push_back(Lend + ":");
-          $$ = n;
-      }
-	;
+    | logical_or_expression QUESTION_MARK expression COLON conditional_expression {
+        dbg("conditional_expression -> logical_or_expression ? expression : conditional_expression");
+        Node* cond = $1; 
+        Node* e1 = $3; 
+        Node* e2 = $5;
+        Node* n = new Node();
+
+        if(e1->type != e2->type){
+            yyerror("Type incompatibility in conditional expression.");
+        }
+        
+        n->code = cond->code;
+        n->place = newTemp();
+        
+        int condJumpIndex = n->code.size();
+        n->code.push_back("if " + cond->place + "==false goto __");
+        vector<int> falseList = makeList(condJumpIndex);
+        
+        n->code.insert(n->code.end(), e1->code.begin(), e1->code.end());
+        n->code.push_back(n->place + " = " + e1->place);
+        
+        int endJumpIndex = n->code.size();
+        n->code.push_back("goto __");
+        vector<int> nextList = makeList(endJumpIndex);
+        
+        string Lfalse = newLabel();
+        n->code.push_back(Lfalse + ":");
+        backpatch(n->code, falseList, Lfalse);
+        
+        n->code.insert(n->code.end(), e2->code.begin(), e2->code.end());
+        n->code.push_back(n->place + " = " + e2->place);
+        
+        string Lend = newLabel();
+        n->code.push_back(Lend + ":");
+        backpatch(n->code, nextList, Lend);
+        n->type = e1->type;
+        $$ = n;
+    }
+    ;
 
 // Done
 assignment_expression
@@ -2338,8 +2384,8 @@ translation_unit
 	| translation_unit external_declaration {
             dbg("translation_unit -> translation_unit external_declaration");
           Node* a = $1; Node* b = $2;
-          if (a) { 
-              b->code.push_back("");
+          if (a) {
+            a->code.push_back("");
             a->code.insert(a->code.end(), b->code.begin(), b->code.end()); 
             finalRoot = a; $$ = a; }
           else { finalRoot = b; $$ = b; }
@@ -2777,122 +2823,273 @@ expression_statement
     ;
 
 selection_statement
-	: IF LROUND expression RROUND statement %prec LOWER_THAN_ELSE {
+    : IF LROUND expression RROUND statement %prec LOWER_THAN_ELSE {
           dbg("selection_statement -> if ( expression ) statement");
-          string Ltrue = newLabel();
-          string Lend  = newLabel();
           Node* e = $3;
           Node* s1 = $5;
           Node* n = new Node();
+          
           n->code = e->code;
-          n->code.push_back("if " + e->place + " goto " + Ltrue);
-          n->code.push_back("goto " + Lend);
-          n->code.push_back(Ltrue + ":");
+          int falseJumpIndex = n->code.size();
+          n->code.push_back("if " + e->place + "==false goto __");
+          vector<int> falseList = makeList(falseJumpIndex);
+          
           n->code.insert(n->code.end(), s1->code.begin(), s1->code.end());
+          
+          string Lend = newLabel();
           n->code.push_back(Lend + ":");
+          backpatch(n->code, falseList, Lend);
+          
           $$ = n;
       }
-	| IF LROUND expression RROUND statement ELSE statement {
-            dbg("selection_statement -> if ( expression ) statement else statement");
-
-          string Ltrue = newLabel();
-          string Lfalse = newLabel();
-          string Lend  = newLabel();
-
+    | IF LROUND expression RROUND statement ELSE statement {
+          dbg("selection_statement -> if ( expression ) statement else statement");
           Node* e = $3;
           Node* s1 = $5;
           Node* s2 = $7;
-
           Node* n = new Node();
+          
           n->code = e->code;
-          n->code.push_back("if " + e->place + " goto " + Ltrue);
-          n->code.push_back("goto " + Lfalse);
-
-          n->code.push_back(Ltrue + ":");
+          
+          int falseJumpIndex = n->code.size();
+          n->code.push_back("if " + e->place + "==false goto __");
+          vector<int> falseList = makeList(falseJumpIndex);
+          
           n->code.insert(n->code.end(), s1->code.begin(), s1->code.end());
-          n->code.push_back("goto " + Lend);
-    
+          
+          int endJumpIndex = n->code.size();
+          n->code.push_back("goto __");
+          vector<int> endList = makeList(endJumpIndex);
+          
+          string Lfalse = newLabel();
           n->code.push_back(Lfalse + ":");
+          backpatch(n->code, falseList, Lfalse);
+          
           n->code.insert(n->code.end(), s2->code.begin(), s2->code.end());
+          
+          string Lend = newLabel();
           n->code.push_back(Lend + ":");
+          backpatch(n->code, endList, Lend);
           $$ = n;
       }
-	/* | switch_head LCURLY switch_statement RCURLY {   
-                 
-      } */
+    | switch_head LCURLY case_list RCURLY {
+        dbg("selection_statement -> switch_head { case_list }");
+        Node* switchExpr = $1;
+        Node* cases = $3;
+        Node* n = new Node();
+        
+        n->code = switchExpr->code;
+        n->code.insert(n->code.end(), cases->syn.begin(), cases->syn.end());
+        n->code.push_back("goto __");
+        n->code.insert(n->code.end(), cases->code.begin(), cases->code.end());
+        
+        string exitLabel = newLabel();
+        n->code.push_back(exitLabel + ":");
+
+        vector<int> exitList;
+        for(size_t i = 0; i < n->code.size(); i++) {
+            if (n->code[i] == "goto __") {
+                exitList.push_back(i);
+            }
+        }
+
+        backpatch(n->code,exitList,exitLabel);
+        $$ = n;
+      }
     ;
 
+switch_head
+    : SWITCH LROUND expression RROUND {
+        dbg("switch_head -> SWITCH ( expression )");
+        Node* e = $3;
+        Node* n = new Node();
+        n->code = e->code;
+        n->place = e->place;
+        $$ = n;
+      }
+    ;
+
+case_list
+    :  {
+        dbg("case_list -> <empty>");
+        Node* n = new Node();
+        $$ = n;
+      }
+    | case_list case_item {
+        dbg("case_list -> case_list case_item");
+        Node* prev = $1;
+        Node* curr = $2;
+        prev->syn.insert(prev->syn.end(), curr->syn.begin(), curr->syn.end());
+        prev->code.insert(prev->code.end(), curr->code.begin(), curr->code.end());
+        $$ = prev;
+      }
+    ;
+
+case_item
+    : CASE constant_expression statement {
+        dbg("case_item -> CASE constant_expression : statement");
+        Node* caseVal = $2;
+        Node* stmt = $3;
+        Node* n = new Node();
+        
+        string caseLabel = newLabel();
+        n->syn.push_back("if " + $<node>-2->place + " == " + caseVal->place + " goto " + caseLabel);
+        
+        n->code.push_back(caseLabel + ":");
+        n->code.insert(n->code.end(), stmt->code.begin(), stmt->code.end());
+        
+        for (size_t i = 0; i < n->code.size(); i++) {
+            if (n->code[i] == "break;") {
+                n->code[i] = "goto __";
+            }
+        }
+        
+        $$ = n;
+      }
+    | DEFAULT statement {
+        dbg("case_item -> DEFAULT : statement");
+        Node* stmt = $2;
+        Node* n = new Node();
+        
+        string defaultLabel = newLabel();
+        n->syn.push_back("goto " + defaultLabel);
+        
+        n->code.push_back(defaultLabel + ":");
+        n->code.insert(n->code.end(), stmt->code.begin(), stmt->code.end());
+        
+        for (size_t i = 0; i < n->code.size(); i++) {
+            if (n->code[i] == "break;") {
+                n->code[i] = "goto __";
+            }
+        }
+        // n->code.push_back("goto __");        
+        $$ = n;
+      }
+    ;
+
+// Done
 iteration_statement
-	: WHILE LROUND expression RROUND statement {
-          dbg("iteration_statement -> WHILE ( expression ) statement");
-          Node* cond = $3; Node* body = $5;
-          Node* n = new Node();
-          string Lbegin = newLabel(), Lend = newLabel();
-          n->code.insert(n->code.end(), cond->code.begin(), cond->code.end());
-          n->code.push_back(Lbegin + ":");
-          n->code.push_back("ifFalse " + cond->place + " goto " + Lend);
-          n->code.insert(n->code.end(), body->code.begin(), body->code.end());
-          n->code.push_back("goto " + Lbegin);
-          n->code.push_back(Lend + ":");
-          $$ = n;
-      }
-	| UNTIL LROUND expression RROUND statement {
-            dbg("iteration_statement -> UNTIL ( expression ) statement");
-          Node* cond = $3; Node* body = $5;
-          Node* n = new Node();
-          string Lbegin = newLabel();
-          n->code.push_back(Lbegin + ":");
-          n->code.insert(n->code.end(), body->code.begin(), body->code.end());
-          n->code.insert(n->code.end(), cond->code.begin(), cond->code.end());
-          n->code.push_back("ifTrue " + cond->place + " goto " + Lbegin);
-          $$ = n;
-      }
-	| DO statement WHILE LROUND expression RROUND SEMICOLON {
-            dbg("iteration_statement -> DO statement WHILE ( expression ) ;");
-          Node* body = $2; Node* cond = $5;
-          Node* n = new Node();
-          string Lbegin = newLabel();
-          n->code.push_back(Lbegin + ":");
-          n->code.insert(n->code.end(), body->code.begin(), body->code.end());
-          n->code.insert(n->code.end(), cond->code.begin(), cond->code.end());
-          n->code.push_back("ifTrue " + cond->place + " goto " + Lbegin);
-          $$ = n;
-      }
-	| FOR LROUND for_init_statement expression_statement RROUND statement {
-            dbg("iteration_statement -> FOR ( for_init_statement expression_statement ) statement");
-          Node* init = $3; Node* cond = $4; Node* body = $6;
-          Node* n = new Node();
-          string Lbegin = newLabel(), Lend = newLabel();
-          if (init) n->code.insert(n->code.end(), init->code.begin(), init->code.end());
-          n->code.push_back(Lbegin + ":");
-          if (cond) {
-              n->code.insert(n->code.end(), cond->code.begin(), cond->code.end());
-              n->code.push_back("ifFalse " + cond->place + " goto " + Lend);
-          }
-          n->code.insert(n->code.end(), body->code.begin(), body->code.end());
-          n->code.push_back("goto " + Lbegin);
-          n->code.push_back(Lend + ":");
-          $$ = n;
-      }
-	| FOR LROUND for_init_statement expression_statement expression RROUND statement {
-            dbg("iteration_statement -> FOR ( for_init_statement expression_statement expression ) statement");
-          Node* init = $3; Node* cond = $4; Node* iter = $5; Node* body = $7;
-          Node* n = new Node();
-          string Lbegin = newLabel(), Lend = newLabel();
-          if (init) n->code.insert(n->code.end(), init->code.begin(), init->code.end());
-          n->code.push_back(Lbegin + ":");
-          if (cond) {
-              n->code.insert(n->code.end(), cond->code.begin(), cond->code.end());
-              n->code.push_back("ifFalse " + cond->place + " goto " + Lend);
-          }
-          n->code.insert(n->code.end(), body->code.begin(), body->code.end());
-          if (iter) n->code.insert(n->code.end(), iter->code.begin(), iter->code.end());
-          n->code.push_back("goto " + Lbegin);
-          n->code.push_back(Lend + ":");
-          $$ = n;
-      }
-	;
-    
+    : WHILE LROUND expression RROUND statement {
+        dbg("iteration_statement -> WHILE ( expression ) statement");
+        Node* cond = $3; 
+        Node* body = $5;
+        Node* n = new Node();
+        
+        string Lbegin = newLabel();
+        n->code.push_back(Lbegin + ":");
+        
+        n->code.insert(n->code.end(), cond->code.begin(), cond->code.end());
+        int jumpIndex = n->code.size();
+        n->code.push_back("if " + cond->place + "==false goto __");
+        vector<int> falseList = makeList(jumpIndex);
+        
+        n->code.insert(n->code.end(), body->code.begin(), body->code.end());
+        n->code.push_back("goto " + Lbegin);
+        
+        string Lend = newLabel();
+        n->code.push_back(Lend + ":");
+        backpatch(n->code, falseList, Lend);
+        $$ = n;
+    }
+    | UNTIL LROUND expression RROUND statement {
+        dbg("iteration_statement -> UNTIL ( expression ) statement");
+        Node* cond = $3; 
+        Node* body = $5;
+        Node* n = new Node();
+        
+        string Lbegin = newLabel();
+        n->code.push_back(Lbegin + ":");
+        
+        n->code.insert(n->code.end(), cond->code.begin(), cond->code.end());
+        int jumpIndex = n->code.size();
+        n->code.push_back("if " + cond->place + "==true goto __");
+        vector<int> falseList = makeList(jumpIndex);
+        
+        n->code.insert(n->code.end(), body->code.begin(), body->code.end());
+        n->code.push_back("goto " + Lbegin);
+        
+        string Lend = newLabel();
+        n->code.push_back(Lend + ":");
+        backpatch(n->code, falseList, Lend);
+        $$ = n;
+    }
+    | DO statement WHILE LROUND expression RROUND SEMICOLON {
+        dbg("iteration_statement -> DO statement WHILE ( expression ) ;");
+        Node* body = $2;
+        Node* cond = $5;
+        Node* n = new Node();
+        
+        string Lbegin = newLabel();
+        n->code.push_back(Lbegin + ":");
+        
+        n->code.insert(n->code.end(), body->code.begin(), body->code.end());
+        n->code.insert(n->code.end(), cond->code.begin(), cond->code.end());
+        
+        int jumpIndex = n->code.size();
+        n->code.push_back("if " + cond->place + "==true goto " + Lbegin);
+        $$ = n;
+    }
+    | FOR LROUND for_init_statement expression_statement RROUND statement {
+        dbg("iteration_statement -> FOR ( for_init_statement expression_statement ) statement");
+        Node* init = $3;
+        Node* cond = $4;
+        Node* body = $6;
+        Node* n = new Node();
+        
+        string Lbegin = newLabel();
+        if(init) n->code.insert(n->code.end(), init->code.begin(), init->code.end());
+        n->code.push_back(Lbegin + ":");
+        
+        vector<int> falseList;
+        if (cond && cond->place != "") {
+            n->code.insert(n->code.end(), cond->code.begin(), cond->code.end());
+            int jumpIndex = n->code.size();
+            n->code.push_back("if " + cond->place + "==false goto __");
+            falseList = makeList(jumpIndex);
+        }
+        
+        n->code.insert(n->code.end(), body->code.begin(), body->code.end());
+        n->code.push_back("goto " + Lbegin);
+        
+        string Lend = newLabel();
+        n->code.push_back(Lend + ":");
+        if (!falseList.empty())
+            backpatch(n->code,falseList,Lend);
+
+        $$ = n;
+    }
+    | FOR LROUND for_init_statement expression_statement expression RROUND statement {
+        dbg("iteration_statement -> FOR ( for_init_statement expression_statement expression ) statement");
+        Node* init = $3;
+        Node* cond = $4;
+        Node* iter = $5;
+        Node* body = $7;
+        Node* n = new Node();
+        
+        string Lbegin = newLabel();
+        if (init) n->code.insert(n->code.end(), init->code.begin(), init->code.end());
+        n->code.push_back(Lbegin + ":");
+        
+        vector<int> falseList;
+        if (cond && cond->place != "") {
+            n->code.insert(n->code.end(), cond->code.begin(), cond->code.end());
+            int jumpIndex = n->code.size();
+            n->code.push_back("if " + cond->place + "==false goto __");
+            falseList = makeList(jumpIndex);
+        }
+        
+        n->code.insert(n->code.end(), body->code.begin(), body->code.end());
+        if (iter) n->code.insert(n->code.end(), iter->code.begin(), iter->code.end());
+        n->code.push_back("goto " + Lbegin);
+        
+        string Lend = newLabel();
+        n->code.push_back(Lend + ":");
+        if (!falseList.empty())
+            backpatch(n->code, falseList, Lend);
+        $$ = n;
+    }
+    ;
+
 for_init_statement
 	: expression_statement { 
         dbg("for_init_statement -> expression_statement");
@@ -3356,8 +3553,11 @@ int main(int argc, char** argv){
     if(finalRoot){
         globalCode.push_back("");
         finalRoot->code.insert(finalRoot->code.begin(),globalCode.begin(),globalCode.end());
+        string indent="";
         for(int i=0;i<finalRoot->code.size();i++) {
-            cout<<"["<<(i+1)<<"] "<<finalRoot->code[i]<<"\n";
+            if(finalRoot->code[i].back()==':') indent="";
+            else indent="    ";
+            cout<<indent<<finalRoot->code[i]<<"\n";
         }
     }
 
