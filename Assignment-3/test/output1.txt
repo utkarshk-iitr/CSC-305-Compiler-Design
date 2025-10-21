@@ -1,18 +1,17 @@
     
 main:
-    main$w = 'a'
-    if w == 'a' goto main.L1
-    if w == 'b' goto main.L2
-    goto main.L3
-    goto main.L4
+    main.y = 5.5
+    main.t1 = double_to_bool y
+    ifFalse main.t1 goto main.L2
+    main.t2 = y != 5.5
+    ifFalse main.t2 goto main.L1
+    param "yeye"
+    main.t3 = call printf, 1
 main.L1:
-    c = 0
-    goto main.L4
+    goto main.L3
 main.L2:
-    c = 1
-    goto main.L4
+    param "%d"
+    param y
+    main.t4 = call printf, 2
 main.L3:
-    c = 2
-    goto main.L4
-main.L4:
     return 0

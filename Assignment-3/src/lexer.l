@@ -104,8 +104,6 @@ LONG             "long"
 VOID             "void"
 CONST            "const"
 NULLPTR          "nullptr"
-FUNCTION         "function"
-AUTO             "auto"
 TRUE             "true"
 FALSE            "false"
 STATIC           "static"
@@ -117,15 +115,6 @@ PUBLIC           "public"
 PRIVATE          "private"
 PROTECTED        "protected"
 
-/* IO */
-COUT             "cout"
-CIN              "cin"
-ENDL             "endl"
-
-/* Dynamic Allocation */
-NEW              "new"
-DELETE           "delete"
-
 /* Regex building blocks */
 DIGIT            [0-9]
 LETTER           [A-Za-z]
@@ -136,6 +125,7 @@ DECIMAL_LITERAL  {DIGIT}+
 EXPONENT_LITERAL {DIGIT}+[Ee][+-]?{DIGIT}+
 DOUBLE_LITERAL   {DIGIT}+"."{DIGIT}+({EXPONENT})?
 CHARACTER_LITERAL '((\\.)|[^'\\])'
+STRING_LITERAL  \"(\\.|[^"\\])*\"
 INVALID_IDENTIFIER ({DIGIT}+({LETTER}|_)+({DIGIT}|{LETTER}|_)*(\.{DIGIT}*)?)
 
 
@@ -220,8 +210,6 @@ INVALID_IDENTIFIER ({DIGIT}+({LETTER}|_)+({DIGIT}|{LETTER}|_)*(\.{DIGIT}*)?)
 {CONST}                { yylval.str = strdup(yytext); return CONST; }
 {NULLPTR}              { yylval.str = strdup(yytext); return NULLPTR; }
 {NULL}                 { yylval.str = strdup(yytext); return NULLPTR; }
-{FUNCTION}             { yylval.str = strdup(yytext); return FUNCTION; }
-{AUTO}                 { yylval.str = strdup(yytext); return AUTO; }
 {TRUE}                 { yylval.str = strdup(yytext); return TRUE; }
 {FALSE}                { yylval.str = strdup(yytext); return FALSE; }
 {STATIC}               { yylval.str = strdup(yytext); return STATIC; }
@@ -231,12 +219,6 @@ INVALID_IDENTIFIER ({DIGIT}+({LETTER}|_)+({DIGIT}|{LETTER}|_)*(\.{DIGIT}*)?)
 {PUBLIC}               { yylval.str = strdup(yytext); return PUBLIC; }
 {PRIVATE}              { yylval.str = strdup(yytext); return PRIVATE; }
 {PROTECTED}            { yylval.str = strdup(yytext); return PROTECTED; }
-
-{COUT}                 { yylval.str = strdup(yytext); return COUT; }
-{CIN}                  { yylval.str = strdup(yytext); return CIN; }
-{ENDL}                 { yylval.str = strdup(yytext); return ENDL; }
-{NEW}                  { yylval.str = strdup(yytext); return NEW; }
-{DELETE}               { yylval.str = strdup(yytext); return DELETE; }
 
 {IDENTIFIER}           {
                           last_ident_lineno = yylineno;
@@ -251,7 +233,7 @@ INVALID_IDENTIFIER ({DIGIT}+({LETTER}|_)+({DIGIT}|{LETTER}|_)*(\.{DIGIT}*)?)
 {EXPONENT_LITERAL}     { yylval.str = strdup(yytext); return EXPONENT_LITERAL; }
 {DOUBLE_LITERAL}       { yylval.str = strdup(yytext); return DOUBLE_LITERAL; }
 {CHARACTER_LITERAL}    { yylval.str = strdup(yytext); return CHARACTER_LITERAL; }
-
+{STRING_LITERAL}    { yylval.str = strdup(yytext); return STRING_LITERAL; }
 {INVALID_IDENTIFIER}   { return INVALID_IDENTIFIER; }
 .                      { return yytext[0]; }
 

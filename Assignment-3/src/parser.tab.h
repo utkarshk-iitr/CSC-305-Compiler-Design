@@ -109,51 +109,44 @@ extern int yydebug;
     DOT = 303,                     /* DOT  */
     QUESTION_MARK = 304,           /* QUESTION_MARK  */
     TILDE = 305,                   /* TILDE  */
-    FUNCTION = 306,                /* FUNCTION  */
-    IF = 307,                      /* IF  */
-    ELSE = 308,                    /* ELSE  */
-    SWITCH = 309,                  /* SWITCH  */
-    CASE = 310,                    /* CASE  */
-    DEFAULT = 311,                 /* DEFAULT  */
-    WHILE = 312,                   /* WHILE  */
-    DO = 313,                      /* DO  */
-    FOR = 314,                     /* FOR  */
-    GOTO = 315,                    /* GOTO  */
-    CONTINUE = 316,                /* CONTINUE  */
-    BREAK = 317,                   /* BREAK  */
-    RETURN = 318,                  /* RETURN  */
-    UNTIL = 319,                   /* UNTIL  */
-    SIZEOF = 320,                  /* SIZEOF  */
-    VOID = 321,                    /* VOID  */
-    INT = 322,                     /* INT  */
-    DOUBLE = 323,                  /* DOUBLE  */
-    CHAR = 324,                    /* CHAR  */
-    BOOL = 325,                    /* BOOL  */
-    LONG = 326,                    /* LONG  */
-    TRUE = 327,                    /* TRUE  */
-    FALSE = 328,                   /* FALSE  */
-    NULLPTR = 329,                 /* NULLPTR  */
-    AUTO = 330,                    /* AUTO  */
-    STATIC = 331,                  /* STATIC  */
-    CONST = 332,                   /* CONST  */
-    CLASS = 333,                   /* CLASS  */
-    STRUCT = 334,                  /* STRUCT  */
-    PUBLIC = 335,                  /* PUBLIC  */
-    PRIVATE = 336,                 /* PRIVATE  */
-    PROTECTED = 337,               /* PROTECTED  */
-    STRING_LITERAL = 338,          /* STRING_LITERAL  */
-    DELETE = 339,                  /* DELETE  */
-    NEW = 340,                     /* NEW  */
-    CIN = 341,                     /* CIN  */
-    COUT = 342,                    /* COUT  */
-    ENDL = 343,                    /* ENDL  */
-    IDENTIFIER = 344,              /* IDENTIFIER  */
-    INVALID_IDENTIFIER = 345,      /* INVALID_IDENTIFIER  */
-    DECIMAL_LITERAL = 346,         /* DECIMAL_LITERAL  */
-    DOUBLE_LITERAL = 347,          /* DOUBLE_LITERAL  */
-    EXPONENT_LITERAL = 348,        /* EXPONENT_LITERAL  */
-    CHARACTER_LITERAL = 349,       /* CHARACTER_LITERAL  */
-    LOWER_THAN_ELSE = 350          /* LOWER_THAN_ELSE  */
+    IF = 306,                      /* IF  */
+    ELSE = 307,                    /* ELSE  */
+    SWITCH = 308,                  /* SWITCH  */
+    CASE = 309,                    /* CASE  */
+    DEFAULT = 310,                 /* DEFAULT  */
+    WHILE = 311,                   /* WHILE  */
+    DO = 312,                      /* DO  */
+    FOR = 313,                     /* FOR  */
+    GOTO = 314,                    /* GOTO  */
+    CONTINUE = 315,                /* CONTINUE  */
+    BREAK = 316,                   /* BREAK  */
+    RETURN = 317,                  /* RETURN  */
+    UNTIL = 318,                   /* UNTIL  */
+    SIZEOF = 319,                  /* SIZEOF  */
+    VOID = 320,                    /* VOID  */
+    INT = 321,                     /* INT  */
+    DOUBLE = 322,                  /* DOUBLE  */
+    CHAR = 323,                    /* CHAR  */
+    BOOL = 324,                    /* BOOL  */
+    LONG = 325,                    /* LONG  */
+    TRUE = 326,                    /* TRUE  */
+    FALSE = 327,                   /* FALSE  */
+    NULLPTR = 328,                 /* NULLPTR  */
+    STATIC = 329,                  /* STATIC  */
+    CONST = 330,                   /* CONST  */
+    CLASS = 331,                   /* CLASS  */
+    STRUCT = 332,                  /* STRUCT  */
+    PUBLIC = 333,                  /* PUBLIC  */
+    PRIVATE = 334,                 /* PRIVATE  */
+    PROTECTED = 335,               /* PROTECTED  */
+    STRING_LITERAL = 336,          /* STRING_LITERAL  */
+    IDENTIFIER = 337,              /* IDENTIFIER  */
+    INVALID_IDENTIFIER = 338,      /* INVALID_IDENTIFIER  */
+    DECIMAL_LITERAL = 339,         /* DECIMAL_LITERAL  */
+    DOUBLE_LITERAL = 340,          /* DOUBLE_LITERAL  */
+    EXPONENT_LITERAL = 341,        /* EXPONENT_LITERAL  */
+    CHARACTER_LITERAL = 342,       /* CHARACTER_LITERAL  */
+    LOWER_THAN_ELSE = 343          /* LOWER_THAN_ELSE  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -162,12 +155,12 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 344 "src/parser.y"
+#line 345 "src/parser.y"
 
     char* str;
     Node* node;
 
-#line 171 "src/parser.tab.h"
+#line 164 "src/parser.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

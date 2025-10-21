@@ -78,6 +78,7 @@
     static string lastUsage = "";
     static string lastFnType = "int";
     static string currentScope = "";
+    static bool inloop = false;
 
     vector<string> globalCode;
 
@@ -358,17 +359,13 @@
 %token<str> LEFT_SHIFT_EQ RIGHT_SHIFT_EQ
 
 %token<str> LROUND RROUND LCURLY RCURLY LSQUARE RSQUARE
-%token<str> SEMICOLON COLON COMMA DOT QUESTION_MARK 
-%token<str> TILDE FUNCTION
-
+%token<str> SEMICOLON COLON COMMA DOT QUESTION_MARK
 %token<str> IF ELSE SWITCH CASE DEFAULT WHILE DO FOR GOTO CONTINUE BREAK RETURN UNTIL
-%token<str> SIZEOF
 
 %token<str> VOID INT DOUBLE CHAR BOOL LONG
-%token<str> TRUE FALSE NULLPTR
-%token<str> AUTO STATIC CONST
+%token<str> TRUE FALSE NULLPTR TILDE
+%token<str> STATIC CONST SIZEOF STRING_LITERAL
 %token<str> CLASS STRUCT PUBLIC PRIVATE PROTECTED
-%token<str> STRING_LITERAL DELETE NEW CIN COUT ENDL
 
 %token<str> IDENTIFIER INVALID_IDENTIFIER
 %token<str> DECIMAL_LITERAL DOUBLE_LITERAL EXPONENT_LITERAL CHARACTER_LITERAL
@@ -397,16 +394,14 @@
 %type<node> parameter_list
 %type<node> parameter_declaration
 %type<node> initializer initializer_list statement compound_statement statement_list labeled_statement
-%type<node> selection_statement iteration_statement jump_statement io_statement cout_expression
-%type<node> insertion_list cin_expression extraction_list external_declaration 
+%type<node> selection_statement iteration_statement jump_statement external_declaration 
 %type<node> function_definition primary_expression 
-/* %type<node> trailing_return_opt lambda_capture_clause capture_list lambda_expression lambda_declarator lambda_parameter_clause */
 %type<node> postfix_expression argument_expression_list unary_expression cast_expression
 %type<node> multiplicative_expression additive_expression shift_expression relational_expression
 %type<node> equality_expression and_expression exclusive_or_expression inclusive_or_expression
 %type<node> logical_and_expression logical_or_expression conditional_expression block_item
 %type<node> assignment_expression expression constant_expression declaration init_declarator
-%type<node> init_declarator_list constant new_expression new_square delete_expression  
+%type<node> init_declarator_list constant 
 %type<node> function_header
 %type<node> expression_statement translation_unit for_init_statement;
 %type<str> type_specifier assignment_operator unary_operator return_type pointer_opt pointer_list static_opt const_opt
@@ -472,7 +467,7 @@ primary_expression
     | STRING_LITERAL        
     {
         dbg("constant -> STRING_LITERAL");
-        $$ = new Node(string($1), "string", "const");
+        $$ = new Node(string($1), "char*", "const_rvalue");
     }
 	;
 
@@ -481,7 +476,7 @@ constant
     : DECIMAL_LITERAL       
     {
         dbg("constant -> DECIMAL_LITERAL");
-        Node* n = new Node(string($1), "int", "const");
+        Node* n = new Node(string($1), "int", "const_rvalue");
         n->argCount = stoi(string($1));
         dbg("");
         dbg("Integer constant value: " + to_string(n->argCount));
@@ -491,7 +486,7 @@ constant
     | CHARACTER_LITERAL     
     {
         dbg("constant -> CHARACTER_LITERAL");
-        Node* n = new Node(string($1), "char", "const");
+        Node* n = new Node(string($1), "char", "const_rvalue");
         dbg("");
         dbg("Character constant value: " + string(1, $1[1]));
         dbg("");
@@ -500,31 +495,31 @@ constant
     | EXPONENT_LITERAL      
     {
         dbg("constant -> EXPONENT_LITERAL");
-        Node* n = new Node(string($1), "double", "const");
+        Node* n = new Node(string($1), "double", "const_rvalue");
         $$ = n;
     }
     | DOUBLE_LITERAL       
     {
         dbg("constant -> DOUBLE_LITERAL");
-        Node* n = new Node(string($1), "double", "const");
+        Node* n = new Node(string($1), "double", "const_rvalue");
         $$ = n;
     }
     | NULLPTR               
     {
         dbg("constant -> NULLPTR");
-        Node* n = new Node("0", "nullptr", "const");
+        Node* n = new Node("0", "nullptr", "const_rvalue");
         $$ = n;
     }
     | TRUE                  
     {
         dbg("constant -> TRUE");
-        Node* n = new Node("1", "bool", "const");
+        Node* n = new Node("1", "bool", "const_rvalue");
         $$ = n;
     }
     | FALSE                 
     {
         dbg("constant -> FALSE");
-        Node* n = new Node("0", "bool", "const");
+        Node* n = new Node("0", "bool", "const_rvalue");
         $$ = n;
     }
     ;
@@ -658,17 +653,39 @@ postfix_expression
         dbg("name is: " + name);
 
         funcInfo* s = lookupFunction(name);
-        if(s)
-            dbg("YES");
-        dbg("");
         check_func_access(s);
         Node* n = new Node();
         if(!s){
-            dbg("121212121");
-            yyerror("Function '" + original + "' with given argument types not found.");
+            if(original!="printf" && original!="scanf" && original!="malloc" && original!="free")
+                yyerror("Function '" + original + "' with given argument types not found.");
+            else{
+                n->code = fun->code;
+                n->type = "int";
+                n->code.insert(n->code.end(), args->code.begin(), args->code.end());
+                n->argCount = args->argCount;
+                if(original=="malloc"){
+                    if(args->argCount!=1 || args->syn[0]!="int"){
+                        yyerror("malloc expects a single integer argument.");
+                    }
+                    n->place = newTemp();
+                    n->code.push_back(n->place + " = call malloc, " + to_string(args->argCount));
+                    n->type = "void*";
+                }
+                else if(original=="free"){
+                    if(args->argCount!=1 || args->syn[0].back()!='*'){
+                        yyerror("free expects a single pointer argument.");
+                    }
+                    n->code.push_back("call free, " + to_string(args->argCount));
+                    n->type = "void";
+                }
+                else{
+                    n->place = newTemp();
+                    n->code.push_back(n->place + " = call " + original + ", " + to_string(args->argCount));
+                }
+            }
         }
-        if(s)
-        {
+
+        else {
             if (s->paramCount != args->argCount) {
                 yyerror("Call to function '" + original + "' with incorrect number of arguments.");
             }
@@ -794,6 +811,9 @@ postfix_expression
 	| postfix_expression INCREMENT {
           dbg("postfix_expression -> postfix_expression ++");
           Node* v = $1;
+          if(v->kind.find("rvalue")!=string::npos){
+              yyerror("Cannot modify a rvalue value.");
+          }
           if(!check_unary_comp(v->type,"++")){
               yyerror("Invalid type '" + v->type + "' for increment.");
           }
@@ -813,6 +833,9 @@ postfix_expression
 	| postfix_expression DECREMENT { 
             dbg("postfix_expression -> postfix_expression --");
           Node* v = $1;
+          if(v->kind.find("rvalue")!=string::npos){
+              yyerror("Cannot modify a rvalue value.");
+          }
           if(!check_unary_comp(v->type,"--")){
               yyerror("Invalid type '" + v->type + "' for decrement.");
           }
@@ -877,6 +900,9 @@ unary_expression
 	| INCREMENT unary_expression {
           dbg("unary_expression -> ++ unary_expression");
           Node* v = $2;
+          if(v->kind.find("rvalue")!=string::npos){
+              yyerror("Cannot modify a rvalue value.");
+          }
           if(!check_unary_comp(v->type,"++")){
               yyerror("Invalid type '" + v->type + "' for increment.");
           }
@@ -892,6 +918,9 @@ unary_expression
 	| DECREMENT unary_expression {
             dbg("unary_expression -> -- unary_expression");
           Node* v = $2;
+            if(v->kind.find("rvalue")!=string::npos){
+                yyerror("Cannot modify a rvalue value.");
+            }
           if(!check_unary_comp(v->type,"--")){
               yyerror("Invalid type '" + v->type + "' for decrement.");
           }
@@ -914,13 +943,17 @@ unary_expression
               yyerror("Invalid operation '" + op + "' on type '" + rhs->type + "'.");
             }
           if (op == "&") {
+              if(rhs->kind.find("rvalue")!=string::npos){
+                  yyerror("Cannot take address of rvalue.");
+              }
               n->place = newTemp();
               n->code.push_back(n->place + " = &" + rhs->place);
               n->type = rhs->type + "*";
           } else if (op == "*") {
-            n = $2;
-            //   n->place = newTemp();
-            //   n->code.push_back(n->place + " = *" + rhs->place);
+              n = $2;
+              if(n->kind.find("rvalue")!=string::npos){
+                  yyerror("Cannot dereference a rvalue.");
+              }
               n->type = rhs->type.substr(0, rhs->type.size() - 1);
               n->place = "*" + rhs->place;
           } else if (op == "+") {
@@ -962,12 +995,6 @@ unary_expression
             n->type = "int";
           $$ = n;
       }
-	/* | delete_expression { 
-        dbg("unary_expression -> delete_expression");
-        $$ = $1; }
-	| new_expression { 
-        dbg("unary_expression -> new_expression");
-        $$ = $1; } */
 	;
 
 // Done
@@ -991,75 +1018,6 @@ unary_operator
         dbg("unary_operator -> !");
         $$ = strdup($1); }
 	;
-/* 
-// Done
-new_expression 
-	: NEW return_type new_square {
-            dbg("new_expression -> NEW type_specifier pointer_opt new_square");
-          Node* n = new Node();
-            string tmp = newTemp();
-            string w = string($2);
-            if(string($2).back()=='*') w = "nullptr";
-            n->code = $3->code;
-            n->place = newTemp();
-            n->code.push_back(tmp+ " = " + $3->place + " * " + to_string(typeSize[w]));
-            n->code.push_back(n->place + " = call malloc, "+tmp);
-            n->type = string($2) + $3->type + "*";
-          $$ = n;
-      }
-	| NEW return_type {
-            dbg("new_expression -> NEW return_type");
-          Node* n = new Node();
-          n->place = newTemp();
-          string w = string($2);
-          if(string($2).back()=='*') w = "nullptr";
-          n->code.push_back(n->place + " = call malloc, "+to_string(typeSize[w]));
-          n->type = string($2) + "*";
-          $$ = n;
-      }
-	;
-
-// Done
-new_square 
-	: LSQUARE expression RSQUARE { 
-            dbg("new_square -> [ expression ]");
-            Node* n = new Node();
-            n->code = $2->code;
-            n->place = $2->place;
-            n->type = "*";
-            n->argCount = 1;
-            $$ = n; 
-        }
-	| new_square LSQUARE expression RSQUARE { 
-            dbg("new_square -> new_square [ expression ]");
-            Node* n = $1; Node* e = $3;
-            n->code.insert(n->code.end(), e->code.begin(), e->code.end());
-            string temp1 = newTemp();
-            n->code.push_back(temp1 + " = " + n->place + " * "+e->place);
-            n->place = temp1;
-            n->type = n->type + "*";
-            n->argCount = n->argCount + 1;
-            $$ = n;
-          }
-	;
-
-// Done
-delete_expression
-	: DELETE LSQUARE RSQUARE cast_expression {
-          dbg("delete_expression -> DELETE [ ] cast_expression");
-          Node* n = new Node();
-          n->code = $4->code;
-          n->code.push_back("call free, " + $4->place);
-          $$ = n;
-      }
-	| DELETE cast_expression {
-            dbg("delete_expression -> DELETE cast_expression");
-          Node* n = new Node();
-          n->code = $2->code;
-          n->code.push_back("call free, " + $2->place);
-          $$ = n;
-      }
-	; */
 
 // Done
 cast_expression
@@ -1092,7 +1050,7 @@ multiplicative_expression
         dbg("multiplicative_expression -> multiplicative_expression * cast_expression");
         Node* a = $1; Node* b = $3;
         if(!check_compatibility(a->type,b->type,"*")){
-        yyerror("Type incompatibility in multiply.");
+            yyerror("Type incompatibility in multiply.");
         }
         Node* n = new Node();
         n->code = a->code; n->code.insert(n->code.end(), b->code.begin(), b->code.end());
@@ -1412,7 +1370,7 @@ conditional_expression
         n->place = newTemp();
         
         int condJumpIndex = n->code.size();
-        n->code.push_back("if " + cond->place + "==false goto __");
+        n->code.push_back("ifFalse " + cond->place + " goto __");
         vector<int> falseList = makeList(condJumpIndex);
         
         n->code.insert(n->code.end(), e1->code.begin(), e1->code.end());
@@ -1441,7 +1399,10 @@ conditional_expression
 assignment_expression
 	: conditional_expression { 
         dbg("assignment_expression -> conditional_expression");
-        $$ = $1; }
+         Node* n = $1;
+        n->kind = "rvalue";
+        $$ = n;
+    }
 	| unary_expression assignment_operator assignment_expression {
             dbg("assignment_expression -> unary_expression assignment_operator assignment_expression");
           Node* left = $1; 
@@ -1671,7 +1632,7 @@ init_declarator
         dbg("Declared variable is: " + n->place + " of type: " + n->type + " and kind: " + n->kind);
         dbg("");
 
-        if(n->type.find("void")!=string::npos){
+        if(n->type =="void"){
             yyerror("Variable '" + n->place + "' cannot be of type void.");
         }
 
@@ -1776,7 +1737,7 @@ init_declarator
         }
         dbg("");
 
-        if(n->type.find("void")!=string::npos){
+        if(n->type=="void"){
             yyerror("Variable '" + n->place + "' cannot be of type void.");
         }
 
@@ -1862,7 +1823,7 @@ init_declarator
         dbg("Declared pointer: " + n->place + " of type: " + n->type + " and kind: " + n->kind);
         dbg("");
 
-        if(n->type.find("void")!=string::npos){
+        if(n->type=="void"){
             yyerror("Variable '" + n->place + "' cannot be of type void.");
         }
 
@@ -1949,7 +1910,7 @@ init_declarator
         dbg("Declared variable: " + n->place + " of type: " + n->type + " and kind: " + n->kind);
         dbg("");
 
-        if(n->type.find("void")!=string::npos){
+        if(n->type=="void"){
             yyerror("Variable '" + n->place + "' cannot be of type void.");
         }
 
@@ -2039,7 +2000,7 @@ init_declarator
         dbg("Declared pointer: " + n->place + " of type: " + n->type + " and kind: " + n->kind);
         dbg("");
 
-        if(n->type.find("void")!=string::npos){
+        if(n->type=="void"){
             yyerror("Variable '" + n->place + "' cannot be of type void.");
         }
 
@@ -2125,7 +2086,8 @@ init_declarator
         n->code.push_back(tmp + " = &" + n->place);
         for(int i = 0; i < $4->argCount; i++)
         {
-            n->code.push_back("*(" + tmp + " + " + to_string(i*typeSize[$4->type]) + ") = " + $4->syn[i]);
+            n->code.push_back("*" + tmp + " = " + $4->syn[i]);
+            n->code.push_back(tmp + " = " + tmp + " + " + to_string(typeSize[$4->type]));
         }
 
        
@@ -2150,7 +2112,7 @@ init_declarator
             dbg("Dimension " + to_string(i+1) + ": " + n->syn[i]);
         }
         dbg("");
-        if(n->type.find("void")!=string::npos){
+        if(n->type=="void"){
             yyerror("Variable '" + n->place + "' cannot be of type void.");
         }
 
@@ -2358,9 +2320,6 @@ type_specifier
 	| BOOL   { 
         dbg("type_specifier -> BOOL");
         $$ = strdup("bool"); lastDeclType = "bool"; }
-	/* | STRING { 
-        dbg("type_specifier -> STRING");
-        $$ = strdup("string"); lastDeclType = "string"; } */
 	| TYPE_NAME 
     { 
         dbg("type_specifier -> TYPE_NAME");
@@ -2677,84 +2636,6 @@ statement
         dbg("statement -> jump_statement");
         $$ = $1; }
     ;
-	/* | io_statement { 
-        dbg("statement -> io_statement");
-        $$ = $1; }
-    ;
-
-// Done
-io_statement
-    : cout_expression SEMICOLON { 
-        dbg("io_statement -> cout_expression ;");
-        $$ = $1; }
-    | cin_expression SEMICOLON  { 
-        dbg("io_statement -> cin_expression ;");
-        $$ = $1; }
-    ;
-
-// Done
-cout_expression
-    : COUT insertion_list { 
-        dbg("cout_expression -> COUT insertion_list");
-        $$ = $2; }
-    ;
-
-// Done
-insertion_list
-    : LEFT_SHIFT assignment_expression {
-          dbg("insertion_list -> LEFT_SHIFT assignment_expression");
-          Node* e = $2;
-          Node* n = new Node();
-          n->code = e->code;
-          n->code.push_back("print " + e->place); 
-          $$ = n;
-      }
-	| LEFT_SHIFT ENDL {
-            dbg("insertion_list -> LEFT_SHIFT ENDL");
-          Node* n = new Node();
-          n->code.push_back("print newline"); 
-          $$ = n;
-      }
-	| insertion_list LEFT_SHIFT ENDL {
-            dbg("insertion_list -> insertion_list LEFT_SHIFT ENDL");
-          Node* n = $1; 
-          n->code.push_back("print newline"); 
-          $$ = n;
-      }
-	| insertion_list LEFT_SHIFT assignment_expression {
-            dbg("insertion_list -> insertion_list LEFT_SHIFT assignment_expression");
-          Node* n = $1; Node* e = $3;
-          n->code.insert(n->code.end(), e->code.begin(), e->code.end());
-          n->code.push_back("print " + e->place); $$ = n;
-      }
-	;
-
-// Done
-cin_expression
-    : CIN extraction_list { 
-        dbg("cin_expression -> CIN extraction_list");
-        $$ = $2; }
-    ;
-
-// Done
-extraction_list
-    : RIGHT_SHIFT assignment_expression {
-            dbg("extraction_list -> RIGHT_SHIFT assignment_expression");
-          Node* e = $2; 
-          Node* n = new Node();
-          n->code = e->code; 
-          n->code.push_back("read " + e->place); 
-          $$ = n;
-      }
-    | extraction_list RIGHT_SHIFT assignment_expression {
-            dbg("extraction_list -> extraction_list RIGHT_SHIFT assignment_expression");
-          Node* n = $1; 
-          Node* e = $3;
-          n->code.insert(n->code.end(), e->code.begin(), e->code.end());
-          n->code.push_back("read " + e->place); 
-          $$ = n;
-      }
-    ; */
 
 // Done
 labeled_statement
@@ -2779,13 +2660,24 @@ compound_statement
       }
 	| LCURLY 
     {
-        currentScope += "$";
+        currentScope += ".";
         pushScope();
     } statement_list RCURLY {
             dbg("compound_statement -> { statement_list }");
           Node* n = $3;
           popScope();
           currentScope.pop_back();
+
+          if(!inloop){ 
+            for(size_t i = 0; i < n->code.size(); i++) {
+                if(n->code[i]=="break"){
+                    yyerror("Incorrect usage of 'break'");
+                }
+                if(n->code[i]=="continue"){
+                    yyerror("Incorrect usage of 'continue'");
+                }
+            }
+          }
           $$ = n;
       }
 	;
@@ -2826,12 +2718,15 @@ selection_statement
     : IF LROUND expression RROUND statement %prec LOWER_THAN_ELSE {
           dbg("selection_statement -> if ( expression ) statement");
           Node* e = $3;
+          if(e->type != "bool"){
+              yyerror("Condition expression must be of type bool.");
+          }
           Node* s1 = $5;
           Node* n = new Node();
           
           n->code = e->code;
           int falseJumpIndex = n->code.size();
-          n->code.push_back("if " + e->place + "==false goto __");
+          n->code.push_back("ifFalse " + e->place + " goto __");
           vector<int> falseList = makeList(falseJumpIndex);
           
           n->code.insert(n->code.end(), s1->code.begin(), s1->code.end());
@@ -2845,6 +2740,9 @@ selection_statement
     | IF LROUND expression RROUND statement ELSE statement {
           dbg("selection_statement -> if ( expression ) statement else statement");
           Node* e = $3;
+            if(e->type != "bool"){
+                yyerror("Condition expression must be of type bool.");
+            }
           Node* s1 = $5;
           Node* s2 = $7;
           Node* n = new Node();
@@ -2852,7 +2750,7 @@ selection_statement
           n->code = e->code;
           
           int falseJumpIndex = n->code.size();
-          n->code.push_back("if " + e->place + "==false goto __");
+          n->code.push_back("ifFalse " + e->place + " goto __");
           vector<int> falseList = makeList(falseJumpIndex);
           
           n->code.insert(n->code.end(), s1->code.begin(), s1->code.end());
@@ -2895,13 +2793,14 @@ selection_statement
 
         backpatch(n->code,exitList,exitLabel);
         $$ = n;
+        inloop=false;
       }
     ;
 
 switch_head
-    : SWITCH LROUND expression RROUND {
+    : SWITCH{inloop=true;} LROUND expression RROUND {
         dbg("switch_head -> SWITCH ( expression )");
-        Node* e = $3;
+        Node* e = $4;
         Node* n = new Node();
         n->code = e->code;
         n->place = e->place;
@@ -2929,6 +2828,10 @@ case_item
     : CASE constant_expression statement {
         dbg("case_item -> CASE constant_expression : statement");
         Node* caseVal = $2;
+
+        if(caseVal->type != $<node>-2->type){
+            yyerror("Type mismatch in case label.");
+        }
         Node* stmt = $3;
         Node* n = new Node();
         
@@ -2939,7 +2842,7 @@ case_item
         n->code.insert(n->code.end(), stmt->code.begin(), stmt->code.end());
         
         for (size_t i = 0; i < n->code.size(); i++) {
-            if (n->code[i] == "break;") {
+            if (n->code[i] == "break") {
                 n->code[i] = "goto __";
             }
         }
@@ -2958,7 +2861,7 @@ case_item
         n->code.insert(n->code.end(), stmt->code.begin(), stmt->code.end());
         
         for (size_t i = 0; i < n->code.size(); i++) {
-            if (n->code[i] == "break;") {
+            if (n->code[i] == "break") {
                 n->code[i] = "goto __";
             }
         }
@@ -2969,10 +2872,13 @@ case_item
 
 // Done
 iteration_statement
-    : WHILE LROUND expression RROUND statement {
+    : WHILE LROUND expression RROUND {inloop=true;}statement {
         dbg("iteration_statement -> WHILE ( expression ) statement");
         Node* cond = $3; 
-        Node* body = $5;
+        if(cond->type != "bool"){
+            yyerror("Condition expression must be of type bool.");
+        }
+        Node* body = $6;
         Node* n = new Node();
         
         string Lbegin = newLabel();
@@ -2980,21 +2886,35 @@ iteration_statement
         
         n->code.insert(n->code.end(), cond->code.begin(), cond->code.end());
         int jumpIndex = n->code.size();
-        n->code.push_back("if " + cond->place + "==false goto __");
+        n->code.push_back("ifFalse " + cond->place + " goto __");
         vector<int> falseList = makeList(jumpIndex);
         
         n->code.insert(n->code.end(), body->code.begin(), body->code.end());
         n->code.push_back("goto " + Lbegin);
+
+        for(size_t i = 0; i < n->code.size(); i++) {
+            if (n->code[i] == "break") {
+                n->code[i] = "goto __";
+                falseList.push_back(i);
+            }
+            if (n->code[i] == "continue") {
+                n->code[i] = "goto " + Lbegin;
+            }
+        }
         
         string Lend = newLabel();
         n->code.push_back(Lend + ":");
         backpatch(n->code, falseList, Lend);
         $$ = n;
+        inloop=false;
     }
-    | UNTIL LROUND expression RROUND statement {
+    | UNTIL LROUND expression RROUND {inloop=true;}statement {
         dbg("iteration_statement -> UNTIL ( expression ) statement");
         Node* cond = $3; 
-        Node* body = $5;
+        if(cond->type != "bool"){
+            yyerror("Condition expression must be of type bool.");
+        }
+        Node* body = $6;
         Node* n = new Node();
         
         string Lbegin = newLabel();
@@ -3002,21 +2922,36 @@ iteration_statement
         
         n->code.insert(n->code.end(), cond->code.begin(), cond->code.end());
         int jumpIndex = n->code.size();
-        n->code.push_back("if " + cond->place + "==true goto __");
+        n->code.push_back("if " + cond->place + " goto __");
         vector<int> falseList = makeList(jumpIndex);
         
         n->code.insert(n->code.end(), body->code.begin(), body->code.end());
         n->code.push_back("goto " + Lbegin);
+
+        for(size_t i = 0; i < n->code.size(); i++) {
+            if (n->code[i] == "break") {
+                n->code[i] = "goto __";
+                falseList.push_back(i);
+                dbg("Found break at line " + to_string(i));
+            }
+            if (n->code[i] == "continue") {
+                n->code[i] = "goto " + Lbegin;
+            }
+        }
         
         string Lend = newLabel();
         n->code.push_back(Lend + ":");
         backpatch(n->code, falseList, Lend);
         $$ = n;
+        inloop=false;
     }
-    | DO statement WHILE LROUND expression RROUND SEMICOLON {
+    | DO{inloop=true;} statement WHILE LROUND expression RROUND SEMICOLON {
         dbg("iteration_statement -> DO statement WHILE ( expression ) ;");
-        Node* body = $2;
-        Node* cond = $5;
+        Node* body = $3;
+        Node* cond = $6;
+        if(cond->type != "bool"){
+            yyerror("Condition expression must be of type bool.");
+        }
         Node* n = new Node();
         
         string Lbegin = newLabel();
@@ -3024,16 +2959,35 @@ iteration_statement
         
         n->code.insert(n->code.end(), body->code.begin(), body->code.end());
         n->code.insert(n->code.end(), cond->code.begin(), cond->code.end());
+
+        vector<int> falseList;
+        for(size_t i = 0; i < n->code.size(); i++) {
+            if (n->code[i] == "break") {
+                n->code[i] = "goto __";
+                falseList.push_back(i);
+            }
+            if (n->code[i] == "continue") {
+                n->code[i] = "goto " + Lbegin;
+            }
+        }
         
         int jumpIndex = n->code.size();
-        n->code.push_back("if " + cond->place + "==true goto " + Lbegin);
+        n->code.push_back("if " + cond->place + " goto " + Lbegin);
+
+        string Lend = newLabel();
+        n->code.push_back(Lend + ":");
+        backpatch(n->code, falseList, Lend);
         $$ = n;
+        inloop=false;
     }
-    | FOR LROUND for_init_statement expression_statement RROUND statement {
+    | FOR LROUND for_init_statement expression_statement RROUND{inloop=true;} statement {
         dbg("iteration_statement -> FOR ( for_init_statement expression_statement ) statement");
         Node* init = $3;
         Node* cond = $4;
-        Node* body = $6;
+        if(cond->type != "bool"){
+            yyerror("Condition expression must be of type bool.");
+        }
+        Node* body = $7;
         Node* n = new Node();
         
         string Lbegin = newLabel();
@@ -3044,8 +2998,18 @@ iteration_statement
         if (cond && cond->place != "") {
             n->code.insert(n->code.end(), cond->code.begin(), cond->code.end());
             int jumpIndex = n->code.size();
-            n->code.push_back("if " + cond->place + "==false goto __");
+            n->code.push_back("ifFalse " + cond->place + " goto __");
             falseList = makeList(jumpIndex);
+        }
+
+        for(size_t i = 0; i < body->code.size(); i++) {
+            if (body->code[i] == "break") {
+                body->code[i] = "goto __";
+                falseList.push_back(n->code.size() + i);
+            }
+            if (body->code[i] == "continue") {
+                body->code[i] = "goto " + Lbegin;
+            }
         }
         
         n->code.insert(n->code.end(), body->code.begin(), body->code.end());
@@ -3053,17 +3017,19 @@ iteration_statement
         
         string Lend = newLabel();
         n->code.push_back(Lend + ":");
-        if (!falseList.empty())
-            backpatch(n->code,falseList,Lend);
-
+        backpatch(n->code,falseList,Lend);
         $$ = n;
+        inloop=false;
     }
-    | FOR LROUND for_init_statement expression_statement expression RROUND statement {
+    | FOR LROUND for_init_statement expression_statement expression RROUND{inloop=true;}statement {
         dbg("iteration_statement -> FOR ( for_init_statement expression_statement expression ) statement");
         Node* init = $3;
         Node* cond = $4;
+        if(cond->type != "bool"){
+            yyerror("Condition expression must be of type bool.");
+        }
         Node* iter = $5;
-        Node* body = $7;
+        Node* body = $8;
         Node* n = new Node();
         
         string Lbegin = newLabel();
@@ -3074,8 +3040,18 @@ iteration_statement
         if (cond && cond->place != "") {
             n->code.insert(n->code.end(), cond->code.begin(), cond->code.end());
             int jumpIndex = n->code.size();
-            n->code.push_back("if " + cond->place + "==false goto __");
+            n->code.push_back("ifFalse " + cond->place + " goto __");
             falseList = makeList(jumpIndex);
+        }
+
+        for(size_t i = 0; i < body->code.size(); i++) {
+            if (body->code[i] == "break") {
+                body->code[i] = "goto __";
+                falseList.push_back(n->code.size() + i);
+            }
+            if (body->code[i] == "continue") {
+                body->code[i] = "goto " + Lbegin;
+            }
         }
         
         n->code.insert(n->code.end(), body->code.begin(), body->code.end());
@@ -3087,6 +3063,7 @@ iteration_statement
         if (!falseList.empty())
             backpatch(n->code, falseList, Lend);
         $$ = n;
+        inloop=false;
     }
     ;
 
@@ -3111,13 +3088,13 @@ jump_statement
 	| CONTINUE SEMICOLON {
             dbg("jump_statement -> CONTINUE ;");
           Node* n = new Node(); 
-          n->code.push_back("continue;"); 
+          n->code.push_back("continue"); 
           $$ = n;
       }
 	| BREAK SEMICOLON {
             dbg("jump_statement -> BREAK ;");
           Node* n = new Node(); 
-          n->code.push_back("break;"); 
+          n->code.push_back("break"); 
           $$ = n;
       }
 	| RETURN SEMICOLON {

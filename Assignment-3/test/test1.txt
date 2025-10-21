@@ -1,21 +1,11 @@
 int main(){
-    char w = 'a';
-    int c;
-
-    switch(w){
-        case 'a'{
-            c = 0;
-            break;
-        }
-        case 'b'{
-            c = 1;
-            break;
-        }
-        default{
-            c = 2;
-            break  ;
-        }
+    double y = 5.5;
+    if((bool)y){
+        if(y!=5.5)
+            printf("yeye");
     }
-
+    else
+        printf("%d",y);
+        
     return 0;
 }
