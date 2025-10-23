@@ -1,134 +1,76 @@
-class A
-{
+
+int add(int a, int b) {
+    return a + b;
+}
+
+int factorial(int n) {
+    if (n <= 1){ return 1;}
+    else {return n * factorial(n - 1);}
+    return 0;
+}
+
+int array_sum(int* arr, int size) {
+    int sum = 0;
+    for (int i = 0; i < size; i++) {
+        sum = sum + arr[i];
+    }
+    return sum;
+}
+
+class Point {
     public:
-    int fn(int x){
-        int x = 8;
-        int c = 7;
-        x = 7;
-        return x;
-    }
-
-    const int e = 9;
-    int fn(char c, char* d)
-    {
-        int f = (int)c;
-        int* e = &f;
-        return (int)c;
-    }
-
-    int fn()
-    {
-        return 7;
-    }
-
-    static int d = 8;
-
-    int a = 9;
+    int x;
+    int y;
 };
 
-int c = 8;
-int d = 9, e = 10;
-
-int fn(int x)
-{
-    return x;
+double point_sum(Point p) {
+    return (double)(p.x/p.y);
 }
 
-int fn(char c, char* d)
-{
-    int f = (int)c;
-    int* e = &f;
-    return (int)c;
-}
+int main() {
+     Point p;
+    p.x = 3;
+    p.y = 4;
+    double p_sum = point_sum(p);
+    int a = 5, b = 10;
 
-int fn()
-{
-    return 8;
-}
-
-int array_sum(int* arr,int size){
-    int sm = 0;
-    for(int i=0;i<size;i++){
-        sm += arr[i];
+    int result = add(a, b);
+    if (result != 15) {
+        printf("Arithmetic test failed: %d\n", result);
+        return 1;
     }
-    return sm;
-}
-
-
-int main()
-{
-    A* pr;
-    int arr[3] = {1,2,3};
-    int s = array_sum(arr,3);
-    printf("The sum is %d",s);
-    A a;
-    a.a = 8;
-    a.a++;
-    int z = a.fn(8);
-    char chr = 'a';
-    z = (int)chr;
-
-    ++a.a;
-    z = (*pr).fn();
-    z = fn(0);
-    z = a.fn();
-
-    z = fn();
-    int ar1[3];
-
-    ar1[3] = z;
-    int p = 8;
-
-    z = p;
-
-    int * ptr= &p;
-
-    int f = a.a * p + p + 6 / 2 + 8 - 3 - (4*8+(3+4));
-
-    if(a.a == p)
-    {
-        a.a = 7;
+    int num = 5;
+    int fact = factorial(num);
+    if (fact != 120) {
+        printf("Recursion test failed: %d\n", fact);
+        return 1;
     }
-    else{
-        a.a = 8;
+    printf("factorial of %d is %d\n", num, fact);
+
+    int arr[5] = {1, 2, 3, 4, 5};
+    int arr_sum = array_sum(arr, 5);
+    if (arr_sum != 15) {
+        printf("Array sum test failed: %d\n", arr_sum);
+        return 1;
     }
 
-    f += p;
-    f >>= p;
-    f <<= a.a;
-    f *= (7 *8);
-
-    int d = a.a + p;
-
-    char c = (char)p;
-
-    {
-        int ar1[3];
-        ar1[3] = z;
-
-        int ar2[3][3] = {0,0,0,0,0};
-        z = 8;
-        int z = p;
-        int p = 8;
-
-        ar2[3][1] = 2;
-        z = ar2[1][2];
-        z = 10;
-        {
-            z = p;
-            int z = 12;
-            z = 12;
-        }
-
-        A b;
-        b.a = a.a;
+    if (p_sum != 7.0) {
+        printf("Struct test failed: %d\n", p_sum);
+        return 1;
     }
-    A b;
-    z = b.a;
 
+    int value = 0;
+    if (a < b) {
+        value = 1;
+    }
+    else {
+        value = 2;
+    }
+    if (value != 1) {
+        printf("Branching test failed: %d\n", value);
+        return 1;
+    }
 
-    z = 11;
-    z= p;
-
+    printf("All tests passed successfully!\n");
     return 0;
 }

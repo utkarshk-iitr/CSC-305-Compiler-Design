@@ -2590,14 +2590,16 @@ type_specifier
 
 // Done
 translation_unit
-	: external_declaration { 
+	: external_declaration 
+    { 
         dbg("translation_unit -> external_declaration");
-        finalRoot = $1; $$ = $1; }
+        finalRoot = $1; $$ = $1; 
+    }
 	| translation_unit external_declaration 
     {
         dbg("translation_unit -> translation_unit external_declaration");
         Node* a = $1; Node* b = $2;
-        if (a) 
+        if (b) 
         { 
             a->code.insert(a->code.end(), b->code.begin(), b->code.end()); 
             finalRoot = a; $$ = a; 
@@ -3431,6 +3433,7 @@ external_declaration
     | struct_or_class_specifier SEMICOLON 
     { 
         dbg("external_declaration -> struct_or_class_specifier ;");
+        dbg("..ll");
         $$ = $1; 
     } 
     | TYPEDEF return_type IDENTIFIER SEMICOLON {
@@ -3631,7 +3634,52 @@ external
             bool ok = declareSymbol(pname,ptype);
             Symbol* sym = lookupSymbol(pname);
             dbg("Parameter declared: " + pname + " of type " + ptype);
-            string w = lastClassType + "."+ currentFunction + currentScope + "$" +pname;
+            if(classTable.find(ptype) != classTable.end())
+            {
+                for(const auto& member : classTable[ptype])
+                {
+                    if(member.second.kind == "function")
+                    {
+                        string name = pname + "." + member.first;
+                        string original = pname + "." + member.second.method.original;
+                        if(lookupSymbol(original) == nullptr)
+                            declareSymbol(original, "function","function",vector<string>(),true);
+                        dbg(original);
+                        funcInfo f = member.second.method;
+                        f.place = pname + "." + f.place;
+                        dbg("zz");
+                        dbg(f.place);
+                        funcTable[name] = f;
+                        dbg("Function '" + name + "' with return type '" + funcTable[name].returnType + "' declared.");
+                    }
+                    else
+                    {
+                        string name = pname + "." + member.first;
+                        bool ok = declareSymbol(name, member.second.type, member.second.kind);
+
+                        if (!ok) {
+                            yyerror("Duplicate declaration of '" + name + "' in same scope.");
+                        }
+
+                        Symbol* sym = lookupSymbol(name);
+                        string w;
+                        if(lastClassType == "")
+                            w = currentFunction + currentScope + "." + name;
+                        else
+                            w = lastClassType + "." + currentFunction + currentScope + "." + name;
+                        sym->printName = w;
+
+                        dbg("mmm");
+                        dbg(w);
+                        dbg("Variable '" + name + "' with type '" + member.second.type + "' declared.");
+                    }
+                }
+            }
+            string w;
+            if(lastClassType == "")
+                w = currentFunction + currentScope + "." + pname;
+            else
+                w = lastClassType + "." + currentFunction + currentScope + "." + pname;
             sym->printName = w;
             if(!ok) yyerror("Duplicate parameter name '" + pname + "' in function '" + fname + "'.");
         }

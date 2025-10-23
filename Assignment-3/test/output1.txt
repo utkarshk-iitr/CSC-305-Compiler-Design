@@ -1,165 +1,124 @@
-    d = 9
-    e = 10
-    c = 8
-    A.d = 8
-    A.e = 9
     
-A.fn_int:
-    A.fn_int.x = 8
-    A.fn_int.c = 7
-    A.fn_int.x = 7
-    return A.fn_int.x
+add_int_int:
+    add_int_int.t1 = add_int_int.a + add_int_int.b
+    return add_int_int.t1
     
-A.fn_char_char*:
-    fn_char_char*.t1 = char_to_int A.fn_char_char*$c
-    A.fn_char_char*.f = fn_char_char*.t1
-    fn_char_char*.t2 = &A.fn_char_char*.f
-    A.fn_char_char*.e = 
-    fn_char_char*.t3 = char_to_int A.fn_char_char*$c
-    return fn_char_char*.t3
-    
-A.fn:
-    return 7
-    
-    A.a = 9
-    
-fn_int:
-    return .fn_int$x
-    
-fn_char_char*:
-    fn_char_char*.t1 = char_to_int .fn_char_char*$c
-    fn_char_char*.f = fn_char_char*.t1
-    fn_char_char*.t2 = &fn_char_char*.f
-    fn_char_char*.e = 
-    fn_char_char*.t3 = char_to_int .fn_char_char*$c
-    return fn_char_char*.t3
-    
-fn:
-    return 8
+factorial_int:
+    factorial_int.t1 = factorial_int.n <= 1
+    ifFalse factorial_int.t1 goto factorial_int.L1
+    return 1
+    goto factorial_int.L2
+factorial_int.L1:
+    factorial_int.t2 = factorial_int.n - 1
+    param factorial_int.t2
+    factorial_int.t3 = call factorial_int, 1
+    factorial_int.t4 = factorial_int.n * 
+    return factorial_int.t4
+factorial_int.L2:
+    return 0
     
 array_sum_int*_int:
-    array_sum_int*_int.sm = 0
+    array_sum_int*_int.sum = 0
     array_sum_int*_int.i = 0
 array_sum_int*_int.L1:
-    array_sum_int*_int.t1 = array_sum_int*_int.i < .array_sum_int*_int$size
+    array_sum_int*_int.t1 = array_sum_int*_int.i < array_sum_int*_int.size
     ifFalse array_sum_int*_int.t1 goto array_sum_int*_int.L2
     array_sum_int*_int.t3 = i * 4
-    array_sum_int*_int.t4 = .array_sum_int*_int$arr + array_sum_int*_int.t3
-    array_sum_int*_int.sm = array_sum_int*_int.sm + array_sum_int*_int.t4
+    array_sum_int*_int.t4 = array_sum_int*_int.arr + array_sum_int*_int.t3
+    array_sum_int*_int.t5 = array_sum_int*_int.sum + array_sum_int*_int.t4
+    array_sum_int*_int.sum = array_sum_int*_int.t5
     array_sum_int*_int.t2 = array_sum_int*_int.i
     array_sum_int*_int.i = array_sum_int*_int.t2 + 1;
     goto array_sum_int*_int.L1
 array_sum_int*_int.L2:
-    return array_sum_int*_int.sm
+    return array_sum_int*_int.sum
+    
+    
+    
+point_sum_Point:
+    point_sum_Point.t1 = point_sum_Point.p.x / point_sum_Point.p.y
+    point_sum_Point.t2 = int_to_double point_sum_Point.t1
+    return point_sum_Point.t2
     
 main:
-    main.t1 = &main.arr
-    *main.t1 = 1
-    main.t1 = main.t1 + 4
-    *main.t1 = 2
-    main.t1 = main.t1 + 4
-    *main.t1 = 3
-    main.t1 = main.t1 + 4
-    param main.arr
-    param 3
-    main.t2 = call array_sum_int*_int, 2
-    main.s = main.t2
-    param "The sum is %d"
-    param main.s
-    main.t3 = call printf, 2
-    main.a.a = 8
-    main.t4 = main.a.a
-    main.a.a = main.t4 + 1;
-    param 8
-    main.t5 = call A.fn_int, 1
-    main.z = main.t5
-    main.chr = 'a'
-    main.t6 = char_to_int main.chr
-    main.z = main.t6
-    main.a.a = main.a.a + 1;
-    main.t7 = call A.fn, 0;
-    main.z = main.t7
-    param 0
-    main.t8 = call fn_int, 1
-    main.z = main.t8
-    main.t9 = call A.fn, 0;
-    main.z = main.t9
-    main.t10 = call fn, 0;
-    main.z = main.t10
-    main.t11 = 3 * 1
-    main.t11 = main.t11 * 4
-    main.t12 = main.ar1 + main.t11
-    main.t12 = main.z
-    main.p = 8
-    main.z = main.p
-    main.t13 = &main.p
-    main.ptr = 
-    main.t14 = main.a.a * main.p
-    main.t15 = main.t14 + main.p
-    main.t16 = 6 / 2
-    main.t17 = main.t15 + main.t16
-    main.t18 = main.t17 + 8
-    main.t19 = main.t18 - 3
-    main.t20 = 4 * 8
-    main.t21 = 3 + 4
-    main.t22 = main.t20 + main.t21
-    main.t23 = main.t19 - main.t22
-    main.f = main.t23
-    main.t24 = main.a.a == main.p
-    ifFalse main.t24 goto main.L1
-    main.a.a = 7
-    goto main.L2
+    main.p.x = 3
+    main.p.y = 4
+    param main.p
+    main.t1 = call point_sum_Point, 1
+    main.p_sum = main.t1
+    main.a = 5
+    main.b = 10
+    param main.a
+    param main.b
+    main.t2 = call add_int_int, 2
+    main.result = main.t2
+    main.t3 = main.result != 15
+    ifFalse main.t3 goto main.L1
+    param "Arithmetic test failed: %d\n"
+    param main.result
+    main.t4 = call printf, 2
+    return 1
 main.L1:
-    main.a.a = 8
+    main.num = 5
+    param main.num
+    main.t5 = call factorial_int, 1
+    main.fact = main.t5
+    main.t6 = main.fact != 120
+    ifFalse main.t6 goto main.L2
+    param "Recursion test failed: %d\n"
+    param main.fact
+    main.t7 = call printf, 2
+    return 1
 main.L2:
-    main.f = main.f + main.p
-    main.f = main.f >> main.p
-    main.f = main.f << main.a.a
-    main.t25 = 7 * 8
-    main.f = main.f * main.t25
-    main.t26 = main.a.a + main.p
-    main.d = main.t26
-    main.t27 = int_to_char main.p
-    main.c = main.t27
-    main.t28 = 3 * 1
-    main.t28 = main.t28 * 4
-    main.t29 = main..ar1 + main.t28
-    main.t29 = main.z
-    main.t30 = &main..ar2
-    *main.t30 = 0
-    main.t30 = main.t30 + 4
-    *main.t30 = 0
-    main.t30 = main.t30 + 4
-    *main.t30 = 0
-    main.t30 = main.t30 + 4
-    *main.t30 = 0
-    main.t30 = main.t30 + 4
-    *main.t30 = 0
-    main.t30 = main.t30 + 4
-    main.z = 8
-    main..z = main.p
-    main..p = 8
-    main.t31 = 3 * 3
-    main.t31 = main.t31 * 0
-    main.t32 = main..ar2 + main.t31
-    main.t33 = 1 * 1
-    main.t33 = main.t33 * 4
-    main.t34 = main.t32 + main.t33
-    main.t34 = 2
-    main.t35 = 1 * 3
-    main.t35 = main.t35 * 0
-    main.t36 = main..ar2 + main.t35
-    main.t37 = 2 * 1
-    main.t37 = main.t37 * 4
-    main.t38 = main.t36 + main.t37
-    main..z = main.t38
-    main..z = 10
-    main..z = main..p
-    main...z = 12
-    main...z = 12
-    main..b.a = main.a.a
-    main.z = main.b.a
-    main.z = 11
-    main.z = main.p
+    param "factorial of %d is %d\n"
+    param main.num
+    param main.fact
+    main.t8 = call printf, 3
+    main.t9 = &main.arr
+    *main.t9 = 1
+    main.t9 = main.t9 + 4
+    *main.t9 = 2
+    main.t9 = main.t9 + 4
+    *main.t9 = 3
+    main.t9 = main.t9 + 4
+    *main.t9 = 4
+    main.t9 = main.t9 + 4
+    *main.t9 = 5
+    main.t9 = main.t9 + 4
+    param main.arr
+    param 5
+    main.t10 = call array_sum_int*_int, 2
+    main.arr_sum = main.t10
+    main.t11 = main.arr_sum != 15
+    ifFalse main.t11 goto main.L3
+    param "Array sum test failed: %d\n"
+    param main.arr_sum
+    main.t12 = call printf, 2
+    return 1
+main.L3:
+    main.t13 = main.p_sum != 7.0
+    ifFalse main.t13 goto main.L4
+    param "Struct test failed: %d\n"
+    param main.p_sum
+    main.t14 = call printf, 2
+    return 1
+main.L4:
+    main.value = 0
+    main.t15 = main.a < main.b
+    ifFalse main.t15 goto main.L5
+    main.value = 1
+    goto main.L6
+main.L5:
+    main.value = 2
+main.L6:
+    main.t16 = main.value != 1
+    ifFalse main.t16 goto main.L7
+    param "Branching test failed: %d\n"
+    param main.value
+    main.t17 = call printf, 2
+    return 1
+main.L7:
+    param "All tests passed successfully!\n"
+    main.t18 = call printf, 1
     return 0
     
