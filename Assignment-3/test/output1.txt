@@ -1,32 +1,165 @@
+    d = 9
+    e = 10
+    c = 8
+    A.d = 8
+    A.e = 9
+    
+A.fn_int:
+    A.fn_int.x = 8
+    A.fn_int.c = 7
+    A.fn_int.x = 7
+    return A.fn_int.x
+    
+A.fn_char_char*:
+    fn_char_char*.t1 = char_to_int A.fn_char_char*$c
+    A.fn_char_char*.f = fn_char_char*.t1
+    fn_char_char*.t2 = &A.fn_char_char*.f
+    A.fn_char_char*.e = 
+    fn_char_char*.t3 = char_to_int A.fn_char_char*$c
+    return fn_char_char*.t3
+    
+A.fn:
+    return 7
+    
+    A.a = 9
+    
+fn_int:
+    return .fn_int$x
+    
+fn_char_char*:
+    fn_char_char*.t1 = char_to_int .fn_char_char*$c
+    fn_char_char*.f = fn_char_char*.t1
+    fn_char_char*.t2 = &fn_char_char*.f
+    fn_char_char*.e = 
+    fn_char_char*.t3 = char_to_int .fn_char_char*$c
+    return fn_char_char*.t3
+    
+fn:
+    return 8
     
 array_sum_int*_int:
     array_sum_int*_int.sm = 0
     array_sum_int*_int.i = 0
 array_sum_int*_int.L1:
-    array_sum_int*_int.t1 = i < size
+    array_sum_int*_int.t1 = array_sum_int*_int.i < .array_sum_int*_int$size
     ifFalse array_sum_int*_int.t1 goto array_sum_int*_int.L2
     array_sum_int*_int.t3 = i * 4
-    array_sum_int*_int.t4 = arr + array_sum_int*_int.t3
-    sm = sm + *array_sum_int*_int.t4
-    array_sum_int*_int.t2 = i
-    i = array_sum_int*_int.t2 + 1;
+    array_sum_int*_int.t4 = .array_sum_int*_int$arr + array_sum_int*_int.t3
+    array_sum_int*_int.sm = array_sum_int*_int.sm + array_sum_int*_int.t4
+    array_sum_int*_int.t2 = array_sum_int*_int.i
+    array_sum_int*_int.i = array_sum_int*_int.t2 + 1;
     goto array_sum_int*_int.L1
 array_sum_int*_int.L2:
-    return sm
+    return array_sum_int*_int.sm
     
 main:
-    main.t1 = &arr
+    main.t1 = &main.arr
     *main.t1 = 1
     main.t1 = main.t1 + 4
     *main.t1 = 2
     main.t1 = main.t1 + 4
     *main.t1 = 3
     main.t1 = main.t1 + 4
-    param arr
+    param main.arr
     param 3
-    main.t2 = call array_sum, 2
+    main.t2 = call array_sum_int*_int, 2
     main.s = main.t2
     param "The sum is %d"
-    param s
+    param main.s
     main.t3 = call printf, 2
+    main.a.a = 8
+    main.t4 = main.a.a
+    main.a.a = main.t4 + 1;
+    param 8
+    main.t5 = call A.fn_int, 1
+    main.z = main.t5
+    main.chr = 'a'
+    main.t6 = char_to_int main.chr
+    main.z = main.t6
+    main.a.a = main.a.a + 1;
+    main.t7 = call A.fn, 0;
+    main.z = main.t7
+    param 0
+    main.t8 = call fn_int, 1
+    main.z = main.t8
+    main.t9 = call A.fn, 0;
+    main.z = main.t9
+    main.t10 = call fn, 0;
+    main.z = main.t10
+    main.t11 = 3 * 1
+    main.t11 = main.t11 * 4
+    main.t12 = main.ar1 + main.t11
+    main.t12 = main.z
+    main.p = 8
+    main.z = main.p
+    main.t13 = &main.p
+    main.ptr = 
+    main.t14 = main.a.a * main.p
+    main.t15 = main.t14 + main.p
+    main.t16 = 6 / 2
+    main.t17 = main.t15 + main.t16
+    main.t18 = main.t17 + 8
+    main.t19 = main.t18 - 3
+    main.t20 = 4 * 8
+    main.t21 = 3 + 4
+    main.t22 = main.t20 + main.t21
+    main.t23 = main.t19 - main.t22
+    main.f = main.t23
+    main.t24 = main.a.a == main.p
+    ifFalse main.t24 goto main.L1
+    main.a.a = 7
+    goto main.L2
+main.L1:
+    main.a.a = 8
+main.L2:
+    main.f = main.f + main.p
+    main.f = main.f >> main.p
+    main.f = main.f << main.a.a
+    main.t25 = 7 * 8
+    main.f = main.f * main.t25
+    main.t26 = main.a.a + main.p
+    main.d = main.t26
+    main.t27 = int_to_char main.p
+    main.c = main.t27
+    main.t28 = 3 * 1
+    main.t28 = main.t28 * 4
+    main.t29 = main..ar1 + main.t28
+    main.t29 = main.z
+    main.t30 = &main..ar2
+    *main.t30 = 0
+    main.t30 = main.t30 + 4
+    *main.t30 = 0
+    main.t30 = main.t30 + 4
+    *main.t30 = 0
+    main.t30 = main.t30 + 4
+    *main.t30 = 0
+    main.t30 = main.t30 + 4
+    *main.t30 = 0
+    main.t30 = main.t30 + 4
+    main.z = 8
+    main..z = main.p
+    main..p = 8
+    main.t31 = 3 * 3
+    main.t31 = main.t31 * 0
+    main.t32 = main..ar2 + main.t31
+    main.t33 = 1 * 1
+    main.t33 = main.t33 * 4
+    main.t34 = main.t32 + main.t33
+    main.t34 = 2
+    main.t35 = 1 * 3
+    main.t35 = main.t35 * 0
+    main.t36 = main..ar2 + main.t35
+    main.t37 = 2 * 1
+    main.t37 = main.t37 * 4
+    main.t38 = main.t36 + main.t37
+    main..z = main.t38
+    main..z = 10
+    main..z = main..p
+    main...z = 12
+    main...z = 12
+    main..b.a = main.a.a
+    main.z = main.b.a
+    main.z = 11
+    main.z = main.p
     return 0
+    
