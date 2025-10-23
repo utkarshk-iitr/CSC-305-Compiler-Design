@@ -94,6 +94,7 @@ UNTIL            "until"
 BREAK            "break"
 CONTINUE         "continue"
 GOTO             "goto"
+TYPEDEF          "typedef"
 
 /* Data Types & keywords */
 INT              "int"
@@ -200,6 +201,7 @@ INVALID_IDENTIFIER ({DIGIT}+({LETTER}|_)+({DIGIT}|{LETTER}|_)*(\.{DIGIT}*)?)
 {BREAK}                { yylval.str = strdup(yytext); return BREAK; }
 {CONTINUE}             { yylval.str = strdup(yytext); return CONTINUE; }
 {GOTO}                 { yylval.str = strdup(yytext); return GOTO; }
+{TYPEDEF}              { yylval.str = strdup(yytext); return TYPEDEF; }
 
 {INT}                  { yylval.str = strdup(yytext); return INT; }
 {BOOL}                 { yylval.str = strdup(yytext); return BOOL; }

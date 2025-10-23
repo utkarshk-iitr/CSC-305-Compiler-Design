@@ -64,6 +64,7 @@
     unordered_map<string, funcInfo> funcTable;
     unordered_map<string, unordered_map<string,memberInfo>> classTable;
     vector< unordered_map<string, Symbol> > symStack;
+    unordered_map<string,string> typeDefTable;
 
     unordered_map<string,int> typeSize = {
         {"int", 4}, {"char", 1}, {"bool", 1}, {"double", 8}, {"string", 8}, {"nullptr", 8}
@@ -336,6 +337,7 @@
         }
         
         if(from.back()=='*' && to.back()=='*') return true;
+        if(from.back()=='*' && to=="bool") return true;
         return false;
     }
 
@@ -394,7 +396,7 @@
 %type<node> struct_or_class_specifier struct_or_class struct_or_class_member_list struct_or_class_member
 %type<node> access_specifier_label member_declaration
 %type<node> struct_declarator_list struct_declarator
-%type<node> parameter_list
+%type<node> parameter_list for_start
 %type<node> parameter_declaration
 %type<node> initializer initializer_list statement compound_statement statement_list labeled_statement
 %type<node> selection_statement iteration_statement jump_statement external_declaration 
@@ -582,7 +584,7 @@ postfix_expression
             // Handle array parameters (which don't have dimension info in syn)
             if(base->syn.empty()){
                 // For arrays passed as parameters, just do simple pointer arithmetic
-                n->code.push_back(offset + " = " + idx->place + " * " + to_string(typeSize[type]));
+                n->code.push_back(offset + " = " + idx->printName + " * " + to_string(typeSize[type]));
                 n->place = newTemp();
                 n->printName = n->place;
                 n->code.push_back(n->place + " = " + base->printName + " + " + offset);
@@ -605,7 +607,7 @@ postfix_expression
                 dbg("");
                 
                 p /= stoi(base->syn.front());
-                n->code.push_back(offset + " = " + idx->place + " * " + to_string(p));
+                n->code.push_back(offset + " = " + idx->printName + " * " + to_string(p));
                 n->code.push_back(offset + " = " + offset +" * "+to_string(typeSize[type]));
                 n->place = newTemp();
                 n->printName = n->place;
@@ -665,18 +667,13 @@ postfix_expression
         string name = fun->place;
         string original = fun->place;
         Node* args = $3;
-        // int idx=0;
-        // for(int i=0;i<name.size();i++){
-        //     if(name[i]=='$') idx = i;
-        // }
-        // name.erase(0,idx);
 
         dbg("");
         dbg("argCount is:" + to_string(args->argCount));
         for(int i = 0; i < args->argCount;i++)
         {
             dbg("type is " + args->syn[i]);
-            name += "_" + args->syn[i];
+            // name += "_" + args->syn[i];
             
         }
         dbg("name is: " + name);
@@ -741,6 +738,7 @@ postfix_expression
             }
         }
         n->kind = "rvalue";
+        n->printName = n->place;
         $$ = n;
     }
 	| postfix_expression DOT IDENTIFIER {
@@ -1010,10 +1008,17 @@ unary_expression
                 yyerror("Cannot dereference a rvalue.");
             }
             n->type = rhs->type.substr(0, rhs->type.size() - 1);
-            n->place = "*" + rhs->place;
+            n->place = rhs->place;
+            string w;
+            if(lastClassType=="")
+                w = currentFunction+currentScope+rhs->place;
+            else
+                w = lastClassType+"."+currentFunction+currentScope+rhs->place;
+            n->printName = "*" + w;
         } else if (op == "+") {
             n->place = rhs->place;
             n->type = rhs->type;
+            n->kind = "rvalue";
         } else if (op == "-") {
             n->place = newTemp();
             n->code.push_back(n->place + " = 0 - " + rhs->printName);
@@ -1043,9 +1048,10 @@ unary_expression
         n->code.push_back(n->place + " = " + to_string(typeSize[t]));
         n->type = "int";
         n->kind = "rvalue";
+        n->printName = n->place;
         $$ = n;
     }
-	| SIZEOF LROUND return_type RROUND 
+	| SIZEOF LROUND cast_type RROUND 
     {
         dbg("unary_expression -> sizeof ( type_name )");
         Node* n = new Node(); 
@@ -1055,6 +1061,7 @@ unary_expression
         n->code.push_back(n->place + " = " + to_string(typeSize[t]));
         n->type = "int";
         n->kind = "rvalue";
+        n->printName = n->place;
         $$ = n;
     }
 	;
@@ -1085,6 +1092,7 @@ unary_operator
 cast_expression
 	: unary_expression { 
         dbg("cast_expression -> unary_expression");
+        dbg(lastDeclType);
         $$ = $1; }
 	| LROUND cast_type RROUND cast_expression 
     {
@@ -1133,19 +1141,20 @@ cast_type_specifier
 	| BOOL   { 
         dbg("cast_type_specifier -> BOOL");
         $$ = strdup("bool"); }
-	/* | STRING { 
-        dbg("cast_type_specifier -> STRING");
-        $$ = strdup("string"); lastDeclType = "string"; } */
 	| TYPE_NAME 
     { 
         dbg("cast_type_specifier -> TYPE_NAME");
         $$ = $1; 
-        if(typeSize.find(string($1)) == typeSize.end()){
-            yyerror("Unknown type '" + string($1) + "'.");    
+        if(typeDefTable.find(string($1)) != typeDefTable.end()){
+            $$ = strdup(typeDefTable[string($1)].c_str());
+            dbg("Typedef found: " + string($$));
+        }
+        else if(typeSize.find(string($1)) != typeSize.end()){
+            dbg("User defined type found: " + string($1));
         }
         else
         {
-            dbg("User defined type found: " + string($1));
+            yyerror("Unknown type '" + string($1) + "'.");    
         }
     }
 	;
@@ -1715,6 +1724,7 @@ init_declarator_list
 	: init_declarator 
     {
         dbg("init_declarator_list -> init_declarator");
+        dbg(lastDeclType);
         $$ = $1; 
     }
 	| init_declarator_list COMMA init_declarator 
@@ -2576,14 +2586,19 @@ type_specifier
 	| TYPE_NAME 
     { 
         dbg("type_specifier -> TYPE_NAME");
-        $$ = $1; 
-        lastDeclType = string($1); 
-        if(typeSize.find(lastDeclType) == typeSize.end()){
-            yyerror("Unknown type '" + lastDeclType + "'.");    
+        $$ = $1;
+        if(typeDefTable.find(string($1)) != typeDefTable.end()){
+            lastDeclType = typeDefTable[string($1)];
+            $$ = strdup(lastDeclType.c_str());
+        }
+        else if(typeSize.find(string($1)) != typeSize.end()){
+            lastDeclType = string($1);
+            dbg("User defined type found: " + string($1));
+            $$ = strdup(lastDeclType.c_str());
         }
         else
         {
-            dbg("User defined type found: " + lastDeclType);
+            yyerror("Unknown type '" + string($1) + "'.");    
         }
     }
 	;
@@ -3238,7 +3253,7 @@ iteration_statement
         $$ = n;
         inloop=false;
     }
-    | FOR LROUND for_init_statement expression_statement RROUND{inloop=true;} statement {
+    | for_start LROUND for_init_statement expression_statement RROUND{inloop=true;} statement {
         dbg("iteration_statement -> FOR ( for_init_statement expression_statement ) statement");
         Node* init = $3;
         Node* cond = $4;
@@ -3278,8 +3293,9 @@ iteration_statement
         backpatch(n->code,falseList,Lend);
         $$ = n;
         inloop=false;
+        popScope();
     }
-    | FOR LROUND for_init_statement expression_statement expression RROUND{inloop=true;}statement {
+    | for_start LROUND for_init_statement expression_statement expression RROUND{inloop=true;}statement {
         dbg("iteration_statement -> FOR ( for_init_statement expression_statement expression ) statement");
         Node* init = $3;
         Node* cond = $4;
@@ -3322,6 +3338,16 @@ iteration_statement
             backpatch(n->code, falseList, Lend);
         $$ = n;
         inloop=false;
+        popScope();
+    }
+    ;
+
+for_start
+    : FOR {
+        dbg("for_start -> FOR");
+        pushScope();
+        Node* n = new Node();
+        $$ = n;
     }
     ;
     
@@ -3439,6 +3465,7 @@ external_declaration
     | TYPEDEF return_type IDENTIFIER SEMICOLON {
         dbg("external_declaration -> TYPEDEF return_type IDENTIFIER ;");
         typeSize[string($3)] = typeSize[string($2)];
+        typeDefTable[string($3)] = string($2);
         $$ = new Node();
     }
     | declare {
@@ -3573,7 +3600,7 @@ external
             
             for (int i=0;i<$3->syn.size();i+=2)
             {
-                fname += "_" + $3->syn[i];
+                // fname += "_" + $3->syn[i];
             }
 
             if(funcTable.find(fname) != funcTable.end())
@@ -3598,7 +3625,7 @@ external
         {
             for (int i=0;i<$3->syn.size();i+=2)
             {
-                fname += "_" + $3->syn[i];
+                // fname += "_" + $3->syn[i];
             }
             string methodName = fname;
             if(classTable[lastClassType].find(methodName) != classTable[lastClassType].end())
@@ -3691,7 +3718,7 @@ external
         string fname = string($1);
         for (int i=0;i<$3->syn.size();i+=2)
         {
-            fname += "_" + $3->syn[i];
+            // fname += "_" + $3->syn[i];
         }
 
         n->place = fname;
@@ -3776,7 +3803,7 @@ function_header
                 declareSymbol(fname,"function","function",vector<string>(),true);
             for (int i=0;i<$4->syn.size();i+=2)
             {
-                fname += "_" + $4->syn[i];
+                // fname += "_" + $4->syn[i];
             }
 
             if(funcTable.find(fname) != funcTable.end())
