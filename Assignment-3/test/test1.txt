@@ -1,11 +1,14 @@
-int main(){
-    double y = 5.5;
-    if((bool)y){
-        if(y!=5.5)
-            printf("yeye");
+int array_sum(int* arr,int size){
+    int sm = 0;
+    for(int i=0;i<size;i++){
+        sm += arr[i];
     }
-    else
-        printf("%d",y);
-        
+    return sm;
+}
+
+int main(){
+    int arr[3] = {1,2,3};
+    int s = array_sum(arr,3);
+    printf("The sum is %d",s);
     return 0;
 }

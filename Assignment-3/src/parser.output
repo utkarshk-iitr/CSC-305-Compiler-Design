@@ -385,38 +385,38 @@ Terminals, with rules where they appear
     COMMA <str> (302) 21 80 88 101 125
     DOT <str> (303) 16
     QUESTION_MARK <str> (304) 65
-    TILDE <str> (305) 32
-    IF <str> (306) 143 144
-    ELSE <str> (307) 144
-    SWITCH <str> (308) 147
-    CASE <str> (309) 150
-    DEFAULT <str> (310) 151
-    WHILE <str> (311) 153 157
-    DO <str> (312) 157
-    FOR <str> (313) 159 161
-    GOTO <str> (314) 164
-    CONTINUE <str> (315) 165
-    BREAK <str> (316) 166
-    RETURN <str> (317) 167 168
-    UNTIL <str> (318) 155
-    SIZEOF <str> (319) 26 27
-    VOID <str> (320) 104
-    INT <str> (321) 106
-    DOUBLE <str> (322) 108
-    CHAR <str> (323) 105
-    BOOL <str> (324) 109
-    LONG <str> (325) 107
-    TRUE <str> (326) 10
-    FALSE <str> (327) 11
-    NULLPTR <str> (328) 9
-    STATIC <str> (329) 84 86 179 181
-    CONST <str> (330) 85 86 177 179
-    CLASS <str> (331) 116
-    STRUCT <str> (332) 115
-    PUBLIC <str> (333) 121
-    PRIVATE <str> (334) 122
-    PROTECTED <str> (335) 123
-    STRING_LITERAL <str> (336) 4
+    IF <str> (305) 143 144
+    ELSE <str> (306) 144
+    SWITCH <str> (307) 147
+    CASE <str> (308) 150
+    DEFAULT <str> (309) 151
+    WHILE <str> (310) 153 157
+    DO <str> (311) 157
+    FOR <str> (312) 159 161
+    GOTO <str> (313) 164
+    CONTINUE <str> (314) 165
+    BREAK <str> (315) 166
+    RETURN <str> (316) 167 168
+    UNTIL <str> (317) 155
+    VOID <str> (318) 104
+    INT <str> (319) 106
+    DOUBLE <str> (320) 108
+    CHAR <str> (321) 105
+    BOOL <str> (322) 109
+    LONG <str> (323) 107
+    TRUE <str> (324) 10
+    FALSE <str> (325) 11
+    NULLPTR <str> (326) 9
+    TILDE <str> (327) 32
+    STATIC <str> (328) 84 86 179 181
+    CONST <str> (329) 85 86 177 179
+    SIZEOF <str> (330) 26 27
+    STRING_LITERAL <str> (331) 4
+    CLASS <str> (332) 116
+    STRUCT <str> (333) 115
+    PUBLIC <str> (334) 121
+    PRIVATE <str> (335) 122
+    PROTECTED <str> (336) 123
     IDENTIFIER <str> (337) 1 16 17 93 94 95 96 97 98 114 126 133 164 174 183 185
     INVALID_IDENTIFIER <str> (338)
     DECIMAL_LITERAL <str> (339) 5
@@ -1173,11 +1173,11 @@ State 51
     BITWISE_AND        shift, and go to state 67
     LOGICAL_NOT        shift, and go to state 68
     LROUND             shift, and go to state 69
-    TILDE              shift, and go to state 70
-    SIZEOF             shift, and go to state 71
-    TRUE               shift, and go to state 72
-    FALSE              shift, and go to state 73
-    NULLPTR            shift, and go to state 74
+    TRUE               shift, and go to state 70
+    FALSE              shift, and go to state 71
+    NULLPTR            shift, and go to state 72
+    TILDE              shift, and go to state 73
+    SIZEOF             shift, and go to state 74
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
@@ -1237,11 +1237,11 @@ State 53
     BITWISE_AND        shift, and go to state 67
     LOGICAL_NOT        shift, and go to state 68
     LROUND             shift, and go to state 69
-    TILDE              shift, and go to state 70
-    SIZEOF             shift, and go to state 71
-    TRUE               shift, and go to state 72
-    FALSE              shift, and go to state 73
-    NULLPTR            shift, and go to state 74
+    TRUE               shift, and go to state 70
+    FALSE              shift, and go to state 71
+    NULLPTR            shift, and go to state 72
+    TILDE              shift, and go to state 73
+    SIZEOF             shift, and go to state 74
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
@@ -1374,11 +1374,11 @@ State 65
     BITWISE_AND        shift, and go to state 67
     LOGICAL_NOT        shift, and go to state 68
     LROUND             shift, and go to state 112
-    TILDE              shift, and go to state 70
-    SIZEOF             shift, and go to state 71
-    TRUE               shift, and go to state 72
-    FALSE              shift, and go to state 73
-    NULLPTR            shift, and go to state 74
+    TRUE               shift, and go to state 70
+    FALSE              shift, and go to state 71
+    NULLPTR            shift, and go to state 72
+    TILDE              shift, and go to state 73
+    SIZEOF             shift, and go to state 74
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
@@ -1405,11 +1405,11 @@ State 66
     BITWISE_AND        shift, and go to state 67
     LOGICAL_NOT        shift, and go to state 68
     LROUND             shift, and go to state 112
-    TILDE              shift, and go to state 70
-    SIZEOF             shift, and go to state 71
-    TRUE               shift, and go to state 72
-    FALSE              shift, and go to state 73
-    NULLPTR            shift, and go to state 74
+    TRUE               shift, and go to state 70
+    FALSE              shift, and go to state 71
+    NULLPTR            shift, and go to state 72
+    TILDE              shift, and go to state 73
+    SIZEOF             shift, and go to state 74
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
@@ -1452,17 +1452,17 @@ State 69
     BITWISE_AND        shift, and go to state 67
     LOGICAL_NOT        shift, and go to state 68
     LROUND             shift, and go to state 69
-    TILDE              shift, and go to state 70
-    SIZEOF             shift, and go to state 71
     VOID               shift, and go to state 3
     INT                shift, and go to state 4
     DOUBLE             shift, and go to state 5
     CHAR               shift, and go to state 6
     BOOL               shift, and go to state 7
     LONG               shift, and go to state 8
-    TRUE               shift, and go to state 72
-    FALSE              shift, and go to state 73
-    NULLPTR            shift, and go to state 74
+    TRUE               shift, and go to state 70
+    FALSE              shift, and go to state 71
+    NULLPTR            shift, and go to state 72
+    TILDE              shift, and go to state 73
+    SIZEOF             shift, and go to state 74
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
@@ -1495,38 +1495,38 @@ State 69
 
 State 70
 
-   32 unary_operator: TILDE •
-
-    $default  reduce using rule 32 (unary_operator)
-
-
-State 71
-
-   26 unary_expression: SIZEOF • LROUND unary_expression RROUND
-   27                 | SIZEOF • LROUND return_type RROUND
-
-    LROUND  shift, and go to state 118
-
-
-State 72
-
    10 constant: TRUE •
 
     $default  reduce using rule 10 (constant)
 
 
-State 73
+State 71
 
    11 constant: FALSE •
 
     $default  reduce using rule 11 (constant)
 
 
-State 74
+State 72
 
     9 constant: NULLPTR •
 
     $default  reduce using rule 9 (constant)
+
+
+State 73
+
+   32 unary_operator: TILDE •
+
+    $default  reduce using rule 32 (unary_operator)
+
+
+State 74
+
+   26 unary_expression: SIZEOF • LROUND unary_expression RROUND
+   27                 | SIZEOF • LROUND return_type RROUND
+
+    LROUND  shift, and go to state 118
 
 
 State 75
@@ -1643,11 +1643,11 @@ State 85
     BITWISE_AND        shift, and go to state 67
     LOGICAL_NOT        shift, and go to state 68
     LROUND             shift, and go to state 69
-    TILDE              shift, and go to state 70
-    SIZEOF             shift, and go to state 71
-    TRUE               shift, and go to state 72
-    FALSE              shift, and go to state 73
-    NULLPTR            shift, and go to state 74
+    TRUE               shift, and go to state 70
+    FALSE              shift, and go to state 71
+    NULLPTR            shift, and go to state 72
+    TILDE              shift, and go to state 73
+    SIZEOF             shift, and go to state 74
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
@@ -1880,11 +1880,11 @@ State 107
     BITWISE_AND        shift, and go to state 67
     LOGICAL_NOT        shift, and go to state 68
     LROUND             shift, and go to state 69
-    TILDE              shift, and go to state 70
-    SIZEOF             shift, and go to state 71
-    TRUE               shift, and go to state 72
-    FALSE              shift, and go to state 73
-    NULLPTR            shift, and go to state 74
+    TRUE               shift, and go to state 70
+    FALSE              shift, and go to state 71
+    NULLPTR            shift, and go to state 72
+    TILDE              shift, and go to state 73
+    SIZEOF             shift, and go to state 74
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
@@ -1931,11 +1931,11 @@ State 109
     BITWISE_AND        shift, and go to state 67
     LOGICAL_NOT        shift, and go to state 68
     LROUND             shift, and go to state 69
-    TILDE              shift, and go to state 70
-    SIZEOF             shift, and go to state 71
-    TRUE               shift, and go to state 72
-    FALSE              shift, and go to state 73
-    NULLPTR            shift, and go to state 74
+    TRUE               shift, and go to state 70
+    FALSE              shift, and go to state 71
+    NULLPTR            shift, and go to state 72
+    TILDE              shift, and go to state 73
+    SIZEOF             shift, and go to state 74
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
@@ -2013,11 +2013,11 @@ State 112
     BITWISE_AND        shift, and go to state 67
     LOGICAL_NOT        shift, and go to state 68
     LROUND             shift, and go to state 69
-    TILDE              shift, and go to state 70
-    SIZEOF             shift, and go to state 71
-    TRUE               shift, and go to state 72
-    FALSE              shift, and go to state 73
-    NULLPTR            shift, and go to state 74
+    TRUE               shift, and go to state 70
+    FALSE              shift, and go to state 71
+    NULLPTR            shift, and go to state 72
+    TILDE              shift, and go to state 73
+    SIZEOF             shift, and go to state 74
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
@@ -2097,17 +2097,17 @@ State 118
     BITWISE_AND        shift, and go to state 67
     LOGICAL_NOT        shift, and go to state 68
     LROUND             shift, and go to state 112
-    TILDE              shift, and go to state 70
-    SIZEOF             shift, and go to state 71
     VOID               shift, and go to state 3
     INT                shift, and go to state 4
     DOUBLE             shift, and go to state 5
     CHAR               shift, and go to state 6
     BOOL               shift, and go to state 7
     LONG               shift, and go to state 8
-    TRUE               shift, and go to state 72
-    FALSE              shift, and go to state 73
-    NULLPTR            shift, and go to state 74
+    TRUE               shift, and go to state 70
+    FALSE              shift, and go to state 71
+    NULLPTR            shift, and go to state 72
+    TILDE              shift, and go to state 73
+    SIZEOF             shift, and go to state 74
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
@@ -2159,11 +2159,11 @@ State 122
     LOGICAL_NOT        shift, and go to state 68
     LROUND             shift, and go to state 69
     RROUND             shift, and go to state 179
-    TILDE              shift, and go to state 70
-    SIZEOF             shift, and go to state 71
-    TRUE               shift, and go to state 72
-    FALSE              shift, and go to state 73
-    NULLPTR            shift, and go to state 74
+    TRUE               shift, and go to state 70
+    FALSE              shift, and go to state 71
+    NULLPTR            shift, and go to state 72
+    TILDE              shift, and go to state 73
+    SIZEOF             shift, and go to state 74
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
@@ -2204,11 +2204,11 @@ State 123
     BITWISE_AND        shift, and go to state 67
     LOGICAL_NOT        shift, and go to state 68
     LROUND             shift, and go to state 69
-    TILDE              shift, and go to state 70
-    SIZEOF             shift, and go to state 71
-    TRUE               shift, and go to state 72
-    FALSE              shift, and go to state 73
-    NULLPTR            shift, and go to state 74
+    TRUE               shift, and go to state 70
+    FALSE              shift, and go to state 71
+    NULLPTR            shift, and go to state 72
+    TILDE              shift, and go to state 73
+    SIZEOF             shift, and go to state 74
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
@@ -2333,11 +2333,11 @@ State 136
     BITWISE_AND        shift, and go to state 67
     LOGICAL_NOT        shift, and go to state 68
     LROUND             shift, and go to state 69
-    TILDE              shift, and go to state 70
-    SIZEOF             shift, and go to state 71
-    TRUE               shift, and go to state 72
-    FALSE              shift, and go to state 73
-    NULLPTR            shift, and go to state 74
+    TRUE               shift, and go to state 70
+    FALSE              shift, and go to state 71
+    NULLPTR            shift, and go to state 72
+    TILDE              shift, and go to state 73
+    SIZEOF             shift, and go to state 74
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
@@ -2384,11 +2384,11 @@ State 138
     BITWISE_AND        shift, and go to state 67
     LOGICAL_NOT        shift, and go to state 68
     LROUND             shift, and go to state 69
-    TILDE              shift, and go to state 70
-    SIZEOF             shift, and go to state 71
-    TRUE               shift, and go to state 72
-    FALSE              shift, and go to state 73
-    NULLPTR            shift, and go to state 74
+    TRUE               shift, and go to state 70
+    FALSE              shift, and go to state 71
+    NULLPTR            shift, and go to state 72
+    TILDE              shift, and go to state 73
+    SIZEOF             shift, and go to state 74
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
@@ -2416,11 +2416,11 @@ State 139
     BITWISE_AND        shift, and go to state 67
     LOGICAL_NOT        shift, and go to state 68
     LROUND             shift, and go to state 69
-    TILDE              shift, and go to state 70
-    SIZEOF             shift, and go to state 71
-    TRUE               shift, and go to state 72
-    FALSE              shift, and go to state 73
-    NULLPTR            shift, and go to state 74
+    TRUE               shift, and go to state 70
+    FALSE              shift, and go to state 71
+    NULLPTR            shift, and go to state 72
+    TILDE              shift, and go to state 73
+    SIZEOF             shift, and go to state 74
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
@@ -2448,11 +2448,11 @@ State 140
     BITWISE_AND        shift, and go to state 67
     LOGICAL_NOT        shift, and go to state 68
     LROUND             shift, and go to state 69
-    TILDE              shift, and go to state 70
-    SIZEOF             shift, and go to state 71
-    TRUE               shift, and go to state 72
-    FALSE              shift, and go to state 73
-    NULLPTR            shift, and go to state 74
+    TRUE               shift, and go to state 70
+    FALSE              shift, and go to state 71
+    NULLPTR            shift, and go to state 72
+    TILDE              shift, and go to state 73
+    SIZEOF             shift, and go to state 74
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
@@ -2480,11 +2480,11 @@ State 141
     BITWISE_AND        shift, and go to state 67
     LOGICAL_NOT        shift, and go to state 68
     LROUND             shift, and go to state 69
-    TILDE              shift, and go to state 70
-    SIZEOF             shift, and go to state 71
-    TRUE               shift, and go to state 72
-    FALSE              shift, and go to state 73
-    NULLPTR            shift, and go to state 74
+    TRUE               shift, and go to state 70
+    FALSE              shift, and go to state 71
+    NULLPTR            shift, and go to state 72
+    TILDE              shift, and go to state 73
+    SIZEOF             shift, and go to state 74
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
@@ -2513,11 +2513,11 @@ State 142
     BITWISE_AND        shift, and go to state 67
     LOGICAL_NOT        shift, and go to state 68
     LROUND             shift, and go to state 69
-    TILDE              shift, and go to state 70
-    SIZEOF             shift, and go to state 71
-    TRUE               shift, and go to state 72
-    FALSE              shift, and go to state 73
-    NULLPTR            shift, and go to state 74
+    TRUE               shift, and go to state 70
+    FALSE              shift, and go to state 71
+    NULLPTR            shift, and go to state 72
+    TILDE              shift, and go to state 73
+    SIZEOF             shift, and go to state 74
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
@@ -2546,11 +2546,11 @@ State 143
     BITWISE_AND        shift, and go to state 67
     LOGICAL_NOT        shift, and go to state 68
     LROUND             shift, and go to state 69
-    TILDE              shift, and go to state 70
-    SIZEOF             shift, and go to state 71
-    TRUE               shift, and go to state 72
-    FALSE              shift, and go to state 73
-    NULLPTR            shift, and go to state 74
+    TRUE               shift, and go to state 70
+    FALSE              shift, and go to state 71
+    NULLPTR            shift, and go to state 72
+    TILDE              shift, and go to state 73
+    SIZEOF             shift, and go to state 74
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
@@ -2580,11 +2580,11 @@ State 144
     BITWISE_AND        shift, and go to state 67
     LOGICAL_NOT        shift, and go to state 68
     LROUND             shift, and go to state 69
-    TILDE              shift, and go to state 70
-    SIZEOF             shift, and go to state 71
-    TRUE               shift, and go to state 72
-    FALSE              shift, and go to state 73
-    NULLPTR            shift, and go to state 74
+    TRUE               shift, and go to state 70
+    FALSE              shift, and go to state 71
+    NULLPTR            shift, and go to state 72
+    TILDE              shift, and go to state 73
+    SIZEOF             shift, and go to state 74
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
@@ -2614,11 +2614,11 @@ State 145
     BITWISE_AND        shift, and go to state 67
     LOGICAL_NOT        shift, and go to state 68
     LROUND             shift, and go to state 69
-    TILDE              shift, and go to state 70
-    SIZEOF             shift, and go to state 71
-    TRUE               shift, and go to state 72
-    FALSE              shift, and go to state 73
-    NULLPTR            shift, and go to state 74
+    TRUE               shift, and go to state 70
+    FALSE              shift, and go to state 71
+    NULLPTR            shift, and go to state 72
+    TILDE              shift, and go to state 73
+    SIZEOF             shift, and go to state 74
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
@@ -2649,11 +2649,11 @@ State 146
     BITWISE_AND        shift, and go to state 67
     LOGICAL_NOT        shift, and go to state 68
     LROUND             shift, and go to state 69
-    TILDE              shift, and go to state 70
-    SIZEOF             shift, and go to state 71
-    TRUE               shift, and go to state 72
-    FALSE              shift, and go to state 73
-    NULLPTR            shift, and go to state 74
+    TRUE               shift, and go to state 70
+    FALSE              shift, and go to state 71
+    NULLPTR            shift, and go to state 72
+    TILDE              shift, and go to state 73
+    SIZEOF             shift, and go to state 74
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
@@ -2684,11 +2684,11 @@ State 147
     BITWISE_AND        shift, and go to state 67
     LOGICAL_NOT        shift, and go to state 68
     LROUND             shift, and go to state 69
-    TILDE              shift, and go to state 70
-    SIZEOF             shift, and go to state 71
-    TRUE               shift, and go to state 72
-    FALSE              shift, and go to state 73
-    NULLPTR            shift, and go to state 74
+    TRUE               shift, and go to state 70
+    FALSE              shift, and go to state 71
+    NULLPTR            shift, and go to state 72
+    TILDE              shift, and go to state 73
+    SIZEOF             shift, and go to state 74
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
@@ -2719,11 +2719,11 @@ State 148
     BITWISE_AND        shift, and go to state 67
     LOGICAL_NOT        shift, and go to state 68
     LROUND             shift, and go to state 69
-    TILDE              shift, and go to state 70
-    SIZEOF             shift, and go to state 71
-    TRUE               shift, and go to state 72
-    FALSE              shift, and go to state 73
-    NULLPTR            shift, and go to state 74
+    TRUE               shift, and go to state 70
+    FALSE              shift, and go to state 71
+    NULLPTR            shift, and go to state 72
+    TILDE              shift, and go to state 73
+    SIZEOF             shift, and go to state 74
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
@@ -2754,11 +2754,11 @@ State 149
     BITWISE_AND        shift, and go to state 67
     LOGICAL_NOT        shift, and go to state 68
     LROUND             shift, and go to state 69
-    TILDE              shift, and go to state 70
-    SIZEOF             shift, and go to state 71
-    TRUE               shift, and go to state 72
-    FALSE              shift, and go to state 73
-    NULLPTR            shift, and go to state 74
+    TRUE               shift, and go to state 70
+    FALSE              shift, and go to state 71
+    NULLPTR            shift, and go to state 72
+    TILDE              shift, and go to state 73
+    SIZEOF             shift, and go to state 74
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
@@ -2790,11 +2790,11 @@ State 150
     BITWISE_AND        shift, and go to state 67
     LOGICAL_NOT        shift, and go to state 68
     LROUND             shift, and go to state 69
-    TILDE              shift, and go to state 70
-    SIZEOF             shift, and go to state 71
-    TRUE               shift, and go to state 72
-    FALSE              shift, and go to state 73
-    NULLPTR            shift, and go to state 74
+    TRUE               shift, and go to state 70
+    FALSE              shift, and go to state 71
+    NULLPTR            shift, and go to state 72
+    TILDE              shift, and go to state 73
+    SIZEOF             shift, and go to state 74
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
@@ -2826,11 +2826,11 @@ State 151
     BITWISE_AND        shift, and go to state 67
     LOGICAL_NOT        shift, and go to state 68
     LROUND             shift, and go to state 69
-    TILDE              shift, and go to state 70
-    SIZEOF             shift, and go to state 71
-    TRUE               shift, and go to state 72
-    FALSE              shift, and go to state 73
-    NULLPTR            shift, and go to state 74
+    TRUE               shift, and go to state 70
+    FALSE              shift, and go to state 71
+    NULLPTR            shift, and go to state 72
+    TILDE              shift, and go to state 73
+    SIZEOF             shift, and go to state 74
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
@@ -2863,11 +2863,11 @@ State 152
     BITWISE_AND        shift, and go to state 67
     LOGICAL_NOT        shift, and go to state 68
     LROUND             shift, and go to state 69
-    TILDE              shift, and go to state 70
-    SIZEOF             shift, and go to state 71
-    TRUE               shift, and go to state 72
-    FALSE              shift, and go to state 73
-    NULLPTR            shift, and go to state 74
+    TRUE               shift, and go to state 70
+    FALSE              shift, and go to state 71
+    NULLPTR            shift, and go to state 72
+    TILDE              shift, and go to state 73
+    SIZEOF             shift, and go to state 74
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
@@ -2901,11 +2901,11 @@ State 153
     BITWISE_AND        shift, and go to state 67
     LOGICAL_NOT        shift, and go to state 68
     LROUND             shift, and go to state 69
-    TILDE              shift, and go to state 70
-    SIZEOF             shift, and go to state 71
-    TRUE               shift, and go to state 72
-    FALSE              shift, and go to state 73
-    NULLPTR            shift, and go to state 74
+    TRUE               shift, and go to state 70
+    FALSE              shift, and go to state 71
+    NULLPTR            shift, and go to state 72
+    TILDE              shift, and go to state 73
+    SIZEOF             shift, and go to state 74
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
@@ -2940,11 +2940,11 @@ State 154
     BITWISE_AND        shift, and go to state 67
     LOGICAL_NOT        shift, and go to state 68
     LROUND             shift, and go to state 69
-    TILDE              shift, and go to state 70
-    SIZEOF             shift, and go to state 71
-    TRUE               shift, and go to state 72
-    FALSE              shift, and go to state 73
-    NULLPTR            shift, and go to state 74
+    TRUE               shift, and go to state 70
+    FALSE              shift, and go to state 71
+    NULLPTR            shift, and go to state 72
+    TILDE              shift, and go to state 73
+    SIZEOF             shift, and go to state 74
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
@@ -2980,11 +2980,11 @@ State 155
     BITWISE_AND        shift, and go to state 67
     LOGICAL_NOT        shift, and go to state 68
     LROUND             shift, and go to state 69
-    TILDE              shift, and go to state 70
-    SIZEOF             shift, and go to state 71
-    TRUE               shift, and go to state 72
-    FALSE              shift, and go to state 73
-    NULLPTR            shift, and go to state 74
+    TRUE               shift, and go to state 70
+    FALSE              shift, and go to state 71
+    NULLPTR            shift, and go to state 72
+    TILDE              shift, and go to state 73
+    SIZEOF             shift, and go to state 74
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
@@ -3021,11 +3021,11 @@ State 156
     BITWISE_AND        shift, and go to state 67
     LOGICAL_NOT        shift, and go to state 68
     LROUND             shift, and go to state 69
-    TILDE              shift, and go to state 70
-    SIZEOF             shift, and go to state 71
-    TRUE               shift, and go to state 72
-    FALSE              shift, and go to state 73
-    NULLPTR            shift, and go to state 74
+    TRUE               shift, and go to state 70
+    FALSE              shift, and go to state 71
+    NULLPTR            shift, and go to state 72
+    TILDE              shift, and go to state 73
+    SIZEOF             shift, and go to state 74
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
@@ -3115,11 +3115,11 @@ State 162
     BITWISE_AND        shift, and go to state 67
     LOGICAL_NOT        shift, and go to state 68
     LROUND             shift, and go to state 69
-    TILDE              shift, and go to state 70
-    SIZEOF             shift, and go to state 71
-    TRUE               shift, and go to state 72
-    FALSE              shift, and go to state 73
-    NULLPTR            shift, and go to state 74
+    TRUE               shift, and go to state 70
+    FALSE              shift, and go to state 71
+    NULLPTR            shift, and go to state 72
+    TILDE              shift, and go to state 73
+    SIZEOF             shift, and go to state 74
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
@@ -3237,11 +3237,11 @@ State 174
     BITWISE_AND        shift, and go to state 67
     LOGICAL_NOT        shift, and go to state 68
     LROUND             shift, and go to state 69
-    TILDE              shift, and go to state 70
-    SIZEOF             shift, and go to state 71
-    TRUE               shift, and go to state 72
-    FALSE              shift, and go to state 73
-    NULLPTR            shift, and go to state 74
+    TRUE               shift, and go to state 70
+    FALSE              shift, and go to state 71
+    NULLPTR            shift, and go to state 72
+    TILDE              shift, and go to state 73
+    SIZEOF             shift, and go to state 74
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
@@ -3281,11 +3281,11 @@ State 175
     BITWISE_AND        shift, and go to state 67
     LOGICAL_NOT        shift, and go to state 68
     LROUND             shift, and go to state 69
-    TILDE              shift, and go to state 70
-    SIZEOF             shift, and go to state 71
-    TRUE               shift, and go to state 72
-    FALSE              shift, and go to state 73
-    NULLPTR            shift, and go to state 74
+    TRUE               shift, and go to state 70
+    FALSE              shift, and go to state 71
+    NULLPTR            shift, and go to state 72
+    TILDE              shift, and go to state 73
+    SIZEOF             shift, and go to state 74
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
@@ -3708,11 +3708,11 @@ State 219
     BITWISE_AND        shift, and go to state 67
     LOGICAL_NOT        shift, and go to state 68
     LROUND             shift, and go to state 69
-    TILDE              shift, and go to state 70
-    SIZEOF             shift, and go to state 71
-    TRUE               shift, and go to state 72
-    FALSE              shift, and go to state 73
-    NULLPTR            shift, and go to state 74
+    TRUE               shift, and go to state 70
+    FALSE              shift, and go to state 71
+    NULLPTR            shift, and go to state 72
+    TILDE              shift, and go to state 73
+    SIZEOF             shift, and go to state 74
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
@@ -3759,11 +3759,11 @@ State 221
     BITWISE_AND        shift, and go to state 67
     LOGICAL_NOT        shift, and go to state 68
     LROUND             shift, and go to state 69
-    TILDE              shift, and go to state 70
-    SIZEOF             shift, and go to state 71
-    TRUE               shift, and go to state 72
-    FALSE              shift, and go to state 73
-    NULLPTR            shift, and go to state 74
+    TRUE               shift, and go to state 70
+    FALSE              shift, and go to state 71
+    NULLPTR            shift, and go to state 72
+    TILDE              shift, and go to state 73
+    SIZEOF             shift, and go to state 74
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
@@ -3812,7 +3812,6 @@ State 223
     LROUND             shift, and go to state 69
     LCURLY             shift, and go to state 204
     SEMICOLON          shift, and go to state 229
-    TILDE              shift, and go to state 70
     IF                 shift, and go to state 230
     SWITCH             shift, and go to state 231
     WHILE              shift, and go to state 232
@@ -3823,18 +3822,19 @@ State 223
     BREAK              shift, and go to state 237
     RETURN             shift, and go to state 238
     UNTIL              shift, and go to state 239
-    SIZEOF             shift, and go to state 71
     VOID               shift, and go to state 3
     INT                shift, and go to state 4
     DOUBLE             shift, and go to state 5
     CHAR               shift, and go to state 6
     BOOL               shift, and go to state 7
     LONG               shift, and go to state 8
-    TRUE               shift, and go to state 72
-    FALSE              shift, and go to state 73
-    NULLPTR            shift, and go to state 74
+    TRUE               shift, and go to state 70
+    FALSE              shift, and go to state 71
+    NULLPTR            shift, and go to state 72
+    TILDE              shift, and go to state 73
     STATIC             shift, and go to state 240
     CONST              shift, and go to state 241
+    SIZEOF             shift, and go to state 74
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 242
     DECIMAL_LITERAL    shift, and go to state 77
@@ -3902,11 +3902,11 @@ State 226
     BITWISE_AND        shift, and go to state 67
     LOGICAL_NOT        shift, and go to state 68
     LROUND             shift, and go to state 69
-    TILDE              shift, and go to state 70
-    SIZEOF             shift, and go to state 71
-    TRUE               shift, and go to state 72
-    FALSE              shift, and go to state 73
-    NULLPTR            shift, and go to state 74
+    TRUE               shift, and go to state 70
+    FALSE              shift, and go to state 71
+    NULLPTR            shift, and go to state 72
+    TILDE              shift, and go to state 73
+    SIZEOF             shift, and go to state 74
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
@@ -4031,11 +4031,11 @@ State 238
     LOGICAL_NOT        shift, and go to state 68
     LROUND             shift, and go to state 69
     SEMICOLON          shift, and go to state 266
-    TILDE              shift, and go to state 70
-    SIZEOF             shift, and go to state 71
-    TRUE               shift, and go to state 72
-    FALSE              shift, and go to state 73
-    NULLPTR            shift, and go to state 74
+    TRUE               shift, and go to state 70
+    FALSE              shift, and go to state 71
+    NULLPTR            shift, and go to state 72
+    TILDE              shift, and go to state 73
+    SIZEOF             shift, and go to state 74
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
@@ -4186,7 +4186,6 @@ State 250
     LCURLY             shift, and go to state 204
     RCURLY             shift, and go to state 275
     SEMICOLON          shift, and go to state 229
-    TILDE              shift, and go to state 70
     IF                 shift, and go to state 230
     SWITCH             shift, and go to state 231
     WHILE              shift, and go to state 232
@@ -4197,18 +4196,19 @@ State 250
     BREAK              shift, and go to state 237
     RETURN             shift, and go to state 238
     UNTIL              shift, and go to state 239
-    SIZEOF             shift, and go to state 71
     VOID               shift, and go to state 3
     INT                shift, and go to state 4
     DOUBLE             shift, and go to state 5
     CHAR               shift, and go to state 6
     BOOL               shift, and go to state 7
     LONG               shift, and go to state 8
-    TRUE               shift, and go to state 72
-    FALSE              shift, and go to state 73
-    NULLPTR            shift, and go to state 74
+    TRUE               shift, and go to state 70
+    FALSE              shift, and go to state 71
+    NULLPTR            shift, and go to state 72
+    TILDE              shift, and go to state 73
     STATIC             shift, and go to state 240
     CONST              shift, and go to state 241
+    SIZEOF             shift, and go to state 74
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 242
     DECIMAL_LITERAL    shift, and go to state 77
@@ -4311,11 +4311,11 @@ State 258
     BITWISE_AND        shift, and go to state 67
     LOGICAL_NOT        shift, and go to state 68
     LROUND             shift, and go to state 69
-    TILDE              shift, and go to state 70
-    SIZEOF             shift, and go to state 71
-    TRUE               shift, and go to state 72
-    FALSE              shift, and go to state 73
-    NULLPTR            shift, and go to state 74
+    TRUE               shift, and go to state 70
+    FALSE              shift, and go to state 71
+    NULLPTR            shift, and go to state 72
+    TILDE              shift, and go to state 73
+    SIZEOF             shift, and go to state 74
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
@@ -4363,11 +4363,11 @@ State 260
     BITWISE_AND        shift, and go to state 67
     LOGICAL_NOT        shift, and go to state 68
     LROUND             shift, and go to state 69
-    TILDE              shift, and go to state 70
-    SIZEOF             shift, and go to state 71
-    TRUE               shift, and go to state 72
-    FALSE              shift, and go to state 73
-    NULLPTR            shift, and go to state 74
+    TRUE               shift, and go to state 70
+    FALSE              shift, and go to state 71
+    NULLPTR            shift, and go to state 72
+    TILDE              shift, and go to state 73
+    SIZEOF             shift, and go to state 74
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
@@ -4410,7 +4410,6 @@ State 261
     LROUND             shift, and go to state 69
     LCURLY             shift, and go to state 204
     SEMICOLON          shift, and go to state 229
-    TILDE              shift, and go to state 70
     IF                 shift, and go to state 230
     SWITCH             shift, and go to state 231
     WHILE              shift, and go to state 232
@@ -4421,10 +4420,11 @@ State 261
     BREAK              shift, and go to state 237
     RETURN             shift, and go to state 238
     UNTIL              shift, and go to state 239
-    SIZEOF             shift, and go to state 71
-    TRUE               shift, and go to state 72
-    FALSE              shift, and go to state 73
-    NULLPTR            shift, and go to state 74
+    TRUE               shift, and go to state 70
+    FALSE              shift, and go to state 71
+    NULLPTR            shift, and go to state 72
+    TILDE              shift, and go to state 73
+    SIZEOF             shift, and go to state 74
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 242
     DECIMAL_LITERAL    shift, and go to state 77
@@ -4476,19 +4476,19 @@ State 262
     LOGICAL_NOT        shift, and go to state 68
     LROUND             shift, and go to state 69
     SEMICOLON          shift, and go to state 229
-    TILDE              shift, and go to state 70
-    SIZEOF             shift, and go to state 71
     VOID               shift, and go to state 3
     INT                shift, and go to state 4
     DOUBLE             shift, and go to state 5
     CHAR               shift, and go to state 6
     BOOL               shift, and go to state 7
     LONG               shift, and go to state 8
-    TRUE               shift, and go to state 72
-    FALSE              shift, and go to state 73
-    NULLPTR            shift, and go to state 74
+    TRUE               shift, and go to state 70
+    FALSE              shift, and go to state 71
+    NULLPTR            shift, and go to state 72
+    TILDE              shift, and go to state 73
     STATIC             shift, and go to state 240
     CONST              shift, and go to state 241
+    SIZEOF             shift, and go to state 74
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
@@ -4571,11 +4571,11 @@ State 268
     BITWISE_AND        shift, and go to state 67
     LOGICAL_NOT        shift, and go to state 68
     LROUND             shift, and go to state 69
-    TILDE              shift, and go to state 70
-    SIZEOF             shift, and go to state 71
-    TRUE               shift, and go to state 72
-    FALSE              shift, and go to state 73
-    NULLPTR            shift, and go to state 74
+    TRUE               shift, and go to state 70
+    FALSE              shift, and go to state 71
+    NULLPTR            shift, and go to state 72
+    TILDE              shift, and go to state 73
+    SIZEOF             shift, and go to state 74
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
@@ -4701,11 +4701,11 @@ State 279
     BITWISE_AND        shift, and go to state 67
     LOGICAL_NOT        shift, and go to state 68
     LROUND             shift, and go to state 69
-    TILDE              shift, and go to state 70
-    SIZEOF             shift, and go to state 71
-    TRUE               shift, and go to state 72
-    FALSE              shift, and go to state 73
-    NULLPTR            shift, and go to state 74
+    TRUE               shift, and go to state 70
+    FALSE              shift, and go to state 71
+    NULLPTR            shift, and go to state 72
+    TILDE              shift, and go to state 73
+    SIZEOF             shift, and go to state 74
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
@@ -4778,11 +4778,11 @@ State 284
     LOGICAL_NOT        shift, and go to state 68
     LROUND             shift, and go to state 69
     SEMICOLON          shift, and go to state 229
-    TILDE              shift, and go to state 70
-    SIZEOF             shift, and go to state 71
-    TRUE               shift, and go to state 72
-    FALSE              shift, and go to state 73
-    NULLPTR            shift, and go to state 74
+    TRUE               shift, and go to state 70
+    FALSE              shift, and go to state 71
+    NULLPTR            shift, and go to state 72
+    TILDE              shift, and go to state 73
+    SIZEOF             shift, and go to state 74
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
@@ -4876,7 +4876,6 @@ State 291
     LROUND             shift, and go to state 69
     LCURLY             shift, and go to state 204
     SEMICOLON          shift, and go to state 229
-    TILDE              shift, and go to state 70
     IF                 shift, and go to state 230
     SWITCH             shift, and go to state 231
     WHILE              shift, and go to state 232
@@ -4887,10 +4886,11 @@ State 291
     BREAK              shift, and go to state 237
     RETURN             shift, and go to state 238
     UNTIL              shift, and go to state 239
-    SIZEOF             shift, and go to state 71
-    TRUE               shift, and go to state 72
-    FALSE              shift, and go to state 73
-    NULLPTR            shift, and go to state 74
+    TRUE               shift, and go to state 70
+    FALSE              shift, and go to state 71
+    NULLPTR            shift, and go to state 72
+    TILDE              shift, and go to state 73
+    SIZEOF             shift, and go to state 74
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 242
     DECIMAL_LITERAL    shift, and go to state 77
@@ -4966,11 +4966,11 @@ State 295
     LOGICAL_NOT        shift, and go to state 68
     LROUND             shift, and go to state 69
     RROUND             shift, and go to state 305
-    TILDE              shift, and go to state 70
-    SIZEOF             shift, and go to state 71
-    TRUE               shift, and go to state 72
-    FALSE              shift, and go to state 73
-    NULLPTR            shift, and go to state 74
+    TRUE               shift, and go to state 70
+    FALSE              shift, and go to state 71
+    NULLPTR            shift, and go to state 72
+    TILDE              shift, and go to state 73
+    SIZEOF             shift, and go to state 74
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
@@ -5027,11 +5027,11 @@ State 298
     BITWISE_AND        shift, and go to state 67
     LOGICAL_NOT        shift, and go to state 68
     LROUND             shift, and go to state 69
-    TILDE              shift, and go to state 70
-    SIZEOF             shift, and go to state 71
-    TRUE               shift, and go to state 72
-    FALSE              shift, and go to state 73
-    NULLPTR            shift, and go to state 74
+    TRUE               shift, and go to state 70
+    FALSE              shift, and go to state 71
+    NULLPTR            shift, and go to state 72
+    TILDE              shift, and go to state 73
+    SIZEOF             shift, and go to state 74
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
@@ -5073,7 +5073,6 @@ State 299
     LROUND             shift, and go to state 69
     LCURLY             shift, and go to state 204
     SEMICOLON          shift, and go to state 229
-    TILDE              shift, and go to state 70
     IF                 shift, and go to state 230
     SWITCH             shift, and go to state 231
     WHILE              shift, and go to state 232
@@ -5084,10 +5083,11 @@ State 299
     BREAK              shift, and go to state 237
     RETURN             shift, and go to state 238
     UNTIL              shift, and go to state 239
-    SIZEOF             shift, and go to state 71
-    TRUE               shift, and go to state 72
-    FALSE              shift, and go to state 73
-    NULLPTR            shift, and go to state 74
+    TRUE               shift, and go to state 70
+    FALSE              shift, and go to state 71
+    NULLPTR            shift, and go to state 72
+    TILDE              shift, and go to state 73
+    SIZEOF             shift, and go to state 74
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 242
     DECIMAL_LITERAL    shift, and go to state 77
@@ -5162,7 +5162,6 @@ State 303
     LROUND             shift, and go to state 69
     LCURLY             shift, and go to state 204
     SEMICOLON          shift, and go to state 229
-    TILDE              shift, and go to state 70
     IF                 shift, and go to state 230
     SWITCH             shift, and go to state 231
     WHILE              shift, and go to state 232
@@ -5173,10 +5172,11 @@ State 303
     BREAK              shift, and go to state 237
     RETURN             shift, and go to state 238
     UNTIL              shift, and go to state 239
-    SIZEOF             shift, and go to state 71
-    TRUE               shift, and go to state 72
-    FALSE              shift, and go to state 73
-    NULLPTR            shift, and go to state 74
+    TRUE               shift, and go to state 70
+    FALSE              shift, and go to state 71
+    NULLPTR            shift, and go to state 72
+    TILDE              shift, and go to state 73
+    SIZEOF             shift, and go to state 74
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 242
     DECIMAL_LITERAL    shift, and go to state 77
@@ -5225,11 +5225,11 @@ State 304
     BITWISE_AND        shift, and go to state 67
     LOGICAL_NOT        shift, and go to state 68
     LROUND             shift, and go to state 69
-    TILDE              shift, and go to state 70
-    SIZEOF             shift, and go to state 71
-    TRUE               shift, and go to state 72
-    FALSE              shift, and go to state 73
-    NULLPTR            shift, and go to state 74
+    TRUE               shift, and go to state 70
+    FALSE              shift, and go to state 71
+    NULLPTR            shift, and go to state 72
+    TILDE              shift, and go to state 73
+    SIZEOF             shift, and go to state 74
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
@@ -5290,7 +5290,6 @@ State 307
     LROUND             shift, and go to state 69
     LCURLY             shift, and go to state 204
     SEMICOLON          shift, and go to state 229
-    TILDE              shift, and go to state 70
     IF                 shift, and go to state 230
     SWITCH             shift, and go to state 231
     WHILE              shift, and go to state 232
@@ -5301,10 +5300,11 @@ State 307
     BREAK              shift, and go to state 237
     RETURN             shift, and go to state 238
     UNTIL              shift, and go to state 239
-    SIZEOF             shift, and go to state 71
-    TRUE               shift, and go to state 72
-    FALSE              shift, and go to state 73
-    NULLPTR            shift, and go to state 74
+    TRUE               shift, and go to state 70
+    FALSE              shift, and go to state 71
+    NULLPTR            shift, and go to state 72
+    TILDE              shift, and go to state 73
+    SIZEOF             shift, and go to state 74
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 242
     DECIMAL_LITERAL    shift, and go to state 77
@@ -5355,7 +5355,6 @@ State 308
     LROUND             shift, and go to state 69
     LCURLY             shift, and go to state 204
     SEMICOLON          shift, and go to state 229
-    TILDE              shift, and go to state 70
     IF                 shift, and go to state 230
     SWITCH             shift, and go to state 231
     WHILE              shift, and go to state 232
@@ -5366,10 +5365,11 @@ State 308
     BREAK              shift, and go to state 237
     RETURN             shift, and go to state 238
     UNTIL              shift, and go to state 239
-    SIZEOF             shift, and go to state 71
-    TRUE               shift, and go to state 72
-    FALSE              shift, and go to state 73
-    NULLPTR            shift, and go to state 74
+    TRUE               shift, and go to state 70
+    FALSE              shift, and go to state 71
+    NULLPTR            shift, and go to state 72
+    TILDE              shift, and go to state 73
+    SIZEOF             shift, and go to state 74
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 242
     DECIMAL_LITERAL    shift, and go to state 77
@@ -5427,7 +5427,6 @@ State 310
     LROUND             shift, and go to state 69
     LCURLY             shift, and go to state 204
     SEMICOLON          shift, and go to state 229
-    TILDE              shift, and go to state 70
     IF                 shift, and go to state 230
     SWITCH             shift, and go to state 231
     WHILE              shift, and go to state 232
@@ -5438,10 +5437,11 @@ State 310
     BREAK              shift, and go to state 237
     RETURN             shift, and go to state 238
     UNTIL              shift, and go to state 239
-    SIZEOF             shift, and go to state 71
-    TRUE               shift, and go to state 72
-    FALSE              shift, and go to state 73
-    NULLPTR            shift, and go to state 74
+    TRUE               shift, and go to state 70
+    FALSE              shift, and go to state 71
+    NULLPTR            shift, and go to state 72
+    TILDE              shift, and go to state 73
+    SIZEOF             shift, and go to state 74
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 242
     DECIMAL_LITERAL    shift, and go to state 77
@@ -5508,7 +5508,6 @@ State 313
     LROUND             shift, and go to state 69
     LCURLY             shift, and go to state 204
     SEMICOLON          shift, and go to state 229
-    TILDE              shift, and go to state 70
     IF                 shift, and go to state 230
     SWITCH             shift, and go to state 231
     WHILE              shift, and go to state 232
@@ -5519,10 +5518,11 @@ State 313
     BREAK              shift, and go to state 237
     RETURN             shift, and go to state 238
     UNTIL              shift, and go to state 239
-    SIZEOF             shift, and go to state 71
-    TRUE               shift, and go to state 72
-    FALSE              shift, and go to state 73
-    NULLPTR            shift, and go to state 74
+    TRUE               shift, and go to state 70
+    FALSE              shift, and go to state 71
+    NULLPTR            shift, and go to state 72
+    TILDE              shift, and go to state 73
+    SIZEOF             shift, and go to state 74
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 242
     DECIMAL_LITERAL    shift, and go to state 77
@@ -5617,7 +5617,6 @@ State 320
     LROUND             shift, and go to state 69
     LCURLY             shift, and go to state 204
     SEMICOLON          shift, and go to state 229
-    TILDE              shift, and go to state 70
     IF                 shift, and go to state 230
     SWITCH             shift, and go to state 231
     WHILE              shift, and go to state 232
@@ -5628,10 +5627,11 @@ State 320
     BREAK              shift, and go to state 237
     RETURN             shift, and go to state 238
     UNTIL              shift, and go to state 239
-    SIZEOF             shift, and go to state 71
-    TRUE               shift, and go to state 72
-    FALSE              shift, and go to state 73
-    NULLPTR            shift, and go to state 74
+    TRUE               shift, and go to state 70
+    FALSE              shift, and go to state 71
+    NULLPTR            shift, and go to state 72
+    TILDE              shift, and go to state 73
+    SIZEOF             shift, and go to state 74
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 242
     DECIMAL_LITERAL    shift, and go to state 77

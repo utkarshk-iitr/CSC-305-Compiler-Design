@@ -551,39 +551,49 @@ postfix_expression
             if(base->kind.find("const")!=string::npos){
                 yyerror("Cannot modify a const value.");
             }
-            if(base->syn.empty()){
-                yyerror("Too many dimensions for array.");
-            }
+            
             n->code = base->code;
             n->code.insert(n->code.end(), idx->code.begin(), idx->code.end());
-
-            int p=1;
-            dbg("");
-            dbg("Array dimensions: ");
-            dbg(to_string(base->syn.size()));
-
-            for(auto x:base->syn)
-            { 
-                dbg("Dimension size: " + x);
-                p = p * stoi(x);
-            }
-            dbg("");
             
-            p /= stoi(base->syn.front());
+            string type = base->type.substr(0, base->type.size()-1);
             string offset = newTemp();
             
-            string type = base->type.substr(0,base->type.size()-base->syn.size());
-            
-            n->code.push_back(offset + " = " + idx->place + " * " + to_string(p));
-            n->code.push_back(offset + " = " + offset +" * "+to_string(typeSize[type]));
-            n->place = newTemp();
-            n->code.push_back(n->place + " = " + base->place + " + " + offset);
-            n->type = base->type.substr(0,base->type.size()-1);
-            n->kind = base->kind;
-            n->syn = vector<string>(base->syn.begin()+1, base->syn.end());
-            
-            if(n->syn.empty()){
+            // Handle array parameters (which don't have dimension info in syn)
+            if(base->syn.empty()){
+                // For arrays passed as parameters, just do simple pointer arithmetic
+                n->code.push_back(offset + " = " + idx->place + " * " + to_string(typeSize[type]));
+                n->place = newTemp();
+                n->code.push_back(n->place + " = " + base->place + " + " + offset);
+                n->type = type;
+                n->kind = base->kind;
                 n->place = "*" + n->place;
+            }
+            // Handle regular arrays with dimension information
+            else {
+                int p = 1;
+                dbg("");
+                dbg("Array dimensions: ");
+                dbg(to_string(base->syn.size()));
+                
+                for(auto x:base->syn)
+                { 
+                    dbg("Dimension size: " + x);
+                    p = p * stoi(x);
+                }
+                dbg("");
+                
+                p /= stoi(base->syn.front());
+                n->code.push_back(offset + " = " + idx->place + " * " + to_string(p));
+                n->code.push_back(offset + " = " + offset +" * "+to_string(typeSize[type]));
+                n->place = newTemp();
+                n->code.push_back(n->place + " = " + base->place + " + " + offset);
+                n->type = base->type.substr(0,base->type.size()-1);
+                n->kind = base->kind;
+                n->syn = vector<string>(base->syn.begin()+1, base->syn.end());
+                
+                if(n->syn.empty()){
+                    n->place = "*" + n->place;
+                }
             }
         }   
         $$ = n;
@@ -3326,51 +3336,24 @@ external
                 dbg("Parameter: " + $3->syn[i+1] + " of type " + $3->syn[i]);
             }
             dbg("");
-        }
-        else
-        {
-            for (int i=0;i<$3->syn.size();i+=2)
+            
+            currentFunction = fname;
+            localTemp = 0; localLabel = 0;
+            pushScope();
+
+            for(int i=1;i<$3->syn.size();i+=2)
             {
-                fname += "_" + $3->syn[i];
+                string pname = $3->syn[i];
+                string ptype = $3->syn[i-1];
+                bool ok = declareSymbol(pname,ptype);
+                Symbol* sym = lookupSymbol(pname);
+                string w = lastClassType + "."+ currentFunction + currentScope + "." +pname;
+                sym->printName = w;
+                if(!ok) yyerror("Duplicate parameter name '" + pname + "' in function '" + fname + "'.");
             }
-            string methodName = fname;
-            if(classTable[lastClassType].find(methodName) != classTable[lastClassType].end())
-                yyerror("Method redeclaration: " + lastClassType + "." + methodName);
-            classTable[lastClassType][methodName].kind = "function";
-            classTable[lastClassType][methodName].type = lastFnType;
-            classTable[lastClassType][methodName].place = methodName;
-
-            funcInfo f;
-            f.place = methodName;
-            f.original = string($1);
-            f.returnType = lastFnType;
-            f.paramCount = $3->syn.size()/2;
-            if(string(lastFnType) == "void") f.hasReturn = false;
-            else f.hasReturn = true;
-
-            for (int i=0;i<$3->syn.size();i+=2)
-            {
-                f.paramTypes.push_back($3->syn[i]);
-                dbg("Parameter: " + $3->syn[i+1] + " of type " + $3->syn[i]);
-            }
-            classTable[lastClassType][methodName].method = f;
         }
-        currentFunction = fname;
-        localTemp = 0; localLabel = 0;
-        pushScope();
-
-        for(int i=1;i<$3->syn.size();i+=2)
-        {
-            string pname = $3->syn[i];
-            string ptype = $3->syn[i-1];
-            bool ok = declareSymbol(pname,ptype);
-            Symbol* sym = lookupSymbol(pname);
-            string w = lastClassType + "."+ currentFunction + currentScope + "." +pname;
-            sym->printName = w;
-            if(!ok) yyerror("Duplicate parameter name '" + pname + "' in function '" + fname + "'.");
         }
-    }
-    compound_statement
+        compound_statement
     {
         dbg("external -> IDENTIFIER ( parameter_list ) compound_statement");
         Node* n = new Node();

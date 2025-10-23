@@ -1,17 +1,32 @@
     
+array_sum_int*_int:
+    array_sum_int*_int.sm = 0
+    array_sum_int*_int.i = 0
+array_sum_int*_int.L1:
+    array_sum_int*_int.t1 = i < size
+    ifFalse array_sum_int*_int.t1 goto array_sum_int*_int.L2
+    array_sum_int*_int.t3 = i * 4
+    array_sum_int*_int.t4 = arr + array_sum_int*_int.t3
+    sm = sm + *array_sum_int*_int.t4
+    array_sum_int*_int.t2 = i
+    i = array_sum_int*_int.t2 + 1;
+    goto array_sum_int*_int.L1
+array_sum_int*_int.L2:
+    return sm
+    
 main:
-    main.y = 5.5
-    main.t1 = double_to_bool y
-    ifFalse main.t1 goto main.L2
-    main.t2 = y != 5.5
-    ifFalse main.t2 goto main.L1
-    param "yeye"
-    main.t3 = call printf, 1
-main.L1:
-    goto main.L3
-main.L2:
-    param "%d"
-    param y
-    main.t4 = call printf, 2
-main.L3:
+    main.t1 = &arr
+    *main.t1 = 1
+    main.t1 = main.t1 + 4
+    *main.t1 = 2
+    main.t1 = main.t1 + 4
+    *main.t1 = 3
+    main.t1 = main.t1 + 4
+    param arr
+    param 3
+    main.t2 = call array_sum, 2
+    main.s = main.t2
+    param "The sum is %d"
+    param s
+    main.t3 = call printf, 2
     return 0
