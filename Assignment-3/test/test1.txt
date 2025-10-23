@@ -1,23 +1,4 @@
-typedef int* IntPtr;
-
-int main() {
-    // --- Dynamic memory allocation ---
-    IntPtr p = (IntPtr) malloc(5 * sizeof(int)); // using typedef for int*
-    if (!(bool)p) {
-        printf("Memory allocation failed!\n");
-        return 1;
-    }
-    for (int i = 0; i < 5; i++) {
-        p[i] = i * 10;
-    }
-
-    printf("Dynamically allocated array:\n");
-    for (int i = 0; i < 5; i++) {
-        printf("%d ",p[i]);
-    }
-    printf("\n");
-
-    free(p);
+int main(){
+    int x=0;
     return 0;
 }
-

@@ -847,7 +847,7 @@ postfix_expression
     {
         dbg("postfix_expression -> postfix_expression ++");
         Node* v = $1;
-        if(v->kind == "rvalue"){
+        if(v->kind.find("rvalue")!=string::npos){
             yyerror("Cannot apply increment to rvalue.");
         }
         if(!check_unary_comp(v->type,"++")){
@@ -871,7 +871,7 @@ postfix_expression
         dbg("postfix_expression -> postfix_expression --");
         Node* v = $1;
 
-        if(v->kind == "rvalue"){
+        if(v->kind.find("rvalue")!=string::npos){
             yyerror("Cannot apply decrement to rvalue.");
         }
         if(!check_unary_comp(v->type,"--")){
@@ -934,9 +934,8 @@ argument_expression_list
         else{
             n->code.push_back("param " + e->printName);
         }
-        dbg("");
         dbg("argcount is " + to_string(n->argCount) + ", type is " + e->type);
-        dbg("");
+        dbg(e->place+"-"+e->printName);
         $$ = n;
     }
 	;
@@ -949,7 +948,7 @@ unary_expression
 	| INCREMENT unary_expression {
           dbg("unary_expression -> ++ unary_expression");
           Node* v = $2;
-          if(v->kind == "rvalue"){
+          if(v->kind.find("rvalue")!=string::npos){
               yyerror("Cannot apply increment to rvalue.");
           }
           if(!check_unary_comp(v->type,"++")){
@@ -968,7 +967,7 @@ unary_expression
     {
         dbg("unary_expression -> -- unary_expression");
         Node* v = $2;
-        if(v->kind == "rvalue"){
+        if(v->kind.find("rvalue")!=string::npos){
             yyerror("Cannot apply decrement to rvalue.");
         }
         if(!check_unary_comp(v->type,"--")){
@@ -994,9 +993,9 @@ unary_expression
             yyerror("Invalid operation '" + op + "' on type '" + rhs->type + "'.");
         }
         if (op == "&") {
-            if(rhs->kind == "rvalue"){
-                yyerror("Cannot take address of rvalue.");
-            }
+            if(rhs->kind.find("rvalue")!=string::npos){
+                  yyerror("Cannot take address of rvalue.");
+              }
             n->place = newTemp();
             n->code.push_back(n->place + " = &" + rhs->printName);
             n->type = rhs->type + "*";
@@ -3372,13 +3371,13 @@ jump_statement
 	| CONTINUE SEMICOLON {
             dbg("jump_statement -> CONTINUE ;");
           Node* n = new Node(); 
-          n->code.push_back("continue;"); 
+          n->code.push_back("continue"); 
           $$ = n;
       }
 	| BREAK SEMICOLON {
             dbg("jump_statement -> BREAK ;");
           Node* n = new Node(); 
-          n->code.push_back("break;"); 
+          n->code.push_back("break"); 
           $$ = n;
       }
 	| RETURN SEMICOLON {
@@ -3386,7 +3385,7 @@ jump_statement
           Node* n = new Node(); 
           if(lastFnType != "void")
               yyerror("Return statement must return a value.");
-          n->code.push_back("return;"); 
+          n->code.push_back("return"); 
           $$ = n;
       }
 	| RETURN expression SEMICOLON 
