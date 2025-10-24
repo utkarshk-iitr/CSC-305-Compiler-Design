@@ -1,0 +1,36 @@
+    
+fib:
+    fib.t1 = fib.n <= 1
+    ifFalse fib.t1 goto fib.L1
+    return 1
+fib.L1:
+    fib.t2 = fib.n - 1
+    param fib.t2
+    fib.t3 = call fib, 1
+    fib.t4 = fib.n - 2
+    param fib.t4
+    fib.t5 = call fib, 1
+    fib.t6 = fib.t3 + fib.t5
+    return fib.t6
+    
+main:
+    main.t1 = &main.mat
+    *main.t1 = 1
+    main.t1 = main.t1 + 4
+    *main.t1 = 0
+    main.t1 = main.t1 + 4
+    *main.t1 = 0
+    main.t1 = main.t1 + 4
+    *main.t1 = 1
+    main.t1 = main.t1 + 4
+    param "%d"
+    main.t2 = 1 * 2
+    main.t2 = main.t2 * 4
+    main.t3 = main.mat + main.t2
+    main.t4 = 1 * 1
+    main.t4 = main.t4 * 4
+    main.t5 = main.t3 + main.t4
+    param *main.t5
+    main.t6 = call printf, 2
+    return 0
+    

@@ -578,7 +578,7 @@ postfix_expression
             n->code = base->code;
             n->code.insert(n->code.end(), idx->code.begin(), idx->code.end());
             
-            string type = base->type.substr(0, base->type.size()-1);
+            string type = base->type.substr(0, base->type.size()-base->syn.size());
             string offset = newTemp();
             
             // Handle array parameters (which don't have dimension info in syn)
@@ -591,6 +591,7 @@ postfix_expression
                 n->type = type;
                 n->kind = base->kind;
                 n->place = "*" + n->place;
+                n->printName = "*" + n->printName;
             }
             // Handle regular arrays with dimension information
             else {
@@ -618,6 +619,7 @@ postfix_expression
                 
                 if(n->syn.empty()){
                     n->place = "*" + n->place;
+                    n->printName = "*" + n->printName;
                 }
             }
         }   
@@ -1000,6 +1002,7 @@ unary_expression
             n->code.push_back(n->place + " = &" + rhs->printName);
             n->type = rhs->type + "*";
             n->kind = "rvalue";
+            n->printName = n->place;
         } else if (op == "*") 
         {
             n = $2;
@@ -3101,14 +3104,14 @@ case_item
         dbg("case_item -> CASE constant_expression : statement");
         Node* caseVal = $2;
 
-        if(caseVal->type != $<node>-2->type){
+        if(caseVal->type != $<node>-3->type){
             yyerror("Type mismatch in case label.");
         }
         Node* stmt = $3;
         Node* n = new Node();
         
         string caseLabel = newLabel();
-        n->syn.push_back("if " + $<node>-2->place + " == " + caseVal->place + " goto " + caseLabel);
+        n->syn.push_back("if " + $<node>-3->place + " == " + caseVal->place + " goto " + caseLabel);
         
         n->code.push_back(caseLabel + ":");
         n->code.insert(n->code.end(), stmt->code.begin(), stmt->code.end());
