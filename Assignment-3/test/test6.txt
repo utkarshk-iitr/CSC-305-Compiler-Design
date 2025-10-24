@@ -1,55 +1,35 @@
 #include <stdio.h>
+#include <stdlib.h>
 
-void functionExample(){
-    cout << "function" << endl;
-}
+typedef double flt;
 
-int anotherExample(int yy){
-    return 83;
-}
+int main() {
+    int n;
+    flt sum = 0.00;
 
-int main(){
-    int a = 10, b = 5;
-    a += 2;
-    a -= 1;
-    b /= 2;
-    b %= 3;
-    a &= 1;
-    a |= 2;
-    a ^= 4;
-    a <<= 1;
-    a >>= 2;
-    if (a > b){
-        cout << "a bada hai" << "\n";
+    printf("Enter the number of elements: ");
+    scanf("%d", &n);
+
+    flt* arr = (flt*)malloc(n * sizeof(flt));
+
+    if (arr == nullptr) {
+        printf("Memory allocation failed!\n");
+        return 1;
     }
-    else{
-        cout << "b bada hai" << "\n";
+    printf("Enter %d numbers:\n", n);
+    for (int i = 0; i < n; i++) {
+        scanf("%lf", &arr[i]);
+        sum += arr[i];
     }
 
-    switch (b) {
-        case 1{
-            cout << "One" << "\n";
-            break;
-        }
-        case 2{
-            cout << "Two" << "\n";
-            break;
-        }
-        default{
-            cout << "Default case" << "\n";
-            break;
-        }
-    }
-    string x = null;
-    
-    void foo = functionExample;
-    int (*boi)(int) = anotherExample;
+    flt avg = sum / (flt)n;
 
-    cout << "endl" << endl;
-    string msg = "Hello, world!";
-    char ch = 'X';
-    int 123abc = 5;
-    int 1foo = 9.81;
-    int a$$@5 = 8;
+    printf("\nYou entered: ");
+    for (int i = 0; i < n; i++) {
+        printf("%lf ", arr[i]);
+    }
+    printf("\nSum = %lf\nAverage = %lf\n", sum, avg);
+    free(arr);
+
     return 0;
 }

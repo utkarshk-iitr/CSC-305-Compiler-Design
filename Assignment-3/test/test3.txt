@@ -30,6 +30,18 @@ int main() {
         i++;
     } while (i < 10);
 
+    printf("\n\nUntil Loop:\n");
+    i = 0;
+    until(i>=10){
+        if (i == 2) {
+            i++;
+            continue;
+        }
+        if (i == 6) break;
+        printf("%d ", i);
+        i++;
+    }
+
     printf("\n\nGoto Statement:\n");
     i = 0;
 start:

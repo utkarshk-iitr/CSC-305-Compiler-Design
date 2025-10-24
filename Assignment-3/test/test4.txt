@@ -1,49 +1,29 @@
-class A
-{
-    public:
-    int d;
-    public:
-    char fn(int d)
-    {
-        char c;
-        return c;
+int main() {
+    int arr[3] = {1, 2, 3};
+    char mat[2][2] = {'w','x','y','z'};
+    int *p = arr;
+    int **pp = &p;
+
+    printf("Integer Array:\n");
+    for (int i = 0; i < 3; i++) {
+        printf("%d ", arr[i]);
+    }
+    printf("\n");
+
+    printf("Multidimensional Array:\n");
+    for (int i = 0; i < 2; i++) {
+        for (int j = 0; j < 2; j++) {
+            printf("%d ", mat[i][j]);
+        }
+        printf("\n");
     }
 
-    char **fn(int* a, int *b, char**c)
-    {
-        char o;
-        char*p1=&o;
-        return &p1;
-    }
+    printf("Pointer:\n");
+    printf("%d\n", *p);
+    printf("%d\n", *(p + 1));
 
-    protected:
-    int p;
-};
+    printf("Multilevel Pointer:\n");
+    printf("%d\n", **pp);
 
-char fn(int p){
-    return 'a';
-}
-
-int fn(int* a)
-{
-    return *a;
-}
-
-char main()
-{
-    A a;
-    char c = a.fn(7);
-
-    int b[3] = {1, 2, 3};
-
-    char d = fn(8);
-
-    int p = 8;
-
-    char o;
-    char*p1=&o;
-    char**p2=&p1;
-
-    char **q = a.fn(fn(&p),fn(&p),p2);
-
+    return 0;
 }
