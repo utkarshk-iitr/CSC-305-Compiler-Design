@@ -1,43 +1,62 @@
-SYMBOL TABLE
----------------------------------------------------------------
-NAME                DATATYPE            TYPE                LINE      
----------------------------------------------------------------
-main                INT                 FUNCTION            3         
-a                   LONG                IDENTIFIER          4         
-b                   LONG                IDENTIFIER          4         
-aa                  LONG                IDENTIFIER          4         
-bb                  LONG                IDENTIFIER          4         
-cc                  LONG                IDENTIFIER          4         
-dd                  LONG                IDENTIFIER          4         
-ff                  LONG                IDENTIFIER          4         
-gg                  LONG                IDENTIFIER          4         
-c                   INT                 IDENTIFIER          6         
-d                   INT                 IDENTIFIER          7         
-e                   INT                 IDENTIFIER          8         
-f                   INT                 IDENTIFIER          9         
-g                   INT                 IDENTIFIER          11        
-s                   INT                 IDENTIFIER          25        
-ee                  LONG                IDENTIFIER          35        
----------------------------------------------------------------
-
-CONSTANT TABLE
----------------------------------------------------------------
-VALUE                    TYPE                LINE      
----------------------------------------------------------------
-5                        DECIMAL_LITERAL     4         
-0                        DECIMAL_LITERAL     10        
-99999                    DECIMAL_LITERAL     17        
-2                        DECIMAL_LITERAL     19        
-4                        DECIMAL_LITERAL     20        
-9                        DECIMAL_LITERAL     22        
-3                        DECIMAL_LITERAL     22        
-2                        DECIMAL_LITERAL     22        
-"\n"                     STRING_LITERAL      22        
-0                        DECIMAL_LITERAL     24        
-5                        DECIMAL_LITERAL     27        
-6                        DECIMAL_LITERAL     28        
-0                        DECIMAL_LITERAL     39        
----------------------------------------------------------------
-
-ERRORS
----------------------------------------------------------------
+    
+main:
+    param "%d"
+    main.t1 = &main.x
+    param main.t1
+    main.t2 = call scanf, 2
+    main.t3 = main.x >= 6
+    ifFalse main.t3 goto main.L3
+    param "%s"
+    param "passed"
+    main.t4 = call printf, 2
+    goto main.L4
+main.L3:
+    main.t5 = main.x >= 4
+    ifFalse main.t5 goto main.L1
+    param "%s"
+    param "promoted"
+    main.t6 = call printf, 2
+    goto main.L2
+main.L1:
+    param "%s"
+    param "failed"
+    main.t7 = call printf, 2
+main.L2:
+main.L4:
+    main.t8 = main.x >= 6
+    ifFalse main.t8 goto main.L7
+    main.t11 = 2
+    goto main.L8
+main.L7:
+    main.t9 = main.x >= 4
+    ifFalse main.t9 goto main.L5
+    main.t10 = 1
+    goto main.L6
+main.L5:
+    main.t10 = 0
+main.L6:
+    main.t11 = main.t10
+main.L8:
+    main.tag = main.t11
+    if main.tag == 2 goto main.L9
+    if main.tag == 1 goto main.L10
+    goto main.L11
+    goto main.L12
+main.L9:
+    param "%s"
+    param "passed"
+    main.t12 = call printf, 2
+    goto main.L12
+main.L10:
+    param "%s"
+    param "promoted"
+    main.t13 = call printf, 2
+    goto main.L12
+main.L11:
+    param "%s"
+    param "failed"
+    main.t14 = call printf, 2
+    goto main.L12
+main.L12:
+    return 0
+    

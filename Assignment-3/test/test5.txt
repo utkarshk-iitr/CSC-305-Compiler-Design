@@ -21,8 +21,8 @@ int main() {
     fib(0);
     printf("Fibonacci of %d is %d\n", n, result);
     
+    int arr[4] = {1, 2, 3, 4};
     int size = 4;
-    int arr[size] = {1, 2, 3, 4};
     int product = arr_prod(arr, size);
     printf("Product of array elements is %d\n", product);
     return 0;

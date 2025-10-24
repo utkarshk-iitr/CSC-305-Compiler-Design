@@ -1,49 +1,68 @@
-SYMBOL TABLE
----------------------------------------------------------------
-NAME                DATATYPE            TYPE                LINE      
----------------------------------------------------------------
-Employee            CLASS               TYPE                3         
-salary              INT                 MEMBER              5         
-loan                DOUBLE              MEMBER              8         
-name                STRING              MEMBER              11        
-x                   INT                 PARAM               14        
-y                   INT                 PARAM               14        
-IsValid             BOOL                FUNCTION            14        
-emp                 Employee            PARAM               21        
-IncrementLoan       VOID                FUNCTION            21        
-main                INT                 FUNCTION            25        
-Raja                Employee            IDENTIFIER          27        
-Rani                Employee pointer    IDENTIFIER          32        
-i                   INT                 IDENTIFIER          36        
----------------------------------------------------------------
-
-CONSTANT TABLE
----------------------------------------------------------------
-VALUE                    TYPE                LINE      
----------------------------------------------------------------
-"Origin"                 STRING_LITERAL      15        
-"\n"                     STRING_LITERAL      15        
-0                        DECIMAL_LITERAL     16        
-0                        DECIMAL_LITERAL     16        
-10                       DECIMAL_LITERAL     16        
-10                       DECIMAL_LITERAL     16        
-true                     BOOL_LITERAL        16        
-false                    BOOL_LITERAL        18        
-1                        DECIMAL_LITERAL     22        
-5                        DECIMAL_LITERAL     26        
-7                        DECIMAL_LITERAL     26        
-"Ha Valid Hai"           STRING_LITERAL      26        
-"\t"                     STRING_LITERAL      26        
-"\n"                     STRING_LITERAL      26        
-0                        DECIMAL_LITERAL     37        
-90                       DECIMAL_LITERAL     37        
-40                       DECIMAL_LITERAL     38        
-" "                      STRING_LITERAL      39        
-"\n"                     STRING_LITERAL      41        
-"No Match Found"         STRING_LITERAL      43        
-"\n"                     STRING_LITERAL      43        
-0                        DECIMAL_LITERAL     45        
----------------------------------------------------------------
-
-ERRORS
----------------------------------------------------------------
+    fib_int.call_count = 0
+    
+fib_int:
+    fib_int.t1 = fib_int.call_count
+    fib_int.call_count = fib_int.t1 + 1;
+    param "fib called %d times\n"
+    param fib_int.call_count
+    fib_int.t2 = call printf, 2
+    fib_int.t3 = fib_int.n <= 1
+    ifFalse fib_int.t3 goto fib_int.L1
+    return 1
+fib_int.L1:
+    fib_int.t4 = fib_int.n - 1
+    param fib_int.t4
+    fib_int.t5 = call fib_int, 1
+    fib_int.t6 = fib_int.n - 2
+    param fib_int.t6
+    fib_int.t7 = call fib_int, 1
+    fib_int.t8 = fib_int.t5 + fib_int.t7
+    return fib_int.t8
+    
+arr_prod_int*_int:
+    arr_prod_int*_int.prod = 1
+    arr_prod_int*_int.i = 0
+arr_prod_int*_int.L1:
+    arr_prod_int*_int.t1 = arr_prod_int*_int.i < arr_prod_int*_int.size
+    ifFalse arr_prod_int*_int.t1 goto arr_prod_int*_int.L2
+    arr_prod_int*_int.t3 = arr_prod_int*_int.i * 0
+    arr_prod_int*_int.t4 = arr_prod_int*_int.arr + arr_prod_int*_int.t3
+    arr_prod_int*_int.prod = arr_prod_int*_int.prod * *arr_prod_int*_int.t4
+    arr_prod_int*_int.t2 = arr_prod_int*_int.i
+    arr_prod_int*_int.i = arr_prod_int*_int.t2 + 1;
+    goto arr_prod_int*_int.L1
+arr_prod_int*_int.L2:
+    return arr_prod_int*_int.prod
+    
+main:
+    main.n = 5
+    param main.n
+    main.t1 = call fib_int, 1
+    main.result = main.t1
+    param 1
+    main.t2 = call fib_int, 1
+    param 0
+    main.t3 = call fib_int, 1
+    param "Fibonacci of %d is %d\n"
+    param main.n
+    param main.result
+    main.t4 = call printf, 3
+    main.t5 = &main.arr
+    *main.t5 = 1
+    main.t5 = main.t5 + 4
+    *main.t5 = 2
+    main.t5 = main.t5 + 4
+    *main.t5 = 3
+    main.t5 = main.t5 + 4
+    *main.t5 = 4
+    main.t5 = main.t5 + 4
+    main.size = 4
+    param main.arr
+    param main.size
+    main.t6 = call arr_prod_int*_int, 2
+    main.product = main.t6
+    param "Product of array elements is %d\n"
+    param main.product
+    main.t7 = call printf, 2
+    return 0
+    

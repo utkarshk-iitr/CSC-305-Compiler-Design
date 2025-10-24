@@ -1,58 +1,68 @@
-SYMBOL TABLE
----------------------------------------------------------------
-NAME                DATATYPE            TYPE                LINE      
----------------------------------------------------------------
-functionExample     VOID                FUNCTION            3         
-yy                  INT                 PARAM               7         
-anotherExample      INT                 FUNCTION            7         
-main                INT                 FUNCTION            11        
-a                   INT                 IDENTIFIER          12        
-b                   INT                 IDENTIFIER          12        
-x                   STRING              IDENTIFIER          43        
-foo                 VOID                IDENTIFIER          45        
-(                   INT                 IDENTIFIER          46        
-msg                 STRING              IDENTIFIER          49        
-ch                  CHAR                IDENTIFIER          50        
----------------------------------------------------------------
-
-CONSTANT TABLE
----------------------------------------------------------------
-VALUE                    TYPE                LINE      
----------------------------------------------------------------
-"function"               STRING_LITERAL      4         
-83                       DECIMAL_LITERAL     8         
-10                       DECIMAL_LITERAL     12        
-5                        DECIMAL_LITERAL     12        
-2                        DECIMAL_LITERAL     13        
-1                        DECIMAL_LITERAL     14        
-2                        DECIMAL_LITERAL     15        
-3                        DECIMAL_LITERAL     16        
-1                        DECIMAL_LITERAL     17        
-2                        DECIMAL_LITERAL     18        
-4                        DECIMAL_LITERAL     19        
-1                        DECIMAL_LITERAL     20        
-2                        DECIMAL_LITERAL     21        
-"a bada hai"             STRING_LITERAL      23        
-"\n"                     STRING_LITERAL      23        
-"b bada hai"             STRING_LITERAL      26        
-"\n"                     STRING_LITERAL      26        
-1                        DECIMAL_LITERAL     30        
-"One"                    STRING_LITERAL      31        
-"\n"                     STRING_LITERAL      31        
-2                        DECIMAL_LITERAL     34        
-"Two"                    STRING_LITERAL      35        
-"\n"                     STRING_LITERAL      35        
-"Default case"           STRING_LITERAL      39        
-"\n"                     STRING_LITERAL      39        
-null                     NULLPTR             43        
-"endl"                   STRING_LITERAL      48        
-"Hello, world!"          STRING_LITERAL      49        
-'X'                      CHAR_LITERAL        50        
-0                        DECIMAL_LITERAL     54        
----------------------------------------------------------------
-
-ERRORS
-Error: syntax error at line 51 near '123abc'
-Error: syntax error at line 52 near '1foo'
-Error: syntax error at line 53 near '$'
----------------------------------------------------------------
+    
+main:
+    main.sum = 0.00
+    param "Enter the number of elements: "
+    main.t1 = call printf, 1
+    param "%d"
+    main.t2 = &main.n
+    param main.t2
+    main.t3 = call scanf, 2
+    main.t4 = 8
+    main.t5 = main.n * main.t4
+    param main.t5
+    main.t6 = call malloc, 1
+    main.t7 = void*_to_double* main.t6
+    main.arr = main.t7
+    main.t8 = void*_to_double* nullptr
+    main.t9 = main.arr == main.t8
+    ifFalse main.t9 goto main.L1
+    param "Memory allocation failed!\n"
+    main.t10 = call printf, 1
+    return 1
+main.L1:
+    param "Enter %d numbers:\n"
+    param main.n
+    main.t11 = call printf, 2
+    main.i = 0
+main.L2:
+    main.t12 = main.i < main.n
+    ifFalse main.t12 goto main.L3
+    param "%lf"
+    main.t14 = main.i * 0
+    main.t15 = main.arr + main.t14
+    main.t16 = &*main.t15
+    param main.t16
+    main.t17 = call scanf, 2
+    main.t18 = main.i * 0
+    main.t19 = main.arr + main.t18
+    main.sum = main.sum + *main.t19
+    main.t13 = main.i
+    main.i = main.t13 + 1;
+    goto main.L2
+main.L3:
+    main.t20 = int_to_double main.n
+    main.t21 = main.sum / main.t20
+    main.avg = main.t21
+    param "\nYou entered: "
+    main.t22 = call printf, 1
+    main.i = 0
+main.L4:
+    main.t23 = main.i < main.n
+    ifFalse main.t23 goto main.L5
+    param "%lf "
+    main.t25 = main.i * 0
+    main.t26 = main.arr + main.t25
+    param *main.t26
+    main.t27 = call printf, 2
+    main.t24 = main.i
+    main.i = main.t24 + 1;
+    goto main.L4
+main.L5:
+    param "\nSum = %lf\nAverage = %lf\n"
+    param main.sum
+    param main.avg
+    main.t28 = call printf, 3
+    param main.arr
+    call free, 1
+    return 0
+    

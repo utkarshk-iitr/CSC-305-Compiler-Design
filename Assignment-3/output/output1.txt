@@ -1,2 +1,97 @@
----- Errors found ----
-Error at line 6 : Use of undeclared identifier 'x'.
+    
+main:
+    param "%d %d"
+    main.t1 = &main.a
+    param main.t1
+    main.t2 = &main.b
+    param main.t2
+    main.t3 = call scanf, 3
+    main.t4 = main.a + main.b
+    main.sum = main.t4
+    main.t5 = main.a - main.b
+    main.diff = main.t5
+    main.t6 = main.a * main.b
+    main.prod = main.t6
+    main.t7 = main.a / main.b
+    main.quot = main.t7
+    main.t8 = main.a % main.b
+    main.mod = main.t8
+    param "Arithmetic Operators:\n"
+    main.t9 = call printf, 1
+    param "Sum: %d\n"
+    param main.sum
+    main.t10 = call printf, 2
+    param "Difference: %d\n"
+    param main.diff
+    main.t11 = call printf, 2
+    param "Product: %d\n"
+    param main.prod
+    main.t12 = call printf, 2
+    param "Quotient: %d\n"
+    param main.quot
+    main.t13 = call printf, 2
+    param "Modulus: %d\n"
+    param main.mod
+    main.t14 = call printf, 2
+    main.x = 1
+    main.y = 0
+    param "\nLogical Operators:\n"
+    main.t15 = call printf, 1
+    param "x AND y: %d\n"
+    main.t16 = main.x && main.y
+    param main.t16
+    main.t17 = call printf, 2
+    param "x OR y: %d\n"
+    main.t18 = main.x || main.y
+    param main.t18
+    main.t19 = call printf, 2
+    param "NOT x: %d\n"
+    main.t20 = !main.x
+    param main.t20
+    main.t21 = call printf, 2
+    param "\nRelational Operators:\n"
+    main.t22 = call printf, 1
+    param "a > b: %d\n"
+    main.t23 = main.a > main.b
+    param main.t23
+    main.t24 = call printf, 2
+    param "a < b: %d\n"
+    main.t25 = main.a < main.b
+    param main.t25
+    main.t26 = call printf, 2
+    param "a == b: %d\n"
+    main.t27 = main.a == main.b
+    param main.t27
+    main.t28 = call printf, 2
+    param "a != b: %d\n"
+    main.t29 = main.a != main.b
+    param main.t29
+    main.t30 = call printf, 2
+    param "\nBitwise Operators:\n"
+    main.t31 = call printf, 1
+    param "a & b: %d\n"
+    main.t32 = main.a & main.b
+    param main.t32
+    main.t33 = call printf, 2
+    param "a | b: %d\n"
+    main.t34 = main.a | main.b
+    param main.t34
+    main.t35 = call printf, 2
+    param "a ^ b: %d\n"
+    main.t36 = main.a ^ main.b
+    param main.t36
+    main.t37 = call printf, 2
+    param "~a: %d\n"
+    main.t38 = ~main.a
+    param main.t38
+    main.t39 = call printf, 2
+    param "a << 1: %d\n"
+    main.t40 = main.a << 1
+    param main.t40
+    main.t41 = call printf, 2
+    param "a >> 1: %d\n"
+    main.t42 = main.a >> 1
+    param main.t42
+    main.t43 = call printf, 2
+    return 0
+    

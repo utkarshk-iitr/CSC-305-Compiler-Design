@@ -2077,7 +2077,7 @@ yyreduce:
 #line 527 "src/parser.y"
     {
         dbg("constant -> NULLPTR");
-        Node* n = new Node("0", "nullptr", "const");
+        Node* n = new Node("0", "void*", "const");
         n->kind = "rvalue";
         n->printName = "nullptr";
         (yyval.node) = n;
@@ -2154,7 +2154,7 @@ yyreduce:
                 n->place = newTemp();
                 n->printName = n->place;
                 n->code.push_back(n->place + " = " + base->printName + " + " + offset);
-                n->type = type;
+                n->type = type.substr(0,type.size()-1);
                 n->kind = base->kind;
                 n->place = "*" + n->place;
                 n->printName = "*" + n->printName;

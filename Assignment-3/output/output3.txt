@@ -1,33 +1,113 @@
-SYMBOL TABLE
----------------------------------------------------------------
-NAME                DATATYPE            TYPE                LINE      
----------------------------------------------------------------
-Node                STRUCT              TYPE                3         
-flag                BOOL                MEMBER              4         
-val                 INT                 MEMBER              5         
-name                STRING              MEMBER              6         
-id                  STATIC INT          MEMBER              7         
-Trie                CLASS               TYPE                10        
-root                Node pointer        MEMBER              12        
-lol                 INT                 MEMBER              15        
-flag                BOOL                MEMBER              16        
-name                STRING              MEMBER              17        
-main                INT                 FUNCTION            20        
-PrefixString        Trie                IDENTIFIER          21        
-lol                 STRING              IDENTIFIER          22        
-boi                 Trie pointer        IDENTIFIER          27        
----------------------------------------------------------------
-
-CONSTANT TABLE
----------------------------------------------------------------
-VALUE                    TYPE                LINE      
----------------------------------------------------------------
-"HelloWorld"             STRING_LITERAL      22        
-930                      DECIMAL_LITERAL     25        
-"Adesh$$$"               STRING_LITERAL      31        
----------------------------------------------------------------
-
-ERRORS
-Error: syntax error at line 32 near '"'
-Error: syntax error at line 33 near 'return'
----------------------------------------------------------------
+    
+main:
+    param "For Loop:\n"
+    main.t1 = call printf, 1
+    main.i = 0
+main.L3:
+    main.t2 = main.i < 10
+    ifFalse main.t2 goto main.L4
+    main.t4 = main.i == 5
+    ifFalse main.t4 goto main.L1
+    goto main.L3
+main.L1:
+    main.t5 = main.i == 8
+    ifFalse main.t5 goto main.L2
+    goto main.L4
+main.L2:
+    param "%d "
+    param main.i
+    main.t6 = call printf, 2
+    main.t3 = main.i
+    main.i = main.t3 + 1;
+    goto main.L3
+main.L4:
+    param "\n\nWhile Loop:\n"
+    main.t7 = call printf, 1
+    main.i = 0
+main.L7:
+    main.t8 = main.i < 10
+    ifFalse main.t8 goto main.L8
+    main.t9 = main.i == 3
+    ifFalse main.t9 goto main.L5
+    main.t10 = main.i
+    main.i = main.t10 + 1;
+    goto main.L7
+main.L5:
+    main.t11 = main.i == 7
+    ifFalse main.t11 goto main.L6
+    goto main.L8
+main.L6:
+    param "%d "
+    param main.i
+    main.t12 = call printf, 2
+    main.t13 = main.i
+    main.i = main.t13 + 1;
+    goto main.L7
+main.L8:
+    param "\n\nDo-While Loop:\n"
+    main.t14 = call printf, 1
+    main.i = 0
+main.L11:
+    main.t15 = main.i == 2
+    ifFalse main.t15 goto main.L9
+    main.t16 = main.i
+    main.i = main.t16 + 1;
+    goto main.L11
+main.L9:
+    main.t17 = main.i == 6
+    ifFalse main.t17 goto main.L10
+    goto main.L12
+main.L10:
+    param "%d "
+    param main.i
+    main.t18 = call printf, 2
+    main.t19 = main.i
+    main.i = main.t19 + 1;
+    main.t20 = main.i < 10
+    if main.t20 goto main.L11
+main.L12:
+    param "\n\nUntil Loop:\n"
+    main.t21 = call printf, 1
+    main.i = 0
+main.L15:
+    main.t22 = main.i >= 10
+    if main.t22 goto main.L16
+    main.t23 = main.i == 2
+    ifFalse main.t23 goto main.L13
+    main.t24 = main.i
+    main.i = main.t24 + 1;
+    goto main.L15
+main.L13:
+    main.t25 = main.i == 6
+    ifFalse main.t25 goto main.L14
+    goto main.L16
+main.L14:
+    param "%d "
+    param main.i
+    main.t26 = call printf, 2
+    main.t27 = main.i
+    main.i = main.t27 + 1;
+    goto main.L15
+main.L16:
+    param "\n\nGoto Statement:\n"
+    main.t28 = call printf, 1
+    main.i = 0
+start:
+    main.t29 = main.i == 4
+    ifFalse main.t29 goto main.L17
+    goto end
+main.L17:
+    param "%d "
+    param main.i
+    main.t30 = call printf, 2
+    main.t31 = main.i
+    main.i = main.t31 + 1;
+    main.t32 = main.i < 10
+    ifFalse main.t32 goto main.L18
+    goto start
+main.L18:
+end:
+    param "\nEnd of program\n"
+    main.t33 = call printf, 1
+    return 0
+    

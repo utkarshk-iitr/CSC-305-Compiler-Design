@@ -1,55 +1,84 @@
-SYMBOL TABLE
----------------------------------------------------------------
-NAME                DATATYPE            TYPE                LINE      
----------------------------------------------------------------
-main                INT                 FUNCTION            3         
-a                   INT                 IDENTIFIER          4         
-b                   INT                 IDENTIFIER          4         
-x                   CHAR                IDENTIFIER          29        
-a                   INT                 IDENTIFIER          46        
-pd                  INT                 IDENTIFIER          47        
-uk                  DOUBLE              IDENTIFIER          48        
-skipItAll           LABEL               IDENTIFIER          49        
-count               INT                 IDENTIFIER          50        
----------------------------------------------------------------
-
-CONSTANT TABLE
----------------------------------------------------------------
-VALUE                    TYPE                LINE      
----------------------------------------------------------------
-5                        DECIMAL_LITERAL     4         
-7                        DECIMAL_LITERAL     4         
-"Bada Hai"               STRING_LITERAL      7         
-"\n"                     STRING_LITERAL      7         
-"Chota Hai"              STRING_LITERAL      10        
-"\n"                     STRING_LITERAL      10        
-"Saman Hai"              STRING_LITERAL      13        
-"\n"                     STRING_LITERAL      13        
-"Sure"                   STRING_LITERAL      16        
-"\n"                     STRING_LITERAL      16        
-"Not Sure"               STRING_LITERAL      20        
-"\n"                     STRING_LITERAL      20        
-"Is it possible"         STRING_LITERAL      22        
-"\n"                     STRING_LITERAL      22        
-"Not Equal"              STRING_LITERAL      25        
-"\n"                     STRING_LITERAL      25        
-"To be Printed"          STRING_LITERAL      26        
-"\n"                     STRING_LITERAL      26        
-'I'                      CHAR_LITERAL        29        
-'A'                      CHAR_LITERAL        31        
-"A"                      STRING_LITERAL      32        
-'B'                      CHAR_LITERAL        35        
-"B"                      STRING_LITERAL      36        
-"Other than A and B"     STRING_LITERAL      40        
-6.9                      DOUBLE_LITERAL      48        
-8                        DECIMAL_LITERAL     50        
-0                        DECIMAL_LITERAL     51        
-9                        DECIMAL_LITERAL     52        
-0                        DECIMAL_LITERAL     55        
-8                        DECIMAL_LITERAL     56        
-3                        DECIMAL_LITERAL     57        
-0                        DECIMAL_LITERAL     59        
----------------------------------------------------------------
-
-ERRORS
----------------------------------------------------------------
+    
+main:
+    main.t1 = &main.arr
+    *main.t1 = 1
+    main.t1 = main.t1 + 4
+    *main.t1 = 2
+    main.t1 = main.t1 + 4
+    *main.t1 = 3
+    main.t1 = main.t1 + 4
+    main.t2 = &main.mat
+    *main.t2 = 'w'
+    main.t2 = main.t2 + 1
+    *main.t2 = 'x'
+    main.t2 = main.t2 + 1
+    *main.t2 = 'y'
+    main.t2 = main.t2 + 1
+    *main.t2 = 'z'
+    main.t2 = main.t2 + 1
+    main.p = main.arr
+    main.t3 = &main.p
+    main.pp = main.t3
+    param "Integer Array:\n"
+    main.t4 = call printf, 1
+    main.i = 0
+main.L1:
+    main.t5 = main.i < 3
+    ifFalse main.t5 goto main.L2
+    param "%d "
+    main.t7 = main.i * 1
+    main.t7 = main.t7 * 4
+    main.t8 = main.arr + main.t7
+    param *main.t8
+    main.t9 = call printf, 2
+    main.t6 = main.i
+    main.i = main.t6 + 1;
+    goto main.L1
+main.L2:
+    param "\n"
+    main.t10 = call printf, 1
+    param "Multidimensional Array:\n"
+    main.t11 = call printf, 1
+    main.i = 0
+main.L5:
+    main.t12 = main.i < 2
+    ifFalse main.t12 goto main.L6
+    main..j = 0
+main.L3:
+    main.t14 = main..j < 2
+    ifFalse main.t14 goto main.L4
+    param "%d "
+    main.t16 = main.i * 2
+    main.t16 = main.t16 * 1
+    main.t17 = main.mat + main.t16
+    main.t18 = main..j * 1
+    main.t18 = main.t18 * 1
+    main.t19 = main.t17 + main.t18
+    param *main.t19
+    main.t20 = call printf, 2
+    main.t15 = main..j
+    main..j = main.t15 + 1;
+    goto main.L3
+main.L4:
+    param "\n"
+    main.t21 = call printf, 1
+    main.t13 = main.i
+    main.i = main.t13 + 1;
+    goto main.L5
+main.L6:
+    param "Pointer:\n"
+    main.t22 = call printf, 1
+    param "%d\n"
+    param *main.p
+    main.t23 = call printf, 2
+    param "%d\n"
+    main.t24 = main.p + 1
+    param *main.t24
+    main.t25 = call printf, 2
+    param "Multilevel Pointer:\n"
+    main.t26 = call printf, 1
+    param "%d\n"
+    param **main.pp
+    main.t27 = call printf, 2
+    return 0
+    

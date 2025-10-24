@@ -1,6 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-
 typedef double flt;
 
 int main() {
@@ -12,7 +9,7 @@ int main() {
 
     flt* arr = (flt*)malloc(n * sizeof(flt));
 
-    if (arr == nullptr) {
+    if (arr == (flt*)nullptr) {
         printf("Memory allocation failed!\n");
         return 1;
     }
