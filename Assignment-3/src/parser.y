@@ -358,7 +358,7 @@
 %token<str> INCREMENT DECREMENT
 %token<str> EQUAL NOT_EQUAL LESS_THAN GREATER_THAN LESS_EQUAL GREATER_EQUAL
 %token<str> BITWISE_AND BITWISE_OR BITWISE_XOR
-%token<str> LEFT_SHIFT RIGHT_SHIFT ARROW
+%token<str> LEFT_SHIFT RIGHT_SHIFT
 %token<str> LOGICAL_NOT LOGICAL_AND LOGICAL_OR
 %token<str> PLUS_EQUAL MINUS_EQUAL STAR_EQUAL DIV_EQUAL MOD_EQUAL
 %token<str> AND_EQUAL OR_EQUAL XOR_EQUAL
@@ -650,13 +650,36 @@ postfix_expression
 
             n->code = fun->code;
             n->type = s->returnType;
+            string pname = funcTable[funcName].printName;
+            int i = 0;
+            while(i<pname.size() && pname[i] != '.') i++;
+            bool flg = false;
+            dbg(to_string(i));
+            if(i<pname.size()){
+                flg = true;
+                pname = funcName;
+                i = 0;
+                while(i<pname.size() && pname[i] != '.') i++;
+                pname = pname.substr(0,i);
+                dbg("pname is: " + pname);
+                Symbol* sybl = lookupSymbol(pname);
+                if(sybl){
+                    n->code.push_back("param " + sybl->printName);
+                }
+            }
 
             if(fun->type=="void"){
-                n->code.push_back("call " + funcTable[funcName].printName + ", 0;");
+                if(flg)
+                    n->code.push_back("call " + funcTable[funcName].printName + ", 1;");
+                else
+                    n->code.push_back("call " + funcTable[funcName].printName + ", 0;");
             }
             else{
                 n->place = newTemp();
-                n->code.push_back(n->place + " = call " + funcTable[funcName].printName + ", 0;");
+                if(flg)
+                    n->code.push_back(n->place + " = call " + funcTable[funcName].printName + ", 1;");
+                else
+                    n->code.push_back(n->place + " = call " + funcTable[funcName].printName + ", 0;");
             }
         }
         n->kind = "rvalue";
@@ -677,7 +700,7 @@ postfix_expression
         for(int i = 0; i < args->argCount;i++)
         {
             dbg("type is " + args->syn[i]);
-            // name += "_" + args->syn[i];
+            name += "_" + args->syn[i];
             
         }
         dbg("name is: " + name);
@@ -725,20 +748,44 @@ postfix_expression
                     yyerror("Type mismatch in argument " + to_string(i+1) + " of function '" + original + "'.");
                 }
             }
+            dbg(funcTable[name].printName);
             n->code = fun->code;
             n->type = s->returnType;
+            string pname = funcTable[name].printName;
+            int i = 0;
+            while(i<pname.size() && pname[i] != '.') i++;
+            bool flg = false;
+            dbg(to_string(i));
+            if(i<pname.size()){
+                flg = true;
+                pname = name;
+                i = 0;
+                while(i<pname.size() && pname[i] != '.') i++;
+                pname = pname.substr(0,i);
+                dbg("pname is: " + pname);
+                Symbol* sybl = lookupSymbol(pname);
+                if(sybl){
+                    n->code.push_back("param " + sybl->printName);
+                }
+            }
             n->code.insert(n->code.end(), args->code.begin(), args->code.end());
             
             if(s->returnType=="void") {
                 n->type = "";
-                n->code.push_back("call " + funcTable[name].printName + ", " + to_string(args->argCount));
+                if(flg)
+                    n->code.push_back("call " + funcTable[name].printName + ", " + to_string(args->argCount + 1));
+                else
+                    n->code.push_back("call " + funcTable[name].printName + ", " + to_string(args->argCount));
             }
             else{
                 n->place = newTemp();
                 n->kind = "rvalue";
                 dbg("mnb");
                 dbg(funcTable[name].printName);
-                n->code.push_back(n->place + " = call " + funcTable[name].printName + ", " + to_string(args->argCount));
+                if(flg)
+                    n->code.push_back(n->place + " = call " + funcTable[name].printName + ", " + to_string(args->argCount + 1));
+                else
+                    n->code.push_back(n->place + " = call " + funcTable[name].printName + ", " + to_string(args->argCount));
             }
         }
         n->kind = "rvalue";
@@ -3609,7 +3656,7 @@ external
             
             for (int i=0;i<$3->syn.size();i+=2)
             {
-                // fname += "_" + $3->syn[i];
+                fname += "_" + $3->syn[i];
             }
 
             if(funcTable.find(fname) != funcTable.end())
@@ -3634,7 +3681,7 @@ external
         {
             for (int i=0;i<$3->syn.size();i+=2)
             {
-                // fname += "_" + $3->syn[i];
+                fname += "_" + $3->syn[i];
             }
             string methodName = fname;
             if(classTable[lastClassType].find(methodName) != classTable[lastClassType].end())
@@ -3727,7 +3774,7 @@ external
         string fname = string($1);
         for (int i=0;i<$3->syn.size();i+=2)
         {
-            // fname += "_" + $3->syn[i];
+            fname += "_" + $3->syn[i];
         }
 
         n->place = fname;

@@ -68,7 +68,6 @@ DOT              "\."
 COMMA            ","
 COLON            ":"
 SEMICOLON        ";"
-ARROW            "->"
 QUESTION_MARK    "?"
 
 /* Preprocessor and misc */
@@ -184,7 +183,6 @@ INVALID_IDENTIFIER ({DIGIT}+({LETTER}|_)+({DIGIT}|{LETTER}|_)*(\.{DIGIT}*)?)
 {COMMA}                { yylval.str = strdup(yytext); return COMMA; }
 {COLON}                { yylval.str = strdup(yytext); return COLON; }
 {SEMICOLON}            { yylval.str = strdup(yytext); return SEMICOLON; }
-{ARROW}                { yylval.str = strdup(yytext); return ARROW; }
 {QUESTION_MARK}        { yylval.str = strdup(yytext); return QUESTION_MARK; }
 
 {RETURN}               { yylval.str = strdup(yytext); return RETURN; }
