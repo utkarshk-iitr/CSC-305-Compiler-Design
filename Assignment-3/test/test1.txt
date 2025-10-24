@@ -1,10 +1,66 @@
-int fib(int n){
-    if(n<=1) return 1;
-    return fib(n-1)+fib(n-2);
+int glb;
+int glb1 = 10;
+
+static int glb2;
+struct foo
+{
+    int a;
+    int b;
+    foo *next;
+};
+
+int bar(int a, double b){
+    static int lcl = 10;
+    while ((bool)b){
+        b -= (double) 1;
+    }
+    if (a == 0)
+        return 0;
+    bar(a++, (double)a + b + (double)lcl);
+    return 1;
 }
 
-int main(){
-    int mat[2][2] = {1,0,0,1};
-    printf("%d",mat[1][1]);
+int main()
+{
+    int a = 100, b[20];
+    int i, ret;
+    int *c;
+    foo newS[5];
+    for (i = 0; i < a; i++)
+    {
+        int b = 0;
+        b += i;
+        if (b % 2 != b % 3)
+            printf("%d\n", a + b);
+        else if (b % 2 == 0)
+        {
+            switch (b){
+                case -100{
+                    printf("1\n");
+                    break;
+                }
+                case 1000{
+                    printf("2\n");
+                }
+                default{
+                    printf("2\n");
+                }
+            }
+        }
+        ret = i;
+    }
+    b[0]=0;
+    b[2]=2;
+    b[19] = i;
+    //c = b * ret;
+    printf("%d\n", b[19]);
+    printf("%d\n", i);
+    jump:
+    printf("%d\n", b[19]);
+    printf("%d\n", i);
+    printf("Final = %d",ret);
+    if (*(b + 2) == 0)
+        goto jump;
+    bar(1, (double)*b);
     return 0;
 }

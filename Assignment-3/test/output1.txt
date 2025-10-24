@@ -1,36 +1,118 @@
+    glb1 = 10
+    bar.lcl = 10
     
-fib:
-    fib.t1 = fib.n <= 1
-    ifFalse fib.t1 goto fib.L1
+    
+    
+    
+bar:
+bar.L1:
+    bar.t1 = double_to_bool bar.b
+    ifFalse bar.t1 goto bar.L2
+    bar.t2 = int_to_double 1
+    bar.b = bar.b - bar.t2
+    goto bar.L1
+bar.L2:
+    bar.t3 = bar.a == 0
+    ifFalse bar.t3 goto bar.L3
+    return 0
+bar.L3:
+    bar.t4 = bar.a
+    bar.a = bar.t4 + 1;
+    param bar.t4
+    bar.t5 = int_to_double bar.a
+    bar.t6 = bar.t5 + bar.b
+    bar.t7 = int_to_double bar.lcl
+    bar.t8 = bar.t6 + bar.t7
+    param bar.t8
+    bar.t9 = call bar, 2
     return 1
-fib.L1:
-    fib.t2 = fib.n - 1
-    param fib.t2
-    fib.t3 = call fib, 1
-    fib.t4 = fib.n - 2
-    param fib.t4
-    fib.t5 = call fib, 1
-    fib.t6 = fib.t3 + fib.t5
-    return fib.t6
     
 main:
-    main.t1 = &main.mat
-    *main.t1 = 1
-    main.t1 = main.t1 + 4
-    *main.t1 = 0
-    main.t1 = main.t1 + 4
-    *main.t1 = 0
-    main.t1 = main.t1 + 4
-    *main.t1 = 1
-    main.t1 = main.t1 + 4
-    param "%d"
-    main.t2 = 1 * 2
-    main.t2 = main.t2 * 4
-    main.t3 = main.mat + main.t2
-    main.t4 = 1 * 1
-    main.t4 = main.t4 * 4
-    main.t5 = main.t3 + main.t4
-    param *main.t5
-    main.t6 = call printf, 2
+    main.a = 100
+    main.i = 0
+main.L8:
+    main.t1 = main.i < main.a
+    ifFalse main.t1 goto main.L9
+    main..b = 0
+    main..b = main..b + main.i
+    main.t3 = main..b % 2
+    main.t4 = main..b % 3
+    main.t5 = main.t3 != main.t4
+    ifFalse main.t5 goto main.L6
+    param "%d\n"
+    main.t6 = main.a + main..b
+    param main.t6
+    main.t7 = call printf, 2
+    goto main.L7
+main.L6:
+    main.t8 = main..b % 2
+    main.t9 = main.t8 == 0
+    ifFalse main.t9 goto main.L5
+    main.t10 = 0 - 100
+    if main..b == main.t10 goto main.L1
+    if main..b == 1000 goto main.L2
+    goto main.L3
+    goto main.L4
+main.L1:
+    param "1\n"
+    main.t11 = call printf, 1
+    goto main.L4
+main.L2:
+    param "2\n"
+    main.t12 = call printf, 1
+main.L3:
+    param "2\n"
+    main.t13 = call printf, 1
+main.L4:
+main.L5:
+main.L7:
+    main.ret = main.i
+    main.t2 = main.i
+    main.i = main.t2 + 1;
+    goto main.L8
+main.L9:
+    main.t14 = 0 * 1
+    main.t14 = main.t14 * 4
+    main.t15 = main.b + main.t14
+    *main.t15 = 0
+    main.t16 = 2 * 1
+    main.t16 = main.t16 * 4
+    main.t17 = main.b + main.t16
+    *main.t17 = 2
+    main.t18 = 19 * 1
+    main.t18 = main.t18 * 4
+    main.t19 = main.b + main.t18
+    *main.t19 = main.i
+    param "%d\n"
+    main.t20 = 19 * 1
+    main.t20 = main.t20 * 4
+    main.t21 = main.b + main.t20
+    param *main.t21
+    main.t22 = call printf, 2
+    param "%d\n"
+    param main.i
+    main.t23 = call printf, 2
+jump:
+    param "%d\n"
+    main.t24 = 19 * 1
+    main.t24 = main.t24 * 4
+    main.t25 = main.b + main.t24
+    param *main.t25
+    main.t26 = call printf, 2
+    param "%d\n"
+    param main.i
+    main.t27 = call printf, 2
+    param "Final = %d"
+    param main.ret
+    main.t28 = call printf, 2
+    main.t29 = main.b + 2
+    main.t30 = *main.t29 == 0
+    ifFalse main.t30 goto main.L10
+    goto jump
+main.L10:
+    param 1
+    main.t31 = int_to_double *main.b
+    param main.t31
+    main.t32 = call bar, 2
     return 0
     

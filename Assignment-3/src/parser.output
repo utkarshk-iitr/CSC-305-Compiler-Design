@@ -272,7 +272,7 @@ Grammar
 
   153 $@6: ε
 
-  154 switch_head: SWITCH $@6 LROUND expression RROUND
+  154 switch_head: SWITCH $@6 LROUND assignment_expression RROUND
 
   155 case_list: ε
   156          | case_list case_item
@@ -504,13 +504,13 @@ Nonterminals, with rules where they appear
         on right: 72 73 88
     assignment_expression <node> (110)
         on left: 73 74
-        on right: 19 20 74 86 87 103 104 107 108
+        on right: 19 20 74 86 87 103 104 107 108 154
     assignment_operator <str> (111)
         on left: 75 76 77 78 79 80 81 82 83 84 85
         on right: 74
     expression <node> (112)
         on left: 86 87
-        on right: 3 13 72 87 149 150 151 154 160 162 164 168 176
+        on right: 3 13 72 87 149 150 151 160 162 164 168 176
     constant_expression <node> (113)
         on left: 88
         on right: 109 110 157
@@ -4039,7 +4039,7 @@ State 237
 
 State 238
 
-  154 switch_head: SWITCH • $@6 LROUND expression RROUND
+  154 switch_head: SWITCH • $@6 LROUND assignment_expression RROUND
 
     $default  reduce using rule 153 ($@6)
 
@@ -4428,7 +4428,7 @@ State 266
 
 State 267
 
-  154 switch_head: SWITCH $@6 • LROUND expression RROUND
+  154 switch_head: SWITCH $@6 • LROUND assignment_expression RROUND
 
     LROUND  shift, and go to state 287
 
@@ -4774,7 +4774,7 @@ State 286
 
 State 287
 
-  154 switch_head: SWITCH $@6 LROUND • expression RROUND
+  154 switch_head: SWITCH $@6 LROUND • assignment_expression RROUND
 
     PLUS               shift, and go to state 62
     MINUS              shift, and go to state 63
@@ -4813,8 +4813,7 @@ State 287
     logical_and_expression     go to state 95
     logical_or_expression      go to state 96
     conditional_expression     go to state 97
-    assignment_expression      go to state 124
-    expression                 go to state 300
+    assignment_expression      go to state 300
 
 
 State 288
@@ -5013,11 +5012,9 @@ State 299
 
 State 300
 
-   87 expression: expression • COMMA assignment_expression
-  154 switch_head: SWITCH $@6 LROUND expression • RROUND
+  154 switch_head: SWITCH $@6 LROUND assignment_expression • RROUND
 
     RROUND  shift, and go to state 310
-    COMMA   shift, and go to state 183
 
 
 State 301
@@ -5228,7 +5225,7 @@ State 309
 
 State 310
 
-  154 switch_head: SWITCH $@6 LROUND expression RROUND •
+  154 switch_head: SWITCH $@6 LROUND assignment_expression RROUND •
 
     $default  reduce using rule 154 (switch_head)
 

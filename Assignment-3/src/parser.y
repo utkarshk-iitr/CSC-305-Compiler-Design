@@ -80,6 +80,8 @@
     static string lastUsage = "";
     static string lastFnType = "int";
     static string currentScope = "";
+    static string switchType = "";
+    static string switchVar = "";
     static bool inloop = false;
     static bool inFunction = false;
 
@@ -1011,20 +1013,17 @@ unary_expression
             }
             n->type = rhs->type.substr(0, rhs->type.size() - 1);
             n->place = rhs->place;
-            string w;
-            if(lastClassType=="")
-                w = currentFunction+currentScope+rhs->place;
-            else
-                w = lastClassType+"."+currentFunction+currentScope+rhs->place;
-            n->printName = "*" + w;
+            n->printName = "*" + rhs->printName;
         } else if (op == "+") {
             n->place = rhs->place;
             n->type = rhs->type;
             n->kind = "rvalue";
         } else if (op == "-") {
             n->place = newTemp();
+            dbg(rhs->place+"---"+rhs->printName);
             n->code.push_back(n->place + " = 0 - " + rhs->printName);
             n->type = rhs->type;
+            n->printName = n->place;
             n->kind = "rvalue";
         } else if (op == "~") {
             n->place = newTemp();
@@ -1238,6 +1237,9 @@ additive_expression
         n->type = a->type;
         n->printName = n->place;
         n->kind = "rvalue";
+        if(n->type.back()=='*'){
+            n->kind = "pointer";
+        }
         $$ = n;
     }
 	| additive_expression MINUS multiplicative_expression {
@@ -1554,6 +1556,7 @@ conditional_expression
         n->code.push_back(Lend + ":");
         backpatch(n->code, nextList, Lend);
         n->type = e1->type;
+        n->printName = n->place;
         $$ = n;
     }
     ;
@@ -3073,12 +3076,14 @@ selection_statement
     ;
 
 switch_head
-    : SWITCH{inloop=true;} LROUND expression RROUND {
+    : SWITCH{inloop=true;} LROUND assignment_expression RROUND {
         dbg("switch_head -> SWITCH ( expression )");
         Node* e = $4;
         Node* n = new Node();
         n->code = e->code;
         n->place = e->place;
+        switchType = e->type;
+        switchVar = e->printName;
         $$ = n;
       }
     ;
@@ -3104,15 +3109,17 @@ case_item
         dbg("case_item -> CASE constant_expression : statement");
         Node* caseVal = $2;
 
-        if(caseVal->type != $<node>-3->type){
+        if(caseVal->type != switchType){
             yyerror("Type mismatch in case label.");
         }
         Node* stmt = $3;
         Node* n = new Node();
         
         string caseLabel = newLabel();
-        n->syn.push_back("if " + $<node>-3->place + " == " + caseVal->place + " goto " + caseLabel);
-        
+        if(!caseVal->code.empty()){
+            n->syn.insert(n->syn.end(), caseVal->code.begin(), caseVal->code.end());
+        }
+        n->syn.push_back("if " + switchVar + " == " + caseVal->place + " goto " + caseLabel);
         n->code.push_back(caseLabel + ":");
         n->code.insert(n->code.end(), stmt->code.begin(), stmt->code.end());
         
