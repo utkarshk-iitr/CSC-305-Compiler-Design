@@ -1,70 +1,29 @@
-int fn(int x, int y)
-{
-    return y - x;
-}
+int main(){
+    int x;
+    scanf("%d", &x);
+    if(x>=6){
+        printf("%s", "passed");
+    } else if(x>=4){
+        printf("%s", "promoted");
+    } else {
+        printf("%s", "failed");
+    }
 
-int func(int a, int b)
-{
-    int c = a + b;
-    return c;
-}
+    int tag = (x >= 6) ? 2 : (x >= 4) ? 1 : 0;
+    switch (tag) {
+        case 2{
+            printf("%s", "passed");
+            break;
+        }
+        case 1{
+            printf("%s", "promoted");
+            break;
+        }
+        default{
+            printf("%s", "failed");
+            break;
+        }
+    }
 
-char c(char p)
-{
-    return (char)p;
-}
-
-int fn(int x, char y)
-{
-    return x;
-}
-
-char fn(int x)
-{
-    return (char)x;
-}
-
-char fn(char x)
-{
-    return x;
-}
-
-int fn()
-{
-    return 5;
-}
-
-int main()
-{
-    char c1[2][2]={'a'};
-
-    char d1 = c1[1][1];
-    int z = (func(3, 4));
-    z= fn();
-    char y = c('a');
-
-    int x = fn(3,5);
-
-    x=func(3,7);
-
-    char c = c('b');
-
-    x= fn(4,'b');
-
-    c = fn(7);
-
-    c = fn('v');
-
-    int d[3][4][5];
-
-    int uk[2][2] ={1,2,3,4};
-
-    d[2][2][4] = 11;
-    int p = 1;
-
-    bool a = true;
-
-    a = (bool)5;
-
-    int b = (int)'a';
+    return 0;
 }

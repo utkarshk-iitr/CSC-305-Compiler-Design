@@ -1,55 +1,44 @@
-class A
-{
-    int p = 7;
-    int fn()
-    {
-        return 9 + p;
+int main() {
+    printf("For Loop:\n");
+    for (int i = 0; i < 10; i++) {
+        if (i == 5) continue;
+        if (i == 8) break;
+        printf("%d ", i);
     }
 
-    int func(int a)
-    {
-        int d = a;
-        return d;
+    printf("\n\nWhile Loop:\n");
+    int i = 0;
+    while (i < 10) {
+        if (i == 3) {
+            i++;
+            continue;
+        }
+        if (i == 7) break;
+        printf("%d ", i);
+        i++;
     }
-};
 
-int x;
-static int y = 7;
+    printf("\n\nDo-While Loop:\n");
+    i = 0;
+    do {
+        if (i == 2) {
+            i++;
+            continue;
+        }
+        if (i == 6) break;
+        printf("%d ", i);
+        i++;
+    } while (i < 10);
 
-int* z = &x;
+    printf("\n\nGoto Statement:\n");
+    i = 0;
+start:
+    if (i == 4) goto end;
+    printf("%d ", i);
+    i++;
+    if (i < 10) goto start;
+end:
+    printf("\nEnd of program\n");
 
-int *fn()
-{
-    return &x;
-}
-
-int a = 5,b = 8, **c = &z;
-
-int* main(int a, int* b)
-{
-    return b;
-}
-
-char*** c(char c, int d)
-{
-    char *p = &c;
-    char **q = &p;
-    char ***o = &q;
-    return o;
-}
-
-int *uk = &y;
-
-int **uk1=&uk;
-
-int main()
-{
-    char * c;
-    int *q;
-    int *p= main(7,q);
-
-    static int pp = 7;
-
-    const int pppp = 8;
-    A a;
+    return 0;
 }
