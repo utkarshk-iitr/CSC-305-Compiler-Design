@@ -1,8 +1,7 @@
 class A
 {
-    private:
-        int p = 8;
     public:
+    int p = 8;
     int fn(int x){
         int x = 8;
         int c = 7;
@@ -16,9 +15,9 @@ class A
     }
 };
 
-int fn()
+int fn(A *a, int b)
 {
-    return 7;
+    return (*a).p;
 }
 
 int fn(int a){
@@ -29,8 +28,11 @@ int main()
 {
     A a;
     int z = a.fn(4);
-    z=a.fn();
+    A *b=&a;
+    
+    z=fn(b, 7);
+    
+    (*b).p = 8;
     z = fn(4);
-    z=fn();
     return 100;
 }

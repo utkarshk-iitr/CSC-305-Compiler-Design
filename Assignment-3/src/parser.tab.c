@@ -997,25 +997,25 @@ static const yytype_int8 yytranslate[] =
 static const yytype_int16 yyrline[] =
 {
        0,   427,   427,   468,   473,   478,   487,   499,   510,   518,
-     526,   534,   542,   553,   558,   630,   688,   795,   897,   920,
-     948,   971,   996,   999,  1017,  1036,  1088,  1102,  1119,  1122,
-    1125,  1128,  1131,  1134,  1141,  1145,  1166,  1174,  1177,  1180,
-    1183,  1186,  1189,  1192,  1212,  1215,  1231,  1248,  1269,  1272,
-    1292,  1312,  1315,  1331,  1351,  1354,  1369,  1384,  1399,  1418,
-    1421,  1436,  1455,  1458,  1477,  1480,  1500,  1503,  1522,  1525,
-    1544,  1547,  1565,  1570,  1613,  1619,  1670,  1673,  1676,  1679,
-    1682,  1685,  1688,  1691,  1694,  1697,  1700,  1707,  1712,  1725,
-    1734,  1750,  1757,  1762,  1767,  1776,  1782,  1793,  1799,  1807,
-    1812,  1821,  1924,  2042,  2143,  2254,  2348,  2533,  2542,  2553,
-    2575,  2589,  2617,  2620,  2623,  2626,  2629,  2632,  2638,  2660,
-    2665,  2681,  2680,  2703,  2709,  2720,  2725,  2736,  2743,  2753,
-    2761,  2768,  2917,  2921,  2932,  2944,  2947,  2950,  2953,  2956,
-    2959,  2966,  2980,  2986,  2985,  3012,  3015,  3025,  3028,  3034,
-    3037,  3043,  3065,  3098,  3126,  3126,  3139,  3144,  3155,  3181,
-    3204,  3204,  3240,  3240,  3277,  3277,  3312,  3312,  3354,  3354,
-    3402,  3411,  3414,  3422,  3428,  3434,  3440,  3448,  3490,  3489,
-    3502,  3501,  3515,  3521,  3527,  3536,  3535,  3546,  3545,  3556,
-    3555,  3569,  3568,  3644,  3643,  3810,  3914
+     526,   534,   542,   553,   558,   630,   688,   795,   905,   928,
+     956,   979,  1004,  1007,  1025,  1044,  1096,  1110,  1127,  1130,
+    1133,  1136,  1139,  1142,  1149,  1153,  1174,  1182,  1185,  1188,
+    1191,  1194,  1197,  1200,  1220,  1223,  1239,  1256,  1277,  1280,
+    1300,  1320,  1323,  1339,  1359,  1362,  1377,  1392,  1407,  1426,
+    1429,  1444,  1463,  1466,  1485,  1488,  1508,  1511,  1530,  1533,
+    1552,  1555,  1573,  1578,  1621,  1627,  1678,  1681,  1684,  1687,
+    1690,  1693,  1696,  1699,  1702,  1705,  1708,  1715,  1720,  1733,
+    1742,  1758,  1765,  1770,  1775,  1784,  1790,  1801,  1807,  1815,
+    1820,  1829,  1932,  2050,  2151,  2262,  2367,  2552,  2561,  2572,
+    2594,  2608,  2636,  2639,  2642,  2645,  2648,  2651,  2657,  2679,
+    2684,  2700,  2699,  2722,  2728,  2739,  2744,  2755,  2762,  2772,
+    2780,  2787,  2936,  2940,  2951,  2963,  2966,  2969,  2972,  2975,
+    2978,  2985,  2999,  3005,  3004,  3031,  3034,  3044,  3047,  3053,
+    3056,  3062,  3084,  3117,  3145,  3145,  3158,  3163,  3174,  3200,
+    3223,  3223,  3259,  3259,  3296,  3296,  3331,  3331,  3373,  3373,
+    3421,  3430,  3433,  3441,  3447,  3453,  3459,  3467,  3509,  3508,
+    3521,  3520,  3534,  3540,  3546,  3555,  3554,  3565,  3564,  3575,
+    3574,  3588,  3587,  3663,  3662,  3843,  3947
 };
 #endif
 
@@ -2376,7 +2376,7 @@ yyreduce:
         if(obj)
         {
             string currentType = obj->type;
-            dbg("currentType is " + currentType);
+            dbg("currentname is " + obj->printName);
             if(classTable.find(currentType) == classTable.end()){
                 yyerror("Dot operator can not be applied here.");
             }
@@ -2386,7 +2386,15 @@ yyreduce:
             //     if(obj->place[i]=='$') idx = i;
             // }
             // obj->place.erase(0,idx+1);
-            string nm = obj->place + "." + string((yyvsp[0].str));
+
+            string stars = "";
+            int i=0;
+            dbg("currentType is " + currentType);
+            while(i<obj->printName.size() && obj->printName[i]=='*'){
+                stars += '*';
+                i++;
+            }
+            string nm = stars + obj->place + "." + string((yyvsp[0].str));
 
             dbg("2ss12121");
             dbg(nm);
@@ -2430,11 +2438,11 @@ yyreduce:
         }// n->code.push_back(n->place + " = " + nm);
         (yyval.node) = n;
     }
-#line 2434 "src/parser.tab.c"
+#line 2442 "src/parser.tab.c"
     break;
 
   case 18: /* postfix_expression: postfix_expression INCREMENT  */
-#line 898 "src/parser.y"
+#line 906 "src/parser.y"
     {
         dbg("postfix_expression -> postfix_expression ++");
         Node* v = (yyvsp[-1].node);
@@ -2457,11 +2465,11 @@ yyreduce:
         n->kind = "rvalue";
         (yyval.node) = n;
     }
-#line 2461 "src/parser.tab.c"
+#line 2469 "src/parser.tab.c"
     break;
 
   case 19: /* postfix_expression: postfix_expression DECREMENT  */
-#line 921 "src/parser.y"
+#line 929 "src/parser.y"
     { 
         dbg("postfix_expression -> postfix_expression --");
         Node* v = (yyvsp[-1].node);
@@ -2485,11 +2493,11 @@ yyreduce:
         n->kind = "rvalue";
         (yyval.node) = n;
     }
-#line 2489 "src/parser.tab.c"
+#line 2497 "src/parser.tab.c"
     break;
 
   case 20: /* argument_expression_list: assignment_expression  */
-#line 949 "src/parser.y"
+#line 957 "src/parser.y"
     {
         dbg("argument_expression_list -> assignment_expression");
         Node* e = (yyvsp[0].node);
@@ -2512,11 +2520,11 @@ yyreduce:
         dbg("");
         (yyval.node) = n;
     }
-#line 2516 "src/parser.tab.c"
+#line 2524 "src/parser.tab.c"
     break;
 
   case 21: /* argument_expression_list: argument_expression_list COMMA assignment_expression  */
-#line 972 "src/parser.y"
+#line 980 "src/parser.y"
     {
         dbg("argument_expression_list -> argument_expression_list , assignment_expression");
         Node* e = (yyvsp[0].node);
@@ -2537,19 +2545,19 @@ yyreduce:
         dbg(e->place+"-"+e->printName);
         (yyval.node) = n;
     }
-#line 2541 "src/parser.tab.c"
-    break;
-
-  case 22: /* unary_expression: postfix_expression  */
-#line 996 "src/parser.y"
-                             { 
-        dbg("unary_expression -> postfix_expression");
-        (yyval.node) = (yyvsp[0].node); }
 #line 2549 "src/parser.tab.c"
     break;
 
+  case 22: /* unary_expression: postfix_expression  */
+#line 1004 "src/parser.y"
+                             { 
+        dbg("unary_expression -> postfix_expression");
+        (yyval.node) = (yyvsp[0].node); }
+#line 2557 "src/parser.tab.c"
+    break;
+
   case 23: /* unary_expression: INCREMENT unary_expression  */
-#line 999 "src/parser.y"
+#line 1007 "src/parser.y"
                                      {
           dbg("unary_expression -> ++ unary_expression");
           Node* v = (yyvsp[0].node);
@@ -2568,11 +2576,11 @@ yyreduce:
           n->code.push_back(v->printName + " = " + v->printName + " + 1;");
           (yyval.node) = n;
       }
-#line 2572 "src/parser.tab.c"
+#line 2580 "src/parser.tab.c"
     break;
 
   case 24: /* unary_expression: DECREMENT unary_expression  */
-#line 1018 "src/parser.y"
+#line 1026 "src/parser.y"
     {
         dbg("unary_expression -> -- unary_expression");
         Node* v = (yyvsp[0].node);
@@ -2591,11 +2599,11 @@ yyreduce:
         n->code.push_back(v->printName + " = " + v->printName + " - 1;");
         (yyval.node) = n;
     }
-#line 2595 "src/parser.tab.c"
+#line 2603 "src/parser.tab.c"
     break;
 
   case 25: /* unary_expression: unary_operator cast_expression  */
-#line 1037 "src/parser.y"
+#line 1045 "src/parser.y"
     {
         dbg("unary_expression -> unary_operator cast_expression");
         Node* rhs = (yyvsp[0].node);
@@ -2647,11 +2655,11 @@ yyreduce:
         }
         (yyval.node) = n;
     }
-#line 2651 "src/parser.tab.c"
+#line 2659 "src/parser.tab.c"
     break;
 
   case 26: /* unary_expression: SIZEOF LROUND unary_expression RROUND  */
-#line 1089 "src/parser.y"
+#line 1097 "src/parser.y"
     {
         dbg("unary_expression -> sizeof ( unary_expression )");
         Node* n = new Node(); 
@@ -2665,11 +2673,11 @@ yyreduce:
         n->printName = n->place;
         (yyval.node) = n;
     }
-#line 2669 "src/parser.tab.c"
+#line 2677 "src/parser.tab.c"
     break;
 
   case 27: /* unary_expression: SIZEOF LROUND cast_type RROUND  */
-#line 1103 "src/parser.y"
+#line 1111 "src/parser.y"
     {
         dbg("unary_expression -> sizeof ( type_name )");
         Node* n = new Node(); 
@@ -2682,68 +2690,68 @@ yyreduce:
         n->printName = n->place;
         (yyval.node) = n;
     }
-#line 2686 "src/parser.tab.c"
-    break;
-
-  case 28: /* unary_operator: BITWISE_AND  */
-#line 1119 "src/parser.y"
-                      { 
-        dbg("unary_operator -> &");
-        (yyval.str) = strdup((yyvsp[0].str)); }
 #line 2694 "src/parser.tab.c"
     break;
 
-  case 29: /* unary_operator: STAR  */
-#line 1122 "src/parser.y"
-               { 
-        dbg("unary_operator -> *");
+  case 28: /* unary_operator: BITWISE_AND  */
+#line 1127 "src/parser.y"
+                      { 
+        dbg("unary_operator -> &");
         (yyval.str) = strdup((yyvsp[0].str)); }
 #line 2702 "src/parser.tab.c"
     break;
 
-  case 30: /* unary_operator: PLUS  */
-#line 1125 "src/parser.y"
+  case 29: /* unary_operator: STAR  */
+#line 1130 "src/parser.y"
                { 
-        dbg("unary_operator -> +");
+        dbg("unary_operator -> *");
         (yyval.str) = strdup((yyvsp[0].str)); }
 #line 2710 "src/parser.tab.c"
     break;
 
-  case 31: /* unary_operator: MINUS  */
-#line 1128 "src/parser.y"
-                { 
-        dbg("unary_operator -> -");
+  case 30: /* unary_operator: PLUS  */
+#line 1133 "src/parser.y"
+               { 
+        dbg("unary_operator -> +");
         (yyval.str) = strdup((yyvsp[0].str)); }
 #line 2718 "src/parser.tab.c"
     break;
 
-  case 32: /* unary_operator: TILDE  */
-#line 1131 "src/parser.y"
+  case 31: /* unary_operator: MINUS  */
+#line 1136 "src/parser.y"
                 { 
-        dbg("unary_operator -> ~");
+        dbg("unary_operator -> -");
         (yyval.str) = strdup((yyvsp[0].str)); }
 #line 2726 "src/parser.tab.c"
     break;
 
-  case 33: /* unary_operator: LOGICAL_NOT  */
-#line 1134 "src/parser.y"
-                      { 
-        dbg("unary_operator -> !");
+  case 32: /* unary_operator: TILDE  */
+#line 1139 "src/parser.y"
+                { 
+        dbg("unary_operator -> ~");
         (yyval.str) = strdup((yyvsp[0].str)); }
 #line 2734 "src/parser.tab.c"
     break;
 
+  case 33: /* unary_operator: LOGICAL_NOT  */
+#line 1142 "src/parser.y"
+                      { 
+        dbg("unary_operator -> !");
+        (yyval.str) = strdup((yyvsp[0].str)); }
+#line 2742 "src/parser.tab.c"
+    break;
+
   case 34: /* cast_expression: unary_expression  */
-#line 1141 "src/parser.y"
+#line 1149 "src/parser.y"
                            { 
         dbg("cast_expression -> unary_expression");
         dbg(lastDeclType);
         (yyval.node) = (yyvsp[0].node); }
-#line 2743 "src/parser.tab.c"
+#line 2751 "src/parser.tab.c"
     break;
 
   case 35: /* cast_expression: LROUND cast_type RROUND cast_expression  */
-#line 1146 "src/parser.y"
+#line 1154 "src/parser.y"
     {
         dbg("cast_expression -> ( cast_type ) cast_expression");
         string a = (yyvsp[-2].str); Node* b = (yyvsp[0].node);
@@ -2761,68 +2769,68 @@ yyreduce:
         n->kind = "rvalue";
         (yyval.node) = n;
     }
-#line 2765 "src/parser.tab.c"
+#line 2773 "src/parser.tab.c"
     break;
 
   case 36: /* cast_type: cast_type_specifier pointer_opt  */
-#line 1167 "src/parser.y"
+#line 1175 "src/parser.y"
     { 
         dbg("return_type -> type_specifier pointer_opt");
         (yyval.str) = strdup( (string((yyvsp[-1].str)) + string((yyvsp[0].str))).c_str() );
     }
-#line 2774 "src/parser.tab.c"
-    break;
-
-  case 37: /* cast_type_specifier: VOID  */
-#line 1174 "src/parser.y"
-                 { 
-        dbg("cast_type_specifier -> VOID");
-        (yyval.str) = strdup("void"); }
 #line 2782 "src/parser.tab.c"
     break;
 
-  case 38: /* cast_type_specifier: CHAR  */
-#line 1177 "src/parser.y"
+  case 37: /* cast_type_specifier: VOID  */
+#line 1182 "src/parser.y"
                  { 
-        dbg("cast_type_specifier -> CHAR");
-        (yyval.str) = strdup("char"); }
+        dbg("cast_type_specifier -> VOID");
+        (yyval.str) = strdup("void"); }
 #line 2790 "src/parser.tab.c"
     break;
 
-  case 39: /* cast_type_specifier: INT  */
-#line 1180 "src/parser.y"
+  case 38: /* cast_type_specifier: CHAR  */
+#line 1185 "src/parser.y"
                  { 
-        dbg("cast_type_specifier -> INT");
-        (yyval.str) = strdup("int"); }
+        dbg("cast_type_specifier -> CHAR");
+        (yyval.str) = strdup("char"); }
 #line 2798 "src/parser.tab.c"
     break;
 
-  case 40: /* cast_type_specifier: LONG  */
-#line 1183 "src/parser.y"
+  case 39: /* cast_type_specifier: INT  */
+#line 1188 "src/parser.y"
                  { 
-        dbg("cast_type_specifier -> LONG");
-        (yyval.str) = strdup("long"); }
+        dbg("cast_type_specifier -> INT");
+        (yyval.str) = strdup("int"); }
 #line 2806 "src/parser.tab.c"
     break;
 
-  case 41: /* cast_type_specifier: DOUBLE  */
-#line 1186 "src/parser.y"
+  case 40: /* cast_type_specifier: LONG  */
+#line 1191 "src/parser.y"
                  { 
-        dbg("cast_type_specifier -> DOUBLE");
-        (yyval.str) = strdup("double"); }
+        dbg("cast_type_specifier -> LONG");
+        (yyval.str) = strdup("long"); }
 #line 2814 "src/parser.tab.c"
     break;
 
-  case 42: /* cast_type_specifier: BOOL  */
-#line 1189 "src/parser.y"
+  case 41: /* cast_type_specifier: DOUBLE  */
+#line 1194 "src/parser.y"
                  { 
-        dbg("cast_type_specifier -> BOOL");
-        (yyval.str) = strdup("bool"); }
+        dbg("cast_type_specifier -> DOUBLE");
+        (yyval.str) = strdup("double"); }
 #line 2822 "src/parser.tab.c"
     break;
 
+  case 42: /* cast_type_specifier: BOOL  */
+#line 1197 "src/parser.y"
+                 { 
+        dbg("cast_type_specifier -> BOOL");
+        (yyval.str) = strdup("bool"); }
+#line 2830 "src/parser.tab.c"
+    break;
+
   case 43: /* cast_type_specifier: TYPE_NAME  */
-#line 1193 "src/parser.y"
+#line 1201 "src/parser.y"
     { 
         dbg("cast_type_specifier -> TYPE_NAME");
         (yyval.str) = (yyvsp[0].str); 
@@ -2838,19 +2846,19 @@ yyreduce:
             yyerror("Unknown type '" + string((yyvsp[0].str)) + "'.");    
         }
     }
-#line 2842 "src/parser.tab.c"
-    break;
-
-  case 44: /* multiplicative_expression: cast_expression  */
-#line 1212 "src/parser.y"
-                          { 
-        dbg("multiplicative_expression -> cast_expression");
-        (yyval.node) = (yyvsp[0].node); }
 #line 2850 "src/parser.tab.c"
     break;
 
+  case 44: /* multiplicative_expression: cast_expression  */
+#line 1220 "src/parser.y"
+                          { 
+        dbg("multiplicative_expression -> cast_expression");
+        (yyval.node) = (yyvsp[0].node); }
+#line 2858 "src/parser.tab.c"
+    break;
+
   case 45: /* multiplicative_expression: multiplicative_expression STAR cast_expression  */
-#line 1216 "src/parser.y"
+#line 1224 "src/parser.y"
     {
         dbg("multiplicative_expression -> multiplicative_expression * cast_expression");
         Node* a = (yyvsp[-2].node); Node* b = (yyvsp[0].node);
@@ -2866,11 +2874,11 @@ yyreduce:
         n->kind = "rvalue";
         (yyval.node) = n;
     }
-#line 2870 "src/parser.tab.c"
+#line 2878 "src/parser.tab.c"
     break;
 
   case 46: /* multiplicative_expression: multiplicative_expression DIVIDE cast_expression  */
-#line 1232 "src/parser.y"
+#line 1240 "src/parser.y"
     {
         dbg("multiplicative_expression -> multiplicative_expression / cast_expression");
         Node* a = (yyvsp[-2].node); Node* b = (yyvsp[0].node);
@@ -2887,11 +2895,11 @@ yyreduce:
         n->kind = "rvalue";
         (yyval.node) = n;
     }
-#line 2891 "src/parser.tab.c"
+#line 2899 "src/parser.tab.c"
     break;
 
   case 47: /* multiplicative_expression: multiplicative_expression MODULUS cast_expression  */
-#line 1249 "src/parser.y"
+#line 1257 "src/parser.y"
     {
         dbg("multiplicative_expression -> multiplicative_expression % cast_expression");
         Node* a = (yyvsp[-2].node); Node* b = (yyvsp[0].node);
@@ -2908,19 +2916,19 @@ yyreduce:
         n->kind = "rvalue";
         (yyval.node) = n;
     }
-#line 2912 "src/parser.tab.c"
-    break;
-
-  case 48: /* additive_expression: multiplicative_expression  */
-#line 1269 "src/parser.y"
-                                    { 
-        dbg("additive_expression -> multiplicative_expression");
-        (yyval.node) = (yyvsp[0].node); }
 #line 2920 "src/parser.tab.c"
     break;
 
+  case 48: /* additive_expression: multiplicative_expression  */
+#line 1277 "src/parser.y"
+                                    { 
+        dbg("additive_expression -> multiplicative_expression");
+        (yyval.node) = (yyvsp[0].node); }
+#line 2928 "src/parser.tab.c"
+    break;
+
   case 49: /* additive_expression: additive_expression PLUS multiplicative_expression  */
-#line 1273 "src/parser.y"
+#line 1281 "src/parser.y"
     {
         dbg("additive_expression -> additive_expression + multiplicative_expression");
         Node* a = (yyvsp[-2].node); Node* b = (yyvsp[0].node);
@@ -2940,11 +2948,11 @@ yyreduce:
         }
         (yyval.node) = n;
     }
-#line 2944 "src/parser.tab.c"
+#line 2952 "src/parser.tab.c"
     break;
 
   case 50: /* additive_expression: additive_expression MINUS multiplicative_expression  */
-#line 1292 "src/parser.y"
+#line 1300 "src/parser.y"
                                                               {
         dbg("additive_expression -> additive_expression - multiplicative_expression");
         Node* a = (yyvsp[-2].node); Node* b = (yyvsp[0].node);
@@ -2961,19 +2969,19 @@ yyreduce:
         n->kind = "rvalue";
         (yyval.node) = n;
     }
-#line 2965 "src/parser.tab.c"
-    break;
-
-  case 51: /* shift_expression: additive_expression  */
-#line 1312 "src/parser.y"
-                              { 
-        dbg("shift_expression -> additive_expression");
-        (yyval.node) = (yyvsp[0].node); }
 #line 2973 "src/parser.tab.c"
     break;
 
+  case 51: /* shift_expression: additive_expression  */
+#line 1320 "src/parser.y"
+                              { 
+        dbg("shift_expression -> additive_expression");
+        (yyval.node) = (yyvsp[0].node); }
+#line 2981 "src/parser.tab.c"
+    break;
+
   case 52: /* shift_expression: shift_expression LEFT_SHIFT additive_expression  */
-#line 1315 "src/parser.y"
+#line 1323 "src/parser.y"
                                                           {
             dbg("shift_expression -> shift_expression << additive_expression");
           Node* a = (yyvsp[-2].node); Node* b = (yyvsp[0].node);
@@ -2990,11 +2998,11 @@ yyreduce:
           n->kind = "rvalue";
           (yyval.node) = n;
       }
-#line 2994 "src/parser.tab.c"
+#line 3002 "src/parser.tab.c"
     break;
 
   case 53: /* shift_expression: shift_expression RIGHT_SHIFT additive_expression  */
-#line 1331 "src/parser.y"
+#line 1339 "src/parser.y"
                                                            {
             dbg("shift_expression -> shift_expression >> additive_expression");
           Node* a = (yyvsp[-2].node); Node* b = (yyvsp[0].node);
@@ -3011,19 +3019,19 @@ yyreduce:
         n->kind = "rvalue";
           (yyval.node) = n;
       }
-#line 3015 "src/parser.tab.c"
-    break;
-
-  case 54: /* relational_expression: shift_expression  */
-#line 1351 "src/parser.y"
-                           { 
-        dbg("relational_expression -> shift_expression");
-        (yyval.node) = (yyvsp[0].node); }
 #line 3023 "src/parser.tab.c"
     break;
 
+  case 54: /* relational_expression: shift_expression  */
+#line 1359 "src/parser.y"
+                           { 
+        dbg("relational_expression -> shift_expression");
+        (yyval.node) = (yyvsp[0].node); }
+#line 3031 "src/parser.tab.c"
+    break;
+
   case 55: /* relational_expression: relational_expression GREATER_THAN shift_expression  */
-#line 1354 "src/parser.y"
+#line 1362 "src/parser.y"
                                                               {
           dbg("relational_expression -> relational_expression > shift_expression");
           Node* a=(yyvsp[-2].node); Node* b=(yyvsp[0].node); Node* n=new Node();
@@ -3039,11 +3047,11 @@ yyreduce:
           n->kind = "rvalue";
           (yyval.node) = n;
       }
-#line 3043 "src/parser.tab.c"
+#line 3051 "src/parser.tab.c"
     break;
 
   case 56: /* relational_expression: relational_expression LESS_THAN shift_expression  */
-#line 1369 "src/parser.y"
+#line 1377 "src/parser.y"
                                                            {
           dbg("relational_expression -> relational_expression < shift_expression");
           Node* a=(yyvsp[-2].node); Node* b=(yyvsp[0].node); Node* n=new Node();
@@ -3059,11 +3067,11 @@ yyreduce:
             n->kind = "rvalue";
           (yyval.node) = n;
       }
-#line 3063 "src/parser.tab.c"
+#line 3071 "src/parser.tab.c"
     break;
 
   case 57: /* relational_expression: relational_expression LESS_EQUAL shift_expression  */
-#line 1384 "src/parser.y"
+#line 1392 "src/parser.y"
                                                             {
             dbg("relational_expression -> relational_expression <= shift_expression");
           Node* a=(yyvsp[-2].node); Node* b=(yyvsp[0].node); Node* n=new Node();
@@ -3079,11 +3087,11 @@ yyreduce:
           n->kind = "rvalue";
           (yyval.node) = n;
       }
-#line 3083 "src/parser.tab.c"
+#line 3091 "src/parser.tab.c"
     break;
 
   case 58: /* relational_expression: relational_expression GREATER_EQUAL shift_expression  */
-#line 1399 "src/parser.y"
+#line 1407 "src/parser.y"
                                                                {
             dbg("relational_expression -> relational_expression >= shift_expression");
           Node* a=(yyvsp[-2].node); Node* b=(yyvsp[0].node); Node* n=new Node();
@@ -3099,19 +3107,19 @@ yyreduce:
             n->kind = "rvalue";
           (yyval.node) = n;
       }
-#line 3103 "src/parser.tab.c"
-    break;
-
-  case 59: /* equality_expression: relational_expression  */
-#line 1418 "src/parser.y"
-                                { 
-        dbg("equality_expression -> relational_expression");
-        (yyval.node) = (yyvsp[0].node); }
 #line 3111 "src/parser.tab.c"
     break;
 
+  case 59: /* equality_expression: relational_expression  */
+#line 1426 "src/parser.y"
+                                { 
+        dbg("equality_expression -> relational_expression");
+        (yyval.node) = (yyvsp[0].node); }
+#line 3119 "src/parser.tab.c"
+    break;
+
   case 60: /* equality_expression: equality_expression EQUAL relational_expression  */
-#line 1421 "src/parser.y"
+#line 1429 "src/parser.y"
                                                           {
             dbg("equality_expression -> equality_expression == relational_expression");
           Node* a=(yyvsp[-2].node); Node* b=(yyvsp[0].node); Node* n=new Node();
@@ -3127,11 +3135,11 @@ yyreduce:
           n->kind = "rvalue";
           (yyval.node) = n;
       }
-#line 3131 "src/parser.tab.c"
+#line 3139 "src/parser.tab.c"
     break;
 
   case 61: /* equality_expression: equality_expression NOT_EQUAL relational_expression  */
-#line 1436 "src/parser.y"
+#line 1444 "src/parser.y"
                                                               {
             dbg("equality_expression -> equality_expression != relational_expression");
           Node* a=(yyvsp[-2].node); Node* b=(yyvsp[0].node); Node* n=new Node();
@@ -3147,19 +3155,19 @@ yyreduce:
             n->kind = "rvalue";
           (yyval.node) = n;
       }
-#line 3151 "src/parser.tab.c"
-    break;
-
-  case 62: /* and_expression: equality_expression  */
-#line 1455 "src/parser.y"
-                              { 
-        dbg("and_expression -> equality_expression");
-        (yyval.node) = (yyvsp[0].node); }
 #line 3159 "src/parser.tab.c"
     break;
 
+  case 62: /* and_expression: equality_expression  */
+#line 1463 "src/parser.y"
+                              { 
+        dbg("and_expression -> equality_expression");
+        (yyval.node) = (yyvsp[0].node); }
+#line 3167 "src/parser.tab.c"
+    break;
+
   case 63: /* and_expression: and_expression BITWISE_AND equality_expression  */
-#line 1458 "src/parser.y"
+#line 1466 "src/parser.y"
                                                          {
             dbg("and_expression -> and_expression & equality_expression");
           Node* a=(yyvsp[-2].node); Node* b=(yyvsp[0].node); Node* n=new Node();
@@ -3175,19 +3183,19 @@ yyreduce:
           n->kind = "rvalue";
           (yyval.node) = n;
       }
-#line 3179 "src/parser.tab.c"
-    break;
-
-  case 64: /* exclusive_or_expression: and_expression  */
-#line 1477 "src/parser.y"
-                         { 
-        dbg("exclusive_or_expression -> and_expression");
-        (yyval.node) = (yyvsp[0].node); }
 #line 3187 "src/parser.tab.c"
     break;
 
+  case 64: /* exclusive_or_expression: and_expression  */
+#line 1485 "src/parser.y"
+                         { 
+        dbg("exclusive_or_expression -> and_expression");
+        (yyval.node) = (yyvsp[0].node); }
+#line 3195 "src/parser.tab.c"
+    break;
+
   case 65: /* exclusive_or_expression: exclusive_or_expression BITWISE_XOR and_expression  */
-#line 1481 "src/parser.y"
+#line 1489 "src/parser.y"
     {
         dbg("exclusive_or_expression -> exclusive_or_expression ^ and_expression");
         Node* a=(yyvsp[-2].node); Node* b=(yyvsp[0].node); Node* n=new Node();
@@ -3203,19 +3211,19 @@ yyreduce:
         n->kind = "rvalue";
         (yyval.node) = n;
     }
-#line 3207 "src/parser.tab.c"
-    break;
-
-  case 66: /* inclusive_or_expression: exclusive_or_expression  */
-#line 1500 "src/parser.y"
-                                  { 
-        dbg("inclusive_or_expression -> exclusive_or_expression");
-        (yyval.node) = (yyvsp[0].node); }
 #line 3215 "src/parser.tab.c"
     break;
 
+  case 66: /* inclusive_or_expression: exclusive_or_expression  */
+#line 1508 "src/parser.y"
+                                  { 
+        dbg("inclusive_or_expression -> exclusive_or_expression");
+        (yyval.node) = (yyvsp[0].node); }
+#line 3223 "src/parser.tab.c"
+    break;
+
   case 67: /* inclusive_or_expression: inclusive_or_expression BITWISE_OR exclusive_or_expression  */
-#line 1503 "src/parser.y"
+#line 1511 "src/parser.y"
                                                                      {
             dbg("inclusive_or_expression -> inclusive_or_expression | exclusive_or_expression");
           Node* a=(yyvsp[-2].node); Node* b=(yyvsp[0].node); Node* n=new Node();
@@ -3231,19 +3239,19 @@ yyreduce:
             n->kind = "rvalue";
           (yyval.node) = n;
       }
-#line 3235 "src/parser.tab.c"
-    break;
-
-  case 68: /* logical_and_expression: inclusive_or_expression  */
-#line 1522 "src/parser.y"
-                                  { 
-        dbg("logical_and_expression -> inclusive_or_expression");
-        (yyval.node) = (yyvsp[0].node); }
 #line 3243 "src/parser.tab.c"
     break;
 
+  case 68: /* logical_and_expression: inclusive_or_expression  */
+#line 1530 "src/parser.y"
+                                  { 
+        dbg("logical_and_expression -> inclusive_or_expression");
+        (yyval.node) = (yyvsp[0].node); }
+#line 3251 "src/parser.tab.c"
+    break;
+
   case 69: /* logical_and_expression: logical_and_expression LOGICAL_AND inclusive_or_expression  */
-#line 1525 "src/parser.y"
+#line 1533 "src/parser.y"
                                                                      {
             dbg("logical_and_expression -> logical_and_expression && inclusive_or_expression");
           Node* a=(yyvsp[-2].node); Node* b=(yyvsp[0].node); Node* n=new Node();
@@ -3259,19 +3267,19 @@ yyreduce:
           n->kind = "rvalue";
           (yyval.node) = n;
       }
-#line 3263 "src/parser.tab.c"
-    break;
-
-  case 70: /* logical_or_expression: logical_and_expression  */
-#line 1544 "src/parser.y"
-                                 { 
-        dbg("logical_or_expression -> logical_and_expression");
-        (yyval.node) = (yyvsp[0].node); }
 #line 3271 "src/parser.tab.c"
     break;
 
+  case 70: /* logical_or_expression: logical_and_expression  */
+#line 1552 "src/parser.y"
+                                 { 
+        dbg("logical_or_expression -> logical_and_expression");
+        (yyval.node) = (yyvsp[0].node); }
+#line 3279 "src/parser.tab.c"
+    break;
+
   case 71: /* logical_or_expression: logical_or_expression LOGICAL_OR logical_and_expression  */
-#line 1547 "src/parser.y"
+#line 1555 "src/parser.y"
                                                                   {
             dbg("logical_or_expression -> logical_or_expression || logical_and_expression");
           Node* a=(yyvsp[-2].node); Node* b=(yyvsp[0].node); Node* n=new Node();
@@ -3287,20 +3295,20 @@ yyreduce:
             n->kind = "rvalue";
           (yyval.node) = n;
       }
-#line 3291 "src/parser.tab.c"
+#line 3299 "src/parser.tab.c"
     break;
 
   case 72: /* conditional_expression: logical_or_expression  */
-#line 1566 "src/parser.y"
+#line 1574 "src/parser.y"
     { 
         dbg("conditional_expression -> logical_or_expression");
         (yyval.node) = (yyvsp[0].node); 
     }
-#line 3300 "src/parser.tab.c"
+#line 3308 "src/parser.tab.c"
     break;
 
   case 73: /* conditional_expression: logical_or_expression QUESTION_MARK expression COLON conditional_expression  */
-#line 1570 "src/parser.y"
+#line 1578 "src/parser.y"
                                                                                       {
         dbg("conditional_expression -> logical_or_expression ? expression : conditional_expression");
         Node* cond = (yyvsp[-4].node); 
@@ -3340,21 +3348,21 @@ yyreduce:
         n->printName = n->place;
         (yyval.node) = n;
     }
-#line 3344 "src/parser.tab.c"
+#line 3352 "src/parser.tab.c"
     break;
 
   case 74: /* assignment_expression: conditional_expression  */
-#line 1614 "src/parser.y"
+#line 1622 "src/parser.y"
     { 
         dbg("assignment_expression -> conditional_expression");
         Node* n = (yyvsp[0].node);
         (yyval.node) = n;
     }
-#line 3354 "src/parser.tab.c"
+#line 3362 "src/parser.tab.c"
     break;
 
   case 75: /* assignment_expression: unary_expression assignment_operator assignment_expression  */
-#line 1620 "src/parser.y"
+#line 1628 "src/parser.y"
     {
         dbg("assignment_expression -> unary_expression assignment_operator assignment_expression");
         Node* left = (yyvsp[-2].node); 
@@ -3400,108 +3408,108 @@ yyreduce:
         }
         (yyval.node) = n;
     }
-#line 3404 "src/parser.tab.c"
-    break;
-
-  case 76: /* assignment_operator: ASSIGN  */
-#line 1670 "src/parser.y"
-                 { 
-        dbg("assignment_operator -> =");
-        (yyval.str) = strdup((yyvsp[0].str)); }
 #line 3412 "src/parser.tab.c"
     break;
 
-  case 77: /* assignment_operator: STAR_EQUAL  */
-#line 1673 "src/parser.y"
-                     { 
-        dbg("assignment_operator -> *=");
+  case 76: /* assignment_operator: ASSIGN  */
+#line 1678 "src/parser.y"
+                 { 
+        dbg("assignment_operator -> =");
         (yyval.str) = strdup((yyvsp[0].str)); }
 #line 3420 "src/parser.tab.c"
     break;
 
-  case 78: /* assignment_operator: DIV_EQUAL  */
-#line 1676 "src/parser.y"
-                    { 
-        dbg("assignment_operator -> /=");
+  case 77: /* assignment_operator: STAR_EQUAL  */
+#line 1681 "src/parser.y"
+                     { 
+        dbg("assignment_operator -> *=");
         (yyval.str) = strdup((yyvsp[0].str)); }
 #line 3428 "src/parser.tab.c"
     break;
 
-  case 79: /* assignment_operator: MOD_EQUAL  */
-#line 1679 "src/parser.y"
+  case 78: /* assignment_operator: DIV_EQUAL  */
+#line 1684 "src/parser.y"
                     { 
-        dbg("assignment_operator -> %=");
+        dbg("assignment_operator -> /=");
         (yyval.str) = strdup((yyvsp[0].str)); }
 #line 3436 "src/parser.tab.c"
     break;
 
-  case 80: /* assignment_operator: PLUS_EQUAL  */
-#line 1682 "src/parser.y"
-                     { 
-        dbg("assignment_operator -> +=");
+  case 79: /* assignment_operator: MOD_EQUAL  */
+#line 1687 "src/parser.y"
+                    { 
+        dbg("assignment_operator -> %=");
         (yyval.str) = strdup((yyvsp[0].str)); }
 #line 3444 "src/parser.tab.c"
     break;
 
-  case 81: /* assignment_operator: MINUS_EQUAL  */
-#line 1685 "src/parser.y"
-                      { 
-        dbg("assignment_operator -> -=");
+  case 80: /* assignment_operator: PLUS_EQUAL  */
+#line 1690 "src/parser.y"
+                     { 
+        dbg("assignment_operator -> +=");
         (yyval.str) = strdup((yyvsp[0].str)); }
 #line 3452 "src/parser.tab.c"
     break;
 
-  case 82: /* assignment_operator: LEFT_SHIFT_EQ  */
-#line 1688 "src/parser.y"
-                        { 
-        dbg("assignment_operator -> <<=");
+  case 81: /* assignment_operator: MINUS_EQUAL  */
+#line 1693 "src/parser.y"
+                      { 
+        dbg("assignment_operator -> -=");
         (yyval.str) = strdup((yyvsp[0].str)); }
 #line 3460 "src/parser.tab.c"
     break;
 
-  case 83: /* assignment_operator: RIGHT_SHIFT_EQ  */
-#line 1691 "src/parser.y"
-                         { 
-        dbg("assignment_operator -> >>=");
+  case 82: /* assignment_operator: LEFT_SHIFT_EQ  */
+#line 1696 "src/parser.y"
+                        { 
+        dbg("assignment_operator -> <<=");
         (yyval.str) = strdup((yyvsp[0].str)); }
 #line 3468 "src/parser.tab.c"
     break;
 
-  case 84: /* assignment_operator: AND_EQUAL  */
-#line 1694 "src/parser.y"
-                    { 
-        dbg("assignment_operator -> &=");
+  case 83: /* assignment_operator: RIGHT_SHIFT_EQ  */
+#line 1699 "src/parser.y"
+                         { 
+        dbg("assignment_operator -> >>=");
         (yyval.str) = strdup((yyvsp[0].str)); }
 #line 3476 "src/parser.tab.c"
     break;
 
-  case 85: /* assignment_operator: XOR_EQUAL  */
-#line 1697 "src/parser.y"
+  case 84: /* assignment_operator: AND_EQUAL  */
+#line 1702 "src/parser.y"
                     { 
-        dbg("assignment_operator -> ^=");
+        dbg("assignment_operator -> &=");
         (yyval.str) = strdup((yyvsp[0].str)); }
 #line 3484 "src/parser.tab.c"
     break;
 
-  case 86: /* assignment_operator: OR_EQUAL  */
-#line 1700 "src/parser.y"
-                   { 
-        dbg("assignment_operator -> |=");
+  case 85: /* assignment_operator: XOR_EQUAL  */
+#line 1705 "src/parser.y"
+                    { 
+        dbg("assignment_operator -> ^=");
         (yyval.str) = strdup((yyvsp[0].str)); }
 #line 3492 "src/parser.tab.c"
     break;
 
-  case 87: /* expression: assignment_expression  */
+  case 86: /* assignment_operator: OR_EQUAL  */
 #line 1708 "src/parser.y"
+                   { 
+        dbg("assignment_operator -> |=");
+        (yyval.str) = strdup((yyvsp[0].str)); }
+#line 3500 "src/parser.tab.c"
+    break;
+
+  case 87: /* expression: assignment_expression  */
+#line 1716 "src/parser.y"
     { 
         dbg("expression -> assignment_expression");
         (yyval.node) = (yyvsp[0].node); 
     }
-#line 3501 "src/parser.tab.c"
+#line 3509 "src/parser.tab.c"
     break;
 
   case 88: /* expression: expression COMMA assignment_expression  */
-#line 1713 "src/parser.y"
+#line 1721 "src/parser.y"
         {
             dbg("expression -> expression , assignment_expression");
             Node* n = new Node();
@@ -3510,20 +3518,20 @@ yyreduce:
             n->place = (yyvsp[0].node)->place;
             (yyval.node) = n;
         }
-#line 3514 "src/parser.tab.c"
+#line 3522 "src/parser.tab.c"
     break;
 
   case 89: /* constant_expression: conditional_expression  */
-#line 1726 "src/parser.y"
+#line 1734 "src/parser.y"
     { 
         dbg("constant_expression -> conditional_expression");
         (yyval.node) = (yyvsp[0].node); 
     }
-#line 3523 "src/parser.tab.c"
+#line 3531 "src/parser.tab.c"
     break;
 
   case 90: /* declaration: declaration_specifiers init_declarator_list SEMICOLON  */
-#line 1735 "src/parser.y"
+#line 1743 "src/parser.y"
     {
         dbg("declaration -> declaration_specifiers init_declarator_list ;");
         dbg(lastDeclType);
@@ -3535,109 +3543,109 @@ yyreduce:
             (yyval.node) = (yyvsp[-1].node);
         }
     }
-#line 3539 "src/parser.tab.c"
+#line 3547 "src/parser.tab.c"
     break;
 
   case 91: /* declaration_specifiers: type_specifier  */
-#line 1751 "src/parser.y"
+#line 1759 "src/parser.y"
     {
         dbg("declaration_specifiers -> type_specifier");
         lastDeclType = string((yyvsp[0].str));
         dbg(lastDeclType);
         (yyval.str) = strdup(lastDeclType.c_str());
 	}
-#line 3550 "src/parser.tab.c"
+#line 3558 "src/parser.tab.c"
     break;
 
   case 92: /* declaration_specifiers: STATIC type_specifier  */
-#line 1757 "src/parser.y"
+#line 1765 "src/parser.y"
                             {
         dbg("declaration_specifiers -> static type_specifier");
         lastDeclType = string((yyvsp[-1].str))+string((yyvsp[0].str));
         (yyval.str) = strdup(lastDeclType.c_str());
     }
-#line 3560 "src/parser.tab.c"
+#line 3568 "src/parser.tab.c"
     break;
 
   case 93: /* declaration_specifiers: CONST type_specifier  */
-#line 1762 "src/parser.y"
+#line 1770 "src/parser.y"
                            {
         dbg("declaration_specifiers -> const type_specifier");
         lastDeclType = string((yyvsp[-1].str))+string((yyvsp[0].str));
         (yyval.str) = strdup(lastDeclType.c_str());
 	}
-#line 3570 "src/parser.tab.c"
+#line 3578 "src/parser.tab.c"
     break;
 
   case 94: /* declaration_specifiers: STATIC CONST type_specifier  */
-#line 1767 "src/parser.y"
+#line 1775 "src/parser.y"
                                   {
         dbg("declaration_specifiers -> static const type_specifier");
         lastDeclType = string((yyvsp[-2].str))+string((yyvsp[-1].str))+string((yyvsp[0].str));
         (yyval.str) = strdup(lastDeclType.c_str());
     }
-#line 3580 "src/parser.tab.c"
+#line 3588 "src/parser.tab.c"
     break;
 
   case 95: /* init_declarator_list: init_declarator  */
-#line 1777 "src/parser.y"
+#line 1785 "src/parser.y"
     {
         dbg("init_declarator_list -> init_declarator");
         dbg(lastDeclType);
         (yyval.node) = (yyvsp[0].node); 
     }
-#line 3590 "src/parser.tab.c"
+#line 3598 "src/parser.tab.c"
     break;
 
   case 96: /* init_declarator_list: init_declarator_list COMMA init_declarator  */
-#line 1783 "src/parser.y"
+#line 1791 "src/parser.y"
     {
         dbg("init_declarator_list -> init_declarator_list , init_declarator");
         Node* n = (yyvsp[-2].node);
         n->code.insert(n->code.end(), (yyvsp[0].node)->code.begin(), (yyvsp[0].node)->code.end());
         (yyval.node) = n;
     }
-#line 3601 "src/parser.tab.c"
+#line 3609 "src/parser.tab.c"
     break;
 
   case 97: /* pointer_opt: pointer_list  */
-#line 1794 "src/parser.y"
+#line 1802 "src/parser.y"
     {
         dbg("pointer_opt -> pointer_list");
         (yyval.str) = (yyvsp[0].str);
     }
-#line 3610 "src/parser.tab.c"
+#line 3618 "src/parser.tab.c"
     break;
 
   case 98: /* pointer_opt: %empty  */
-#line 1799 "src/parser.y"
+#line 1807 "src/parser.y"
     {
         dbg("pointer_opt -> <empty>");
         (yyval.str) = strdup("");
     }
-#line 3619 "src/parser.tab.c"
+#line 3627 "src/parser.tab.c"
     break;
 
   case 99: /* pointer_list: pointer_list STAR  */
-#line 1808 "src/parser.y"
+#line 1816 "src/parser.y"
     {
         dbg("pointer_list -> pointer_list *");
         (yyval.str) = strdup((string("*")+string((yyvsp[-1].str))).c_str());
     }
-#line 3628 "src/parser.tab.c"
+#line 3636 "src/parser.tab.c"
     break;
 
   case 100: /* pointer_list: STAR  */
-#line 1813 "src/parser.y"
+#line 1821 "src/parser.y"
     {
         dbg("pointer_list -> *");
         (yyval.str) = strdup("*");
     }
-#line 3637 "src/parser.tab.c"
+#line 3645 "src/parser.tab.c"
     break;
 
   case 101: /* init_declarator: IDENTIFIER  */
-#line 1822 "src/parser.y"
+#line 1830 "src/parser.y"
     {
         dbg("init_declarator -> IDENTIFIER ");
 
@@ -3740,11 +3748,11 @@ yyreduce:
         n->place = w;
         (yyval.node) = n;
     }
-#line 3744 "src/parser.tab.c"
+#line 3752 "src/parser.tab.c"
     break;
 
   case 102: /* init_declarator: IDENTIFIER square_list  */
-#line 1925 "src/parser.y"
+#line 1933 "src/parser.y"
     {    
         dbg("init_declarator -> IDENTIFIER square_list ");
         if(lastDeclType.find("const")!=string::npos){
@@ -3862,11 +3870,11 @@ yyreduce:
         n->place = w;
         (yyval.node) = n;
     }
-#line 3866 "src/parser.tab.c"
+#line 3874 "src/parser.tab.c"
     break;
 
   case 103: /* init_declarator: pointer_list IDENTIFIER  */
-#line 2043 "src/parser.y"
+#line 2051 "src/parser.y"
     {    
         dbg("init_declarator -> pointer_list IDENTIFIER ");
 
@@ -3966,11 +3974,11 @@ yyreduce:
         n->place = w;
         (yyval.node) = n;
     }
-#line 3970 "src/parser.tab.c"
+#line 3978 "src/parser.tab.c"
     break;
 
   case 104: /* init_declarator: IDENTIFIER ASSIGN assignment_expression  */
-#line 2144 "src/parser.y"
+#line 2152 "src/parser.y"
     {
         dbg("init_declarator -> IDENTIFIER = assignment_expression ");
         Node* n = new Node();
@@ -4080,11 +4088,11 @@ yyreduce:
         n->place = w;
         (yyval.node) = n;
     }
-#line 4084 "src/parser.tab.c"
+#line 4092 "src/parser.tab.c"
     break;
 
   case 105: /* init_declarator: pointer_list IDENTIFIER ASSIGN assignment_expression  */
-#line 2255 "src/parser.y"
+#line 2263 "src/parser.y"
     {
         dbg("init_declarator -> pointer_list IDENTIFIER = assignment_expression ");
         Node* n = new Node();
@@ -4147,28 +4155,39 @@ yyreduce:
         }
 
         dbg("");
-        if(classTable.find(n->type) != classTable.end())
+        if(classTable.find(lastDeclType) != classTable.end())
         {
-            for(const auto& member : classTable[n->type])
+            for(const auto& member : classTable[lastDeclType])
             {
                 if(member.second.kind == "function")
                 {
-                    string name = n->place + "." + member.first;
-                    string original = n->place + "." + member.second.method.original;
+                    string name = stars + n->place + "." + member.first;
+                    string original = stars + n->place + "." + member.second.method.original;
                     if(lookupSymbol(original) == nullptr)
                         declareSymbol(original, "function","function",vector<string>(),true);
                     dbg(original);
                     funcInfo f = member.second.method;
-                    f.place = n->place + "." + f.place;
-                    dbg("zz");
+                    f.place = stars + n->place + "." + f.place;
+                    dbg("zzw");
                     dbg(f.place);
                     funcTable[name] = f;
                     dbg("Function '" + name + "' with return type '" + funcTable[name].returnType + "' declared.");
                 }
                 else
                 {
-                    string name = n->place + "." + member.first;
+                    string name = stars + n->place + "." + member.first;
                     bool ok = declareSymbol(name, member.second.type, member.second.kind);
+
+                    if (!ok) {
+                        yyerror("Duplicate declaration of '" + name + "' in same scope.");
+                    }
+
+                    Symbol* sym = lookupSymbol(name);
+                    string w = lastClassType+currentFunction+currentScope + name;
+                    sym->printName = w;
+
+                    dbg("mmm");
+                    dbg(w);
                     dbg("Variable '" + name + "' with type '" + member.second.type + "' declared.");
                 }
             }
@@ -4177,11 +4196,11 @@ yyreduce:
         n->place = w;
         (yyval.node) = n;
     }
-#line 4181 "src/parser.tab.c"
+#line 4200 "src/parser.tab.c"
     break;
 
   case 106: /* init_declarator: IDENTIFIER square_list ASSIGN initializer  */
-#line 2349 "src/parser.y"
+#line 2368 "src/parser.y"
     {
         dbg("init_declarator -> IDENTIFIER square_list = initializer ");
         Node* n = new Node();
@@ -4295,20 +4314,20 @@ yyreduce:
         n->place = w;
         (yyval.node) = n;
     }
-#line 4299 "src/parser.tab.c"
+#line 4318 "src/parser.tab.c"
     break;
 
   case 107: /* initializer: LCURLY initializer_list RCURLY  */
-#line 2534 "src/parser.y"
+#line 2553 "src/parser.y"
     { 
         dbg("initializer -> { initializer_list }");
         (yyval.node) = (yyvsp[-1].node);
     }
-#line 4308 "src/parser.tab.c"
+#line 4327 "src/parser.tab.c"
     break;
 
   case 108: /* initializer_list: assignment_expression  */
-#line 2543 "src/parser.y"
+#line 2562 "src/parser.y"
     { 
         dbg("initializer_list -> assignment_expression");
         Node * n = (yyvsp[0].node);
@@ -4319,11 +4338,11 @@ yyreduce:
         n->syn.push_back(n->place);
         (yyval.node) = n;
     }
-#line 4323 "src/parser.tab.c"
+#line 4342 "src/parser.tab.c"
     break;
 
   case 109: /* initializer_list: initializer_list COMMA assignment_expression  */
-#line 2554 "src/parser.y"
+#line 2573 "src/parser.y"
     {
         dbg("initializer_list -> initializer_list , assignment_expression");
         Node* n = (yyvsp[-2].node); 
@@ -4341,11 +4360,11 @@ yyreduce:
         n->argCount = n->argCount + 1;
         (yyval.node) = n;
     }
-#line 4345 "src/parser.tab.c"
+#line 4364 "src/parser.tab.c"
     break;
 
   case 110: /* square_list: square_list LSQUARE constant_expression RSQUARE  */
-#line 2576 "src/parser.y"
+#line 2595 "src/parser.y"
     {
         dbg("square_list -> square_list [ constant_expression ]");
         Node* n = (yyvsp[-3].node);
@@ -4359,11 +4378,11 @@ yyreduce:
 
         (yyval.node) = n;
     }
-#line 4363 "src/parser.tab.c"
+#line 4382 "src/parser.tab.c"
     break;
 
   case 111: /* square_list: LSQUARE constant_expression RSQUARE  */
-#line 2590 "src/parser.y"
+#line 2609 "src/parser.y"
     {
         dbg("square_opt -> [ constant_expression ]");
         Node* n = new Node();
@@ -4376,59 +4395,59 @@ yyreduce:
         }
         (yyval.node) = n;
     }
-#line 4380 "src/parser.tab.c"
+#line 4399 "src/parser.tab.c"
     break;
 
   case 112: /* type_specifier: VOID  */
-#line 2617 "src/parser.y"
+#line 2636 "src/parser.y"
                  { 
         dbg("type_specifier -> VOID");
         (yyval.str) = strdup("void"); lastDeclType = "void"; }
-#line 4388 "src/parser.tab.c"
+#line 4407 "src/parser.tab.c"
     break;
 
   case 113: /* type_specifier: CHAR  */
-#line 2620 "src/parser.y"
+#line 2639 "src/parser.y"
                  { 
         dbg("type_specifier -> CHAR");
         (yyval.str) = strdup("char"); lastDeclType = "char"; }
-#line 4396 "src/parser.tab.c"
+#line 4415 "src/parser.tab.c"
     break;
 
   case 114: /* type_specifier: INT  */
-#line 2623 "src/parser.y"
+#line 2642 "src/parser.y"
                  { 
         dbg("type_specifier -> INT");
         (yyval.str) = strdup("int"); lastDeclType = "int"; }
-#line 4404 "src/parser.tab.c"
+#line 4423 "src/parser.tab.c"
     break;
 
   case 115: /* type_specifier: LONG  */
-#line 2626 "src/parser.y"
+#line 2645 "src/parser.y"
                  { 
         dbg("type_specifier -> LONG");
         (yyval.str) = strdup("long"); lastDeclType = "long"; }
-#line 4412 "src/parser.tab.c"
+#line 4431 "src/parser.tab.c"
     break;
 
   case 116: /* type_specifier: DOUBLE  */
-#line 2629 "src/parser.y"
+#line 2648 "src/parser.y"
                  { 
         dbg("type_specifier -> DOUBLE");
         (yyval.str) = strdup("double"); lastDeclType = "double"; }
-#line 4420 "src/parser.tab.c"
+#line 4439 "src/parser.tab.c"
     break;
 
   case 117: /* type_specifier: BOOL  */
-#line 2632 "src/parser.y"
+#line 2651 "src/parser.y"
                  { 
         dbg("type_specifier -> BOOL");
         (yyval.str) = strdup("bool"); lastDeclType = "bool"; }
-#line 4428 "src/parser.tab.c"
+#line 4447 "src/parser.tab.c"
     break;
 
   case 118: /* type_specifier: TYPE_NAME  */
-#line 2639 "src/parser.y"
+#line 2658 "src/parser.y"
     { 
         dbg("type_specifier -> TYPE_NAME");
         (yyval.str) = (yyvsp[0].str);
@@ -4446,20 +4465,20 @@ yyreduce:
             yyerror("Unknown type '" + string((yyvsp[0].str)) + "'.");    
         }
     }
-#line 4450 "src/parser.tab.c"
+#line 4469 "src/parser.tab.c"
     break;
 
   case 119: /* translation_unit: external_declaration  */
-#line 2661 "src/parser.y"
+#line 2680 "src/parser.y"
     { 
         dbg("translation_unit -> external_declaration");
         finalRoot = (yyvsp[0].node); (yyval.node) = (yyvsp[0].node); 
     }
-#line 4459 "src/parser.tab.c"
+#line 4478 "src/parser.tab.c"
     break;
 
   case 120: /* translation_unit: translation_unit external_declaration  */
-#line 2666 "src/parser.y"
+#line 2685 "src/parser.y"
     {
         dbg("translation_unit -> translation_unit external_declaration");
         Node* a = (yyvsp[-1].node); Node* b = (yyvsp[0].node);
@@ -4470,11 +4489,11 @@ yyreduce:
         }
         else { finalRoot = b; (yyval.node) = b; }
     }
-#line 4474 "src/parser.tab.c"
+#line 4493 "src/parser.tab.c"
     break;
 
   case 121: /* $@1: %empty  */
-#line 2681 "src/parser.y"
+#line 2700 "src/parser.y"
     { 
         lastClassType = string((yyvsp[-1].str)); 
         if(typeSize.find(lastClassType) != typeSize.end()){
@@ -4485,11 +4504,11 @@ yyreduce:
         classOffset = 0;
         pushScope();
     }
-#line 4489 "src/parser.tab.c"
+#line 4508 "src/parser.tab.c"
     break;
 
   case 122: /* struct_or_class_specifier: struct_or_class IDENTIFIER LCURLY $@1 struct_or_class_member_list RCURLY  */
-#line 2692 "src/parser.y"
+#line 2711 "src/parser.y"
     { 
         dbg("struct_or_class_specifier -> struct_or_class IDENTIFIER { struct_or_class_member_list }");
         popScope();
@@ -4497,41 +4516,41 @@ yyreduce:
         typeSize[lastClassType] = classOffset;   // NEW: store computed size
         lastClassType.clear(); 
     }
-#line 4501 "src/parser.tab.c"
+#line 4520 "src/parser.tab.c"
     break;
 
   case 123: /* struct_or_class: STRUCT  */
-#line 2704 "src/parser.y"
+#line 2723 "src/parser.y"
     { 
         dbg("struct_or_class -> STRUCT");
         (yyval.node) = new Node(); 
         lastUsage = "public";
     }
-#line 4511 "src/parser.tab.c"
+#line 4530 "src/parser.tab.c"
     break;
 
   case 124: /* struct_or_class: CLASS  */
-#line 2710 "src/parser.y"
+#line 2729 "src/parser.y"
     { 
         dbg("struct_or_class -> CLASS");
         (yyval.node) = new Node(); 
         lastUsage = "private";
     }
-#line 4521 "src/parser.tab.c"
+#line 4540 "src/parser.tab.c"
     break;
 
   case 125: /* struct_or_class_member_list: %empty  */
-#line 2720 "src/parser.y"
+#line 2739 "src/parser.y"
     { 
         dbg("struct_or_class_member_list -> <empty>");
         dbg("lastClassType: " + lastClassType);
         (yyval.node) = new Node(); 
     }
-#line 4531 "src/parser.tab.c"
+#line 4550 "src/parser.tab.c"
     break;
 
   case 126: /* struct_or_class_member_list: struct_or_class_member_list struct_or_class_member  */
-#line 2726 "src/parser.y"
+#line 2745 "src/parser.y"
     { 
         dbg("struct_or_class_member_list -> struct_or_class_member_list struct_or_class_member");
         dbg("lastClassType: " + lastClassType);
@@ -4539,33 +4558,33 @@ yyreduce:
         n->code.insert(n->code.end(), (yyvsp[0].node)->code.begin(), (yyvsp[0].node)->code.end()); 
         (yyval.node) = n; 
     }
-#line 4543 "src/parser.tab.c"
+#line 4562 "src/parser.tab.c"
     break;
 
   case 127: /* struct_or_class_member: access_specifier_label  */
-#line 2737 "src/parser.y"
+#line 2756 "src/parser.y"
     { 
         dbg("struct_or_class_member -> access_specifier_label");
         dbg("lastClassType: " + lastClassType);
         lastUsage = string((yyvsp[0].node)->place);
         (yyval.node) = (yyvsp[0].node); 
     }
-#line 4554 "src/parser.tab.c"
+#line 4573 "src/parser.tab.c"
     break;
 
   case 128: /* struct_or_class_member: external_declaration  */
-#line 2744 "src/parser.y"
+#line 2763 "src/parser.y"
     {
         dbg("struct_or_class_member -> external_declaration");
         dbg("lastClassType: " + lastClassType);
         dbg("");
         (yyval.node) = (yyvsp[0].node); 
     }
-#line 4565 "src/parser.tab.c"
+#line 4584 "src/parser.tab.c"
     break;
 
   case 129: /* access_specifier_label: PUBLIC COLON  */
-#line 2754 "src/parser.y"
+#line 2773 "src/parser.y"
     { 
         dbg("access_specifier_label -> PUBLIC :");
         dbg("lastClassType: " + lastClassType);
@@ -4573,53 +4592,53 @@ yyreduce:
         n->place = "public";
         (yyval.node) = n; 
     }
-#line 4577 "src/parser.tab.c"
+#line 4596 "src/parser.tab.c"
     break;
 
   case 130: /* access_specifier_label: PRIVATE COLON  */
-#line 2762 "src/parser.y"
+#line 2781 "src/parser.y"
     { 
         dbg("access_specifier_label -> PRIVATE :");
         Node* n=new Node(); 
         n->place = "private";
         (yyval.node) = n; 
     }
-#line 4588 "src/parser.tab.c"
+#line 4607 "src/parser.tab.c"
     break;
 
   case 131: /* access_specifier_label: PROTECTED COLON  */
-#line 2769 "src/parser.y"
+#line 2788 "src/parser.y"
     { 
         dbg("access_specifier_label -> PROTECTED :");
         Node* n=new Node(); 
         n->place = "protected";
         (yyval.node) = n; 
     }
-#line 4599 "src/parser.tab.c"
+#line 4618 "src/parser.tab.c"
     break;
 
   case 132: /* parameter_list: parameter_declaration  */
-#line 2917 "src/parser.y"
+#line 2936 "src/parser.y"
                                 { 
             dbg("parameter_list -> parameter_declaration");
             (yyval.node) = (yyvsp[0].node); 
         }
-#line 4608 "src/parser.tab.c"
+#line 4627 "src/parser.tab.c"
     break;
 
   case 133: /* parameter_list: parameter_list COMMA parameter_declaration  */
-#line 2922 "src/parser.y"
+#line 2941 "src/parser.y"
         {
             dbg("parameter_list -> parameter_list , parameter_declaration");
             Node* n = (yyvsp[-2].node);
             n->syn.insert(n->syn.end(), (yyvsp[0].node)->syn.begin(), (yyvsp[0].node)->syn.end()); 
             (yyval.node) = n;
         }
-#line 4619 "src/parser.tab.c"
+#line 4638 "src/parser.tab.c"
     break;
 
   case 134: /* parameter_declaration: return_type IDENTIFIER  */
-#line 2933 "src/parser.y"
+#line 2952 "src/parser.y"
         {
             dbg("parameter_declaration -> return_type IDENTIFIER");
             Node* n = new Node();
@@ -4627,59 +4646,59 @@ yyreduce:
             n->syn.push_back(string((yyvsp[0].str)));
             (yyval.node) = n;
         }
-#line 4631 "src/parser.tab.c"
+#line 4650 "src/parser.tab.c"
     break;
 
   case 135: /* statement: labeled_statement  */
-#line 2944 "src/parser.y"
+#line 2963 "src/parser.y"
                             { 
         dbg("statement -> labeled_statement");
         (yyval.node) = (yyvsp[0].node); }
-#line 4639 "src/parser.tab.c"
+#line 4658 "src/parser.tab.c"
     break;
 
   case 136: /* statement: compound_statement  */
-#line 2947 "src/parser.y"
+#line 2966 "src/parser.y"
                              { 
         dbg("statement -> compound_statement");
         (yyval.node) = (yyvsp[0].node); }
-#line 4647 "src/parser.tab.c"
+#line 4666 "src/parser.tab.c"
     break;
 
   case 137: /* statement: expression_statement  */
-#line 2950 "src/parser.y"
+#line 2969 "src/parser.y"
                                { 
         dbg("statement -> expression_statement");
         (yyval.node) = (yyvsp[0].node); }
-#line 4655 "src/parser.tab.c"
+#line 4674 "src/parser.tab.c"
     break;
 
   case 138: /* statement: selection_statement  */
-#line 2953 "src/parser.y"
+#line 2972 "src/parser.y"
                               { 
         dbg("statement -> selection_statement");
         (yyval.node) = (yyvsp[0].node); }
-#line 4663 "src/parser.tab.c"
+#line 4682 "src/parser.tab.c"
     break;
 
   case 139: /* statement: iteration_statement  */
-#line 2956 "src/parser.y"
+#line 2975 "src/parser.y"
                               { 
         dbg("statement -> iteration_statement");
         (yyval.node) = (yyvsp[0].node); }
-#line 4671 "src/parser.tab.c"
+#line 4690 "src/parser.tab.c"
     break;
 
   case 140: /* statement: jump_statement  */
-#line 2959 "src/parser.y"
+#line 2978 "src/parser.y"
                          { 
         dbg("statement -> jump_statement");
         (yyval.node) = (yyvsp[0].node); }
-#line 4679 "src/parser.tab.c"
+#line 4698 "src/parser.tab.c"
     break;
 
   case 141: /* labeled_statement: IDENTIFIER COLON  */
-#line 2966 "src/parser.y"
+#line 2985 "src/parser.y"
                            {
             dbg("labeled_statement -> IDENTIFIER :");
             if(!declareSymbol(string((yyvsp[-1].str)),string("label"))){
@@ -4690,30 +4709,30 @@ yyreduce:
             s->code.push_back(label + ":");
           (yyval.node) = s;
         }
-#line 4694 "src/parser.tab.c"
+#line 4713 "src/parser.tab.c"
     break;
 
   case 142: /* compound_statement: LCURLY RCURLY  */
-#line 2980 "src/parser.y"
+#line 2999 "src/parser.y"
                         {
             dbg("compound_statement -> { }");
           Node* n = new Node();
           (yyval.node) = n;
       }
-#line 4704 "src/parser.tab.c"
+#line 4723 "src/parser.tab.c"
     break;
 
   case 143: /* $@5: %empty  */
-#line 2986 "src/parser.y"
+#line 3005 "src/parser.y"
     {
         currentScope += ".";
         pushScope();
     }
-#line 4713 "src/parser.tab.c"
+#line 4732 "src/parser.tab.c"
     break;
 
   case 144: /* compound_statement: LCURLY $@5 statement_list RCURLY  */
-#line 2990 "src/parser.y"
+#line 3009 "src/parser.y"
     {
         dbg("compound_statement -> { statement_list }");
         Node* n = (yyvsp[-1].node);
@@ -4732,62 +4751,62 @@ yyreduce:
             }
         }
     }
-#line 4736 "src/parser.tab.c"
+#line 4755 "src/parser.tab.c"
     break;
 
   case 145: /* statement_list: block_item  */
-#line 3012 "src/parser.y"
+#line 3031 "src/parser.y"
                      { 
         dbg("statement_list -> block_item");
         (yyval.node) = (yyvsp[0].node); }
-#line 4744 "src/parser.tab.c"
+#line 4763 "src/parser.tab.c"
     break;
 
   case 146: /* statement_list: statement_list block_item  */
-#line 3015 "src/parser.y"
+#line 3034 "src/parser.y"
                                     {
             dbg("statement_list -> statement_list block_item");
           Node* n = (yyvsp[-1].node);
           if ((yyvsp[0].node)) n->code.insert(n->code.end(), (yyvsp[0].node)->code.begin(), (yyvsp[0].node)->code.end());
           (yyval.node) = n;
       }
-#line 4755 "src/parser.tab.c"
+#line 4774 "src/parser.tab.c"
     break;
 
   case 147: /* block_item: statement  */
-#line 3025 "src/parser.y"
+#line 3044 "src/parser.y"
                 { 
         dbg("block_item -> statement");
         (yyval.node) = (yyvsp[0].node); }
-#line 4763 "src/parser.tab.c"
+#line 4782 "src/parser.tab.c"
     break;
 
   case 148: /* block_item: declaration  */
-#line 3028 "src/parser.y"
+#line 3047 "src/parser.y"
                   { 
         dbg("block_item -> declaration");
         (yyval.node) = (yyvsp[0].node); }
-#line 4771 "src/parser.tab.c"
+#line 4790 "src/parser.tab.c"
     break;
 
   case 149: /* expression_statement: SEMICOLON  */
-#line 3034 "src/parser.y"
+#line 3053 "src/parser.y"
                     { 
         dbg("expression_statement -> ;");
         Node* n = new Node(); (yyval.node) = n; }
-#line 4779 "src/parser.tab.c"
+#line 4798 "src/parser.tab.c"
     break;
 
   case 150: /* expression_statement: expression SEMICOLON  */
-#line 3037 "src/parser.y"
+#line 3056 "src/parser.y"
                                { 
         dbg("expression_statement -> expression ;");
         (yyval.node) = (yyvsp[-1].node); }
-#line 4787 "src/parser.tab.c"
+#line 4806 "src/parser.tab.c"
     break;
 
   case 151: /* selection_statement: IF LROUND expression RROUND statement  */
-#line 3043 "src/parser.y"
+#line 3062 "src/parser.y"
                                                                   {
           dbg("selection_statement -> if ( expression ) statement");
           Node* e = (yyvsp[-2].node);
@@ -4810,11 +4829,11 @@ yyreduce:
           
           (yyval.node) = n;
       }
-#line 4814 "src/parser.tab.c"
+#line 4833 "src/parser.tab.c"
     break;
 
   case 152: /* selection_statement: IF LROUND expression RROUND statement ELSE statement  */
-#line 3065 "src/parser.y"
+#line 3084 "src/parser.y"
                                                            {
           dbg("selection_statement -> if ( expression ) statement else statement");
           Node* e = (yyvsp[-4].node);
@@ -4848,11 +4867,11 @@ yyreduce:
           backpatch(n->code, endList, Lend);
           (yyval.node) = n;
       }
-#line 4852 "src/parser.tab.c"
+#line 4871 "src/parser.tab.c"
     break;
 
   case 153: /* selection_statement: switch_head LCURLY case_list RCURLY  */
-#line 3098 "src/parser.y"
+#line 3117 "src/parser.y"
                                           {
         dbg("selection_statement -> switch_head { case_list }");
         Node* switchExpr = (yyvsp[-3].node);
@@ -4878,17 +4897,17 @@ yyreduce:
         (yyval.node) = n;
         inloop=false;
       }
-#line 4882 "src/parser.tab.c"
+#line 4901 "src/parser.tab.c"
     break;
 
   case 154: /* $@6: %empty  */
-#line 3126 "src/parser.y"
+#line 3145 "src/parser.y"
             {inloop=true;}
-#line 4888 "src/parser.tab.c"
+#line 4907 "src/parser.tab.c"
     break;
 
   case 155: /* switch_head: SWITCH $@6 LROUND assignment_expression RROUND  */
-#line 3126 "src/parser.y"
+#line 3145 "src/parser.y"
                                                                {
         dbg("switch_head -> SWITCH ( expression )");
         Node* e = (yyvsp[-1].node);
@@ -4899,21 +4918,21 @@ yyreduce:
         switchVar = e->printName;
         (yyval.node) = n;
       }
-#line 4903 "src/parser.tab.c"
+#line 4922 "src/parser.tab.c"
     break;
 
   case 156: /* case_list: %empty  */
-#line 3139 "src/parser.y"
+#line 3158 "src/parser.y"
        {
         dbg("case_list -> <empty>");
         Node* n = new Node();
         (yyval.node) = n;
       }
-#line 4913 "src/parser.tab.c"
+#line 4932 "src/parser.tab.c"
     break;
 
   case 157: /* case_list: case_list case_item  */
-#line 3144 "src/parser.y"
+#line 3163 "src/parser.y"
                           {
         dbg("case_list -> case_list case_item");
         Node* prev = (yyvsp[-1].node);
@@ -4922,11 +4941,11 @@ yyreduce:
         prev->code.insert(prev->code.end(), curr->code.begin(), curr->code.end());
         (yyval.node) = prev;
       }
-#line 4926 "src/parser.tab.c"
+#line 4945 "src/parser.tab.c"
     break;
 
   case 158: /* case_item: CASE constant_expression statement  */
-#line 3155 "src/parser.y"
+#line 3174 "src/parser.y"
                                          {
         dbg("case_item -> CASE constant_expression : statement");
         Node* caseVal = (yyvsp[-1].node);
@@ -4953,11 +4972,11 @@ yyreduce:
         
         (yyval.node) = n;
       }
-#line 4957 "src/parser.tab.c"
+#line 4976 "src/parser.tab.c"
     break;
 
   case 159: /* case_item: DEFAULT statement  */
-#line 3181 "src/parser.y"
+#line 3200 "src/parser.y"
                         {
         dbg("case_item -> DEFAULT : statement");
         Node* stmt = (yyvsp[0].node);
@@ -4977,17 +4996,17 @@ yyreduce:
         // n->code.push_back("goto __");        
         (yyval.node) = n;
       }
-#line 4981 "src/parser.tab.c"
+#line 5000 "src/parser.tab.c"
     break;
 
   case 160: /* $@7: %empty  */
-#line 3204 "src/parser.y"
+#line 3223 "src/parser.y"
                                      {inloop=true;}
-#line 4987 "src/parser.tab.c"
+#line 5006 "src/parser.tab.c"
     break;
 
   case 161: /* iteration_statement: WHILE LROUND expression RROUND $@7 statement  */
-#line 3204 "src/parser.y"
+#line 3223 "src/parser.y"
                                                              {
         dbg("iteration_statement -> WHILE ( expression ) statement");
         Node* cond = (yyvsp[-3].node); 
@@ -5024,17 +5043,17 @@ yyreduce:
         (yyval.node) = n;
         inloop=false;
     }
-#line 5028 "src/parser.tab.c"
+#line 5047 "src/parser.tab.c"
     break;
 
   case 162: /* $@8: %empty  */
-#line 3240 "src/parser.y"
+#line 3259 "src/parser.y"
                                      {inloop=true;}
-#line 5034 "src/parser.tab.c"
+#line 5053 "src/parser.tab.c"
     break;
 
   case 163: /* iteration_statement: UNTIL LROUND expression RROUND $@8 statement  */
-#line 3240 "src/parser.y"
+#line 3259 "src/parser.y"
                                                              {
         dbg("iteration_statement -> UNTIL ( expression ) statement");
         Node* cond = (yyvsp[-3].node); 
@@ -5072,17 +5091,17 @@ yyreduce:
         (yyval.node) = n;
         inloop=false;
     }
-#line 5076 "src/parser.tab.c"
+#line 5095 "src/parser.tab.c"
     break;
 
   case 164: /* $@9: %empty  */
-#line 3277 "src/parser.y"
+#line 3296 "src/parser.y"
         {inloop=true;}
-#line 5082 "src/parser.tab.c"
+#line 5101 "src/parser.tab.c"
     break;
 
   case 165: /* iteration_statement: DO $@9 statement WHILE LROUND expression RROUND SEMICOLON  */
-#line 3277 "src/parser.y"
+#line 3296 "src/parser.y"
                                                                           {
         dbg("iteration_statement -> DO statement WHILE ( expression ) ;");
         Node* body = (yyvsp[-5].node);
@@ -5118,17 +5137,17 @@ yyreduce:
         (yyval.node) = n;
         inloop=false;
     }
-#line 5122 "src/parser.tab.c"
+#line 5141 "src/parser.tab.c"
     break;
 
   case 166: /* $@10: %empty  */
-#line 3312 "src/parser.y"
+#line 3331 "src/parser.y"
                                                                      {inloop=true;}
-#line 5128 "src/parser.tab.c"
+#line 5147 "src/parser.tab.c"
     break;
 
   case 167: /* iteration_statement: for_start LROUND for_init_statement expression_statement RROUND $@10 statement  */
-#line 3312 "src/parser.y"
+#line 3331 "src/parser.y"
                                                                                               {
         dbg("iteration_statement -> FOR ( for_init_statement expression_statement ) statement");
         Node* init = (yyvsp[-4].node);
@@ -5171,17 +5190,17 @@ yyreduce:
         inloop=false;
         popScope();
     }
-#line 5175 "src/parser.tab.c"
+#line 5194 "src/parser.tab.c"
     break;
 
   case 168: /* $@11: %empty  */
-#line 3354 "src/parser.y"
+#line 3373 "src/parser.y"
                                                                                 {inloop=true;}
-#line 5181 "src/parser.tab.c"
+#line 5200 "src/parser.tab.c"
     break;
 
   case 169: /* iteration_statement: for_start LROUND for_init_statement expression_statement expression RROUND $@11 statement  */
-#line 3354 "src/parser.y"
+#line 3373 "src/parser.y"
                                                                                                         {
         dbg("iteration_statement -> FOR ( for_init_statement expression_statement expression ) statement");
         Node* init = (yyvsp[-5].node);
@@ -5227,71 +5246,71 @@ yyreduce:
         inloop=false;
         popScope();
     }
-#line 5231 "src/parser.tab.c"
+#line 5250 "src/parser.tab.c"
     break;
 
   case 170: /* for_start: FOR  */
-#line 3402 "src/parser.y"
+#line 3421 "src/parser.y"
           {
         dbg("for_start -> FOR");
         pushScope();
         Node* n = new Node();
         (yyval.node) = n;
     }
-#line 5242 "src/parser.tab.c"
+#line 5261 "src/parser.tab.c"
     break;
 
   case 171: /* for_init_statement: expression_statement  */
-#line 3411 "src/parser.y"
+#line 3430 "src/parser.y"
                                { 
         dbg("for_init_statement -> expression_statement");
         (yyval.node) = (yyvsp[0].node); }
-#line 5250 "src/parser.tab.c"
+#line 5269 "src/parser.tab.c"
     break;
 
   case 172: /* for_init_statement: declaration  */
-#line 3415 "src/parser.y"
+#line 3434 "src/parser.y"
     { 
         dbg("for_init_statement -> declaration");
         (yyval.node) = (yyvsp[0].node); }
-#line 5258 "src/parser.tab.c"
+#line 5277 "src/parser.tab.c"
     break;
 
   case 173: /* jump_statement: GOTO IDENTIFIER SEMICOLON  */
-#line 3422 "src/parser.y"
+#line 3441 "src/parser.y"
                                     {
             dbg("jump_statement -> GOTO IDENTIFIER ;");
           Node* n = new Node();
           n->code.push_back("goto " + string((yyvsp[-1].str)));
           (yyval.node) = n;
       }
-#line 5269 "src/parser.tab.c"
+#line 5288 "src/parser.tab.c"
     break;
 
   case 174: /* jump_statement: CONTINUE SEMICOLON  */
-#line 3428 "src/parser.y"
+#line 3447 "src/parser.y"
                              {
             dbg("jump_statement -> CONTINUE ;");
           Node* n = new Node(); 
           n->code.push_back("continue"); 
           (yyval.node) = n;
       }
-#line 5280 "src/parser.tab.c"
+#line 5299 "src/parser.tab.c"
     break;
 
   case 175: /* jump_statement: BREAK SEMICOLON  */
-#line 3434 "src/parser.y"
+#line 3453 "src/parser.y"
                           {
             dbg("jump_statement -> BREAK ;");
           Node* n = new Node(); 
           n->code.push_back("break"); 
           (yyval.node) = n;
       }
-#line 5291 "src/parser.tab.c"
+#line 5310 "src/parser.tab.c"
     break;
 
   case 176: /* jump_statement: RETURN SEMICOLON  */
-#line 3440 "src/parser.y"
+#line 3459 "src/parser.y"
                            {
             dbg("jump_statement -> RETURN ;");
           Node* n = new Node(); 
@@ -5300,11 +5319,11 @@ yyreduce:
           n->code.push_back("return"); 
           (yyval.node) = n;
       }
-#line 5304 "src/parser.tab.c"
+#line 5323 "src/parser.tab.c"
     break;
 
   case 177: /* jump_statement: RETURN expression SEMICOLON  */
-#line 3449 "src/parser.y"
+#line 3468 "src/parser.y"
     {
         dbg("jump_statement -> RETURN expression ;");
         Node* expr = (yyvsp[-1].node);
@@ -5341,31 +5360,31 @@ yyreduce:
         }
         (yyval.node) = n;
     }
-#line 5345 "src/parser.tab.c"
+#line 5364 "src/parser.tab.c"
     break;
 
   case 178: /* $@12: %empty  */
-#line 3490 "src/parser.y"
+#line 3509 "src/parser.y"
     {
         dbg("external_declaration -> type_specifier");
         lastDeclType = string((yyvsp[0].str));
         dbg("lastDeclType in external_declaration: " + lastDeclType);
         lastFnType = lastDeclType;
     }
-#line 5356 "src/parser.tab.c"
+#line 5375 "src/parser.tab.c"
     break;
 
   case 179: /* external_declaration: type_specifier $@12 external  */
-#line 3497 "src/parser.y"
+#line 3516 "src/parser.y"
     { 
         dbg("external_declaration -> type_specifier external");
         (yyval.node) = (yyvsp[0].node); 
     }
-#line 5365 "src/parser.tab.c"
+#line 5384 "src/parser.tab.c"
     break;
 
   case 180: /* $@13: %empty  */
-#line 3502 "src/parser.y"
+#line 3521 "src/parser.y"
     {
         dbg("external_declaration -> type_specifier pointer_list");
         lastDeclType = string((yyvsp[-1].str))+string((yyvsp[0].str));
@@ -5374,105 +5393,105 @@ yyreduce:
         dbg("lastDeclType in external_declaration: " + lastDeclType);
         dbg("");
     }
-#line 5378 "src/parser.tab.c"
+#line 5397 "src/parser.tab.c"
     break;
 
   case 181: /* external_declaration: type_specifier pointer_list $@13 external  */
-#line 3511 "src/parser.y"
+#line 3530 "src/parser.y"
     { 
         dbg("external_declaration -> type_specifier pointer_list external");
         (yyval.node) = (yyvsp[0].node); 
     }
-#line 5387 "src/parser.tab.c"
+#line 5406 "src/parser.tab.c"
     break;
 
   case 182: /* external_declaration: struct_or_class_specifier SEMICOLON  */
-#line 3516 "src/parser.y"
+#line 3535 "src/parser.y"
     { 
         dbg("external_declaration -> struct_or_class_specifier ;");
         dbg("..ll");
         (yyval.node) = (yyvsp[-1].node); 
     }
-#line 5397 "src/parser.tab.c"
+#line 5416 "src/parser.tab.c"
     break;
 
   case 183: /* external_declaration: TYPEDEF return_type IDENTIFIER SEMICOLON  */
-#line 3521 "src/parser.y"
+#line 3540 "src/parser.y"
                                                {
         dbg("external_declaration -> TYPEDEF return_type IDENTIFIER ;");
         typeSize[string((yyvsp[-1].str))] = typeSize[string((yyvsp[-2].str))];
         typeDefTable[string((yyvsp[-1].str))] = string((yyvsp[-2].str));
         (yyval.node) = new Node();
     }
-#line 5408 "src/parser.tab.c"
+#line 5427 "src/parser.tab.c"
     break;
 
   case 184: /* external_declaration: declare  */
-#line 3527 "src/parser.y"
+#line 3546 "src/parser.y"
               {
         dbg("external_declaration -> declare");
         globalCode.insert(globalCode.begin(),(yyvsp[0].node)->code.begin(),(yyvsp[0].node)->code.end());
         (yyval.node) = new Node();
     }
-#line 5418 "src/parser.tab.c"
+#line 5437 "src/parser.tab.c"
     break;
 
   case 185: /* $@14: %empty  */
-#line 3536 "src/parser.y"
+#line 3555 "src/parser.y"
     {
         dbg("declaration_specifiers -> const type_specifier");
         lastDeclType = string((yyvsp[-1].str))+string((yyvsp[0].str));
     }
-#line 5427 "src/parser.tab.c"
+#line 5446 "src/parser.tab.c"
     break;
 
   case 186: /* declare: CONST type_specifier $@14 init_declarator_list SEMICOLON  */
-#line 3541 "src/parser.y"
+#line 3560 "src/parser.y"
     {
         dbg("declaration_specifiers -> const type_specifier init_declarator_list ;");
         (yyval.node) = (yyvsp[-1].node);
     }
-#line 5436 "src/parser.tab.c"
+#line 5455 "src/parser.tab.c"
     break;
 
   case 187: /* $@15: %empty  */
-#line 3546 "src/parser.y"
+#line 3565 "src/parser.y"
     {
         dbg("declaration_specifiers -> static const type_specifier");
         lastDeclType = string((yyvsp[-2].str))+string((yyvsp[-1].str))+string((yyvsp[0].str));
     }
-#line 5445 "src/parser.tab.c"
+#line 5464 "src/parser.tab.c"
     break;
 
   case 188: /* declare: STATIC CONST type_specifier $@15 init_declarator_list SEMICOLON  */
-#line 3551 "src/parser.y"
+#line 3570 "src/parser.y"
     {
         dbg("declaration_specifiers -> static const type_specifier init_declarator_list ;");
         (yyval.node) = (yyvsp[-1].node);
     }
-#line 5454 "src/parser.tab.c"
+#line 5473 "src/parser.tab.c"
     break;
 
   case 189: /* $@16: %empty  */
-#line 3556 "src/parser.y"
+#line 3575 "src/parser.y"
     {
         dbg("declaration_specifiers -> static type_specifier");
         lastDeclType = string((yyvsp[-1].str))+string((yyvsp[0].str));
     }
-#line 5463 "src/parser.tab.c"
+#line 5482 "src/parser.tab.c"
     break;
 
   case 190: /* declare: STATIC type_specifier $@16 init_declarator_list SEMICOLON  */
-#line 3561 "src/parser.y"
+#line 3580 "src/parser.y"
     {
         dbg("declaration_specifiers -> static type_specifier init_declarator_list ;");
         (yyval.node) = (yyvsp[-1].node);
     }
-#line 5472 "src/parser.tab.c"
+#line 5491 "src/parser.tab.c"
     break;
 
   case 191: /* $@17: %empty  */
-#line 3569 "src/parser.y"
+#line 3588 "src/parser.y"
     {
         dbg("");
         dbg("lastFnType in external: " + lastFnType);
@@ -5522,11 +5541,11 @@ yyreduce:
 
         pushScope();
     }
-#line 5526 "src/parser.tab.c"
+#line 5545 "src/parser.tab.c"
     break;
 
   case 192: /* external: IDENTIFIER LROUND RROUND $@17 compound_statement  */
-#line 3619 "src/parser.y"
+#line 3638 "src/parser.y"
     {
         dbg("external -> IDENTIFIER ( ) compound_statement");
         Node* n = new Node();
@@ -5551,11 +5570,11 @@ yyreduce:
         inFunction = false;
         (yyval.node) = n;
     }
-#line 5555 "src/parser.tab.c"
+#line 5574 "src/parser.tab.c"
     break;
 
   case 193: /* $@18: %empty  */
-#line 3644 "src/parser.y"
+#line 3663 "src/parser.y"
     {
         dbg("");
         dbg("lastDeclType in external: " + lastFnType);
@@ -5631,20 +5650,34 @@ yyreduce:
             string ptype = (yyvsp[-1].node)->syn[i-1];
             bool ok = declareSymbol(pname,ptype);
             Symbol* sym = lookupSymbol(pname);
-            dbg("Parameter declared: " + pname + " of type " + ptype);
-            if(classTable.find(ptype) != classTable.end())
+            dbg("Parameter declare: " + pname + " of type " + ptype);
+            dbg(lastDeclType);
+
+            string stars = "";
+            string q = "";
+            for(char c : ptype)
             {
-                for(const auto& member : classTable[ptype])
+                if(c == '*')
+                    stars += '*';
+                else
+                    q += c;
+            }
+            dbg("q: " + q);
+            dbg("stars: " + stars);
+            if(classTable.find(q) != classTable.end())
+            {
+                dbg("abcd");
+                for(const auto& member : classTable[q])
                 {
                     if(member.second.kind == "function")
                     {
-                        string name = pname + "." + member.first;
-                        string original = pname + "." + member.second.method.original;
+                        string name = stars + pname + "." + member.first;
+                        string original = stars + pname + "." + member.second.method.original;
                         if(lookupSymbol(original) == nullptr)
                             declareSymbol(original, "function","function",vector<string>(),true);
                         dbg(original);
                         funcInfo f = member.second.method;
-                        f.place = pname + "." + f.place;
+                        f.place = stars + pname + "." + f.place;
                         dbg("zz");
                         dbg(f.place);
                         funcTable[name] = f;
@@ -5652,7 +5685,7 @@ yyreduce:
                     }
                     else
                     {
-                        string name = pname + "." + member.first;
+                        string name = stars + pname + "." + member.first;
                         bool ok = declareSymbol(name, member.second.type, member.second.kind);
 
                         if (!ok) {
@@ -5682,11 +5715,11 @@ yyreduce:
             if(!ok) yyerror("Duplicate parameter name '" + pname + "' in function '" + fname + "'.");
         }
     }
-#line 5686 "src/parser.tab.c"
+#line 5719 "src/parser.tab.c"
     break;
 
   case 194: /* external: IDENTIFIER LROUND parameter_list RROUND $@18 compound_statement  */
-#line 3771 "src/parser.y"
+#line 3804 "src/parser.y"
     {
         dbg("external -> IDENTIFIER ( parameter_list ) compound_statement");
         Node* n = new Node();
@@ -5726,11 +5759,11 @@ yyreduce:
         lastFnType="int";
         (yyval.node) = n;
     }
-#line 5730 "src/parser.tab.c"
+#line 5763 "src/parser.tab.c"
     break;
 
   case 195: /* external: init_declarator_list SEMICOLON  */
-#line 3811 "src/parser.y"
+#line 3844 "src/parser.y"
     { 
         dbg("external -> init_declarator_list ;");
         Node* n = new Node();
@@ -5743,20 +5776,20 @@ yyreduce:
         } 
         (yyval.node) = n;
     }
-#line 5747 "src/parser.tab.c"
+#line 5780 "src/parser.tab.c"
     break;
 
   case 196: /* return_type: type_specifier pointer_opt  */
-#line 3915 "src/parser.y"
+#line 3948 "src/parser.y"
     { 
         dbg("return_type -> type_specifier pointer_opt");
         (yyval.str) = strdup( (string((yyvsp[-1].str)) + string((yyvsp[0].str))).c_str() );
     }
-#line 5756 "src/parser.tab.c"
+#line 5789 "src/parser.tab.c"
     break;
 
 
-#line 5760 "src/parser.tab.c"
+#line 5793 "src/parser.tab.c"
 
       default: break;
     }
@@ -5949,7 +5982,7 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 3921 "src/parser.y"
+#line 3954 "src/parser.y"
 
 
 

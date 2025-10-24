@@ -799,7 +799,7 @@ postfix_expression
         if(obj)
         {
             string currentType = obj->type;
-            dbg("currentType is " + currentType);
+            dbg("currentname is " + obj->printName);
             if(classTable.find(currentType) == classTable.end()){
                 yyerror("Dot operator can not be applied here.");
             }
@@ -809,7 +809,15 @@ postfix_expression
             //     if(obj->place[i]=='$') idx = i;
             // }
             // obj->place.erase(0,idx+1);
-            string nm = obj->place + "." + string($3);
+
+            string stars = "";
+            int i=0;
+            dbg("currentType is " + currentType);
+            while(i<obj->printName.size() && obj->printName[i]=='*'){
+                stars += '*';
+                i++;
+            }
+            string nm = stars + obj->place + "." + string($3);
 
             dbg("2ss12121");
             dbg(nm);
@@ -2314,28 +2322,39 @@ init_declarator
         }
 
         dbg("");
-        if(classTable.find(n->type) != classTable.end())
+        if(classTable.find(lastDeclType) != classTable.end())
         {
-            for(const auto& member : classTable[n->type])
+            for(const auto& member : classTable[lastDeclType])
             {
                 if(member.second.kind == "function")
                 {
-                    string name = n->place + "." + member.first;
-                    string original = n->place + "." + member.second.method.original;
+                    string name = stars + n->place + "." + member.first;
+                    string original = stars + n->place + "." + member.second.method.original;
                     if(lookupSymbol(original) == nullptr)
                         declareSymbol(original, "function","function",vector<string>(),true);
                     dbg(original);
                     funcInfo f = member.second.method;
-                    f.place = n->place + "." + f.place;
-                    dbg("zz");
+                    f.place = stars + n->place + "." + f.place;
+                    dbg("zzw");
                     dbg(f.place);
                     funcTable[name] = f;
                     dbg("Function '" + name + "' with return type '" + funcTable[name].returnType + "' declared.");
                 }
                 else
                 {
-                    string name = n->place + "." + member.first;
+                    string name = stars + n->place + "." + member.first;
                     bool ok = declareSymbol(name, member.second.type, member.second.kind);
+
+                    if (!ok) {
+                        yyerror("Duplicate declaration of '" + name + "' in same scope.");
+                    }
+
+                    Symbol* sym = lookupSymbol(name);
+                    string w = lastClassType+currentFunction+currentScope + name;
+                    sym->printName = w;
+
+                    dbg("mmm");
+                    dbg(w);
                     dbg("Variable '" + name + "' with type '" + member.second.type + "' declared.");
                 }
             }
@@ -3716,20 +3735,34 @@ external
             string ptype = $3->syn[i-1];
             bool ok = declareSymbol(pname,ptype);
             Symbol* sym = lookupSymbol(pname);
-            dbg("Parameter declared: " + pname + " of type " + ptype);
-            if(classTable.find(ptype) != classTable.end())
+            dbg("Parameter declare: " + pname + " of type " + ptype);
+            dbg(lastDeclType);
+
+            string stars = "";
+            string q = "";
+            for(char c : ptype)
             {
-                for(const auto& member : classTable[ptype])
+                if(c == '*')
+                    stars += '*';
+                else
+                    q += c;
+            }
+            dbg("q: " + q);
+            dbg("stars: " + stars);
+            if(classTable.find(q) != classTable.end())
+            {
+                dbg("abcd");
+                for(const auto& member : classTable[q])
                 {
                     if(member.second.kind == "function")
                     {
-                        string name = pname + "." + member.first;
-                        string original = pname + "." + member.second.method.original;
+                        string name = stars + pname + "." + member.first;
+                        string original = stars + pname + "." + member.second.method.original;
                         if(lookupSymbol(original) == nullptr)
                             declareSymbol(original, "function","function",vector<string>(),true);
                         dbg(original);
                         funcInfo f = member.second.method;
-                        f.place = pname + "." + f.place;
+                        f.place = stars + pname + "." + f.place;
                         dbg("zz");
                         dbg(f.place);
                         funcTable[name] = f;
@@ -3737,7 +3770,7 @@ external
                     }
                     else
                     {
-                        string name = pname + "." + member.first;
+                        string name = stars + pname + "." + member.first;
                         bool ok = declareSymbol(name, member.second.type, member.second.kind);
 
                         if (!ok) {

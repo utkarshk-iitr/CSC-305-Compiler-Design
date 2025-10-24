@@ -10,8 +10,8 @@ A.fn_int:
 A.fn:
     return A.p
     
-fn:
-    return 7
+fn_A*_int:
+    return fn_A*_int.*a.p
     
 fn_int:
     return fn_int.a
@@ -21,13 +21,15 @@ main:
     param 4
     main.t1 = call A.fn_int, 2
     main.z = main.t1
-    param main.a
-    main.t2 = call A.fn, 1;
-    main.z = main.t2
-    param 4
-    main.t3 = call fn_int, 1
+    main.t2 = &main.a
+    main.b = main.t2
+    param main.b
+    param 7
+    main.t3 = call fn_A*_int, 2
     main.z = main.t3
-    main.t4 = call fn, 0;
+    main.*b.p = 8
+    param 4
+    main.t4 = call fn_int, 1
     main.z = main.t4
     return 100
     
