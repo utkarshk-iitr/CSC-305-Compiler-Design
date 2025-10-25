@@ -416,7 +416,7 @@
 %type<str> cast_type cast_type_specifier
 %type<str> declaration_specifiers
 %type<node> square_list members external declare 
-%type<node> switch_head case_list case_item
+%type<node> switch_head case_list case_item external_declare
 
 %start translation_unit
 
@@ -664,7 +664,9 @@ postfix_expression
                 dbg("pname is: " + pname);
                 Symbol* sybl = lookupSymbol(pname);
                 if(sybl){
-                    n->code.push_back("param " + sybl->printName);
+                    string w = newTemp();
+                    n->code.push_back(w + " = &" + sybl->printName);
+                    n->code.push_back("param " + w);
                 }
             }
 
@@ -765,7 +767,9 @@ postfix_expression
                 dbg("pname is: " + pname);
                 Symbol* sybl = lookupSymbol(pname);
                 if(sybl){
-                    n->code.push_back("param " + sybl->printName);
+                    string w = newTemp();
+                    n->code.push_back(w + " = &" + sybl->printName);
+                    n->code.push_back("param " + w);
                 }
             }
             n->code.insert(n->code.end(), args->code.begin(), args->code.end());
@@ -1847,7 +1851,10 @@ init_declarator
             n->type.erase(0,5);
             n->kind += "const";
         }
-        
+        dbg("flf");
+        if(n->type == lastClassType){
+            yyerror("Variable '" + n->place + "' cannot be of its own class type.");
+        }
         n->argCount = 0;
         dbg("333"+n->place);
         bool ok = declareSymbol(n->place, n->type, n->kind);
@@ -1859,8 +1866,10 @@ init_declarator
         string w;
         if(lastClassType=="")
             w = lastClassType+currentFunction+currentScope+n->place;
-        else
+        else if(lastClassType!="" && currentFunction!="")
             w = lastClassType+"."+currentFunction+currentScope+n->place;
+        else
+            w = "obj."+currentScope+n->place;
         sym->printName = w;
         
         if(lastClassType != "" && currentFunction == "")
@@ -1906,7 +1915,7 @@ init_declarator
                     funcTable[name] = f;
                     dbg("Function '" + name + "' with return type '" + funcTable[name].returnType + "' declared.");
                 }
-                else
+                else if(member.second.kind.find("static") == string::npos)
                 {
                     string name = n->place + "." + member.first;
                     bool ok = declareSymbol(name, member.second.type, member.second.kind);
@@ -1962,6 +1971,10 @@ init_declarator
             n->type += "*";
         }
 
+        if(lastDeclType == lastClassType){
+            yyerror("Variable '" + n->place + "' cannot be of its own class type.");
+        }
+
         bool ok = declareSymbol(n->place, n->type, n->kind, n->syn);
         if (!ok) {
             yyerror("Duplicate declaration of '" + n->place + "' in same scope.");
@@ -1971,8 +1984,11 @@ init_declarator
         string w;
         if(lastClassType=="")
             w = lastClassType+currentFunction+currentScope+n->place;
-        else
+        else if(lastClassType!="" && currentFunction!="")
             w = lastClassType+"."+currentFunction+currentScope+n->place;
+        else
+            w = "obj."+currentScope+n->place;
+
         sym->printName = w;
         
 
@@ -2026,7 +2042,7 @@ init_declarator
                     funcTable[name] = f;
                     dbg("Function '" + name + "' with return type '" + funcTable[name].returnType + "' declared.");
                 }
-                else
+                else if(member.second.kind.find("static") == string::npos)
                 {
                     string name = n->place + "." + member.first;
                     bool ok = declareSymbol(name, member.second.type, member.second.kind);
@@ -2080,8 +2096,10 @@ init_declarator
         string w;
         if(lastClassType=="")
             w = lastClassType+currentFunction+currentScope+n->place;
-        else
+        else if(lastClassType!="" && currentFunction!="")
             w = lastClassType+"."+currentFunction+currentScope+n->place;
+        else
+            w = "obj."+currentScope+n->place;
         sym->printName = w;
        
         if(lastClassType != "" && currentFunction == "")
@@ -2124,7 +2142,7 @@ init_declarator
                     funcTable[name] = f;
                     dbg("Function '" + name + "' with return type '" + funcTable[name].returnType + "' declared.");
                 }
-                else
+                else if(member.second.kind.find("static") == string::npos)
                 {
                     string name = stars + n->place + "." + member.first;
                     bool ok = declareSymbol(name, member.second.type, member.second.kind);
@@ -2176,6 +2194,10 @@ init_declarator
             yyerror("Type mismatch in initialization of '" + name + "'.");
         }
 
+        if(n->type == lastClassType){
+            yyerror("Variable '" + n->place + "' cannot be of its own class type.");
+        }
+
         bool ok = declareSymbol(n->place,n->type,n->kind);
         if (!ok) {
             yyerror("Duplicate declaration of '" + name + "' in same scope.");
@@ -2184,8 +2206,10 @@ init_declarator
         string w;
         if(lastClassType=="")
             w = lastClassType+currentFunction+currentScope+n->place;
-        else
+        else if(lastClassType!="" && currentFunction!="")
             w = lastClassType+"."+currentFunction+currentScope+n->place;
+        else
+            w = "obj."+currentScope+n->place;
         sym->printName = w;
         if($3->kind == "rvalue"){
             n->code.push_back(w + " = " + $3->place);
@@ -2235,7 +2259,7 @@ init_declarator
                     funcTable[name] = f;
                     dbg("Function '" + name + "' with return type '" + funcTable[name].returnType + "' declared.");
                 }
-                else
+                else if(member.second.kind.find("static") == string::npos)
                 {
                     string name = n->place + "." + member.first;
                     bool ok = declareSymbol(name, member.second.type, member.second.kind);
@@ -2294,8 +2318,10 @@ init_declarator
         string w;
         if(lastClassType=="")
             w = lastClassType+currentFunction+currentScope+n->place;
-        else
+        else if(lastClassType!="" && currentFunction!="")
             w = lastClassType+"."+currentFunction+currentScope+n->place;
+        else
+            w = "obj."+currentScope+n->place;
         sym->printName = w;
         n->code.push_back(w + " = " + $4->printName);
        
@@ -2340,7 +2366,7 @@ init_declarator
                     funcTable[name] = f;
                     dbg("Function '" + name + "' with return type '" + funcTable[name].returnType + "' declared.");
                 }
-                else
+                else if(member.second.kind.find("static") == string::npos)
                 {
                     string name = stars + n->place + "." + member.first;
                     bool ok = declareSymbol(name, member.second.type, member.second.kind);
@@ -2397,6 +2423,9 @@ init_declarator
             yyerror("Type mismatch in initialization of '" + name + "'.");
         }
 
+        if(lastDeclType == lastClassType){
+            yyerror("Variable '" + n->place + "' cannot be of its own class type.");
+        }
         if(p < $4->argCount){
             yyerror("Number of elements in initializer is greater than array size for '" + name + "'.");
         }
@@ -2410,8 +2439,10 @@ init_declarator
         string w;
         if(lastClassType=="")
             w = lastClassType+currentFunction+currentScope+n->place;
-        else
+        else if(lastClassType!="" && currentFunction!="")
             w = lastClassType+"."+currentFunction+currentScope+n->place;
+        else
+            w = "obj."+currentScope+n->place;
         sym->printName = w;
 
         string tmp = newTemp();
@@ -2466,10 +2497,19 @@ init_declarator
                     funcTable[name] = f;
                     dbg("Function '" + name + "' with return type '" + funcTable[name].returnType + "' declared.");
                 }
-                else
+                else if(member.second.kind.find("static") == string::npos)
                 {
                     string name = n->place + "." + member.first;
                     bool ok = declareSymbol(name, member.second.type, member.second.kind);
+
+                    if (!ok) {
+                        yyerror("Duplicate declaration of '" + name + "' in same scope.");
+                    }
+
+                    Symbol* sym = lookupSymbol(name);
+                    string w = currentFunction + currentScope + name;
+                    sym->printName = w;
+
                     dbg("Variable '" + name + "' with type '" + member.second.type + "' declared.");
                 }
             }
@@ -2711,7 +2751,11 @@ struct_or_class_specifier
     { 
         dbg("struct_or_class_specifier -> struct_or_class IDENTIFIER { struct_or_class_member_list }");
         popScope();
-        $$ = $5; 
+        vector<string> cd;
+        cd.push_back(lastClassType + "_init" + ":");
+        cd.insert(cd.end(), $5->code.begin(), $5->code.end());
+        $$ = $5;
+        $$->code = cd;
         typeSize[lastClassType] = classOffset;   // NEW: store computed size
         lastClassType.clear(); 
     }
@@ -2759,9 +2803,9 @@ struct_or_class_member
         lastUsage = string($1->place);
         $$ = $1; 
     }
-	| external_declaration 
+	| external_declare 
     {
-        dbg("struct_or_class_member -> external_declaration");
+        dbg("struct_or_class_member -> external_declare");
         dbg("lastClassType: " + lastClassType);
         dbg("");
         $$ = $1; 
@@ -3468,42 +3512,82 @@ jump_statement
     {
         dbg("jump_statement -> RETURN expression ;");
         Node* expr = $2;
+        Node* n = new Node();
         if(expr == nullptr)
             yyerror("Return statement must return a value.");
-        
-        Node* n = new Node();
-        if(lastClassType == "")
-        {
-            dbg("Return type: " + expr->type + ", Expected type: " + funcTable[currentFunction].returnType);
+        else{
+            if(lastClassType == "")
+            {
+                dbg("Return type: " + expr->type + ", Expected type: " + funcTable[currentFunction].returnType);
 
-            dbg("");
-            dbg("lastDeclType: " + lastDeclType);
-            dbg("currentFunction: " + currentFunction);
-            dbg("");
-            if(expr->type != funcTable[currentFunction].returnType){
-                yyerror("Return type mismatch in function '" + currentFunction + "'.");
+                dbg("");
+                dbg("lastDeclType: " + lastDeclType);
+                dbg("currentFunction: " + currentFunction);
+                dbg("");
+                if(expr->type != funcTable[currentFunction].returnType){
+                    yyerror("Return type mismatch in function '" + currentFunction + "'.");
+                }
+                dbg("Function '" + currentFunction + "' has return statement returning '" + expr->place + "'.");
+                n->code = expr->code;
+                n->code.push_back("return " + expr->printName);
             }
-            dbg("Function '" + currentFunction + "' has return statement returning '" + expr->place + "'.");
-            n->code = expr->code;
-            n->code.push_back("return " + expr->printName);
-        }
-        else
-        {
-            dbg("3");
-            dbg(currentFunction);
-            dbg("Return type: " + expr->type + ", Expected type: " + classTable[lastClassType][currentFunction].method.returnType);
-            if(expr->type != classTable[lastClassType][currentFunction].method.returnType){
-                yyerror("Return type mismatch in method '" + currentFunction + "'.");
+            else
+            {
+                dbg("3");
+                dbg(currentFunction);
+                dbg("Return type: " + expr->type + ", Expected type: " + classTable[lastClassType][currentFunction].method.returnType);
+                if(expr->type != classTable[lastClassType][currentFunction].method.returnType){
+                    yyerror("Return type mismatch in method '" + currentFunction + "'.");
+                }
+                dbg("Method '" + currentFunction + "' has return statement returning '" + expr->place + "'.");
+                n->code = expr->code;
+                n->code.push_back("return " + expr->printName);
             }
-            dbg("Method '" + currentFunction + "' has return statement returning '" + expr->place + "'.");
-            n->code = expr->code;
-            n->code.push_back("return " + expr->printName);
         }
         $$ = n;
     }
     ;
 
 // Done
+external_declare
+    : type_specifier
+    {
+        dbg("external_declare -> type_specifier");
+        lastDeclType = string($1);
+        dbg("lastDeclType in external_declare: " + lastDeclType);
+        lastFnType = lastDeclType;
+    } 
+    external 
+    { 
+        dbg("external_declare -> type_specifier external");
+        $$ = $3; 
+    }
+    | type_specifier pointer_list
+    {
+        dbg("external_declare -> type_specifier pointer_list");
+        lastDeclType = string($1)+string($2);
+        lastFnType = lastDeclType;
+        dbg("");
+        dbg("lastDeclType in external_declare: " + lastDeclType);
+        dbg("");
+    } 
+    external 
+    { 
+        dbg("external_declare -> type_specifier pointer_list external");
+        $$ = $4; 
+    }
+    | CONST type_specifier 
+    {
+        dbg("external_declare -> const type_specifier");
+        lastDeclType = string($1)+string($2);
+    } 
+    init_declarator_list SEMICOLON
+    {
+        dbg("external_declare -> const type_specifier init_declarator_list ;");
+        $$ = $4;
+    }
+    ; 
+
 external_declaration
 	: type_specifier
     {
@@ -3646,7 +3730,7 @@ external
 
         if(lastClassType != "")
             fname = lastClassType + "." + fname;
-        if($5->code.back().substr(0,6) != "return")
+        if($5->code.empty() || $5->code.back().substr(0,6) != "return")
         {
             yyerror("Missing return statement in function '" + fname + "'.");
         }
@@ -3825,7 +3909,7 @@ external
         dbg("lastFnType in external: " + lastFnType);
         dbg("");
 
-        if($6->code.back().substr(0,6) != "return")
+        if($6->code.empty() || $6->code.back().substr(0,6) != "return")
         {
             yyerror("Missing return statement in function '" + fname + "'.");
         }
