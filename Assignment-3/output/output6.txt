@@ -28,12 +28,12 @@ main.L2:
     main.t12 = main.i < main.n
     ifFalse main.t12 goto main.L3
     param "%lf"
-    main.t14 = main.i * 0
+    main.t14 = main.i * 8
     main.t15 = main.arr + main.t14
     main.t16 = &*main.t15
     param main.t16
     main.t17 = call scanf, 2
-    main.t18 = main.i * 0
+    main.t18 = main.i * 8
     main.t19 = main.arr + main.t18
     main.sum = main.sum + *main.t19
     main.t13 = main.i
@@ -50,7 +50,7 @@ main.L4:
     main.t23 = main.i < main.n
     ifFalse main.t23 goto main.L5
     param "%lf "
-    main.t25 = main.i * 0
+    main.t25 = main.i * 8
     main.t26 = main.arr + main.t25
     param *main.t26
     main.t27 = call printf, 2

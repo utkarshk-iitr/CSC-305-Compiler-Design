@@ -25,7 +25,7 @@ arr_prod_int*_int:
 arr_prod_int*_int.L1:
     arr_prod_int*_int.t1 = arr_prod_int*_int.i < arr_prod_int*_int.size
     ifFalse arr_prod_int*_int.t1 goto arr_prod_int*_int.L2
-    arr_prod_int*_int.t3 = arr_prod_int*_int.i * 0
+    arr_prod_int*_int.t3 = arr_prod_int*_int.i * 4
     arr_prod_int*_int.t4 = arr_prod_int*_int.arr + arr_prod_int*_int.t3
     arr_prod_int*_int.prod = arr_prod_int*_int.prod * *arr_prod_int*_int.t4
     arr_prod_int*_int.t2 = arr_prod_int*_int.i
