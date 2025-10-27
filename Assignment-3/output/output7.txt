@@ -1,5 +1,5 @@
     
-ABCD_init:
+ABCD:
     
     obj.y = 8
     
@@ -19,22 +19,28 @@ ABCD.gety:
     return obj.y
     
 main:
-    main.t1 = &main.a
-    param main.t1
+    main.t1 = &main.a;
+    param main.t1;
+    call ABCD, 1;
+    main.t2 = main.b;
+    param main.t2;
+    call ABCD, 1;
+    main.t3 = &main.a
+    param main.t3
     param 7
     call ABCD.setter_int, 2
-    main.t2 = &main.a
-    param main.t2
+    main.t4 = &main.a
+    param main.t4
     param 7
     param 8
     call ABCD.setter_int_int, 3
-    main.t3 = &main.a
-    param main.t3
-    main.t4 = call ABCD.getx, 1;
-    main.p = main.t4
     main.t5 = &main.a
     param main.t5
-    main.t6 = call ABCD.gety, 1;
-    main.q = main.t6
+    main.t6 = call ABCD.getx, 1;
+    main.p = main.t6
+    main.t7 = &main.a
+    param main.t7
+    main.t8 = call ABCD.gety, 1;
+    main.q = main.t8
     return 0
     

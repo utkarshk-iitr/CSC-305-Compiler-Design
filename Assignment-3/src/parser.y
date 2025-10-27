@@ -1899,6 +1899,10 @@ init_declarator
         dbg("");
         if(classTable.find(n->type) != classTable.end())
         {
+            string w1 = newTemp();
+            n->code.push_back(w1 + " = &" + w + ";");
+            n->code.push_back("param " + w1 + ";");
+            n->code.push_back("call " + n->type + ", 1;");
             for(const auto& member : classTable[n->type])
             {
                 if(member.second.kind == "function")
@@ -2126,6 +2130,10 @@ init_declarator
 
         if(classTable.find(lastDeclType) != classTable.end())
         {
+            string w1 = newTemp();
+            n->code.push_back(w1 + " = " + w + ";");
+            n->code.push_back("param " + w1 + ";");
+            n->code.push_back("call " + lastDeclType + ", 1;");
             for(const auto& member : classTable[lastDeclType])
             {
                 if(member.second.kind == "function")
@@ -2752,7 +2760,7 @@ struct_or_class_specifier
         dbg("struct_or_class_specifier -> struct_or_class IDENTIFIER { struct_or_class_member_list }");
         popScope();
         vector<string> cd;
-        cd.push_back(lastClassType + "_init" + ":");
+        cd.push_back(lastClassType + ":");
         cd.insert(cd.end(), $5->code.begin(), $5->code.end());
         $$ = $5;
         $$->code = cd;

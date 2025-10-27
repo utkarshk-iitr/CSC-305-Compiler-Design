@@ -470,6 +470,44 @@ Debug: declaration -> declaration_specifiers init_declarator_list ;
 Debug: ABCD
 Debug: block_item -> declaration
 Debug: statement_list -> block_item
+Debug: type_specifier -> TYPE_NAME
+Debug: User defined type found: ABCD
+Debug: declaration_specifiers -> type_specifier
+Debug: ABCD
+Debug: pointer_list -> *
+Debug: init_declarator -> pointer_list IDENTIFIER 
+Debug: 
+Debug: Declared pointer: b of type: ABCD* and kind: pointer
+Debug: 
+Debug: *b.gety
+Debug: zzw
+Debug: *b.gety
+Debug: Function '*b.gety' with return type 'int' declared.
+Debug: *b.setter
+Debug: zzw
+Debug: *b.setter_int_int
+Debug: Function '*b.setter_int_int' with return type 'void' declared.
+Debug: mmm
+Debug: main.*b.y
+Debug: Variable '*b.y' with type 'int' declared.
+Debug: *b.getx
+Debug: zzw
+Debug: *b.getx
+Debug: Function '*b.getx' with return type 'int' declared.
+Debug: *b.setter
+Debug: zzw
+Debug: *b.setter_int
+Debug: Function '*b.setter_int' with return type 'void' declared.
+Debug: mmm
+Debug: main.*b.x
+Debug: Variable '*b.x' with type 'int' declared.
+Debug: 
+Debug: init_declarator_list -> init_declarator
+Debug: ABCD
+Debug: declaration -> declaration_specifiers init_declarator_list ;
+Debug: ABCD
+Debug: block_item -> declaration
+Debug: statement_list -> statement_list block_item
 Debug: primary_expression -> IDENTIFIER
 Debug: a
 Debug: 
