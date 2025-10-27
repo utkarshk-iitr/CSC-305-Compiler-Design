@@ -585,12 +585,13 @@ postfix_expression
             
             // Handle array parameters (which don't have dimension info in syn)
             if(base->syn.empty()){
+                type = type.substr(0,type.size()-1);
                 // For arrays passed as parameters, just do simple pointer arithmetic
                 n->code.push_back(offset + " = " + idx->printName + " * " + to_string(typeSize[type]));
                 n->place = newTemp();
                 n->printName = n->place;
                 n->code.push_back(n->place + " = " + base->printName + " + " + offset);
-                n->type = type.substr(0,type.size()-1);
+                n->type = type;
                 n->kind = base->kind;
                 n->place = "*" + n->place;
                 n->printName = "*" + n->printName;
@@ -4076,3 +4077,4 @@ int main(int argc, char** argv){
 
     return 0;
 }
+
