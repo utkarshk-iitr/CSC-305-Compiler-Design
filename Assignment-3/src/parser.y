@@ -67,7 +67,7 @@
     unordered_map<string,string> typeDefTable;
 
     unordered_map<string,int> typeSize = {
-        {"int", 4}, {"char", 1}, {"bool", 1}, {"double", 8}, {"string", 8}, {"nullptr", 8}
+        {"int", 4}, {"char", 1}, {"bool", 1}, {"double", 8}, {"long", 8}, {"nullptr", 8}
     };
     
     vector<string> errors;
