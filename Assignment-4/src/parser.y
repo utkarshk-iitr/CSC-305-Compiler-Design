@@ -1884,13 +1884,13 @@ init_declarator
                 yyerror("Duplicate declaration of member '" + n->place + "' in class '" + lastClassType + "'.");
             } else 
             {
+                w = "this + " + to_string(classOffset);
+                sym->printName = w;
                 classTable[lastClassType][n->place].offset = classOffset;
                 classOffset += typeSize[n->type];
                 classTable[lastClassType][n->place].type = n->type;
                 classTable[lastClassType][n->place].kind = lastUsage;
             }
-            w = "this + " + to_string(classOffset);
-            sym->printName = w;
         }
         else
         {
@@ -2000,12 +2000,12 @@ init_declarator
         
         Symbol* sym = lookupSymbol(n->place);
         string w;
-        if(lastClassType=="")
-            w = lastClassType+currentFunction+currentScope+n->place;
-        else if(lastClassType!="" && currentFunction!="")
-            w = lastClassType+"."+currentFunction+currentScope+n->place;
-        else
-            w = "obj."+currentScope+n->place;
+        // if(lastClassType=="")
+        //     w = lastClassType+currentFunction+currentScope+n->place;
+        // else if(lastClassType!="" && currentFunction!="")
+        //     w = lastClassType+"."+currentFunction+currentScope+n->place;
+        // else
+        //     w = "obj."+currentScope+n->place;
 
         sym->printName = w;
         
@@ -2017,6 +2017,8 @@ init_declarator
             } 
             else 
             {
+                w = "this + " + to_string(classOffset);
+                sym->printName = w;
                 classTable[lastClassType][n->place].offset = classOffset;
                 int p = 1;
                 for(int i = 0; i < n->argCount; i++)
@@ -2039,7 +2041,7 @@ init_declarator
             {
                 q *= stoi(n->syn[i]);
             }
-            functionOffset += p * typeSize[n->type.substr(0, n->type.size() - n->argCount)];
+            functionOffset += q * typeSize[n->type.substr(0, n->type.size() - n->argCount)];
             sym->printName = w;
         }
 
@@ -2126,12 +2128,12 @@ init_declarator
 
         Symbol* sym = lookupSymbol(n->place);
         string w;
-        if(lastClassType=="")
-            w = lastClassType+currentFunction+currentScope+n->place;
-        else if(lastClassType!="" && currentFunction!="")
-            w = lastClassType+"."+currentFunction+currentScope+n->place;
-        else
-            w = "obj."+currentScope+n->place;
+        // if(lastClassType=="")
+        //     w = lastClassType+currentFunction+currentScope+n->place;
+        // else if(lastClassType!="" && currentFunction!="")
+        //     w = lastClassType+"."+currentFunction+currentScope+n->place;
+        // else
+        //     w = "obj."+currentScope+n->place;
         sym->printName = w;
        
         if(lastClassType != "" && currentFunction == "")
@@ -2141,11 +2143,22 @@ init_declarator
             } 
             else 
             {
+                w = "this + " + to_string(classOffset);
+                sym->printName = w;
                 classTable[lastClassType][n->place].offset = classOffset;
                 classOffset += typeSize["nullptr"];
                 classTable[lastClassType][n->place].type = n->type;
                 classTable[lastClassType][n->place].kind = lastUsage;
             }
+        }
+        else
+        {
+            int p = functionOffset;
+            for(int i = 0; i < offset.size(); i++)
+                p += offset[i];
+            w = "spr - " + to_string(p);
+            functionOffset += typeSize["nullptr"];
+            sym->printName = w;
         }
 
         dbg("");
@@ -2240,12 +2253,12 @@ init_declarator
         }
         Symbol* sym = lookupSymbol(n->place);
         string w;
-        if(lastClassType=="")
-            w = lastClassType+currentFunction+currentScope+n->place;
-        else if(lastClassType!="" && currentFunction!="")
-            w = lastClassType+"."+currentFunction+currentScope+n->place;
-        else
-            w = "obj."+currentScope+n->place;
+        // if(lastClassType=="")
+        //     w = lastClassType+currentFunction+currentScope+n->place;
+        // else if(lastClassType!="" && currentFunction!="")
+        //     w = lastClassType+"."+currentFunction+currentScope+n->place;
+        // else
+        //     w = "obj."+currentScope+n->place;
         sym->printName = w;
         if($3->kind == "rvalue"){
             n->code.push_back(w + " = " + $3->place);
@@ -2258,14 +2271,24 @@ init_declarator
         {
             if(classTable[lastClassType].find(n->place) != classTable[lastClassType].end()){
                 yyerror("Duplicate declaration of member '" + n->place + "' in class '" + lastClassType + "'.");
-            } 
-            else 
+            } else 
             {
+                w = "this + " + to_string(classOffset);
+                sym->printName = w;
                 classTable[lastClassType][n->place].offset = classOffset;
                 classOffset += typeSize[n->type];
                 classTable[lastClassType][n->place].type = n->type;
                 classTable[lastClassType][n->place].kind = lastUsage;
             }
+        }
+        else
+        {
+            int p = functionOffset;
+            for(int i = 0; i < offset.size(); i++)
+                p += offset[i];
+            w = "spr - " + to_string(p);
+            functionOffset += typeSize[n->type];
+            sym->printName = w;
         }
 
         dbg("");
@@ -2352,12 +2375,12 @@ init_declarator
 
         Symbol* sym = lookupSymbol(n->place);
         string w;
-        if(lastClassType=="")
-            w = lastClassType+currentFunction+currentScope+n->place;
-        else if(lastClassType!="" && currentFunction!="")
-            w = lastClassType+"."+currentFunction+currentScope+n->place;
-        else
-            w = "obj."+currentScope+n->place;
+        // if(lastClassType=="")
+        //     w = lastClassType+currentFunction+currentScope+n->place;
+        // else if(lastClassType!="" && currentFunction!="")
+        //     w = lastClassType+"."+currentFunction+currentScope+n->place;
+        // else
+        //     w = "obj."+currentScope+n->place;
         sym->printName = w;
         n->code.push_back(w + " = " + $4->printName);
        
@@ -2368,11 +2391,22 @@ init_declarator
             } 
             else 
             {
+                w = "this + " + to_string(classOffset);
+                sym->printName = w;
                 classTable[lastClassType][n->place].offset = classOffset;
                 classOffset += typeSize["nullptr"];
                 classTable[lastClassType][n->place].type = n->type;
                 classTable[lastClassType][n->place].kind = lastUsage;
             }
+        }
+        else
+        {
+            int p = functionOffset;
+            for(int i = 0; i < offset.size(); i++)
+                p += offset[i];
+            w = "spr - " + to_string(p);
+            functionOffset += typeSize["nullptr"];
+            sym->printName = w;
         }
 
         dbg("");
@@ -2473,12 +2507,12 @@ init_declarator
 
         Symbol* sym = lookupSymbol(n->place);
         string w;
-        if(lastClassType=="")
-            w = lastClassType+currentFunction+currentScope+n->place;
-        else if(lastClassType!="" && currentFunction!="")
-            w = lastClassType+"."+currentFunction+currentScope+n->place;
-        else
-            w = "obj."+currentScope+n->place;
+        // if(lastClassType=="")
+        //     w = lastClassType+currentFunction+currentScope+n->place;
+        // else if(lastClassType!="" && currentFunction!="")
+        //     w = lastClassType+"."+currentFunction+currentScope+n->place;
+        // else
+        //     w = "obj."+currentScope+n->place;
         sym->printName = w;
 
         string tmp = newTemp();
@@ -2496,12 +2530,34 @@ init_declarator
             } 
             else 
             {
+                w = "this + " + to_string(classOffset);
+                sym->printName = w;
                 classTable[lastClassType][n->place].offset = classOffset;
+                int p = 1;
+                for(int i = 0; i < n->argCount; i++)
+                {
+                    p *= stoi(n->syn[i]);
+                }
                 classOffset += p * typeSize[n->type.substr(0, n->type.size() - n->argCount)];
                 classTable[lastClassType][n->place].type = n->type;
                 classTable[lastClassType][n->place].kind = lastUsage;
             }
         }
+        else
+        {
+            int p = functionOffset;
+            for(int i = 0; i < offset.size(); i++)
+                p += offset[i];
+            w = "spr - " + to_string(p);
+            int q = 1;
+            for(int i = 0; i < n->argCount; i++)
+            {
+                q *= stoi(n->syn[i]);
+            }
+            functionOffset += q * typeSize[n->type.substr(0, n->type.size() - n->argCount)];
+            sym->printName = w;
+        }
+
 
         dbg("");
         dbg("Declared array: " + n->place + " of type: " + n->type + " and kind: " + n->kind);

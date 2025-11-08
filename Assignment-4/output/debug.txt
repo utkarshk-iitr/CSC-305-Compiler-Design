@@ -54,7 +54,7 @@ Debug: Type: int
 Debug: Kind: 
 Debug: Dimensions: 0
 Debug: 
-Debug: this + 4 this + 4
+Debug: this + 0 this + 0
 Debug: postfix_expression -> primary_expression
 Debug: unary_expression -> postfix_expression
 Debug: assignment_operator -> =
@@ -82,7 +82,7 @@ Debug: assignment_expression -> conditional_expression
 Debug: assignment_expression -> unary_expression assignment_operator assignment_expression
 Debug: 11:
 Debug: abcdefgh
-Debug: this + 4
+Debug: this + 0
 Debug: expression -> assignment_expression
 Debug: expression_statement -> expression ;
 Debug: statement -> expression_statement
@@ -131,7 +131,7 @@ Debug: Type: int
 Debug: Kind: 
 Debug: Dimensions: 0
 Debug: 
-Debug: this + 4 this + 4
+Debug: this + 0 this + 0
 Debug: postfix_expression -> primary_expression
 Debug: unary_expression -> postfix_expression
 Debug: cast_expression -> unary_expression

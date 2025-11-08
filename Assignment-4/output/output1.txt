@@ -2,8 +2,8 @@
 A:
     
 A.fn:
-    this + 4 = 10
-    spr - 0 = this + 4
+    this + 0 = 10
+    spr - 0 = this + 0
     return
     
 main:
