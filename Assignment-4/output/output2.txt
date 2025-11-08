@@ -1,0 +1,62 @@
+    
+main:
+    param "%d"
+    main.t1 = &spr - 0
+    param main.t1
+    main.t2 = call scanf, 2
+    main.t3 = spr - 0 >= 6
+    ifFalse main.t3 goto main.L3
+    param "%s"
+    param "passed"
+    main.t4 = call printf, 2
+    goto main.L4
+main.L3:
+    main.t5 = spr - 0 >= 4
+    ifFalse main.t5 goto main.L1
+    param "%s"
+    param "promoted"
+    main.t6 = call printf, 2
+    goto main.L2
+main.L1:
+    param "%s"
+    param "failed"
+    main.t7 = call printf, 2
+main.L2:
+main.L4:
+    main.t8 = spr - 0 >= 6
+    ifFalse main.t8 goto main.L7
+    main.t11 = 2
+    goto main.L8
+main.L7:
+    main.t9 = spr - 0 >= 4
+    ifFalse main.t9 goto main.L5
+    main.t10 = 1
+    goto main.L6
+main.L5:
+    main.t10 = 0
+main.L6:
+    main.t11 = main.t10
+main.L8:
+    main.tag = main.t11
+    if main.tag == 2 goto main.L9
+    if main.tag == 1 goto main.L10
+    goto main.L11
+    goto main.L12
+main.L9:
+    param "%s"
+    param "passed"
+    main.t12 = call printf, 2
+    goto main.L12
+main.L10:
+    param "%s"
+    param "promoted"
+    main.t13 = call printf, 2
+    goto main.L12
+main.L11:
+    param "%s"
+    param "failed"
+    main.t14 = call printf, 2
+    goto main.L12
+main.L12:
+    return 0
+    

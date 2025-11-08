@@ -1,0 +1,56 @@
+int main() {
+    printf("For Loop:\n");
+    for (int i = 0; i < 10; i++) {
+        if (i == 5) continue;
+        if (i == 8) break;
+        printf("%d ", i);
+    }
+
+    printf("\n\nWhile Loop:\n");
+    int i = 0;
+    while (i < 10) {
+        if (i == 3) {
+            i++;
+            continue;
+        }
+        if (i == 7) break;
+        printf("%d ", i);
+        i++;
+    }
+
+    printf("\n\nDo-While Loop:\n");
+    i = 0;
+    do {
+        if (i == 2) {
+            i++;
+            continue;
+        }
+        if (i == 6) break;
+        printf("%d ", i);
+        i++;
+    } while (i < 10);
+
+    printf("\n\nUntil Loop:\n");
+    i = 0;
+    until(i>=10){
+        if (i == 2) {
+            i++;
+            continue;
+        }
+        if (i == 6) break;
+        printf("%d ", i);
+        i++;
+    }
+
+    printf("\n\nGoto Statement:\n");
+    i = 0;
+start:
+    if (i == 4) goto end;
+    printf("%d ", i);
+    i++;
+    if (i < 10) goto start;
+end:
+    printf("\nEnd of program\n");
+
+    return 0;
+}

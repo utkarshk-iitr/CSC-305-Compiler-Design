@@ -1,0 +1,32 @@
+typedef double flt;
+
+int main() {
+    int n;
+    flt sum = 0.00;
+
+    printf("Enter the number of elements: ");
+    scanf("%d", &n);
+
+    flt* arr = (flt*)malloc(n * sizeof(flt));
+
+    if (arr == (flt*)nullptr) {
+        printf("Memory allocation failed!\n");
+        return 1;
+    }
+    printf("Enter %d numbers:\n", n);
+    for (int i = 0; i < n; i++) {
+        scanf("%lf", &arr[i]);
+        sum += arr[i];
+    }
+
+    flt avg = sum / (flt)n;
+
+    printf("\nYou entered: ");
+    for (int i = 0; i < n; i++) {
+        printf("%lf ", arr[i]);
+    }
+    printf("\nSum = %lf\nAverage = %lf\n", sum, avg);
+    free(arr);
+
+    return 0;
+}

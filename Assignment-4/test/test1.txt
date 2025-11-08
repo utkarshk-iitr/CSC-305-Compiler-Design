@@ -1,0 +1,29 @@
+class A{
+    public:
+    int a;
+    void fn()
+    {
+        a = 10;
+        int c;
+        c = a;
+        return;
+    }
+};
+
+int main() {
+    int a,c;
+    a = 5;
+    char b;
+    b = 'a';
+    {
+        int e;
+        e = a;
+    }
+    int f;
+    f = a;
+
+    int g;
+    g = a;
+
+    return 0;
+}

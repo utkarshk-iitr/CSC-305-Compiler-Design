@@ -1,0 +1,43 @@
+    
+ABCD:
+    
+    obj.y = 8
+    
+ABCD.setter_int:
+    this + 4 = ABCD.setter_int.a
+    return
+    
+ABCD.setter_int_int:
+    this + 4 = ABCD.setter_int_int.a
+    obj.y = ABCD.setter_int_int.b
+    return
+    
+ABCD.getx:
+    return this + 4
+    
+ABCD.gety:
+    return obj.y
+    
+main:
+    main.t1 = &spr - 0;
+    param main.t1;
+    call ABCD, 1;
+    main.t2 = &spr - 0
+    param main.t2
+    param 7
+    call ABCD.setter_int, 2
+    main.t3 = &spr - 0
+    param main.t3
+    param 7
+    param 8
+    call ABCD.setter_int_int, 3
+    main.t4 = &spr - 0
+    param main.t4
+    main.t5 = call ABCD.getx, 1;
+    main.p = main.t5
+    main.t6 = &spr - 0
+    param main.t6
+    main.t7 = call ABCD.gety, 1;
+    main.q = main.t7
+    return 0
+    

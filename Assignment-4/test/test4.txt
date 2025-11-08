@@ -1,0 +1,29 @@
+int main() {
+    int arr[3] = {1, 2, 3};
+    char mat[2][2] = {'w','x','y','z'};
+    int *p = arr;
+    int **pp = &p;
+
+    printf("Integer Array:\n");
+    for (int i = 0; i < 3; i++) {
+        printf("%d ", arr[i]);
+    }
+    printf("\n");
+
+    printf("Multidimensional Array:\n");
+    for (int i = 0; i < 2; i++) {
+        for (int j = 0; j < 2; j++) {
+            printf("%d ", mat[i][j]);
+        }
+        printf("\n");
+    }
+
+    printf("Pointer:\n");
+    printf("%d\n", *p);
+    printf("%d\n", *(p + 1));
+
+    printf("Multilevel Pointer:\n");
+    printf("%d\n", **pp);
+
+    return 0;
+}

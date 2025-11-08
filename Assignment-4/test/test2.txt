@@ -1,0 +1,29 @@
+int main(){
+    int x;
+    scanf("%d", &x);
+    if(x>=6){
+        printf("%s", "passed");
+    } else if(x>=4){
+        printf("%s", "promoted");
+    } else {
+        printf("%s", "failed");
+    }
+
+    int tag = (x >= 6) ? 2 : (x >= 4) ? 1 : 0;
+    switch (tag) {
+        case 2{
+            printf("%s", "passed");
+            break;
+        }
+        case 1{
+            printf("%s", "promoted");
+            break;
+        }
+        default{
+            printf("%s", "failed");
+            break;
+        }
+    }
+
+    return 0;
+}
