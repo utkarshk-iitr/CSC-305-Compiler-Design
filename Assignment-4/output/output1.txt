@@ -1,16 +1,32 @@
     
-A:
     
-A.fn:
-    this + 0 = 10
-    spr - 0 = this + 0
-    return
+A.fn_int_char:
+    push ebp
+    mov ebp, esp
+    sub esp, 16
+    [ebp - 4] = char_to_int [ebp + 8]
+    [ebp + 9] = [ebp + 9] + [ebp - 4]
+    [ebp - 8] = [ebp + 9] + [ecx + 0]
+    [ebp - 12] = [ebp - 8] + [ecx + 0]
+    [ebp - 16] = [ebp - 12] + 5
+    add esp, 16
+    return [ebp - 16]
     
-main:
-    spr - 0 = 5
-    spr - 8 = 'a'
-    spr - 9 = spr - 0
-    spr - 9 = spr - 0
-    spr - 13 = spr - 0
+main_int:
+    push ebp
+    mov ebp, esp
+    sub esp, 28
+    [ebp - 4] = [ebp + 8]
+    lea ecx , [ebp - 8]
+    sub esp, 4
+    param esp , [ebp - 4]
+    sub esp, 1
+    param esp , 'a'
+    [ebp - 12] = call A.fn_int_char, 3
+    add esp, 5
+    [ebp - 4] = [ebp - 12]
+    [ebp - 20] = &[ebp - 4]
+    [ebp - 28] = [ebp - 20]
+    add esp, 28
     return 0
     

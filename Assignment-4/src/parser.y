@@ -85,26 +85,13 @@
     static string switchVar = "";
     static bool inloop = false;
     static bool inFunction = false;
+    static bool funcOnce = false;
 
     vector<string> globalCode;
     vector<int> offset;
 
     Node* finalRoot = nullptr;
 
-    string newTemp() {
-        if (currentFunction == "") {
-            return "global.t" + to_string(++globalTemp);
-        } else {
-            return currentFunction + ".t" + to_string(++localTemp);
-        }
-    }
-    string newLabel() {
-        if (currentFunction == "") {
-            return "global.L" + to_string(++globalLabel);
-        } else {
-            return currentFunction + ".L" + to_string(++localLabel);
-        }
-    }
 
     ofstream dbgfile("debug.txt");
     void dbg(const string &msg) {
@@ -166,6 +153,57 @@
         return true;
     }
 
+    string newTemp(string type="int") {
+        if(type.back()=='*'){
+            type = "nullptr";
+        }
+        if (currentFunction == "") {
+            string s = "global.t" + to_string(++globalTemp);
+            declareSymbol(s, type, "temp");
+            auto sym = lookupSymbol(s);
+            if(lastClassType != "" && currentFunction == "")
+            {
+                string w = "[this + " + to_string(classOffset) + "]";
+                classOffset += typeSize[type];
+                classTable[lastClassType][s].offset = classOffset;
+                classTable[lastClassType][s].type = type;
+                classTable[lastClassType][s].kind = "temp";
+                sym->printName = w;
+                sym->name = w;
+            }
+            else
+            {
+                functionOffset += typeSize[type];
+                int p = functionOffset;
+                for(int i = 0; i < offset.size(); i++)
+                    p += offset[i];
+                string w = "[ebp - " + to_string(p) + "]";
+                sym->printName = w;
+                sym->name = w;
+            }
+            return sym->printName;
+        } else {
+            string s = "global.t" + to_string(++globalTemp);
+            declareSymbol(s, type, "temp");
+            auto sym = lookupSymbol(s);
+            functionOffset += typeSize[type];
+            int p = functionOffset;
+            for(int i = 0; i < offset.size(); i++)
+                p += offset[i];
+            string w = "[ebp - " + to_string(p) + "]";
+            sym->printName = w;
+            sym->name = w;
+            return w;
+        }
+    }
+
+    string newLabel() {
+        if (currentFunction == "") {
+            return "global.L" + to_string(++globalLabel);
+        } else {
+            return currentFunction + ".L" + to_string(++localLabel);
+        }
+    }
     extern int yylineno;
     void yyerror(string s) {
         errors.push_back(string("Error at line ") + to_string(yylineno) + " : " + s);
@@ -462,6 +500,11 @@ primary_expression
             n->syn = sym->dim;
             n->place = sym->name;
             n->printName = sym->printName;
+            // if(sym->printName.find("this")!=string::npos)
+            // {
+            //     string temp = newTemp(n->type + string("*"));
+            //     n->code.push_back(temp + " = &" + sym->printName);
+            // }
             dbg(n->printName + " " + sym->printName);
         }
         // dbg("n->place is " + n->place + ", n->name is " + name);
@@ -583,14 +626,14 @@ postfix_expression
             n->code.insert(n->code.end(), idx->code.begin(), idx->code.end());
             
             string type = base->type.substr(0, base->type.size()-base->syn.size());
-            string offset = newTemp();
+            string offset = newTemp(type);
             
             // Handle array parameters (which don't have dimension info in syn)
             if(base->syn.empty()){
                 type = type.substr(0,type.size()-1);
                 // For arrays passed as parameters, just do simple pointer arithmetic
                 n->code.push_back(offset + " = " + idx->printName + " * " + to_string(typeSize[type]));
-                n->place = newTemp();
+                n->place = newTemp(type);
                 n->printName = n->place;
                 n->code.push_back(n->place + " = " + base->printName + " + " + offset);
                 n->type = type;
@@ -615,10 +658,10 @@ postfix_expression
                 p /= stoi(base->syn.front());
                 n->code.push_back(offset + " = " + idx->printName + " * " + to_string(p));
                 n->code.push_back(offset + " = " + offset +" * "+to_string(typeSize[type]));
-                n->place = newTemp();
+                n->type = base->type.substr(0,base->type.size()-1);
+                n->place = newTemp(n->type);
                 n->printName = n->place;
                 n->code.push_back(n->place + " = " + base->printName + " + " + offset);
-                n->type = base->type.substr(0,base->type.size()-1);
                 n->kind = base->kind;
                 n->syn = vector<string>(base->syn.begin()+1, base->syn.end());
                 
@@ -666,11 +709,11 @@ postfix_expression
                 pname = pname.substr(0,i);
                 dbg("pname is: " + pname);
                 Symbol* sybl = lookupSymbol(pname);
-                if(sybl){
-                    string w = newTemp();
-                    n->code.push_back(w + " = &" + sybl->printName);
-                    n->code.push_back("param " + w);
-                }
+                // if(sybl){
+                //     string w = newTemp(n->type);
+                //     n->code.push_back(w + " = &" + sybl->printName);
+                //     n->code.push_back("param " + w);
+                // }
             }
 
             if(fun->type=="void"){
@@ -680,7 +723,7 @@ postfix_expression
                     n->code.push_back("call " + funcTable[funcName].printName + ", 0;");
             }
             else{
-                n->place = newTemp();
+                n->place = newTemp(n->type);
                 if(flg)
                     n->code.push_back(n->place + " = call " + funcTable[funcName].printName + ", 1;");
                 else
@@ -726,7 +769,7 @@ postfix_expression
                     if(args->argCount!=1 || args->syn[0]!="int"){
                         yyerror("malloc expects a single integer argument.");
                     }
-                    n->place = newTemp();
+                    n->place = newTemp(n->type);
                     n->code.push_back(n->place + " = call malloc, " + to_string(args->argCount));
                     n->type = "void*";
                 }
@@ -738,7 +781,7 @@ postfix_expression
                     n->type = "void";
                 }
                 else{
-                    n->place = newTemp();
+                    n->place = newTemp(s->returnType);
                     n->code.push_back(n->place + " = call " + original + ", " + to_string(args->argCount));
                 }
             }
@@ -770,9 +813,8 @@ postfix_expression
                 dbg("pname is: " + pname);
                 Symbol* sybl = lookupSymbol(pname);
                 if(sybl){
-                    string w = newTemp();
-                    n->code.push_back(w + " = &" + sybl->printName);
-                    n->code.push_back("param " + w);
+                    // string w = newTemp(n->type);
+                    n->code.push_back("lea ecx , " + sybl->printName);
                 }
             }
             n->code.insert(n->code.end(), args->code.begin(), args->code.end());
@@ -785,7 +827,9 @@ postfix_expression
                     n->code.push_back("call " + funcTable[name].printName + ", " + to_string(args->argCount));
             }
             else{
-                n->place = newTemp();
+                dbg(to_string(functionOffset) + " poi");
+                n->place = newTemp(s->returnType);
+                dbg(to_string(functionOffset) + " poi");
                 n->kind = "rvalue";
                 dbg("mnb");
                 dbg(funcTable[name].printName);
@@ -795,6 +839,12 @@ postfix_expression
                     n->code.push_back(n->place + " = call " + funcTable[name].printName + ", " + to_string(args->argCount));
             }
         }
+        int argsum = 0;
+        for(int i=0;i<args->argCount;i++){
+            argsum += typeSize[args->syn[i]];
+        }
+        n->code.push_back("add esp, " + to_string(argsum));
+        // functionOffset -= argsum;
         n->kind = "rvalue";
         n->printName = n->place;
         $$ = n;
@@ -924,7 +974,7 @@ postfix_expression
         }
         Node* n = new Node();
         n->code = v->code;
-        string old = newTemp();
+        string old = newTemp(v->type);
         n->code.push_back(old + " = " + v->printName);          // load old value from address
         n->code.push_back(v->printName + " = " + old + " + 1;");      // store back incremented value
         n->place = old;
@@ -948,7 +998,7 @@ postfix_expression
         }
         Node* n = new Node();
         n->code = v->code;
-        string old = newTemp();
+        string old = newTemp(v->type);
         n->code.push_back(old + " = " + v->printName);          // load old value from address
         n->code.push_back(v->printName + " = " + old + " - 1;");      // store back incremented value
         n->place = old;
@@ -972,10 +1022,14 @@ argument_expression_list
         n->syn.push_back(e->type);
         n->argCount = 1;
         if(e->kind == "rvalue"){
-            n->code.push_back("param " + e->place);
+            // functionOffset += typeSize[e->type];
+            n->code.push_back("sub esp, " + to_string(typeSize[e->type]));
+            n->code.push_back("param esp , " + e->place);
         }
         else{
-            n->code.push_back("param " + e->printName);
+            // functionOffset += typeSize[e->type];
+            n->code.push_back("sub esp, " + to_string(typeSize[e->type]));
+            n->code.push_back("param esp , " + e->printName);
         }
         n->type = e->type;
         dbg("");
@@ -995,10 +1049,14 @@ argument_expression_list
         n->argCount = n->argCount + 1;
         n->syn.push_back(e->type);
         if(e->kind == "rvalue"){
-            n->code.push_back("param " + e->place);
+            // functionOffset += typeSize[e->type];
+            n->code.push_back("sub esp, " + to_string(typeSize[e->type]));
+            n->code.push_back("param esp , " + e->place);
         }
         else{
-            n->code.push_back("param " + e->printName);
+            // functionOffset += typeSize[e->type];
+            n->code.push_back("sub esp, " + to_string(typeSize[e->type]));
+            n->code.push_back("param esp , " + e->printName);
         }
         dbg("argcount is " + to_string(n->argCount) + ", type is " + e->type);
         dbg(e->place+"-"+e->printName);
@@ -1062,7 +1120,7 @@ unary_expression
             if(rhs->kind.find("rvalue")!=string::npos){
                   yyerror("Cannot take address of rvalue.");
               }
-            n->place = newTemp();
+            n->place = newTemp("nullptr");
             n->code.push_back(n->place + " = &" + rhs->printName);
             n->type = rhs->type + "*";
             n->kind = "rvalue";
@@ -1081,19 +1139,19 @@ unary_expression
             n->type = rhs->type;
             n->kind = "rvalue";
         } else if (op == "-") {
-            n->place = newTemp();
+            n->place = newTemp(rhs->type);
             dbg(rhs->place+"---"+rhs->printName);
             n->code.push_back(n->place + " = 0 - " + rhs->printName);
             n->type = rhs->type;
             n->printName = n->place;
             n->kind = "rvalue";
         } else if (op == "~") {
-            n->place = newTemp();
+            n->place = newTemp(rhs->type);
             n->code.push_back(n->place + " = ~" + rhs->printName);
             n->type = rhs->type;
             n->kind = "rvalue";
         } else if (op == "!") {
-            n->place = newTemp();
+            n->place = newTemp("bool");
             n->code.push_back(n->place + " = !" + rhs->printName);
             n->type = "bool";
             n->kind = "rvalue";
@@ -1104,12 +1162,13 @@ unary_expression
     {
         dbg("unary_expression -> sizeof ( unary_expression )");
         Node* n = new Node(); 
-        n->place = newTemp(); 
+        n->place = newTemp($3->type); 
         n->code = $3->code;
         string t = $3->type;
         if(t.back()=='*') t = "nullptr";
         n->code.push_back(n->place + " = " + to_string(typeSize[t]));
-        n->type = "int";
+        
+        n->type = $3->type;
         n->kind = "rvalue";
         n->printName = n->place;
         $$ = n;
@@ -1118,11 +1177,11 @@ unary_expression
     {
         dbg("unary_expression -> sizeof ( type_name )");
         Node* n = new Node(); 
-        n->place = newTemp(); 
+        n->place = newTemp($3); 
         string t = $3;
         if(t.back()=='*') t = "nullptr";
         n->code.push_back(n->place + " = " + to_string(typeSize[t]));
-        n->type = "int";
+        n->type = $3;
         n->kind = "rvalue";
         n->printName = n->place;
         $$ = n;
@@ -1168,7 +1227,7 @@ cast_expression
         }
         Node* n = new Node();
         n->code = b->code;
-        n->place = newTemp();
+        n->place = newTemp(a);
         n->printName = n->place;
         n->code.push_back(n->place + " = " + b->type + "_to_"+ a +" "+ b->printName);
         n->type = a;
@@ -1236,7 +1295,7 @@ multiplicative_expression
         }
         Node* n = new Node();
         n->code = a->code; n->code.insert(n->code.end(), b->code.begin(), b->code.end());
-        n->place = newTemp();
+        n->place = newTemp(a->type);
         n->code.push_back(n->place + " = " + a->printName + " * " + b->printName);
         n->type = a->type;
         n->printName = n->place;
@@ -1253,7 +1312,7 @@ multiplicative_expression
         Node* n = new Node();
         n->code = a->code; 
         n->code.insert(n->code.end(), b->code.begin(), b->code.end());
-        n->place = newTemp();
+        n->place = newTemp(a->type);
         n->code.push_back(n->place + " = " + a->printName + " / " + b->printName);
         n->type = a->type;
         n->printName = n->place;
@@ -1270,7 +1329,7 @@ multiplicative_expression
         Node* n = new Node();
         n->code = a->code; 
         n->code.insert(n->code.end(), b->code.begin(), b->code.end());
-        n->place = newTemp();
+        n->place = newTemp(a->type);
         n->code.push_back(n->place + " = " + a->printName + " % " + b->printName);
         n->type = a->type;
         n->printName = n->place;
@@ -1294,7 +1353,7 @@ additive_expression
         Node* n = new Node();
         n->code = a->code; 
         n->code.insert(n->code.end(), b->code.begin(), b->code.end());
-        n->place = newTemp();
+        n->place = newTemp(a->type);
         n->code.push_back(n->place + " = " + a->printName + " + " + b->printName);
         n->type = a->type;
         n->printName = n->place;
@@ -1313,7 +1372,7 @@ additive_expression
         Node* n = new Node();
         n->code = a->code; 
         n->code.insert(n->code.end(), b->code.begin(), b->code.end());
-        n->place = newTemp();
+        n->place = newTemp(a->type);
         n->code.push_back(n->place + " = " + a->printName + " - " + b->printName);
         n->type = a->type;
         n->printName = n->place;
@@ -1336,7 +1395,7 @@ shift_expression
           Node* n = new Node();
           n->code = a->code; 
           n->code.insert(n->code.end(), b->code.begin(), b->code.end());
-          n->place = newTemp();
+          n->place = newTemp(a->type);
           n->code.push_back(n->place + " = " + a->printName + " << " + b->printName);
           n->type = a->type; 
         n->printName = n->place;
@@ -1352,7 +1411,7 @@ shift_expression
           Node* n = new Node();
           n->code = a->code; 
           n->code.insert(n->code.end(), b->code.begin(), b->code.end());
-          n->place = newTemp();
+          n->place = newTemp(a->type);
           n->code.push_back(n->place + " = " + a->printName + " >> " + b->printName);
           n->type = a->type; 
         n->printName = n->place;
@@ -1374,7 +1433,7 @@ relational_expression
             }
           n->code=a->code; 
           n->code.insert(n->code.end(), b->code.begin(), b->code.end());
-          n->place=newTemp(); 
+          n->place=newTemp("bool"); 
           n->code.push_back(n->place + " = " + a->printName + " > " + b->printName);
           n->type = "bool"; 
         n->printName = n->place;
@@ -1389,7 +1448,7 @@ relational_expression
             }
           n->code=a->code; 
           n->code.insert(n->code.end(), b->code.begin(), b->code.end());
-          n->place=newTemp(); 
+          n->place=newTemp("bool"); 
           n->code.push_back(n->place + " = " + a->printName + " < " + b->printName);
           n->type = "bool"; 
         n->printName = n->place;
@@ -1404,7 +1463,7 @@ relational_expression
             }
           n->code=a->code; 
           n->code.insert(n->code.end(), b->code.begin(), b->code.end());
-          n->place=newTemp(); 
+          n->place=newTemp("bool"); 
           n->code.push_back(n->place + " = " + a->printName + " <= " + b->printName);
           n->type = "bool"; 
         n->printName = n->place;
@@ -1419,7 +1478,7 @@ relational_expression
             }
           n->code=a->code; 
           n->code.insert(n->code.end(), b->code.begin(), b->code.end());
-          n->place=newTemp(); 
+          n->place=newTemp("bool"); 
           n->code.push_back(n->place + " = " + a->printName + " >= " + b->printName);
           n->type = "bool"; 
         n->printName = n->place;
@@ -1441,7 +1500,7 @@ equality_expression
             }
           n->code=a->code; 
           n->code.insert(n->code.end(), b->code.begin(), b->code.end());
-          n->place=newTemp(); 
+          n->place=newTemp("bool"); 
           n->code.push_back(n->place + " = " + a->printName + " == " + b->printName);
           n->type = "bool"; 
         n->printName = n->place;
@@ -1456,7 +1515,7 @@ equality_expression
           }
           n->code=a->code; 
           n->code.insert(n->code.end(), b->code.begin(), b->code.end());
-          n->place=newTemp(); 
+          n->place=newTemp("bool"); 
           n->code.push_back(n->place + " = " + a->printName + " != " + b->printName);
           n->type = "bool"; 
         n->printName = n->place;
@@ -1478,7 +1537,7 @@ and_expression
             }
           n->code=a->code; 
           n->code.insert(n->code.end(), b->code.begin(), b->code.end());
-          n->place=newTemp(); 
+          n->place=newTemp(a->type); 
           n->code.push_back(n->place + " = " + a->printName + " & " + b->printName);
           n->type = a->type;
         n->printName = n->place;
@@ -1501,7 +1560,7 @@ exclusive_or_expression
         }
         n->code=a->code; 
         n->code.insert(n->code.end(), b->code.begin(), b->code.end());
-        n->place=newTemp(); 
+        n->place=newTemp(a->type); 
         n->code.push_back(n->place + " = " + a->printName + " ^ " + b->printName);
         n->type = a->type;
         n->printName = n->place;
@@ -1523,7 +1582,7 @@ inclusive_or_expression
           }
           n->code=a->code; 
           n->code.insert(n->code.end(), b->code.begin(), b->code.end());
-          n->place=newTemp(); 
+          n->place=newTemp(a->type); 
           n->code.push_back(n->place + " = " + a->printName + " | " + b->printName);
             n->type = a->type;
         n->printName = n->place;
@@ -1545,7 +1604,7 @@ logical_and_expression
             }
           n->code=a->code; 
           n->code.insert(n->code.end(), b->code.begin(), b->code.end());
-          n->place=newTemp(); 
+          n->place=newTemp("bool"); 
           n->code.push_back(n->place + " = " + a->printName + " && " + b->printName);
           n->type = "bool"; 
         n->printName = n->place;
@@ -1567,7 +1626,7 @@ logical_or_expression
           }
           n->code=a->code; 
           n->code.insert(n->code.end(), b->code.begin(), b->code.end());
-          n->place=newTemp(); 
+          n->place=newTemp("bool"); 
           n->code.push_back(n->place + " = " + a->printName + " || " + b->printName);
           n->type = "bool"; 
         n->printName = n->place;
@@ -1594,7 +1653,7 @@ conditional_expression
         }
         
         n->code = cond->code;
-        n->place = newTemp();
+        n->place = newTemp(e1->type);
         
         int condJumpIndex = n->code.size();
         n->code.push_back("ifFalse " + cond->place + " goto __");
@@ -1884,21 +1943,22 @@ init_declarator
                 yyerror("Duplicate declaration of member '" + n->place + "' in class '" + lastClassType + "'.");
             } else 
             {
-                w = "this + " + to_string(classOffset);
-                sym->printName = w;
+                w = "[ecx + " + to_string(classOffset) + "]";
                 classTable[lastClassType][n->place].offset = classOffset;
+                dbg("offset of " + n->place + " is " + to_string(classOffset));
                 classOffset += typeSize[n->type];
+                sym->printName = w;
                 classTable[lastClassType][n->place].type = n->type;
                 classTable[lastClassType][n->place].kind = lastUsage;
             }
         }
         else
         {
+            functionOffset += typeSize[n->type];
             int p = functionOffset;
             for(int i = 0; i < offset.size(); i++)
                 p += offset[i];
-            w = "spr - " + to_string(p);
-            functionOffset += typeSize[n->type];
+            w = "[ebp - " + to_string(p) + "]";
             sym->printName = w;
         }
 
@@ -1913,10 +1973,10 @@ init_declarator
         dbg("");
         if(classTable.find(n->type) != classTable.end())
         {
-            string w1 = newTemp();
-            n->code.push_back(w1 + " = &" + w + ";");
-            n->code.push_back("param " + w1 + ";");
-            n->code.push_back("call " + n->type + ", 1;");
+            // string w1 = newTemp(n->type + "*");
+            // n->code.push_back(w1 + " = &" + w + ";");
+            // n->code.push_back("param " + w1 + ";");
+            // n->code.push_back("call " + n->type + ", 1;");
             for(const auto& member : classTable[n->type])
             {
                 if(member.second.kind == "function")
@@ -1944,7 +2004,9 @@ init_declarator
 
                     Symbol* sym = lookupSymbol(name);
                     string w = currentFunction + currentScope + name;
-                    sym->printName = w;
+                    sym->printName = "[ebp - " + to_string(functionOffset - member.second.offset) + "]";
+
+                    dbg("offset of " + name + " is " + to_string(member.second.offset));
 
                     dbg("mmm");
                     dbg(w);
@@ -2017,31 +2079,31 @@ init_declarator
             } 
             else 
             {
-                w = "this + " + to_string(classOffset);
-                sym->printName = w;
-                classTable[lastClassType][n->place].offset = classOffset;
+                w = "[ecx + " + to_string(classOffset) + "]";
                 int p = 1;
                 for(int i = 0; i < n->argCount; i++)
                 {
                     p *= stoi(n->syn[i]);
                 }
+                classTable[lastClassType][n->place].offset = classOffset;
                 classOffset += p * typeSize[n->type.substr(0, n->type.size() - n->argCount)];
+                sym->printName = w;
                 classTable[lastClassType][n->place].type = n->type;
                 classTable[lastClassType][n->place].kind = lastUsage;
             }
         }
         else
         {
-            int p = functionOffset;
-            for(int i = 0; i < offset.size(); i++)
-                p += offset[i];
-            w = "spr - " + to_string(p);
             int q = 1;
             for(int i = 0; i < n->argCount; i++)
             {
                 q *= stoi(n->syn[i]);
             }
             functionOffset += q * typeSize[n->type.substr(0, n->type.size() - n->argCount)];
+            int p = functionOffset;
+            for(int i = 0; i < offset.size(); i++)
+                p += offset[i];
+            w = "[ebp - " + to_string(p) + "]";
             sym->printName = w;
         }
 
@@ -2087,7 +2149,8 @@ init_declarator
 
                     Symbol* sym = lookupSymbol(name);
                     string w = currentFunction + currentScope + name;
-                    sym->printName = w;
+
+                    sym->printName = "[ebp - " + to_string(functionOffset - member.second.offset) + "]";
 
                     dbg("Variable '" + name + "' with type '" + member.second.type + "' declared.");
                 }
@@ -2143,7 +2206,7 @@ init_declarator
             } 
             else 
             {
-                w = "this + " + to_string(classOffset);
+                w = "[ecx + " + to_string(classOffset) + "]";
                 sym->printName = w;
                 classTable[lastClassType][n->place].offset = classOffset;
                 classOffset += typeSize["nullptr"];
@@ -2156,8 +2219,8 @@ init_declarator
             int p = functionOffset;
             for(int i = 0; i < offset.size(); i++)
                 p += offset[i];
-            w = "spr - " + to_string(p);
             functionOffset += typeSize["nullptr"];
+            w = "[ebp - " + to_string(p + typeSize["nullptr"]) + "]";
             sym->printName = w;
         }
 
@@ -2171,10 +2234,10 @@ init_declarator
 
         if(classTable.find(lastDeclType) != classTable.end())
         {
-            string w1 = newTemp();
-            n->code.push_back(w1 + " = " + w + ";");
-            n->code.push_back("param " + w1 + ";");
-            n->code.push_back("call " + lastDeclType + ", 1;");
+            // string w1 = newTemp();
+            // n->code.push_back(w1 + " = " + w + ";");
+            // n->code.push_back("param " + w1 + ";");
+            // n->code.push_back("call " + lastDeclType + ", 1;");
             for(const auto& member : classTable[lastDeclType])
             {
                 if(member.second.kind == "function")
@@ -2202,8 +2265,7 @@ init_declarator
 
                     Symbol* sym = lookupSymbol(name);
                     string w = lastClassType+currentFunction+currentScope + name;
-                    sym->printName = w;
-
+                    sym->printName = "[ebp - " + to_string(functionOffset - member.second.offset) + "]";
                     dbg("mmm");
                     dbg(w);
                     dbg("Variable '" + name + "' with type '" + member.second.type + "' declared.");
@@ -2260,35 +2322,44 @@ init_declarator
         // else
         //     w = "obj."+currentScope+n->place;
         sym->printName = w;
-        if($3->kind == "rvalue"){
-            n->code.push_back(w + " = " + $3->place);
-        }
-        else{
-            n->code.push_back(w + " = " + $3->printName);
-        }
         
         if(lastClassType != "" && currentFunction == "")
         {
-            if(classTable[lastClassType].find(n->place) != classTable[lastClassType].end()){
-                yyerror("Duplicate declaration of member '" + n->place + "' in class '" + lastClassType + "'.");
-            } else 
-            {
-                w = "this + " + to_string(classOffset);
-                sym->printName = w;
-                classTable[lastClassType][n->place].offset = classOffset;
-                classOffset += typeSize[n->type];
-                classTable[lastClassType][n->place].type = n->type;
-                classTable[lastClassType][n->place].kind = lastUsage;
-            }
+            yyerror("class member initialization not supported");
+            // if(classTable[lastClassType].find(n->place) != classTable[lastClassType].end()){
+            //     yyerror("Duplicate declaration of member '" + n->place + "' in class '" + lastClassType + "'.");
+            // } else 
+            // {
+            //     w = "[this + " + to_string(classOffset) + "]";
+            //     classTable[lastClassType][n->place].offset = classOffset;
+            //     classOffset += typeSize[n->type];
+            //     string s = newTemp(n->type + "*");
+            //     n->code.push_back(s + " = " + w + ";");
+            //     if($3->kind == "rvalue"){
+            //         n->code.push_back("*" + s + " = " + $3->place + ";");
+            //     }
+            //     else{
+            //         n->code.push_back("*" + s + " = " + $3->printName + ";");
+            //     }
+            //     sym->printName = w;
+            //     classTable[lastClassType][n->place].type = n->type;
+            //     classTable[lastClassType][n->place].kind = lastUsage;
+            // }
         }
         else
         {
+            functionOffset += typeSize[n->type];
             int p = functionOffset;
             for(int i = 0; i < offset.size(); i++)
                 p += offset[i];
-            w = "spr - " + to_string(p);
-            functionOffset += typeSize[n->type];
+            w = "[ebp - " + to_string(p) + "]";
             sym->printName = w;
+            if($3->kind == "rvalue"){
+                n->code.push_back(w + " = " + $3->place);
+            }
+            else{
+                n->code.push_back(w + " = " + $3->printName);
+            }
         }
 
         dbg("");
@@ -2329,7 +2400,8 @@ init_declarator
 
                     Symbol* sym = lookupSymbol(name);
                     string w = lastClassType+currentFunction+currentScope+name;
-                    sym->printName = w;
+
+                    sym->printName = "[ebp - " + to_string(functionOffset - member.second.offset) + "]";
 
                     dbg("mmm");
                     dbg(w);
@@ -2382,32 +2454,33 @@ init_declarator
         // else
         //     w = "obj."+currentScope+n->place;
         sym->printName = w;
-        n->code.push_back(w + " = " + $4->printName);
        
         if(lastClassType != "" && currentFunction == "")
         {
-            if(classTable[lastClassType].find(n->place) != classTable[lastClassType].end()){
-                yyerror("Duplicate declaration of member '" + n->place + "' in class '" + lastClassType + "'.");
-            } 
-            else 
-            {
-                w = "this + " + to_string(classOffset);
-                sym->printName = w;
-                classTable[lastClassType][n->place].offset = classOffset;
-                classOffset += typeSize["nullptr"];
-                classTable[lastClassType][n->place].type = n->type;
-                classTable[lastClassType][n->place].kind = lastUsage;
-            }
+            yyerror("class member initialization not supported");
+            // if(classTable[lastClassType].find(n->place) != classTable[lastClassType].end()){
+            //     yyerror("Duplicate declaration of member '" + n->place + "' in class '" + lastClassType + "'.");
+            // } 
+            // else 
+            // {
+            //     w = "[this + " + to_string(classOffset) + "]";
+            //     sym->printName = w;
+            //     classTable[lastClassType][n->place].offset = classOffset;
+            //     classOffset += typeSize["nullptr"];
+            //     classTable[lastClassType][n->place].type = n->type;
+            //     classTable[lastClassType][n->place].kind = lastUsage;
+            // }
         }
         else
         {
+            functionOffset += typeSize["nullptr"];
             int p = functionOffset;
             for(int i = 0; i < offset.size(); i++)
                 p += offset[i];
-            w = "spr - " + to_string(p);
-            functionOffset += typeSize["nullptr"];
+            w = "[ebp - " + to_string(p) + "]";
             sym->printName = w;
         }
+        n->code.push_back(w + " = " + $4->printName);
 
         dbg("");
         dbg("Declared pointer: " + n->place + " of type: " + n->type + " and kind: " + n->kind);
@@ -2447,7 +2520,7 @@ init_declarator
 
                     Symbol* sym = lookupSymbol(name);
                     string w = lastClassType+currentFunction+currentScope + name;
-                    sym->printName = w;
+                    sym->printName = "[ebp - " + to_string(functionOffset - member.second.offset) + "]";
 
                     dbg("mmm");
                     dbg(w);
@@ -2515,49 +2588,51 @@ init_declarator
         //     w = "obj."+currentScope+n->place;
         sym->printName = w;
 
-        string tmp = newTemp();
-        n->code.push_back(tmp + " = &" + sym->printName);
-        for(int i = 0; i < $4->argCount; i++)
-        {
-            n->code.push_back("*" + tmp + " = " + $4->syn[i]);
-            n->code.push_back(tmp + " = " + tmp + " + " + to_string(typeSize[$4->type]));
-        }
        
         if(lastClassType != "" && currentFunction == "")
         {
-            if(classTable[lastClassType].find(n->place) != classTable[lastClassType].end()){
-                yyerror("Duplicate declaration of member '" + n->place + "' in class '" + lastClassType + "'.");
-            } 
-            else 
-            {
-                w = "this + " + to_string(classOffset);
-                sym->printName = w;
-                classTable[lastClassType][n->place].offset = classOffset;
-                int p = 1;
-                for(int i = 0; i < n->argCount; i++)
-                {
-                    p *= stoi(n->syn[i]);
-                }
-                classOffset += p * typeSize[n->type.substr(0, n->type.size() - n->argCount)];
-                classTable[lastClassType][n->place].type = n->type;
-                classTable[lastClassType][n->place].kind = lastUsage;
-            }
+            yyerror("class member initialization not supported");
+            // if(classTable[lastClassType].find(n->place) != classTable[lastClassType].end()){
+            //     yyerror("Duplicate declaration of member '" + n->place + "' in class '" + lastClassType + "'.");
+            // } 
+            // else 
+            // {
+            //     w = "this + " + to_string(classOffset);
+            //     sym->printName = w;
+            //     classTable[lastClassType][n->place].offset = classOffset;
+            //     int p = 1;
+            //     for(int i = 0; i < n->argCount; i++)
+            //     {
+            //         p *= stoi(n->syn[i]);
+            //     }
+            //     classOffset += p * typeSize[n->type.substr(0, n->type.size() - n->argCount)];
+            //     classTable[lastClassType][n->place].type = n->type;
+            //     classTable[lastClassType][n->place].kind = lastUsage;
+            // }
         }
         else
         {
-            int p = functionOffset;
-            for(int i = 0; i < offset.size(); i++)
-                p += offset[i];
-            w = "spr - " + to_string(p);
             int q = 1;
             for(int i = 0; i < n->argCount; i++)
             {
                 q *= stoi(n->syn[i]);
             }
             functionOffset += q * typeSize[n->type.substr(0, n->type.size() - n->argCount)];
+            int p = functionOffset;
+            for(int i = 0; i < offset.size(); i++)
+                p += offset[i];
+            w = "[ebp - " + to_string(p) + "]";
             sym->printName = w;
         }
-
+        dbg("fff");
+        string tmp = newTemp("nullptr");
+        dbg("ccv" + to_string(functionOffset));
+        n->code.push_back(tmp + " = &" + sym->printName);
+        for(int i = 0; i < $4->argCount; i++)
+        {
+            n->code.push_back("*" + tmp + " = " + $4->syn[i]);
+            n->code.push_back(tmp + " = " + tmp + " + " + to_string(typeSize[$4->type]));
+        }
 
         dbg("");
         dbg("Declared array: " + n->place + " of type: " + n->type + " and kind: " + n->kind);
@@ -2600,7 +2675,7 @@ init_declarator
 
                     Symbol* sym = lookupSymbol(name);
                     string w = currentFunction + currentScope + name;
-                    sym->printName = w;
+                    sym->printName = "[ebp - " + to_string(functionOffset - member.second.offset) + "]";
 
                     dbg("Variable '" + name + "' with type '" + member.second.type + "' declared.");
                 }
@@ -2844,7 +2919,7 @@ struct_or_class_specifier
         dbg("struct_or_class_specifier -> struct_or_class IDENTIFIER { struct_or_class_member_list }");
         popScope();
         vector<string> cd;
-        cd.push_back(lastClassType + ":");
+        // cd.push_back(lastClassType + ":");
         cd.insert(cd.end(), $5->code.begin(), $5->code.end());
         $$ = $5;
         $$->code = cd;
@@ -3090,6 +3165,7 @@ parameter_declaration
             Node* n = new Node();
             n->syn.push_back(string($1)); 
             n->syn.push_back(string($2));
+            dbg("Parameter: " + string($2) + " of type which is: " + string($1));
             $$ = n;
         }
 	;
@@ -3140,7 +3216,12 @@ compound_statement
 	| LCURLY 
     {
         currentScope += ".";
-        pushScope();
+        if(funcOnce == false)
+        {
+            pushScope();
+        }
+        else
+            funcOnce = false;
         offset.push_back(functionOffset);
         dbg("12qwr");
         dbg(to_string(functionOffset));
@@ -3151,7 +3232,19 @@ compound_statement
         Node* n = $3;
         popScope();
         currentScope.pop_back();
+        vector<string> cd;
+        cd.push_back("sub esp, " + to_string(functionOffset));
+        cd.insert(cd.end(), n->code.begin(), n->code.end());
+        if(cd.back().find("return") != string::npos)
+        {
+            cd.insert(cd.end()-1, "add esp, " + to_string(functionOffset));
+        }
+        else
+        {
+            cd.push_back("add esp, " + to_string(functionOffset));
+        }
         $$ = n;
+        $$->code = cd;
         if(!inloop)
         { 
             for(size_t i = 0; i < n->code.size(); i++) {
@@ -3835,6 +3928,8 @@ external
             yyerror("Missing return statement in function '" + fname + "'.");
         }
         n->code.push_back(fname + ":");
+        n->code.push_back("push ebp");
+        n->code.push_back("mov ebp, esp");
         if($5) n->code.insert(n->code.end(),$5->code.begin(),$5->code.end());
         popScope();
         n->code.push_back("");
@@ -3912,13 +4007,24 @@ external
         currentFunction = fname;
         localTemp = 0; localLabel = 0;
         pushScope();
+        funcOnce = true;
+        int argoffset = 0;
+        for (int i=0;i<$3->syn.size();i+=2){
+            argoffset += typeSize[$3->syn[i]];
+        }
+
 
         for(int i=1;i<$3->syn.size();i+=2)
         {
             string pname = $3->syn[i];
+            // string pname = "[ebp+" + to_string(8 + argoffset + getTypeSize($3->syn[i-1])) + "]";
             string ptype = $3->syn[i-1];
             bool ok = declareSymbol(pname,ptype);
             Symbol* sym = lookupSymbol(pname);
+            argoffset -= typeSize[$3->syn[i-1]];
+            string prname = "[ebp + " + to_string(8 + argoffset) + "]";
+
+            sym->printName = prname;
             dbg("Parameter declare: " + pname + " of type " + ptype);
             dbg(lastDeclType);
 
@@ -3962,28 +4068,29 @@ external
                         }
 
                         Symbol* sym = lookupSymbol(name);
-                        string w;
-                        if(lastClassType == "")
-                            w = currentFunction + currentScope + "." + name;
-                        else
-                            w = lastClassType + "." + currentFunction + currentScope + "." + name;
-                        sym->printName = w;
+
+                        // string w;
+                        // if(lastClassType == "")
+                        //     w = currentFunction + currentScope + "." + name;
+                        // else
+                        //     w = lastClassType + "." + currentFunction + currentScope + "." + name;
+                        sym->printName = "[ebp + " + to_string(8 + argoffset + member.second.offset) + "]";
 
                         dbg("mmm");
-                        dbg(w);
+                        // dbg(w);
                         dbg("Variable '" + name + "' with type '" + member.second.type + "' declared.");
                     }
                 }
             }
             string w;
-            if(lastClassType == "")
-                w = currentFunction + currentScope + "." + pname;
-            else
-                w = lastClassType + "." + currentFunction + currentScope + "." + pname;
-            sym->printName = w;
+            // // if(lastClassType == "")
+            // //     w = currentFunction + currentScope + "." + pname;
+            // // else
+            // //     w = lastClassType + "." + currentFunction + currentScope + "." + pname;
+            // sym->printName = w;
             if(!ok) yyerror("Duplicate parameter name '" + pname + "' in function '" + fname + "'.");
         }
-    }
+    } 
     compound_statement
     {
         dbg("external -> IDENTIFIER ( parameter_list ) compound_statement");
@@ -3999,7 +4106,7 @@ external
 
         n->argCount = $3->syn.size()/2;
         n->kind = "function";
-        popScope(); 
+        // popScope(); 
 
         if(lastClassType != "")
             fname = lastClassType + "." + fname;
@@ -4014,6 +4121,8 @@ external
             yyerror("Missing return statement in function '" + fname + "'.");
         }
         n->code.push_back(fname + ":");
+        n->code.push_back("push ebp");
+        n->code.push_back("mov ebp, esp");
 
         if($6) n->code.insert(n->code.end(),$6->code.begin(),$6->code.end());
         finalRoot = n;

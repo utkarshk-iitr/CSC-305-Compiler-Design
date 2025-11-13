@@ -1,29 +1,21 @@
 class A{
     public:
-    int a;
-    void fn()
-    {
-        a = 10;
-        int c;
-        c = a;
-        return;
+    int c;
+    int fn(int a, char d){
+        a += (int)d;
+        return a +c + c+ 5;
     }
+
 };
 
-int main() {
-    int a,c;
-    a = 5;
-    char b;
-    b = 'a';
-    {
-        int e;
-        e = a;
-    }
-    int f;
-    f = a;
+int main(int p) 
+{
+    int a;
+    a = p;
+    A obj;
+    a =obj.fn(a, 'a');
+    int *ptr = &a;
 
-    int g;
-    g = a;
-
+    //int ae[3][3] = { 1, 2 ,3};
     return 0;
 }
