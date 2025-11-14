@@ -2,7 +2,7 @@ class ABCD
 {
 private:
     int x;
-    int y = 8;
+    int y;
 public:
     void setter(int a){
         x = a;

@@ -1,32 +1,27 @@
     
     
-A.fn_int_char:
+fn_int_char:
     push ebp
     mov ebp, esp
-    sub esp, 16
+    sub esp, 8
     [ebp - 4] = char_to_int [ebp + 8]
     [ebp + 9] = [ebp + 9] + [ebp - 4]
-    [ebp - 8] = [ebp + 9] + [ecx + 0]
-    [ebp - 12] = [ebp - 8] + [ecx + 0]
-    [ebp - 16] = [ebp - 12] + 5
-    add esp, 16
-    return [ebp - 16]
+    [ebp - 8] = [ebp + 9] + 5
+    add esp, 8
+    return [ebp - 8]
     
-main_int:
+main:
     push ebp
     mov ebp, esp
-    sub esp, 28
-    [ebp - 4] = [ebp + 8]
-    lea ecx , [ebp - 8]
+    sub esp, 8
+    [ebp - 4] = 5
     sub esp, 4
-    param esp , [ebp - 4]
+    param [esp] , [ebp - 4]
     sub esp, 1
-    param esp , 'a'
-    [ebp - 12] = call A.fn_int_char, 3
-    add esp, 5
-    [ebp - 4] = [ebp - 12]
-    [ebp - 20] = &[ebp - 4]
-    [ebp - 28] = [ebp - 20]
-    add esp, 28
+    param [esp] , 'a'
+    [ebp - 8] = call fn_int_char, 2
+    add esp, 8
+    [ebp - 4] = [ebp - 8]
+    add esp, 8
     return 0
     

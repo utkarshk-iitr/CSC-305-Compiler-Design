@@ -1,3 +1,4 @@
+Parsing completed successfully.
     
     [ebp - 4] = 0
     str_1 db "fib called %d times\n", 0

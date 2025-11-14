@@ -1,0 +1,47 @@
+Parsing completed successfully.
+    
+    str_1 db "%d\n", 0
+    str_2 db "%d\n", 0
+    
+    
+A.fn_int_char:
+    push ebp
+    mov ebp, esp
+    sub esp, 12
+    [ebp + 9] = [ebp + 9] + 11
+    [ecx + 0] = 8
+    [ebp - 4] = [ebp + 9] + [ecx + 0]
+    [ebp - 8] = [ebp - 4] + [ecx + 0]
+    [ebp - 12] = [ebp - 8] + 5
+    add esp, 12
+    return [ebp - 12]
+    
+main:
+    push ebp
+    mov ebp, esp
+    sub esp, 24
+    [ebp - 4] = 8
+    [ebp - 8] = [ebp - 4]
+    sub esp, 8
+    param [esp] , str_1
+    sub esp, 4
+    param [esp] , [ebp - 8]
+    [ebp - 12] = call printf, 2
+    add esp, 8
+    lea ecx , [ebp - 16]
+    sub esp, 4
+    param [esp] , 8
+    sub esp, 1
+    param [esp] , 'a'
+    [ebp - 20] = call A.fn_int_char, 3
+    add esp, 8
+    [ebp - 8] = [ebp - 20]
+    sub esp, 8
+    param [esp] , str_2
+    sub esp, 4
+    param [esp] , [ebp - 8]
+    [ebp - 24] = call printf, 2
+    add esp, 8
+    add esp, 24
+    return 0
+    

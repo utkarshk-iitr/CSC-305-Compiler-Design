@@ -69,6 +69,16 @@
     unordered_map<string,int> typeSize = {
         {"int", 4}, {"char", 1}, {"bool", 1}, {"double", 8}, {"long", 8}, {"nullptr", 8}
     };
+
+    int getTypeSize(const string &type) {
+        if(type.back() == '*') {
+            return 8; 
+        }
+        if(typeSize.find(type) != typeSize.end()) {
+            return typeSize[type];
+        } 
+        return 0; 
+    }
     
     vector<string> errors;
     static string currentFunction = "";
@@ -86,8 +96,10 @@
     static bool inloop = false;
     static bool inFunction = false;
     static bool funcOnce = false;
+    static int stringLiteralCount = 0;
 
     vector<string> globalCode;
+    vector<string> uglobalCode;
     vector<int> offset;
 
     Node* finalRoot = nullptr;
@@ -153,11 +165,30 @@
         return true;
     }
 
+    string newLabel() {
+        if (currentFunction == "") {
+            return "global.L" + to_string(++globalLabel);
+        } else {
+            return currentFunction + ".L" + to_string(++localLabel);
+        }
+
+    }
+
+    extern int yylineno;
+    void yyerror(string s) {
+        errors.push_back(string("Error at line ") + to_string(yylineno) + " : " + s);
+    }
+
     string newTemp(string type="int") {
         if(type.back()=='*'){
             type = "nullptr";
         }
-        if (currentFunction == "") {
+        if(currentFunction == "" && lastClassType == "")
+        {
+            yyerror("Temporary variable cannot be declared in the global scope.");
+            return "";
+        }   
+        else if (currentFunction == "") {
             string s = "global.t" + to_string(++globalTemp);
             declareSymbol(s, type, "temp");
             auto sym = lookupSymbol(s);
@@ -195,18 +226,6 @@
             sym->name = w;
             return w;
         }
-    }
-
-    string newLabel() {
-        if (currentFunction == "") {
-            return "global.L" + to_string(++globalLabel);
-        } else {
-            return currentFunction + ".L" + to_string(++localLabel);
-        }
-    }
-    extern int yylineno;
-    void yyerror(string s) {
-        errors.push_back(string("Error at line ") + to_string(yylineno) + " : " + s);
     }
 
     vector<int> makeList(int index) {
@@ -524,6 +543,10 @@ primary_expression
     {
         dbg("constant -> STRING_LITERAL");
         $$ = new Node(string($1), "char*", "rvalue");
+        string label = "str_" + to_string(++stringLiteralCount);
+        globalCode.push_back(label + " db " + string($1) + ", 0");
+        $$->place = label;
+        $$->printName = label;
     }
 	;
 
@@ -765,11 +788,15 @@ postfix_expression
                 n->type = "int";
                 n->code.insert(n->code.end(), args->code.begin(), args->code.end());
                 n->argCount = args->argCount;
-                if(original=="malloc"){
+                if(original=="printf" || original=="scanf"){
+                    n->place = newTemp("int");
+                    n->code.push_back(n->place + " = call " + original + ", " + to_string(args->argCount));
+                }
+                else if(original=="malloc"){
                     if(args->argCount!=1 || args->syn[0]!="int"){
                         yyerror("malloc expects a single integer argument.");
                     }
-                    n->place = newTemp(n->type);
+                    n->place = newTemp("void*");
                     n->code.push_back(n->place + " = call malloc, " + to_string(args->argCount));
                     n->type = "void*";
                 }
@@ -779,10 +806,6 @@ postfix_expression
                     }
                     n->code.push_back("call free, " + to_string(args->argCount));
                     n->type = "void";
-                }
-                else{
-                    n->place = newTemp(s->returnType);
-                    n->code.push_back(n->place + " = call " + original + ", " + to_string(args->argCount));
                 }
             }
         }
@@ -841,7 +864,7 @@ postfix_expression
         }
         int argsum = 0;
         for(int i=0;i<args->argCount;i++){
-            argsum += typeSize[args->syn[i]];
+            argsum += 4;
         }
         n->code.push_back("add esp, " + to_string(argsum));
         // functionOffset -= argsum;
@@ -1023,13 +1046,13 @@ argument_expression_list
         n->argCount = 1;
         if(e->kind == "rvalue"){
             // functionOffset += typeSize[e->type];
-            n->code.push_back("sub esp, " + to_string(typeSize[e->type]));
-            n->code.push_back("param esp , " + e->place);
+            n->code.push_back("sub esp, " + to_string(getTypeSize(e->type)));
+            n->code.push_back("param [esp] , " + e->place);
         }
         else{
             // functionOffset += typeSize[e->type];
-            n->code.push_back("sub esp, " + to_string(typeSize[e->type]));
-            n->code.push_back("param esp , " + e->printName);
+            n->code.push_back("sub esp, " + to_string(getTypeSize(e->type)));
+            n->code.push_back("param [esp] , " + e->printName);
         }
         n->type = e->type;
         dbg("");
@@ -1050,13 +1073,13 @@ argument_expression_list
         n->syn.push_back(e->type);
         if(e->kind == "rvalue"){
             // functionOffset += typeSize[e->type];
-            n->code.push_back("sub esp, " + to_string(typeSize[e->type]));
-            n->code.push_back("param esp , " + e->place);
+            n->code.push_back("sub esp, " + to_string(getTypeSize(e->type)));
+            n->code.push_back("param [esp] , " + e->place);
         }
         else{
             // functionOffset += typeSize[e->type];
-            n->code.push_back("sub esp, " + to_string(typeSize[e->type]));
-            n->code.push_back("param esp , " + e->printName);
+            n->code.push_back("sub esp, " + to_string(getTypeSize(e->type)));
+            n->code.push_back("param [esp] , " + e->printName);
         }
         dbg("argcount is " + to_string(n->argCount) + ", type is " + e->type);
         dbg(e->place+"-"+e->printName);
@@ -1166,9 +1189,9 @@ unary_expression
         n->code = $3->code;
         string t = $3->type;
         if(t.back()=='*') t = "nullptr";
-        n->code.push_back(n->place + " = " + to_string(typeSize[t]));
-        
-        n->type = $3->type;
+        n->code.push_back(n->place + " = " + to_string(getTypeSize(t)));
+        dbg("Sizeof type: " + t + " is " + to_string(getTypeSize(t)));
+        n->type = "int";
         n->kind = "rvalue";
         n->printName = n->place;
         $$ = n;
@@ -1180,8 +1203,9 @@ unary_expression
         n->place = newTemp($3); 
         string t = $3;
         if(t.back()=='*') t = "nullptr";
-        n->code.push_back(n->place + " = " + to_string(typeSize[t]));
-        n->type = $3;
+        n->code.push_back(n->place + " = " + to_string(getTypeSize(t)));
+        n->type = "int";
+        dbg("Sizeof type: " + t + " is " + to_string(getTypeSize(t)));
         n->kind = "rvalue";
         n->printName = n->place;
         $$ = n;
@@ -1932,9 +1956,21 @@ init_declarator
         //     w = lastClassType+"."+currentFunction+currentScope+n->place;
         // else
         //     w = "obj."+currentScope+n->place;
-
-        
-        if(lastClassType != "" && currentFunction == "")
+        if(lastClassType == "" && currentFunction == "")
+        {
+            sym->printName = n->place;
+            if(n->type == "bool")
+                uglobalCode.push_back(n->place + " resb 1");
+            else if(n->type == "char")
+                uglobalCode.push_back(n->place + " resb 1");
+            else if(n->type == "int")
+                uglobalCode.push_back(n->place + " resd 1");
+            else if(n->type == "long")
+                uglobalCode.push_back(n->place + " resq 1");
+            else if(n->type == "double")
+                uglobalCode.push_back(n->place + " resq 1");
+        }
+        else if(lastClassType != "" && currentFunction == "")
         {
             dbg("12" + n->place);
             dbg(currentFunction);
@@ -2070,9 +2106,27 @@ init_declarator
         //     w = "obj."+currentScope+n->place;
 
         sym->printName = w;
-        
-
-        if(lastClassType != "" && currentFunction == "")
+        dbg("ukurb " + n->place);
+        if(lastClassType == "" && currentFunction == "")
+        {
+            sym->printName = n->place;
+            int p = 1;
+            for(int i = 0; i < n->argCount; i++)
+            {
+                p *= stoi(n->syn[i]);
+            }
+            if(n->type.substr(0, n->type.size() - n->argCount) == "bool")
+                uglobalCode.push_back(n->place + " resb " + to_string(p));
+            else if(n->type.substr(0, n->type.size() - n->argCount) == "char")
+                uglobalCode.push_back(n->place + " resb " + to_string(p));
+            else if(n->type.substr(0, n->type.size() - n->argCount) == "int")
+                uglobalCode.push_back(n->place + " resd " + to_string(p));
+            else if(n->type.substr(0, n->type.size() - n->argCount) == "long")
+                uglobalCode.push_back(n->place + " resq " + to_string(p));
+            else if(n->type.substr(0, n->type.size() - n->argCount) == "double")
+                uglobalCode.push_back(n->place + " resq " + to_string(p));
+        }
+        else if(lastClassType != "" && currentFunction == "")
         {
             if(classTable[lastClassType].find(n->place) != classTable[lastClassType].end()){
                 yyerror("Duplicate declaration of member '" + n->place + "' in class '" + lastClassType + "'.");
@@ -2198,8 +2252,12 @@ init_declarator
         // else
         //     w = "obj."+currentScope+n->place;
         sym->printName = w;
-       
-        if(lastClassType != "" && currentFunction == "")
+        if(lastClassType == "" && currentFunction == "")
+        {
+            sym->printName = n->place;
+            uglobalCode.push_back(n->place + " resq 1");
+        }
+        else if(lastClassType != "" && currentFunction == "")
         {
             if(classTable[lastClassType].find(n->place) != classTable[lastClassType].end()){
                 yyerror("Duplicate declaration of member '" + n->place + "' in class '" + lastClassType + "'.");
@@ -2323,7 +2381,11 @@ init_declarator
         //     w = "obj."+currentScope+n->place;
         sym->printName = w;
         
-        if(lastClassType != "" && currentFunction == "")
+        if(lastClassType == "" && currentFunction == "")
+        {
+            sym->printName = name;
+        }
+        else if(lastClassType != "" && currentFunction == "")
         {
             yyerror("class member initialization not supported");
             // if(classTable[lastClassType].find(n->place) != classTable[lastClassType].end()){
@@ -2354,12 +2416,12 @@ init_declarator
                 p += offset[i];
             w = "[ebp - " + to_string(p) + "]";
             sym->printName = w;
-            if($3->kind == "rvalue"){
-                n->code.push_back(w + " = " + $3->place);
-            }
-            else{
-                n->code.push_back(w + " = " + $3->printName);
-            }
+        }
+        if($3->kind == "rvalue"){
+            n->code.push_back(sym->printName + " = " + $3->place);
+        }
+        else{
+            n->code.push_back(sym->printName + " = " + $3->printName);
         }
 
         dbg("");
@@ -2454,8 +2516,11 @@ init_declarator
         // else
         //     w = "obj."+currentScope+n->place;
         sym->printName = w;
-       
-        if(lastClassType != "" && currentFunction == "")
+        if(lastClassType == "" && currentFunction == "")
+        {
+            sym->printName = name;
+        }
+        else if(lastClassType != "" && currentFunction == "")
         {
             yyerror("class member initialization not supported");
             // if(classTable[lastClassType].find(n->place) != classTable[lastClassType].end()){
@@ -2588,8 +2653,11 @@ init_declarator
         //     w = "obj."+currentScope+n->place;
         sym->printName = w;
 
-       
-        if(lastClassType != "" && currentFunction == "")
+        if(lastClassType == "" && currentFunction == "")
+        {
+            sym->printName = name;
+        }
+        else if(lastClassType != "" && currentFunction == "")
         {
             yyerror("class member initialization not supported");
             // if(classTable[lastClassType].find(n->place) != classTable[lastClassType].end()){
@@ -4266,7 +4334,9 @@ int main(int argc, char** argv){
 
     if(finalRoot){
         globalCode.push_back("");
+        uglobalCode.push_back("");
         finalRoot->code.insert(finalRoot->code.begin(),globalCode.begin(),globalCode.end());
+        finalRoot->code.insert(finalRoot->code.begin(),uglobalCode.begin(),uglobalCode.end());
         string indent="";
         for(int i=0;i<finalRoot->code.size();i++) {
             if(finalRoot->code[i].back()==':') indent="";

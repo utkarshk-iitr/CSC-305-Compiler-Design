@@ -2,20 +2,22 @@ class A{
     public:
     int c;
     int fn(int a, char d){
-        a += (int)d;
+        a += 11;
+        c = 8;
         return a +c + c+ 5;
     }
 
 };
-
-int main(int p) 
+int main() 
 {
+    int p = 8;
     int a;
     a = p;
+    printf("%d\n", a);
     A obj;
-    a =obj.fn(a, 'a');
-    int *ptr = &a;
+    a = obj.fn(8, 'a');
 
-    //int ae[3][3] = { 1, 2 ,3};
+    printf("%d\n", a);
+
     return 0;
 }

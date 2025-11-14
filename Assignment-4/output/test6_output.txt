@@ -1,3 +1,4 @@
+Parsing completed successfully.
     
     str_1 db "Enter the number of elements: ", 0
     str_2 db "%d", 0
