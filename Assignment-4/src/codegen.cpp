@@ -239,27 +239,18 @@ private:
             }
             else
             {
-                handleMov(normDest, normOp1);
+                // Load op1 into eax, do the operation, then store to dest
+                emit("mov eax, " + normOp1);
                 if (isMemoryReference(normOp2))
                 {
                     emit("mov ebx, " + normOp2);
-                    if (isMemoryReference(normDest))
-                    {
-                        emit("add dword " + normDest + ", ebx");
-                    }
-                    else
-                    {
-                        emit("add " + normDest + ", ebx");
-                    }
-                }
-                else if (isMemoryReference(normDest) && isImmediate(normOp2))
-                {
-                    emit("add dword " + normDest + ", " + normOp2);
+                    emit("add eax, ebx");
                 }
                 else
                 {
-                    emit("add " + normDest + ", " + normOp2);
+                    emit("add eax, " + normOp2);
                 }
+                handleMov(normDest, "eax");
             }
         }
         else if (operation == "-")
@@ -289,27 +280,18 @@ private:
             }
             else
             {
-                handleMov(normDest, normOp1);
+                // Load op1 into eax, do the operation, then store to dest
+                emit("mov eax, " + normOp1);
                 if (isMemoryReference(normOp2))
                 {
                     emit("mov ebx, " + normOp2);
-                    if (isMemoryReference(normDest))
-                    {
-                        emit("sub dword " + normDest + ", ebx");
-                    }
-                    else
-                    {
-                        emit("sub " + normDest + ", ebx");
-                    }
-                }
-                else if (isMemoryReference(normDest) && isImmediate(normOp2))
-                {
-                    emit("sub dword " + normDest + ", " + normOp2);
+                    emit("sub eax, ebx");
                 }
                 else
                 {
-                    emit("sub " + normDest + ", " + normOp2);
+                    emit("sub eax, " + normOp2);
                 }
+                handleMov(normDest, "eax");
             }
         }
         else if (operation == "*")
@@ -746,7 +728,20 @@ private:
                 return;
 
             string dest = normalizeMemRef(trim(trimmedLine.substr(6, commaPos - 6)));
-            string value = normalizeMemRef(trim(trimmedLine.substr(commaPos + 1)));
+            string value = trim(trimmedLine.substr(commaPos + 1));
+
+            // Handle dereference in parameter: *[ebp - offset]
+            if (value.length() > 0 && value[0] == '*')
+            {
+                string addr = normalizeMemRef(trim(value.substr(1)));
+                // Load the address, then dereference it
+                handleMov("eax", addr);
+                emit("mov eax, [eax]");
+                emit("push eax");
+                return;
+            }
+
+            value = normalizeMemRef(value);
 
             // Push parameter onto stack
             if (isImmediate(value) || isRegister(value))
@@ -970,6 +965,34 @@ private:
         // Assignment operations
         string dest, src, op1, operation, op2;
 
+        // Check for dereference assignment: *ptr = value
+        if (trimmedLine.length() > 0 && trimmedLine[0] == '*')
+        {
+            size_t eqPos = trimmedLine.find(" = ");
+            if (eqPos != string::npos)
+            {
+                // Extract pointer and value
+                string ptrAddr = normalizeMemRef(trim(trimmedLine.substr(1, eqPos - 1)));
+                string value = trim(trimmedLine.substr(eqPos + 3));
+
+                // Load the address from ptrAddr
+                handleMov("eax", ptrAddr);
+
+                // Load or prepare the value
+                if (isImmediate(value))
+                {
+                    emit("mov dword [eax], " + value);
+                }
+                else
+                {
+                    string normValue = normalizeMemRef(value);
+                    handleMov("ebx", normValue);
+                    emit("mov [eax], ebx");
+                }
+                return;
+            }
+        }
+
         // Address-of: dest = &src
         if (trimmedLine.find(" = &") != string::npos)
         {
@@ -1095,13 +1118,29 @@ public:
                 continue;
             }
 
-            // Skip "sub esp" if next line is "param" (push handles stack adjustment)
-            if (trimmedLine.find("sub esp") == 0 && i + 1 < tac.size())
+            // Skip "sub esp" if followed by param (directly or after more sub esp)
+            if (trimmedLine.find("sub esp") == 0)
             {
-                string nextLine = trim(tac[i + 1]);
-                if (nextLine.find("param") == 0)
+                // Look ahead to see if there's a param coming
+                bool foundParam = false;
+                for (size_t j = i + 1; j < tac.size() && j < i + 10; j++)
                 {
-                    continue; // Skip this sub esp
+                    string lookAhead = trim(tac[j]);
+                    if (lookAhead.find("param") == 0)
+                    {
+                        foundParam = true;
+                        break;
+                    }
+                    // Stop looking if we hit something that's not sub esp
+                    if (lookAhead.find("sub esp") != 0 && !lookAhead.empty())
+                    {
+                        break;
+                    }
+                }
+
+                if (foundParam)
+                {
+                    continue; // Skip this sub esp (don't track amount)
                 }
             }
 

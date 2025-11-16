@@ -130,12 +130,12 @@
     unordered_map<string,string> typeDefTable;
 
     unordered_map<string,int> typeSize = {
-        {"int", 4}, {"char", 1}, {"bool", 1}, {"double", 8}, {"long", 8}, {"nullptr", 8}
+        {"int", 4}, {"char", 1}, {"bool", 1}, {"double", 4}, {"long", 4}, {"nullptr", 4}
     };
 
     int getTypeSize(const string &type) {
         if(type.back() == '*') {
-            return 8; 
+            return 4; 
         }
         if(typeSize.find(type) != typeSize.end()) {
             return typeSize[type];
@@ -1079,7 +1079,7 @@ static const yytype_int16 yyrline[] =
     3726,  3735,  3738,  3746,  3752,  3758,  3764,  3772,  3815,  3814,
     3827,  3826,  3841,  3840,  3854,  3853,  3866,  3865,  3879,  3885,
     3891,  3900,  3899,  3910,  3909,  3920,  3919,  3933,  3932,  4010,
-    4009,  4204,  4308
+    4009,  4201,  4305
 };
 #endif
 
@@ -2442,7 +2442,7 @@ yyreduce:
         }
         int argsum = 0;
         for(int i=0;i<args->argCount;i++){
-            argsum += 4;
+            argsum += getTypeSize(args->syn[i]);
         }
         n->code.push_back("add esp, " + to_string(argsum));
         // functionOffset -= argsum;
@@ -5036,14 +5036,14 @@ yyreduce:
         vector<string> cd;
         cd.push_back("sub esp, " + to_string(functionOffset));
         cd.insert(cd.end(), n->code.begin(), n->code.end());
-        if(cd.back().find("return") != string::npos)
-        {
-            cd.insert(cd.end()-1, "add esp, " + to_string(functionOffset));
-        }
-        else
-        {
-            cd.push_back("add esp, " + to_string(functionOffset));
-        }
+        // if(cd.back().find("return") != string::npos)
+        // {
+        //     cd.insert(cd.end()-1, "add esp, " + to_string(functionOffset));
+        // }
+        // else
+        // {
+        //     cd.push_back("add esp, " + to_string(functionOffset));
+        // }
         (yyval.node) = n;
         (yyval.node)->code = cd;
         if(!inloop)
@@ -6019,10 +6019,6 @@ yyreduce:
         pushScope();
         funcOnce = true;
         int argoffset = 0;
-        for (int i=0;i<(yyvsp[-1].node)->syn.size();i+=2){
-            argoffset += typeSize[(yyvsp[-1].node)->syn[i]];
-        }
-
 
         for(int i=1;i<(yyvsp[-1].node)->syn.size();i+=2)
         {
@@ -6031,7 +6027,6 @@ yyreduce:
             string ptype = (yyvsp[-1].node)->syn[i-1];
             bool ok = declareSymbol(pname,ptype);
             Symbol* sym = lookupSymbol(pname);
-            argoffset -= typeSize[(yyvsp[-1].node)->syn[i-1]];
             string prname = "[ebp + " + to_string(8 + argoffset) + "]";
 
             sym->printName = prname;
@@ -6093,6 +6088,8 @@ yyreduce:
                 }
             }
             string w;
+            argoffset += getTypeSize((yyvsp[-1].node)->syn[i-1]);
+
             // // if(lastClassType == "")
             // //     w = currentFunction + currentScope + "." + pname;
             // // else
@@ -6101,11 +6098,11 @@ yyreduce:
             if(!ok) yyerror("Duplicate parameter name '" + pname + "' in function '" + fname + "'.");
         }
     }
-#line 6105 "src/parser.tab.c"
+#line 6102 "src/parser.tab.c"
     break;
 
   case 200: /* external: IDENTIFIER LROUND parameter_list RROUND $@21 compound_statement  */
-#line 4163 "src/parser.y"
+#line 4160 "src/parser.y"
     {
         dbg("external -> IDENTIFIER ( parameter_list ) compound_statement");
         Node* n = new Node();
@@ -6147,11 +6144,11 @@ yyreduce:
         lastFnType="int";
         (yyval.node) = n;
     }
-#line 6151 "src/parser.tab.c"
+#line 6148 "src/parser.tab.c"
     break;
 
   case 201: /* external: init_declarator_list SEMICOLON  */
-#line 4205 "src/parser.y"
+#line 4202 "src/parser.y"
     { 
         dbg("external -> init_declarator_list ;");
         Node* n = new Node();
@@ -6164,20 +6161,20 @@ yyreduce:
         } 
         (yyval.node) = n;
     }
-#line 6168 "src/parser.tab.c"
+#line 6165 "src/parser.tab.c"
     break;
 
   case 202: /* return_type: type_specifier pointer_opt  */
-#line 4309 "src/parser.y"
+#line 4306 "src/parser.y"
     { 
         dbg("return_type -> type_specifier pointer_opt");
         (yyval.str) = strdup( (string((yyvsp[-1].str)) + string((yyvsp[0].str))).c_str() );
     }
-#line 6177 "src/parser.tab.c"
+#line 6174 "src/parser.tab.c"
     break;
 
 
-#line 6181 "src/parser.tab.c"
+#line 6178 "src/parser.tab.c"
 
       default: break;
     }
@@ -6370,7 +6367,7 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 4315 "src/parser.y"
+#line 4312 "src/parser.y"
 
 
 

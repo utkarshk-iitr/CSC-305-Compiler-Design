@@ -22,21 +22,28 @@ main:
     sub esp, 114
     lea eax, [ebp-12]
     mov [ebp-20], eax
-    mov dword [ebp-20], 1
+    mov eax, [ebp-20]
+    mov dword [eax], 1
     add dword [ebp-20], 4
-    mov dword [ebp-20], 2
+    mov eax, [ebp-20]
+    mov dword [eax], 2
     add dword [ebp-20], 4
-    mov dword [ebp-20], 3
+    mov eax, [ebp-20]
+    mov dword [eax], 3
     add dword [ebp-20], 4
     lea eax, [ebp-24]
     mov [ebp-32], eax
-    mov dword [ebp-32], 'w'
+    mov eax, [ebp-32]
+    mov dword [eax], 'w'
     add dword [ebp-32], 1
-    mov dword [ebp-32], 'x'
+    mov eax, [ebp-32]
+    mov dword [eax], 'x'
     add dword [ebp-32], 1
-    mov dword [ebp-32], 'y'
+    mov eax, [ebp-32]
+    mov dword [eax], 'y'
     add dword [ebp-32], 1
-    mov dword [ebp-32], 'z'
+    mov eax, [ebp-32]
+    mov dword [eax], 'z'
     add dword [ebp-32], 1
     mov eax, [ebp-12]
     mov [ebp-40], eax
@@ -71,6 +78,7 @@ main.L1:
     mov ebx, [ebp-73]
     add dword [ebp-77], ebx
     mov eax, [ebp-77]
+    mov eax, [eax]
     push eax
     mov eax, str_2
     push eax
@@ -138,6 +146,7 @@ main.L3:
     mov ebx, [ebp-105]
     add dword [ebp-106], ebx
     mov eax, [ebp-106]
+    mov eax, [eax]
     push eax
     mov eax, str_5
     push eax
@@ -171,6 +180,7 @@ main.L6:
     mov [ebp-90], eax
     add esp, 4
     mov eax, [ebp-40]
+    mov eax, [eax]
     push eax
     mov eax, str_8
     push eax
@@ -181,6 +191,7 @@ main.L6:
     mov [ebp-102], eax
     add dword [ebp-102], 1
     mov eax, [ebp-102]
+    mov eax, [eax]
     push eax
     mov eax, str_9
     push eax
@@ -193,6 +204,7 @@ main.L6:
     mov [ebp-110], eax
     add esp, 4
     mov eax, [ebp-56]
+    mov eax, [eax]
     push eax
     mov eax, str_11
     push eax

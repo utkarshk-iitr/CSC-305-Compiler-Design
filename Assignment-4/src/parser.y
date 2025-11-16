@@ -67,12 +67,12 @@
     unordered_map<string,string> typeDefTable;
 
     unordered_map<string,int> typeSize = {
-        {"int", 4}, {"char", 1}, {"bool", 1}, {"double", 8}, {"long", 8}, {"nullptr", 8}
+        {"int", 4}, {"char", 1}, {"bool", 1}, {"double", 4}, {"long", 4}, {"nullptr", 4}
     };
 
     int getTypeSize(const string &type) {
         if(type.back() == '*') {
-            return 8; 
+            return 4; 
         }
         if(typeSize.find(type) != typeSize.end()) {
             return typeSize[type];
@@ -864,7 +864,7 @@ postfix_expression
         }
         int argsum = 0;
         for(int i=0;i<args->argCount;i++){
-            argsum += 4;
+            argsum += getTypeSize(args->syn[i]);
         }
         n->code.push_back("add esp, " + to_string(argsum));
         // functionOffset -= argsum;
@@ -3303,14 +3303,14 @@ compound_statement
         vector<string> cd;
         cd.push_back("sub esp, " + to_string(functionOffset));
         cd.insert(cd.end(), n->code.begin(), n->code.end());
-        if(cd.back().find("return") != string::npos)
-        {
-            cd.insert(cd.end()-1, "add esp, " + to_string(functionOffset));
-        }
-        else
-        {
-            cd.push_back("add esp, " + to_string(functionOffset));
-        }
+        // if(cd.back().find("return") != string::npos)
+        // {
+        //     cd.insert(cd.end()-1, "add esp, " + to_string(functionOffset));
+        // }
+        // else
+        // {
+        //     cd.push_back("add esp, " + to_string(functionOffset));
+        // }
         $$ = n;
         $$->code = cd;
         if(!inloop)
@@ -4077,10 +4077,6 @@ external
         pushScope();
         funcOnce = true;
         int argoffset = 0;
-        for (int i=0;i<$3->syn.size();i+=2){
-            argoffset += typeSize[$3->syn[i]];
-        }
-
 
         for(int i=1;i<$3->syn.size();i+=2)
         {
@@ -4089,7 +4085,6 @@ external
             string ptype = $3->syn[i-1];
             bool ok = declareSymbol(pname,ptype);
             Symbol* sym = lookupSymbol(pname);
-            argoffset -= typeSize[$3->syn[i-1]];
             string prname = "[ebp + " + to_string(8 + argoffset) + "]";
 
             sym->printName = prname;
@@ -4151,6 +4146,8 @@ external
                 }
             }
             string w;
+            argoffset += getTypeSize($3->syn[i-1]);
+
             // // if(lastClassType == "")
             // //     w = currentFunction + currentScope + "." + pname;
             // // else

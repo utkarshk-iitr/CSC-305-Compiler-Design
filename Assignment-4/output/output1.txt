@@ -1,27 +1,3 @@
-    
-    
-fn_int_char:
-    push ebp
-    mov ebp, esp
-    sub esp, 8
-    [ebp - 4] = char_to_int [ebp + 8]
-    [ebp + 9] = [ebp + 9] + [ebp - 4]
-    [ebp - 8] = [ebp + 9] + 5
-    add esp, 8
-    return [ebp - 8]
-    
-main:
-    push ebp
-    mov ebp, esp
-    sub esp, 8
-    [ebp - 4] = 5
-    sub esp, 4
-    param [esp] , [ebp - 4]
-    sub esp, 1
-    param [esp] , 'a'
-    [ebp - 8] = call fn_int_char, 2
-    add esp, 8
-    [ebp - 4] = [ebp - 8]
-    add esp, 8
-    return 0
-    
+---- Errors found ----
+Error at line 7 : Duplicate declaration of 'd' in same scope.
+Error at line 9 : Return type mismatch in method 'fn_int_char'.
