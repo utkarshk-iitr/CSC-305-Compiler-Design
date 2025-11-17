@@ -1,25 +1,133 @@
 Parsing completed successfully.
     
-    str_1 db "%d", 0
+    str_1 db "%d\n", 0
+    str_2 db "%d\n", 0
+    str_3 db "%d\n", 0
+    str_4 db "%d\n", 0
+    str_5 db "%d\n", 0
+    str_6 db "%d\n", 0
+    str_7 db "%d\n", 0
+    str_8 db "%d\n", 0
+    str_9 db "%d\n", 0
     
 main:
     push ebp
     mov ebp, esp
-    sub esp, 9
-    [ebp - 4] = 0
-main.L1:
-    [ebp - 5] = [ebp - 4] < 10
-    ifFalse [ebp - 5] goto main.L2
-    sub esp, 4
+    sub esp, 584
+    [ebp - 404] = &[ebp - 400]
+    *[ebp - 404] = 1
+    [ebp - 404] = [ebp - 404] + 4
+    *[ebp - 404] = 2
+    [ebp - 404] = [ebp - 404] + 4
+    *[ebp - 404] = 3
+    [ebp - 404] = [ebp - 404] + 4
     sub esp, 4
     param [esp] , str_1
+    [ebp - 408] = 0 * 10
+    [ebp - 408] = [ebp - 408] * 4
+    [ebp - 412] = &[ebp - 400] + [ebp - 408]
+    [ebp - 416] = 0 * 1
+    [ebp - 416] = [ebp - 416] * 4
+    [ebp - 420] = [ebp - 412] + [ebp - 416]
     sub esp, 4
-    param [esp] , [ebp - 4]
-    [ebp - 13] = call printf, 2
+    param [esp] , *[ebp - 420]
+    [ebp - 424] = call printf, 2
     add esp, 8
-    [ebp - 9] = [ebp - 4]
-    [ebp - 4] = [ebp - 9] + 1;
-    goto main.L1
-main.L2:
+    sub esp, 4
+    param [esp] , str_2
+    [ebp - 428] = 0 * 10
+    [ebp - 428] = [ebp - 428] * 4
+    [ebp - 432] = &[ebp - 400] + [ebp - 428]
+    [ebp - 436] = 1 * 1
+    [ebp - 436] = [ebp - 436] * 4
+    [ebp - 440] = [ebp - 432] + [ebp - 436]
+    sub esp, 4
+    param [esp] , *[ebp - 440]
+    [ebp - 444] = call printf, 2
+    add esp, 8
+    sub esp, 4
+    param [esp] , str_3
+    [ebp - 448] = 3 * 10
+    [ebp - 448] = [ebp - 448] * 4
+    [ebp - 452] = &[ebp - 400] + [ebp - 448]
+    [ebp - 456] = 0 * 1
+    [ebp - 456] = [ebp - 456] * 4
+    [ebp - 460] = [ebp - 452] + [ebp - 456]
+    sub esp, 4
+    param [esp] , *[ebp - 460]
+    [ebp - 464] = call printf, 2
+    add esp, 8
+    [ebp - 468] = 3 * 10
+    [ebp - 468] = [ebp - 468] * 4
+    [ebp - 472] = &[ebp - 400] + [ebp - 468]
+    [ebp - 476] = 5 * 1
+    [ebp - 476] = [ebp - 476] * 4
+    [ebp - 480] = [ebp - 472] + [ebp - 476]
+    *[ebp - 480] = 8
+    sub esp, 4
+    param [esp] , str_4
+    [ebp - 484] = 2 * 10
+    [ebp - 484] = [ebp - 484] * 4
+    [ebp - 488] = &[ebp - 400] + [ebp - 484]
+    [ebp - 492] = 2 * 1
+    [ebp - 492] = [ebp - 492] * 4
+    [ebp - 496] = [ebp - 488] + [ebp - 492]
+    sub esp, 4
+    param [esp] , *[ebp - 496]
+    [ebp - 500] = call printf, 2
+    add esp, 8
+    sub esp, 4
+    param [esp] , str_5
+    [ebp - 504] = 0 * 10
+    [ebp - 504] = [ebp - 504] * 4
+    [ebp - 508] = &[ebp - 400] + [ebp - 504]
+    [ebp - 512] = 2 * 1
+    [ebp - 512] = [ebp - 512] * 4
+    [ebp - 516] = [ebp - 508] + [ebp - 512]
+    sub esp, 4
+    param [esp] , *[ebp - 516]
+    [ebp - 520] = call printf, 2
+    add esp, 8
+    sub esp, 4
+    param [esp] , str_6
+    [ebp - 524] = 3 * 10
+    [ebp - 524] = [ebp - 524] * 4
+    [ebp - 528] = &[ebp - 400] + [ebp - 524]
+    [ebp - 532] = 5 * 1
+    [ebp - 532] = [ebp - 532] * 4
+    [ebp - 536] = [ebp - 528] + [ebp - 532]
+    sub esp, 4
+    param [esp] , *[ebp - 536]
+    [ebp - 540] = call printf, 2
+    add esp, 8
+    [ebp - 544] = 5
+    [ebp - 548] = &[ebp - 544]
+    [ebp - 552] = [ebp - 548]
+    [ebp - 556] = &[ebp - 552]
+    [ebp - 560] = [ebp - 556]
+    [ebp - 564] = *[ebp - 552]
+    [ebp - 564] = 8
+    sub esp, 4
+    param [esp] , str_7
+    sub esp, 4
+    param [esp] , [ebp - 544]
+    [ebp - 568] = call printf, 2
+    add esp, 8
+    [ebp - 544] = 12
+    sub esp, 4
+    param [esp] , str_8
+    sub esp, 4
+    param [esp] , [ebp - 544]
+    [ebp - 572] = call printf, 2
+    add esp, 8
+    [ebp - 576] = *[ebp - 560]
+    [ebp - 580] = *[ebp - 576]
+    [ebp - 580] = 11
+    sub esp, 4
+    param [esp] , str_9
+    sub esp, 4
+    param [esp] , [ebp - 544]
+    [ebp - 584] = call printf, 2
+    add esp, 8
     return 0
     

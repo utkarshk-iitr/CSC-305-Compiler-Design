@@ -130,7 +130,7 @@
     unordered_map<string,string> typeDefTable;
 
     unordered_map<string,int> typeSize = {
-        {"int", 4}, {"char", 1}, {"bool", 1}, {"double", 4}, {"long", 4}, {"nullptr", 4}
+        {"int", 4}, {"char", 4}, {"bool", 4}, {"double", 4}, {"long", 4}, {"nullptr", 4}
     };
 
     int getTypeSize(const string &type) {
@@ -3986,7 +3986,7 @@ yyreduce:
             int p = functionOffset;
             for(int i = 0; i < offset.size(); i++)
                 p += offset[i];
-            w = "[ebp - " + to_string(p) + "]";
+            w = "&[ebp - " + to_string(p) + "]";
             sym->printName = w;
         }
 
@@ -4531,13 +4531,13 @@ yyreduce:
             int p = functionOffset;
             for(int i = 0; i < offset.size(); i++)
                 p += offset[i];
-            w = "[ebp - " + to_string(p) + "]";
+            w = "&[ebp - " + to_string(p) + "]";
             sym->printName = w;
         }
         dbg("fff");
         string tmp = newTemp("nullptr");
         dbg("ccv" + to_string(functionOffset));
-        n->code.push_back(tmp + " = &" + sym->printName);
+        n->code.push_back(tmp + " = " + sym->printName);
         for(int i = 0; i < (yyvsp[0].node)->argCount; i++)
         {
             n->code.push_back("*" + tmp + " = " + (yyvsp[0].node)->syn[i]);

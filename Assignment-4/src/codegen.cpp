@@ -80,6 +80,55 @@ private:
         return result;
     }
 
+    bool isAddressOperand(const string &s)
+    {
+        string trimmed = trim(s);
+        return !trimmed.empty() && trimmed[0] == '&';
+    }
+
+    void loadAddressIntoRegister(const string &operand, const string &reg)
+    {
+        string trimmed = trim(operand);
+        if (!trimmed.empty() && trimmed[0] == '&')
+        {
+            trimmed = trim(trimmed.substr(1));
+        }
+
+        string targetExpr;
+
+        if (isMemoryReference(trimmed))
+        {
+            targetExpr = normalizeMemRef(trimmed);
+        }
+        else
+        {
+            string cleaned;
+            for (char c : trimmed)
+            {
+                if (!isspace(static_cast<unsigned char>(c)))
+                {
+                    cleaned += c;
+                }
+            }
+
+            if (cleaned.empty())
+            {
+                cleaned = trimmed;
+            }
+
+            if (!cleaned.empty() && cleaned.front() != '[')
+            {
+                targetExpr = "[" + cleaned + "]";
+            }
+            else
+            {
+                targetExpr = cleaned;
+            }
+        }
+
+        emit("lea " + reg + ", " + targetExpr);
+    }
+
     // Helper: Split string by delimiter
     vector<string> split(const string &str, char delimiter)
     {
@@ -214,6 +263,42 @@ private:
 
         if (operation == "+")
         {
+            bool op1Address = isAddressOperand(op1);
+            bool op2Address = isAddressOperand(op2);
+
+            if (op1Address && op2Address)
+            {
+                loadAddressIntoRegister(op1, "eax");
+                loadAddressIntoRegister(op2, "ebx");
+                emit("add eax, ebx");
+                handleMov(normDest, "eax");
+                return;
+            }
+            else if (op1Address || op2Address)
+            {
+                bool baseIsOp1 = op1Address;
+                const string &baseOperand = baseIsOp1 ? op1 : op2;
+                string otherOperand = baseIsOp1 ? normOp2 : normOp1;
+
+                loadAddressIntoRegister(baseOperand, "eax");
+
+                if (!otherOperand.empty())
+                {
+                    if (isMemoryReference(otherOperand))
+                    {
+                        emit("mov ebx, " + otherOperand);
+                        emit("add eax, ebx");
+                    }
+                    else
+                    {
+                        emit("add eax, " + otherOperand);
+                    }
+                }
+
+                handleMov(normDest, "eax");
+                return;
+            }
+
             if (normOp1 == normDest)
             {
                 if (isMemoryReference(normOp2))
@@ -997,10 +1082,29 @@ private:
         if (trimmedLine.find(" = &") != string::npos)
         {
             size_t eqPos = trimmedLine.find(" = &");
-            dest = trim(trimmedLine.substr(0, eqPos));
-            src = trim(trimmedLine.substr(eqPos + 4));
-            handleAddressOf(dest, src);
-            return;
+            string afterAmp = trim(trimmedLine.substr(eqPos + 4));
+
+            vector<string> opsToCheck = {" + ", " - ", " * ", " / ", " % ", " & ", " | ", " ^ ",
+                                         " << ", " >> ", " == ", " != ", " < ", " > ", " <= ", " >= ",
+                                         " && ", " || "};
+
+            bool simpleAddress = true;
+            for (const auto &op : opsToCheck)
+            {
+                if (findOperatorOutsideBrackets(afterAmp, op) >= 0)
+                {
+                    simpleAddress = false;
+                    break;
+                }
+            }
+
+            if (simpleAddress)
+            {
+                dest = trim(trimmedLine.substr(0, eqPos));
+                src = afterAmp;
+                handleAddressOf(dest, src);
+                return;
+            }
         }
 
         // Dereference: dest = *src (but not multiplication)
