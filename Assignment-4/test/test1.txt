@@ -1,28 +1,30 @@
+int a = 10;
+
+int b;
+
+int c = 10;
+int d = 11;
+
+int **p1;
+char e;
+
 
 int main() 
 {
-    int a[10][10] = {1,2,3};
-    printf("%d\n",a[0][0]);
-    printf("%d\n",a[0][1]);
-    printf("%d\n",a[3][0]);
-    a[3][5] = 8;
-    printf("%d\n",a[2][2]);
-    printf("%d\n",a[0][2]);
-    printf("%d\n",a[3][5]);
+    int a = 5;
+   int *p = &a;
+    p1 = &p;
 
-    int b = 5;
-    int *p = &b;
+    int ***p2 = &p1;
 
-    int **p1 = &p;
+    printf("%d\n", a);
+    ***p2 = 13;
+    printf("%d\n", a);
 
-    (*p) = 8;
-    printf("%d\n",b);
+    a = 7;
+    int k = **p1;
+    printf("%d\n", k);
 
-    b = 12;
-    printf("%d\n",b);
-
-    *(*p1) = 11;
-    printf("%d\n",b);
 
     return 0;
 }

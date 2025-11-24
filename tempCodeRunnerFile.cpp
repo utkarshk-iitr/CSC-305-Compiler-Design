@@ -1,13 +1,21 @@
-struct A {
-    int    i;      // 4 bytes
-    char   c1;     // 1 byte
-    char   c2;     // 1 byte
-    double d;      // 8 bytes
-    int    j;      // 4 bytes
-};  // total = 4 + 1 + 1 + padding(2) + 8 + 4 = 20 bytes
+#include <iostream>
 
-int main() {
-    struct A a;
-    printf("Size of struct A: %zu bytes\n", sizeof(a));
+class A{
+    public:
+    char a,b,c;
+};
+
+void fn(A a){
+    a.c = 'a';
+    a.a = 'b';
+    a.b = 'c';
+    return;
+}
+
+int main(){
+    const int a = 5;
+    int* p = (int*)&a;
+    *p = 10;
+    std::cout << *(&a); // Undefined behavior
     return 0;
 }

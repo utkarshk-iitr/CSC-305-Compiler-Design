@@ -189,18 +189,19 @@
             return "";
         }   
         else if (currentFunction == "") {
-            string s = "global.t" + to_string(++globalTemp);
-            declareSymbol(s, type, "temp");
-            auto sym = lookupSymbol(s);
             if(lastClassType != "" && currentFunction == "")
             {
                 string w = "[this + " + to_string(classOffset) + "]";
                 classOffset += typeSize[type];
-                classTable[lastClassType][s].offset = classOffset;
-                classTable[lastClassType][s].type = type;
-                classTable[lastClassType][s].kind = "temp";
+                classTable[lastClassType][w].offset = classOffset;
+                classTable[lastClassType][w].type = type;
+                classTable[lastClassType][w].kind = "temp";
+                declareSymbol(w, type, "temp");
+                auto sym = lookupSymbol(w);
                 sym->printName = w;
+
                 sym->name = w;
+                return w;
             }
             else
             {
@@ -209,21 +210,25 @@
                 for(int i = 0; i < offset.size(); i++)
                     p += offset[i];
                 string w = "[ebp - " + to_string(p) + "]";
+                declareSymbol(w, type, "temp");
+                auto sym = lookupSymbol(w);
                 sym->printName = w;
                 sym->name = w;
+            return w;
             }
-            return sym->printName;
         } else {
-            string s = "global.t" + to_string(++globalTemp);
-            declareSymbol(s, type, "temp");
-            auto sym = lookupSymbol(s);
             functionOffset += typeSize[type];
             int p = functionOffset;
             for(int i = 0; i < offset.size(); i++)
                 p += offset[i];
             string w = "[ebp - " + to_string(p) + "]";
+            declareSymbol(w, type, "temp");
+            auto sym = lookupSymbol(w);
             sym->printName = w;
             sym->name = w;
+            dbg("New temp: " + w);
+            dbg("sym->name: " + sym->name);
+            dbg("sym->printName: " + sym->printName);
             return w;
         }
     }
@@ -489,6 +494,7 @@ primary_expression
         Node* n = new Node();
         string name = string($1);
         dbg(name);
+        dbg("lksajdlajdkadn");
         Symbol* sym = lookupSymbol(name);
         dbg("");
         dbg("Looking up symbol: " + name);
@@ -1154,9 +1160,35 @@ unary_expression
             if(n->kind.find("rvalue")!=string::npos){
                 yyerror("Cannot dereference a rvalue.");
             }
+            int c = 0;
+            for(int i = rhs->type.size() - 1; i >= 0; i--) {
+                c += (rhs->type[i] == '*') ? 1 : 0;
+            }
+            string t = rhs->place;
+            dbg("t is " + t);
+            auto it = lookupSymbol(t);
+            dbg("t printname is " + it->printName);
+            if(!it){
+                yyerror("Invalid pointer dereference.");
+            }
+            dbg("xwnxjkwn");
             n->type = rhs->type.substr(0, rhs->type.size() - 1);
-            n->place = rhs->place;
-            n->printName = "*" + rhs->printName;
+            if(c>1)
+            {
+                n->printName = newTemp(n->type);
+                n->code.push_back(n->printName + " = *" + it->printName);
+                auto jt = lookupSymbol(n->printName);
+                dbg("n->printName is " + n->printName);
+                if(jt)
+                dbg("jt printname is " + jt->printName);
+                else
+                dbg("jt not found");
+                n->place = n->printName;
+            }
+            else{
+                n->place = "*" + it->printName;
+                n->printName = "*" + it->printName;
+            }
         } else if (op == "+") {
             n->place = rhs->place;
             n->type = rhs->type;
@@ -1239,7 +1271,8 @@ cast_expression
 	: unary_expression { 
         dbg("cast_expression -> unary_expression");
         dbg(lastDeclType);
-        $$ = $1; }
+        $$ = $1; 
+    }
 	| LROUND cast_type RROUND cast_expression 
     {
         dbg("cast_expression -> ( cast_type ) cast_expression");
@@ -1960,15 +1993,15 @@ init_declarator
         {
             sym->printName = n->place;
             if(n->type == "bool")
-                uglobalCode.push_back(n->place + " resb 1");
+                uglobalCode.push_back(n->place + " resd 1");
             else if(n->type == "char")
-                uglobalCode.push_back(n->place + " resb 1");
+                uglobalCode.push_back(n->place + " resd 1");
             else if(n->type == "int")
                 uglobalCode.push_back(n->place + " resd 1");
             else if(n->type == "long")
-                uglobalCode.push_back(n->place + " resq 1");
+                uglobalCode.push_back(n->place + " resd 1");
             else if(n->type == "double")
-                uglobalCode.push_back(n->place + " resq 1");
+                uglobalCode.push_back(n->place + " resd 1");
         }
         else if(lastClassType != "" && currentFunction == "")
         {
@@ -2109,6 +2142,7 @@ init_declarator
         dbg("ukurb " + n->place);
         if(lastClassType == "" && currentFunction == "")
         {
+            yyerror("Array '" + n->place + "' cannot be declared globally.");
             sym->printName = n->place;
             int p = 1;
             for(int i = 0; i < n->argCount; i++)
@@ -2116,15 +2150,15 @@ init_declarator
                 p *= stoi(n->syn[i]);
             }
             if(n->type.substr(0, n->type.size() - n->argCount) == "bool")
-                uglobalCode.push_back(n->place + " resb " + to_string(p));
+                uglobalCode.push_back(n->place + " resd " + to_string(p));
             else if(n->type.substr(0, n->type.size() - n->argCount) == "char")
-                uglobalCode.push_back(n->place + " resb " + to_string(p));
+                uglobalCode.push_back(n->place + " resd " + to_string(p));
             else if(n->type.substr(0, n->type.size() - n->argCount) == "int")
                 uglobalCode.push_back(n->place + " resd " + to_string(p));
             else if(n->type.substr(0, n->type.size() - n->argCount) == "long")
-                uglobalCode.push_back(n->place + " resq " + to_string(p));
+                uglobalCode.push_back(n->place + " resd " + to_string(p));
             else if(n->type.substr(0, n->type.size() - n->argCount) == "double")
-                uglobalCode.push_back(n->place + " resq " + to_string(p));
+                uglobalCode.push_back(n->place + " resd " + to_string(p));
         }
         else if(lastClassType != "" && currentFunction == "")
         {
@@ -2255,7 +2289,7 @@ init_declarator
         if(lastClassType == "" && currentFunction == "")
         {
             sym->printName = n->place;
-            uglobalCode.push_back(n->place + " resq 1");
+            uglobalCode.push_back(n->place + " resd 1");
         }
         else if(lastClassType != "" && currentFunction == "")
         {
@@ -2383,7 +2417,8 @@ init_declarator
         
         if(lastClassType == "" && currentFunction == "")
         {
-            sym->printName = name;
+            sym->printName = "[" + n->place + "]";
+            globalCode.push_back(n->place + " dd " + $3->printName);
         }
         else if(lastClassType != "" && currentFunction == "")
         {
@@ -2417,11 +2452,13 @@ init_declarator
             w = "[ebp - " + to_string(p) + "]";
             sym->printName = w;
         }
-        if($3->kind == "rvalue"){
-            n->code.push_back(sym->printName + " = " + $3->place);
-        }
-        else{
-            n->code.push_back(sym->printName + " = " + $3->printName);
+        if(!(lastClassType == "" && currentFunction == "")){
+            if($3->kind == "rvalue"){
+                n->code.push_back(sym->printName + " = " + $3->place);
+            }
+            else{
+                n->code.push_back(sym->printName + " = " + $3->printName);
+            }
         }
 
         dbg("");
@@ -2518,7 +2555,8 @@ init_declarator
         sym->printName = w;
         if(lastClassType == "" && currentFunction == "")
         {
-            sym->printName = name;
+            sym->printName = "[" + n->place + "]";
+            globalCode.push_back(n->place + " dd " + $4->printName);
         }
         else if(lastClassType != "" && currentFunction == "")
         {
@@ -2545,7 +2583,8 @@ init_declarator
             w = "[ebp - " + to_string(p) + "]";
             sym->printName = w;
         }
-        n->code.push_back(w + " = " + $4->printName);
+        if(!(lastClassType == "" && currentFunction == ""))
+            n->code.push_back(w + " = " + $4->printName);
 
         dbg("");
         dbg("Declared pointer: " + n->place + " of type: " + n->type + " and kind: " + n->kind);
@@ -3890,7 +3929,7 @@ external_declaration
     }
     | declare {
         dbg("external_declaration -> declare");
-        globalCode.insert(globalCode.begin(),$1->code.begin(),$1->code.end());
+        globalCode.insert(globalCode.end(), $1->code.begin(), $1->code.end());
         $$ = new Node();
     }
     ;
@@ -4203,7 +4242,9 @@ external
         dbg("external -> init_declarator_list ;");
         Node* n = new Node();
         if(lastClassType == "")
-            globalCode.insert(globalCode.begin(),$1->code.begin(),$1->code.end());
+        {
+            globalCode.insert(globalCode.end(), $1->code.begin(), $1->code.end());
+        }
         else
         {
             n->code.insert(n->code.end(),$1->code.begin(),$1->code.end());
@@ -4321,7 +4362,6 @@ int main(int argc, char** argv){
     yydebug = 0;
     pushScope();
     if(yyparse()) cerr << "Parsing failed.\n";
-    else cerr << "Parsing completed successfully.\n"; 
 
     if(!errors.empty()){
         cout<<"---- Errors found ----\n";

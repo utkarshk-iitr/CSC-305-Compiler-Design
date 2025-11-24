@@ -224,6 +224,37 @@ private:
         return result;
     }
 
+    bool classifyDataDeclaration(const string &trimmedLine, bool &isUninitialized)
+    {
+        if (trimmedLine.empty() || trimmedLine.back() == ':')
+            return false;
+
+        istringstream iss(trimmedLine);
+        string symbol;
+        string directive;
+        if (!(iss >> symbol >> directive))
+            return false;
+
+        string directiveLower = directive;
+        transform(directiveLower.begin(), directiveLower.end(), directiveLower.begin(), [](unsigned char c)
+                  { return static_cast<char>(tolower(c)); });
+
+        if (directiveLower.rfind("res", 0) == 0)
+        {
+            isUninitialized = true;
+            return true;
+        }
+
+        static const vector<string> initializedDirectives = {"db", "dd", "dq", "dw"};
+        if (find(initializedDirectives.begin(), initializedDirectives.end(), directiveLower) != initializedDirectives.end())
+        {
+            isUninitialized = false;
+            return true;
+        }
+
+        return false;
+    }
+
     // Handle mov instruction, dealing with memory-to-memory moves
     void handleMov(const string &dest, const string &src, const string &sizeHint = "dword")
     {
@@ -1164,35 +1195,58 @@ public:
 
     void generate()
     {
-        // Add x86 assembly header
-        x86Code.push_back("section .data");
+        vector<string> uninitializedGlobals;
+        vector<string> initializedGlobals;
 
-        bool dataEmitted = false;
-
-        // First pass: emit data section
+        // First pass: collect data declarations
         for (const auto &line : tac)
         {
             string trimmedLine = trim(line);
             if (trimmedLine.empty())
                 continue;
 
-            // Check if it's a data declaration
-            if ((trimmedLine.find(" db ") != string::npos ||
-                 trimmedLine.find(" resd ") != string::npos ||
-                 trimmedLine.find(" resb ") != string::npos ||
-                 trimmedLine.find(" resq ") != string::npos ||
-                 trimmedLine.find(" dd ") != string::npos) &&
-                trimmedLine.back() != ':')
+            bool isUninitialized = false;
+            if (classifyDataDeclaration(trimmedLine, isUninitialized))
             {
-                // Process escape sequences in string literals
                 string processedLine = processEscapeSequences(trimmedLine);
-                x86Code.push_back("    " + processedLine);
-                dataEmitted = true;
+                if (isUninitialized)
+                {
+                    uninitializedGlobals.push_back(processedLine);
+                }
+                else
+                {
+                    initializedGlobals.push_back(processedLine);
+                }
             }
         }
 
-        if (!dataEmitted)
+        bool hasBss = !uninitializedGlobals.empty();
+        bool hasData = !initializedGlobals.empty();
+
+        if (hasBss)
         {
+            x86Code.push_back("section .bss");
+            for (const auto &line : uninitializedGlobals)
+            {
+                x86Code.push_back("    " + line);
+            }
+        }
+
+        if (hasData)
+        {
+            if (hasBss)
+            {
+                x86Code.push_back("");
+            }
+            x86Code.push_back("section .data");
+            for (const auto &line : initializedGlobals)
+            {
+                x86Code.push_back("    " + line);
+            }
+        }
+        else if (!hasBss)
+        {
+            x86Code.push_back("section .data");
             x86Code.push_back("    ; No global data");
         }
 
@@ -1212,12 +1266,8 @@ public:
             string trimmedLine = trim(tac[i]);
 
             // Skip data declarations in code section
-            if (!trimmedLine.empty() && trimmedLine.back() != ':' &&
-                (trimmedLine.find(" db ") != string::npos ||
-                 trimmedLine.find(" resd ") != string::npos ||
-                 trimmedLine.find(" resb ") != string::npos ||
-                 trimmedLine.find(" resq ") != string::npos ||
-                 trimmedLine.find(" dd ") != string::npos))
+            bool isUninitialized = false;
+            if (classifyDataDeclaration(trimmedLine, isUninitialized))
             {
                 continue;
             }
