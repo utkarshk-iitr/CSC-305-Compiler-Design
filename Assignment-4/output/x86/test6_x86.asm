@@ -17,8 +17,7 @@ main:
     push ebp
     mov ebp, esp
     sub esp, 127
-    mov eax, 0.00
-    mov [ebp-12], eax
+    mov dword [ebp-12], 0x00000000
     mov eax, str_1
     push eax
     call printf
@@ -57,7 +56,6 @@ main:
     mov eax, [ebp-73]
     test eax, eax
     jz main.L1
-    sub esp, 4
     mov eax, str_3
     push eax
     call printf
@@ -87,14 +85,13 @@ main.L2:
     mov eax, [ebp-82]
     test eax, eax
     jz main.L3
-    sub esp, 44
     mov eax, [ebp-81]
     imul eax, eax, 8
     mov [ebp-94], eax
     mov eax, [ebp-64]
-    mov [ebp-102], eax
     mov ebx, [ebp-94]
-    add dword [ebp-102], ebx
+    add eax, ebx
+    mov [ebp-102], eax
     lea eax, [ebp-102]
     mov [ebp-110], eax
     mov eax, [ebp-110]
@@ -108,27 +105,30 @@ main.L2:
     imul eax, eax, 8
     mov [ebp-122], eax
     mov eax, [ebp-64]
-    mov [ebp-130], eax
     mov ebx, [ebp-122]
-    add dword [ebp-130], ebx
-    mov ebx, [ebp-130]
-    add dword [ebp-12], ebx
+    add eax, ebx
+    mov [ebp-130], eax
+    movss xmm0, [ebp-12]
+    mov eax, [ebp-130]
+    movss xmm1, [eax]
+    addss xmm0, xmm1
+    movss [ebp-12], xmm0
     add esp, 44
     mov eax, [ebp-81]
     mov [ebp-86], eax
     mov eax, [ebp-86]
+    add eax, 1
     mov [ebp-81], eax
-    add dword [ebp-81], 1
     jmp main.L2
 main.L3:
     mov eax, [ebp-4]
     mov [ebp-94], eax
-    mov eax, [ebp-12]
-    cdq
-    idiv [ebp-94]
-    mov [ebp-102], eax
-    mov eax, [ebp-102]
-    mov [ebp-110], eax
+    movss xmm0, [ebp-12]
+    movss xmm1, [ebp-94]
+    divss xmm0, xmm1
+    movss [ebp-102], xmm0
+    movss xmm0, [ebp-102]
+    movss [ebp-110], xmm0
     mov eax, str_6
     push eax
     call printf
@@ -145,38 +145,44 @@ main.L4:
     mov eax, [ebp-119]
     test eax, eax
     jz main.L5
-    sub esp, 20
     mov eax, [ebp-118]
     imul eax, eax, 8
     mov [ebp-131], eax
     mov eax, [ebp-64]
-    mov [ebp-139], eax
     mov ebx, [ebp-131]
-    add dword [ebp-139], ebx
+    add eax, ebx
+    mov [ebp-139], eax
     mov eax, [ebp-139]
-    push eax
+    sub esp, 8
+    movss xmm0, [eax]
+    cvtss2sd xmm0, xmm0
+    movsd [esp], xmm0
     mov eax, str_7
     push eax
     call printf
     mov [ebp-143], eax
-    add esp, 8
+    add esp, 12
     add esp, 20
     mov eax, [ebp-118]
     mov [ebp-123], eax
     mov eax, [ebp-123]
+    add eax, 1
     mov [ebp-118], eax
-    add dword [ebp-118], 1
     jmp main.L4
 main.L5:
-    mov eax, [ebp-110]
-    push eax
-    mov eax, [ebp-12]
-    push eax
+    sub esp, 8
+    movss xmm0, [ebp-110]
+    cvtss2sd xmm0, xmm0
+    movsd [esp], xmm0
+    sub esp, 8
+    movss xmm0, [ebp-12]
+    cvtss2sd xmm0, xmm0
+    movsd [esp], xmm0
     mov eax, str_8
     push eax
     call printf
     mov [ebp-127], eax
-    add esp, 12
+    add esp, 20
     mov eax, [ebp-64]
     push eax
     call free

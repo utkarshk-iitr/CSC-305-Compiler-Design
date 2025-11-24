@@ -2018,7 +2018,7 @@ init_declarator
                 w = "[ecx + " + to_string(classOffset) + "]";
                 classTable[lastClassType][n->place].offset = classOffset;
                 dbg("offset of " + n->place + " is " + to_string(classOffset));
-                classOffset += typeSize[n->type];
+                classOffset += getTypeSize(n->type);
                 sym->printName = w;
                 classTable[lastClassType][n->place].type = n->type;
                 classTable[lastClassType][n->place].kind = lastUsage;
@@ -2042,6 +2042,12 @@ init_declarator
             yyerror("Variable '" + n->place + "' cannot be of type void.");
         }
 
+        if(n->kind.find("static") != string::npos)
+        {
+            yyerror("Static variable '" + n->place + "' must be initialized.");
+            // globalCode.push_back(n->place + " = 0;");
+        }
+
         dbg("");
         if(classTable.find(n->type) != classTable.end())
         {
@@ -2049,41 +2055,85 @@ init_declarator
             // n->code.push_back(w1 + " = &" + w + ";");
             // n->code.push_back("param " + w1 + ";");
             // n->code.push_back("call " + n->type + ", 1;");
-            for(const auto& member : classTable[n->type])
+            if(lastClassType == "")
             {
-                if(member.second.kind == "function")
+                for(const auto& member : classTable[n->type])
                 {
-                    string name = n->place + "." + member.first;
-                    string original = n->place + "." + member.second.method.original;
-                    if(lookupSymbol(original) == nullptr)
-                        declareSymbol(original, "function","function",vector<string>(),true);
-                    dbg(original);
-                    funcInfo f = member.second.method;
-                    f.place = n->place + "." + f.place;
-                    dbg("zz");
-                    dbg(f.place);
-                    funcTable[name] = f;
-                    dbg("Function '" + name + "' with return type '" + funcTable[name].returnType + "' declared.");
-                }
-                else if(member.second.kind.find("static") == string::npos)
-                {
-                    string name = n->place + "." + member.first;
-                    bool ok = declareSymbol(name, member.second.type, member.second.kind);
-
-                    if (!ok) {
-                        yyerror("Duplicate declaration of '" + name + "' in same scope.");
+                    if(member.second.kind == "function")
+                    {
+                        string name = n->place + "." + member.first;
+                        string original = n->place + "." + member.second.method.original;
+                        if(lookupSymbol(original) == nullptr)
+                            declareSymbol(original, "function","function",vector<string>(),true);
+                        dbg(original);
+                        funcInfo f = member.second.method;
+                        f.place = n->place + "." + f.place;
+                        dbg("zz");
+                        dbg(f.place);
+                        funcTable[name] = f;
+                        dbg("Function '" + name + "' with return type '" + funcTable[name].returnType + "' declared.");
                     }
+                    else if(member.second.kind.find("static") == string::npos)
+                    {
+                        string name = n->place + "." + member.first;
+                        bool ok = declareSymbol(name, member.second.type, member.second.kind);
 
-                    Symbol* sym = lookupSymbol(name);
-                    string w = currentFunction + currentScope + name;
-                    sym->printName = "[ebp - " + to_string(functionOffset - member.second.offset) + "]";
+                        if (!ok) {
+                            yyerror("Duplicate declaration of '" + name + "' in same scope.");
+                        }
 
-                    dbg("offset of " + name + " is " + to_string(member.second.offset));
+                        Symbol* sym = lookupSymbol(name);
+                        string w = currentFunction + currentScope + name;
+                        sym->printName = "[ebp - " + to_string(functionOffset - member.second.offset) + "]";
 
-                    dbg("mmm");
-                    dbg(w);
-                    dbg("Variable '" + name + "' with type '" + member.second.type + "' declared.");
+                        dbg("offset of " + name + " is " + to_string(member.second.offset));
+
+                        dbg("mmm");
+                        dbg(w);
+                        dbg("Variable '" + name + "' with type '" + member.second.type + "' declared.");
+                    }
                 }
+            }
+            else
+            {
+                // classOffset -= getTypeSize(n->type);
+                for(const auto& member : classTable[n->type])
+                {
+                    if(member.second.kind == "function")
+                    {
+                        string name = n->place + "." + member.first;
+                        string original = n->place + "." + member.second.method.original;
+                        if(lookupSymbol(original) == nullptr)
+                            declareSymbol(original, "function","function",vector<string>(),true);
+                        dbg(original);
+                        funcInfo f = member.second.method;
+                        f.place = n->place + "." + f.place;
+                        dbg("zz");
+                        dbg(f.place);
+                        funcTable[name] = f;
+                        dbg("Function '" + name + "' with return type '" + funcTable[name].returnType + "' declared.");
+                    }
+                    else if(member.second.kind.find("static") == string::npos)
+                    {
+                        string name = n->place + "." + member.first;
+                        bool ok = declareSymbol(name, member.second.type, member.second.kind);
+
+                        if (!ok) {
+                            yyerror("Duplicate declaration of '" + name + "' in same scope.");
+                        }
+
+                        Symbol* sym = lookupSymbol(name);
+                        string w = currentFunction + currentScope + name;
+                        classOffset -= getTypeSize(member.second.type);
+                        sym->printName = "[ecx + " + to_string(classOffset) + "]";
+
+                        dbg("offset of " + name + " is " + to_string(member.second.offset));
+                        dbg("mmm");
+                        dbg(w);
+                        dbg("Variable '" + name + "' with type '" + member.second.type + "' declared.");
+                    }
+                }
+                classOffset += getTypeSize(n->type);
             }
         }
         dbg("");
@@ -2210,41 +2260,94 @@ init_declarator
             yyerror("Variable '" + n->place + "' cannot be of type void.");
         }
 
+        if(n->kind.find("static") != string::npos)
+        {
+            yyerror("Array '" + n->place + "' cannot be declared static.");
+            // globalCode.push_back(n->place + " = 0;");
+        }
+
         dbg("");
         if(classTable.find(n->type) != classTable.end())
         {
-            for(const auto& member : classTable[n->type])
+            if(lastClassType == "")
             {
-                if(member.second.kind == "function")
+                for(const auto& member : classTable[n->type])
                 {
-                    string name = n->place + "." + member.first;
-                    string original = n->place + "." + member.second.method.original;
-                    if(lookupSymbol(original) == nullptr)
-                        declareSymbol(original, "function","function",vector<string>(),true);
-                    dbg(original);
-                    funcInfo f = member.second.method;
-                    f.place = n->place + "." + f.place;
-                    dbg("zaz");
-                    dbg(f.place);
-                    funcTable[name] = f;
-                    dbg("Function '" + name + "' with return type '" + funcTable[name].returnType + "' declared.");
-                }
-                else if(member.second.kind.find("static") == string::npos)
-                {
-                    string name = n->place + "." + member.first;
-                    bool ok = declareSymbol(name, member.second.type, member.second.kind);
-
-                    if (!ok) {
-                        yyerror("Duplicate declaration of '" + name + "' in same scope.");
+                    if(member.second.kind == "function")
+                    {
+                        string name = n->place + "." + member.first;
+                        string original = n->place + "." + member.second.method.original;
+                        if(lookupSymbol(original) == nullptr)
+                            declareSymbol(original, "function","function",vector<string>(),true);
+                        dbg(original);
+                        funcInfo f = member.second.method;
+                        f.place = n->place + "." + f.place;
+                        dbg("zz");
+                        dbg(f.place);
+                        funcTable[name] = f;
+                        dbg("Function '" + name + "' with return type '" + funcTable[name].returnType + "' declared.");
                     }
+                    else if(member.second.kind.find("static") == string::npos)
+                    {
+                        string name = n->place + "." + member.first;
+                        bool ok = declareSymbol(name, member.second.type, member.second.kind);
 
-                    Symbol* sym = lookupSymbol(name);
-                    string w = currentFunction + currentScope + name;
+                        if (!ok) {
+                            yyerror("Duplicate declaration of '" + name + "' in same scope.");
+                        }
 
-                    sym->printName = "[ebp - " + to_string(functionOffset - member.second.offset) + "]";
+                        Symbol* sym = lookupSymbol(name);
+                        string w = currentFunction + currentScope + name;
+                        sym->printName = "[ebp - " + to_string(functionOffset - member.second.offset) + "]";
 
-                    dbg("Variable '" + name + "' with type '" + member.second.type + "' declared.");
+                        dbg("offset of " + name + " is " + to_string(member.second.offset));
+
+                        dbg("mmm");
+                        dbg(w);
+                        dbg("Variable '" + name + "' with type '" + member.second.type + "' declared.");
+                    }
                 }
+            }
+            else
+            {
+                // classOffset -= getTypeSize(n->type);
+                for(const auto& member : classTable[n->type])
+                {
+                    if(member.second.kind == "function")
+                    {
+                        string name = n->place + "." + member.first;
+                        string original = n->place + "." + member.second.method.original;
+                        if(lookupSymbol(original) == nullptr)
+                            declareSymbol(original, "function","function",vector<string>(),true);
+                        dbg(original);
+                        funcInfo f = member.second.method;
+                        f.place = n->place + "." + f.place;
+                        dbg("zz");
+                        dbg(f.place);
+                        funcTable[name] = f;
+                        dbg("Function '" + name + "' with return type '" + funcTable[name].returnType + "' declared.");
+                    }
+                    else if(member.second.kind.find("static") == string::npos)
+                    {
+                        string name = n->place + "." + member.first;
+                        bool ok = declareSymbol(name, member.second.type, member.second.kind);
+
+                        if (!ok) {
+                            yyerror("Duplicate declaration of '" + name + "' in same scope.");
+                        }
+
+                        Symbol* sym = lookupSymbol(name);
+                        string w = currentFunction + currentScope + name;
+                        classOffset -= getTypeSize(member.second.type);
+                        sym->printName = "[ecx + " + to_string(classOffset) + "]";
+
+                        dbg("offset of " + name + " is " + to_string(member.second.offset));
+                        dbg("mmm");
+                        dbg(w);
+                        dbg("Variable '" + name + "' with type '" + member.second.type + "' declared.");
+                    }
+                }
+                classOffset += getTypeSize(n->type);
             }
         }
         dbg("");
@@ -2328,44 +2431,97 @@ init_declarator
             yyerror("Variable '" + n->place + "' cannot be of type void.");
         }
 
+        if(n->kind.find("static") != string::npos)
+        {
+            yyerror("Static variable '" + n->place + "' must be initialized.");
+            // globalCode.push_back(n->place + " = 0;");
+        }
+
         if(classTable.find(lastDeclType) != classTable.end())
         {
             // string w1 = newTemp();
             // n->code.push_back(w1 + " = " + w + ";");
             // n->code.push_back("param " + w1 + ";");
             // n->code.push_back("call " + lastDeclType + ", 1;");
-            for(const auto& member : classTable[lastDeclType])
+            if(lastClassType == "")
             {
-                if(member.second.kind == "function")
+                for(const auto& member : classTable[n->type])
                 {
-                    string name = stars + n->place + "." + member.first;
-                    string original = stars + n->place + "." + member.second.method.original;
-                    if(lookupSymbol(original) == nullptr)
-                        declareSymbol(original, "function","function",vector<string>(),true);
-                    dbg(original);
-                    funcInfo f = member.second.method;
-                    f.place = stars + n->place + "." + f.place;
-                    dbg("zzw");
-                    dbg(f.place);
-                    funcTable[name] = f;
-                    dbg("Function '" + name + "' with return type '" + funcTable[name].returnType + "' declared.");
-                }
-                else if(member.second.kind.find("static") == string::npos)
-                {
-                    string name = stars + n->place + "." + member.first;
-                    bool ok = declareSymbol(name, member.second.type, member.second.kind);
-
-                    if (!ok) {
-                        yyerror("Duplicate declaration of '" + name + "' in same scope.");
+                    if(member.second.kind == "function")
+                    {
+                        string name = n->place + "." + member.first;
+                        string original = n->place + "." + member.second.method.original;
+                        if(lookupSymbol(original) == nullptr)
+                            declareSymbol(original, "function","function",vector<string>(),true);
+                        dbg(original);
+                        funcInfo f = member.second.method;
+                        f.place = n->place + "." + f.place;
+                        dbg("zz");
+                        dbg(f.place);
+                        funcTable[name] = f;
+                        dbg("Function '" + name + "' with return type '" + funcTable[name].returnType + "' declared.");
                     }
+                    else if(member.second.kind.find("static") == string::npos)
+                    {
+                        string name = n->place + "." + member.first;
+                        bool ok = declareSymbol(name, member.second.type, member.second.kind);
 
-                    Symbol* sym = lookupSymbol(name);
-                    string w = lastClassType+currentFunction+currentScope + name;
-                    sym->printName = "[ebp - " + to_string(functionOffset - member.second.offset) + "]";
-                    dbg("mmm");
-                    dbg(w);
-                    dbg("Variable '" + name + "' with type '" + member.second.type + "' declared.");
+                        if (!ok) {
+                            yyerror("Duplicate declaration of '" + name + "' in same scope.");
+                        }
+
+                        Symbol* sym = lookupSymbol(name);
+                        string w = currentFunction + currentScope + name;
+                        sym->printName = "[ebp - " + to_string(functionOffset - member.second.offset) + "]";
+
+                        dbg("offset of " + name + " is " + to_string(member.second.offset));
+
+                        dbg("mmm");
+                        dbg(w);
+                        dbg("Variable '" + name + "' with type '" + member.second.type + "' declared.");
+                    }
                 }
+            }
+            else
+            {
+                // classOffset -= getTypeSize(n->type);
+                for(const auto& member : classTable[n->type])
+                {
+                    if(member.second.kind == "function")
+                    {
+                        string name = n->place + "." + member.first;
+                        string original = n->place + "." + member.second.method.original;
+                        if(lookupSymbol(original) == nullptr)
+                            declareSymbol(original, "function","function",vector<string>(),true);
+                        dbg(original);
+                        funcInfo f = member.second.method;
+                        f.place = n->place + "." + f.place;
+                        dbg("zz");
+                        dbg(f.place);
+                        funcTable[name] = f;
+                        dbg("Function '" + name + "' with return type '" + funcTable[name].returnType + "' declared.");
+                    }
+                    else if(member.second.kind.find("static") == string::npos)
+                    {
+                        string name = n->place + "." + member.first;
+                        bool ok = declareSymbol(name, member.second.type, member.second.kind);
+
+                        if (!ok) {
+                            yyerror("Duplicate declaration of '" + name + "' in same scope.");
+                        }
+
+                        Symbol* sym = lookupSymbol(name);
+                        string w = currentFunction + currentScope + name;
+                        classOffset -= getTypeSize(member.second.type);
+                        sym->printName = "[ecx + " + to_string(classOffset) + "]";
+
+                        dbg("offset of " + name + " is " + to_string(member.second.offset));
+                        dbg("mmm");
+                        dbg(w);
+                        dbg("Variable '" + name + "' with type '" + member.second.type + "' declared.");
+                    }
+                }
+                classOffset += getTypeSize(n->type);
             }
         }
         dbg("");
@@ -2411,12 +2567,12 @@ init_declarator
         }
         Symbol* sym = lookupSymbol(n->place);
         string w;
-        // if(lastClassType=="")
-        //     w = lastClassType+currentFunction+currentScope+n->place;
-        // else if(lastClassType!="" && currentFunction!="")
-        //     w = lastClassType+"."+currentFunction+currentScope+n->place;
-        // else
-        //     w = "obj."+currentScope+n->place;
+        if(lastClassType=="")
+            w = lastClassType+currentFunction+currentScope+n->place;
+        else if(lastClassType!="" && currentFunction!="")
+            w = lastClassType+"."+currentFunction+currentScope+n->place;
+        else
+            w = "obj."+currentScope+n->place;
         sym->printName = w;
         
         if(lastClassType == "" && currentFunction == "")
@@ -2456,12 +2612,28 @@ init_declarator
             w = "[ebp - " + to_string(p) + "]";
             sym->printName = w;
         }
-        if(!(lastClassType == "" && currentFunction == "")){
-            if($3->kind == "rvalue"){
-                n->code.push_back(sym->printName + " = " + $3->place);
+        if(!(lastClassType == "" && currentFunction == ""))
+        {
+            if(n->kind.find("static") == string::npos)
+            {
+                if($3->kind == "rvalue"){
+                    n->code.push_back(sym->printName + " = " + $3->place);
+                }
+                else{
+                    n->code.push_back(sym->printName + " = " + $3->printName);
+                }
             }
-            else{
-                n->code.push_back(sym->printName + " = " + $3->printName);
+            else
+            {
+                w = currentFunction+currentScope+n->place;
+                sym->printName = "[" + w + "]";
+                sym->name = w;
+                if($3->kind == "rvalue"){
+                    n->code.push_back(w + " dd " + $3->place);
+                }
+                else{
+                    n->code.push_back(w + " dd " + $3->printName);
+                }                
             }
         }
 
@@ -2476,40 +2648,85 @@ init_declarator
         dbg("nmnmn");
         if(classTable.find(n->type) != classTable.end())
         {
-            for(const auto& member : classTable[n->type])
+            if(lastClassType == "")
             {
-                if(member.second.kind == "function")
+                for(const auto& member : classTable[n->type])
                 {
-                    string name = n->place + "." + member.first;
-                    string original = n->place + "." + member.second.method.original;
-                    if(lookupSymbol(original) == nullptr)
-                        declareSymbol(original, "function","function",vector<string>(),true);
-                    dbg(original);
-                    funcInfo f = member.second.method;
-                    f.place = n->place + "." + f.place;
-                    dbg("zz");
-                    dbg(f.place);
-                    funcTable[name] = f;
-                    dbg("Function '" + name + "' with return type '" + funcTable[name].returnType + "' declared.");
-                }
-                else if(member.second.kind.find("static") == string::npos)
-                {
-                    string name = n->place + "." + member.first;
-                    bool ok = declareSymbol(name, member.second.type, member.second.kind);
-
-                    if (!ok) {
-                        yyerror("Duplicate declaration of '" + name + "' in same scope.");
+                    if(member.second.kind == "function")
+                    {
+                        string name = n->place + "." + member.first;
+                        string original = n->place + "." + member.second.method.original;
+                        if(lookupSymbol(original) == nullptr)
+                            declareSymbol(original, "function","function",vector<string>(),true);
+                        dbg(original);
+                        funcInfo f = member.second.method;
+                        f.place = n->place + "." + f.place;
+                        dbg("zz");
+                        dbg(f.place);
+                        funcTable[name] = f;
+                        dbg("Function '" + name + "' with return type '" + funcTable[name].returnType + "' declared.");
                     }
+                    else if(member.second.kind.find("static") == string::npos)
+                    {
+                        string name = n->place + "." + member.first;
+                        bool ok = declareSymbol(name, member.second.type, member.second.kind);
 
-                    Symbol* sym = lookupSymbol(name);
-                    string w = lastClassType+currentFunction+currentScope+name;
+                        if (!ok) {
+                            yyerror("Duplicate declaration of '" + name + "' in same scope.");
+                        }
 
-                    sym->printName = "[ebp - " + to_string(functionOffset - member.second.offset) + "]";
+                        Symbol* sym = lookupSymbol(name);
+                        string w = currentFunction + currentScope + name;
+                        sym->printName = "[ebp - " + to_string(functionOffset - member.second.offset) + "]";
 
-                    dbg("mmm");
-                    dbg(w);
-                    dbg("Variable '" + name + "' with type '" + member.second.type + "' declared.");
+                        dbg("offset of " + name + " is " + to_string(member.second.offset));
+
+                        dbg("mmm");
+                        dbg(w);
+                        dbg("Variable '" + name + "' with type '" + member.second.type + "' declared.");
+                    }
                 }
+            }
+            else
+            {
+                // classOffset -= getTypeSize(n->type);
+                for(const auto& member : classTable[n->type])
+                {
+                    if(member.second.kind == "function")
+                    {
+                        string name = n->place + "." + member.first;
+                        string original = n->place + "." + member.second.method.original;
+                        if(lookupSymbol(original) == nullptr)
+                            declareSymbol(original, "function","function",vector<string>(),true);
+                        dbg(original);
+                        funcInfo f = member.second.method;
+                        f.place = n->place + "." + f.place;
+                        dbg("zz");
+                        dbg(f.place);
+                        funcTable[name] = f;
+                        dbg("Function '" + name + "' with return type '" + funcTable[name].returnType + "' declared.");
+                    }
+                    else if(member.second.kind.find("static") == string::npos)
+                    {
+                        string name = n->place + "." + member.first;
+                        bool ok = declareSymbol(name, member.second.type, member.second.kind);
+
+                        if (!ok) {
+                            yyerror("Duplicate declaration of '" + name + "' in same scope.");
+                        }
+
+                        Symbol* sym = lookupSymbol(name);
+                        string w = currentFunction + currentScope + name;
+                        classOffset -= getTypeSize(member.second.type);
+                        sym->printName = "[ecx + " + to_string(classOffset) + "]";
+
+                        dbg("offset of " + name + " is " + to_string(member.second.offset));
+                        dbg("mmm");
+                        dbg(w);
+                        dbg("Variable '" + name + "' with type '" + member.second.type + "' declared.");
+                    }
+                }
+                classOffset += getTypeSize(n->type);
             }
         }
         dbg("");
@@ -2588,8 +2805,18 @@ init_declarator
             sym->printName = w;
         }
         if(!(lastClassType == "" && currentFunction == ""))
-            n->code.push_back(w + " = " + $4->printName);
-
+        {
+            if(n->type.find("static") == string::npos)
+            {
+                n->code.push_back(w + " = " + $4->printName);
+            }
+            else {
+                w = currentFunction+currentScope+n->place;
+                sym->printName = "[" + w + "]";
+                sym->name = w;
+                n->code.push_back(w + " dd " + $4->printName);              
+            }
+        }
         dbg("");
         dbg("Declared pointer: " + n->place + " of type: " + n->type + " and kind: " + n->kind);
         dbg("");
@@ -2601,39 +2828,85 @@ init_declarator
         dbg("");
         if(classTable.find(lastDeclType) != classTable.end())
         {
-            for(const auto& member : classTable[lastDeclType])
+            if(lastClassType == "")
             {
-                if(member.second.kind == "function")
+                for(const auto& member : classTable[n->type])
                 {
-                    string name = stars + n->place + "." + member.first;
-                    string original = stars + n->place + "." + member.second.method.original;
-                    if(lookupSymbol(original) == nullptr)
-                        declareSymbol(original, "function","function",vector<string>(),true);
-                    dbg(original);
-                    funcInfo f = member.second.method;
-                    f.place = stars + n->place + "." + f.place;
-                    dbg("zzw");
-                    dbg(f.place);
-                    funcTable[name] = f;
-                    dbg("Function '" + name + "' with return type '" + funcTable[name].returnType + "' declared.");
-                }
-                else if(member.second.kind.find("static") == string::npos)
-                {
-                    string name = stars + n->place + "." + member.first;
-                    bool ok = declareSymbol(name, member.second.type, member.second.kind);
-
-                    if (!ok) {
-                        yyerror("Duplicate declaration of '" + name + "' in same scope.");
+                    if(member.second.kind == "function")
+                    {
+                        string name = n->place + "." + member.first;
+                        string original = n->place + "." + member.second.method.original;
+                        if(lookupSymbol(original) == nullptr)
+                            declareSymbol(original, "function","function",vector<string>(),true);
+                        dbg(original);
+                        funcInfo f = member.second.method;
+                        f.place = n->place + "." + f.place;
+                        dbg("zz");
+                        dbg(f.place);
+                        funcTable[name] = f;
+                        dbg("Function '" + name + "' with return type '" + funcTable[name].returnType + "' declared.");
                     }
+                    else if(member.second.kind.find("static") == string::npos)
+                    {
+                        string name = n->place + "." + member.first;
+                        bool ok = declareSymbol(name, member.second.type, member.second.kind);
 
-                    Symbol* sym = lookupSymbol(name);
-                    string w = lastClassType+currentFunction+currentScope + name;
-                    sym->printName = "[ebp - " + to_string(functionOffset - member.second.offset) + "]";
+                        if (!ok) {
+                            yyerror("Duplicate declaration of '" + name + "' in same scope.");
+                        }
 
-                    dbg("mmm");
-                    dbg(w);
-                    dbg("Variable '" + name + "' with type '" + member.second.type + "' declared.");
+                        Symbol* sym = lookupSymbol(name);
+                        string w = currentFunction + currentScope + name;
+                        sym->printName = "[ebp - " + to_string(functionOffset - member.second.offset) + "]";
+
+                        dbg("offset of " + name + " is " + to_string(member.second.offset));
+
+                        dbg("mmm");
+                        dbg(w);
+                        dbg("Variable '" + name + "' with type '" + member.second.type + "' declared.");
+                    }
                 }
+            }
+            else
+            {
+                // classOffset -= getTypeSize(n->type);
+                for(const auto& member : classTable[n->type])
+                {
+                    if(member.second.kind == "function")
+                    {
+                        string name = n->place + "." + member.first;
+                        string original = n->place + "." + member.second.method.original;
+                        if(lookupSymbol(original) == nullptr)
+                            declareSymbol(original, "function","function",vector<string>(),true);
+                        dbg(original);
+                        funcInfo f = member.second.method;
+                        f.place = n->place + "." + f.place;
+                        dbg("zz");
+                        dbg(f.place);
+                        funcTable[name] = f;
+                        dbg("Function '" + name + "' with return type '" + funcTable[name].returnType + "' declared.");
+                    }
+                    else if(member.second.kind.find("static") == string::npos)
+                    {
+                        string name = n->place + "." + member.first;
+                        bool ok = declareSymbol(name, member.second.type, member.second.kind);
+
+                        if (!ok) {
+                            yyerror("Duplicate declaration of '" + name + "' in same scope.");
+                        }
+
+                        Symbol* sym = lookupSymbol(name);
+                        string w = currentFunction + currentScope + name;
+                        classOffset -= getTypeSize(member.second.type);
+                        sym->printName = "[ecx + " + to_string(classOffset) + "]";
+
+                        dbg("offset of " + name + " is " + to_string(member.second.offset));
+                        dbg("mmm");
+                        dbg(w);
+                        dbg("Variable '" + name + "' with type '" + member.second.type + "' declared.");
+                    }
+                }
+                classOffset += getTypeSize(n->type);
             }
         }
         dbg("");
@@ -2756,40 +3029,93 @@ init_declarator
             yyerror("Variable '" + n->place + "' cannot be of type void.");
         }
 
+        if(n->kind.find("static") != string::npos)
+        {
+            yyerror("Static array initialization not supported");
+            // globalCode.push_back(n->place + " = 0;");
+        }
         dbg("");
         if(classTable.find(n->type) != classTable.end())
         {
-            for(const auto& member : classTable[n->type])
+            if(lastClassType == "")
             {
-                if(member.second.kind == "function")
+                for(const auto& member : classTable[n->type])
                 {
-                    string name = n->place + "." + member.first;
-                    string original = n->place + "." + member.second.method.original;
-                    if(lookupSymbol(original) == nullptr)
-                        declareSymbol(original, "function","function",vector<string>(),true);
-                    dbg(original);
-                    funcInfo f = member.second.method;
-                    f.place = n->place + "." + f.place;
-                    dbg("zz");
-                    dbg(f.place);
-                    funcTable[name] = f;
-                    dbg("Function '" + name + "' with return type '" + funcTable[name].returnType + "' declared.");
-                }
-                else if(member.second.kind.find("static") == string::npos)
-                {
-                    string name = n->place + "." + member.first;
-                    bool ok = declareSymbol(name, member.second.type, member.second.kind);
-
-                    if (!ok) {
-                        yyerror("Duplicate declaration of '" + name + "' in same scope.");
+                    if(member.second.kind == "function")
+                    {
+                        string name = n->place + "." + member.first;
+                        string original = n->place + "." + member.second.method.original;
+                        if(lookupSymbol(original) == nullptr)
+                            declareSymbol(original, "function","function",vector<string>(),true);
+                        dbg(original);
+                        funcInfo f = member.second.method;
+                        f.place = n->place + "." + f.place;
+                        dbg("zz");
+                        dbg(f.place);
+                        funcTable[name] = f;
+                        dbg("Function '" + name + "' with return type '" + funcTable[name].returnType + "' declared.");
                     }
+                    else if(member.second.kind.find("static") == string::npos)
+                    {
+                        string name = n->place + "." + member.first;
+                        bool ok = declareSymbol(name, member.second.type, member.second.kind);
 
-                    Symbol* sym = lookupSymbol(name);
-                    string w = currentFunction + currentScope + name;
-                    sym->printName = "[ebp - " + to_string(functionOffset - member.second.offset) + "]";
+                        if (!ok) {
+                            yyerror("Duplicate declaration of '" + name + "' in same scope.");
+                        }
 
-                    dbg("Variable '" + name + "' with type '" + member.second.type + "' declared.");
+                        Symbol* sym = lookupSymbol(name);
+                        string w = currentFunction + currentScope + name;
+                        sym->printName = "[ebp - " + to_string(functionOffset - member.second.offset) + "]";
+
+                        dbg("offset of " + name + " is " + to_string(member.second.offset));
+
+                        dbg("mmm");
+                        dbg(w);
+                        dbg("Variable '" + name + "' with type '" + member.second.type + "' declared.");
+                    }
                 }
+            }
+            else
+            {
+                // classOffset -= getTypeSize(n->type);
+                for(const auto& member : classTable[n->type])
+                {
+                    if(member.second.kind == "function")
+                    {
+                        string name = n->place + "." + member.first;
+                        string original = n->place + "." + member.second.method.original;
+                        if(lookupSymbol(original) == nullptr)
+                            declareSymbol(original, "function","function",vector<string>(),true);
+                        dbg(original);
+                        funcInfo f = member.second.method;
+                        f.place = n->place + "." + f.place;
+                        dbg("zz");
+                        dbg(f.place);
+                        funcTable[name] = f;
+                        dbg("Function '" + name + "' with return type '" + funcTable[name].returnType + "' declared.");
+                    }
+                    else if(member.second.kind.find("static") == string::npos)
+                    {
+                        string name = n->place + "." + member.first;
+                        bool ok = declareSymbol(name, member.second.type, member.second.kind);
+
+                        if (!ok) {
+                            yyerror("Duplicate declaration of '" + name + "' in same scope.");
+                        }
+
+                        Symbol* sym = lookupSymbol(name);
+                        string w = currentFunction + currentScope + name;
+                        classOffset -= getTypeSize(member.second.type);
+                        sym->printName = "[ecx + " + to_string(classOffset) + "]";
+
+                        dbg("offset of " + name + " is " + to_string(member.second.offset));
+                        dbg("mmm");
+                        dbg(w);
+                        dbg("Variable '" + name + "' with type '" + member.second.type + "' declared.");
+                    }
+                }
+                classOffset += getTypeSize(n->type);
             }
         }
         dbg("");

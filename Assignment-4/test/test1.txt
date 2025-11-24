@@ -1,6 +1,21 @@
-int main() 
-{
-    float f = 1.2;
-    printf("%f", f);
+void incrementCallCount() {
+    static int callCount = 0;
+    callCount++;
+    printf("Inside incrementCallCount, callCount = %d\n", callCount);
+    return;
+}
+
+int main() {
+    printf("Static variable test:\n");
+
+    incrementCallCount();
+    incrementCallCount();
+    incrementCallCount();
+
+    static int localStatic = 100;
+    printf("Local static variable: %d\n", localStatic);
+    localStatic = localStatic + 10;
+    printf("Modified local static: %d\n", localStatic);
+
     return 0;
 }

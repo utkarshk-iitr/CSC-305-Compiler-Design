@@ -6,6 +6,10 @@
 #include <unordered_map>
 #include <algorithm>
 #include <cctype>
+#include <cstring>
+#include <cstdint>
+#include <iomanip>
+#include <limits>
 
 using namespace std;
 
@@ -16,6 +20,18 @@ private:
     vector<string> x86Code;
     unordered_map<string, int> labelMap;
     int tempCounter = 0;
+    int pendingFloatExtraBytes = 0;
+
+    enum class ValueType
+    {
+        Unknown,
+        Int,
+        Float,
+        Pointer,
+        Bool
+    };
+
+    unordered_map<string, ValueType> valueTypes;
 
     // Helper: Check if operand is a register
     bool isRegister(const string &s)
@@ -224,6 +240,282 @@ private:
         return result;
     }
 
+    string canonicalizeOperand(const string &operand)
+    {
+        string trimmed = trim(operand);
+        if (trimmed.empty())
+            return trimmed;
+
+        if (trimmed[0] == '*')
+        {
+            return "*" + canonicalizeOperand(trimmed.substr(1));
+        }
+
+        if (trimmed[0] == '&')
+        {
+            return "&" + canonicalizeOperand(trimmed.substr(1));
+        }
+
+        if (isMemoryReference(trimmed))
+        {
+            return normalizeMemRef(trimmed);
+        }
+
+        return trimmed;
+    }
+
+    bool isFloatLiteral(const string &value)
+    {
+        string trimmedValue = trim(value);
+        if (trimmedValue.empty())
+            return false;
+
+        bool hasDecimal = trimmedValue.find('.') != string::npos;
+        bool hasExponent = trimmedValue.find('e') != string::npos || trimmedValue.find('E') != string::npos;
+        bool hasSuffix = !trimmedValue.empty() && (trimmedValue.back() == 'f' || trimmedValue.back() == 'F');
+
+        if (!(hasDecimal || hasExponent || hasSuffix))
+            return false;
+
+        string candidate = trimmedValue;
+        if (hasSuffix)
+        {
+            candidate.pop_back();
+        }
+
+        try
+        {
+            size_t processed = 0;
+            stof(candidate, &processed);
+            return processed == candidate.size();
+        }
+        catch (...)
+        {
+            return false;
+        }
+    }
+
+    string floatLiteralToHex(const string &literal)
+    {
+        string trimmedValue = trim(literal);
+        string candidate = trimmedValue;
+        if (!candidate.empty() && (candidate.back() == 'f' || candidate.back() == 'F'))
+        {
+            candidate.pop_back();
+        }
+
+        float floatValue = 0.0f;
+        try
+        {
+            floatValue = stof(candidate);
+        }
+        catch (...)
+        {
+            floatValue = 0.0f;
+        }
+
+        uint32_t bits = 0;
+        memcpy(&bits, &floatValue, sizeof(float));
+
+        stringstream ss;
+        ss << "0x" << uppercase << hex << setw(8) << setfill('0') << bits;
+        return ss.str();
+    }
+
+    ValueType detectLiteralType(const string &value)
+    {
+        string trimmedValue = trim(value);
+        if (trimmedValue.empty())
+            return ValueType::Unknown;
+
+        if (trimmedValue == "true" || trimmedValue == "false")
+            return ValueType::Bool;
+
+        if (trimmedValue == "nullptr")
+            return ValueType::Pointer;
+
+        if (!trimmedValue.empty() && trimmedValue.front() == '\'' && trimmedValue.back() == '\'' && trimmedValue.size() >= 3)
+            return ValueType::Int;
+
+        if (isFloatLiteral(trimmedValue))
+            return ValueType::Float;
+
+        bool isNumeric = true;
+        size_t start = (trimmedValue[0] == '-' || trimmedValue[0] == '+') ? 1 : 0;
+        for (size_t i = start; i < trimmedValue.size(); i++)
+        {
+            if (!isdigit(static_cast<unsigned char>(trimmedValue[i])))
+            {
+                isNumeric = false;
+                break;
+            }
+        }
+
+        if (isNumeric && !trimmedValue.empty())
+            return ValueType::Int;
+
+        return ValueType::Unknown;
+    }
+
+    ValueType mergeTypes(ValueType existing, ValueType incoming)
+    {
+        if (incoming == ValueType::Unknown)
+            return existing;
+        if (existing == ValueType::Unknown)
+            return incoming;
+        if (existing == incoming)
+            return existing;
+        if (incoming == ValueType::Float)
+            return ValueType::Float;
+        return existing;
+    }
+
+    void setValueType(const string &operand, ValueType type)
+    {
+        if (type == ValueType::Unknown)
+            return;
+
+        string key = canonicalizeOperand(operand);
+        if (key.empty())
+            return;
+
+        auto it = valueTypes.find(key);
+        if (it == valueTypes.end())
+        {
+            valueTypes[key] = type;
+        }
+        else
+        {
+            it->second = mergeTypes(it->second, type);
+        }
+    }
+
+    ValueType getValueType(const string &operand)
+    {
+        string key = canonicalizeOperand(operand);
+        auto it = valueTypes.find(key);
+        if (it != valueTypes.end())
+            return it->second;
+
+        if (!key.empty())
+        {
+            ValueType literalType = detectLiteralType(key);
+            if (literalType != ValueType::Unknown)
+                return literalType;
+        }
+
+        return ValueType::Unknown;
+    }
+
+    bool isFloatType(ValueType type)
+    {
+        return type == ValueType::Float;
+    }
+
+    void loadFloatIntoXmm(const string &operand, const string &xmmReg)
+    {
+        string trimmed = trim(operand);
+
+        if (!trimmed.empty() && trimmed[0] == '*')
+        {
+            string addrOperand = trim(trimmed.substr(1));
+            string normAddr = normalizeMemRef(addrOperand);
+            emit("mov eax, " + normAddr);
+            emit("movss " + xmmReg + ", [eax]");
+            return;
+        }
+
+        string normOperand = normalizeMemRef(trimmed);
+
+        if (isImmediate(normOperand) || detectLiteralType(normOperand) == ValueType::Float || isFloatLiteral(normOperand))
+        {
+            string hexValue = floatLiteralToHex(normOperand);
+            emit("mov eax, " + hexValue);
+            emit("movd " + xmmReg + ", eax");
+        }
+        else if (isMemoryReference(normOperand))
+        {
+            emit("movss " + xmmReg + ", " + normOperand);
+        }
+        else if (isRegister(normOperand))
+        {
+            emit("movd " + xmmReg + ", " + normOperand);
+        }
+        else
+        {
+            emit("movss " + xmmReg + ", [" + normOperand + "]");
+        }
+    }
+
+    void storeXmmToOperand(const string &operand, const string &xmmReg)
+    {
+        string trimmed = trim(operand);
+
+        if (!trimmed.empty() && trimmed[0] == '*')
+        {
+            string addrOperand = trim(trimmed.substr(1));
+            string normAddr = normalizeMemRef(addrOperand);
+            emit("mov eax, " + normAddr);
+            emit("movss [eax], " + xmmReg);
+            return;
+        }
+
+        string normDest = normalizeMemRef(trimmed);
+        if (isMemoryReference(normDest))
+        {
+            emit("movss " + normDest + ", " + xmmReg);
+        }
+        else if (isRegister(normDest))
+        {
+            emit("movd " + normDest + ", " + xmmReg);
+        }
+        else
+        {
+            emit("movss [" + normDest + "], " + xmmReg);
+        }
+    }
+
+    ValueType determineBinaryResultType(const string &operation, ValueType lhs, ValueType rhs)
+    {
+        if ((operation == "+" || operation == "-" || operation == "*" || operation == "/") &&
+            (lhs == ValueType::Float || rhs == ValueType::Float))
+        {
+            return ValueType::Float;
+        }
+
+        if ((operation == "+" || operation == "-") &&
+            ((lhs == ValueType::Pointer && rhs == ValueType::Int) ||
+             (lhs == ValueType::Int && rhs == ValueType::Pointer)))
+        {
+            return ValueType::Pointer;
+        }
+
+        if (operation == "&&" || operation == "||" || operation == "==" || operation == "!=" ||
+            operation == "<" || operation == ">" || operation == "<=" || operation == ">=")
+        {
+            return ValueType::Bool;
+        }
+
+        return ValueType::Int;
+    }
+
+    ValueType valueTypeFromName(const string &typeName)
+    {
+        string base = typeName;
+        if (base.empty())
+            return ValueType::Unknown;
+
+        if (base.back() == '*')
+            return ValueType::Pointer;
+
+        if (base == "float")
+            return ValueType::Float;
+        if (base == "bool")
+            return ValueType::Bool;
+
+        return ValueType::Int;
+    }
+
     bool classifyDataDeclaration(const string &trimmedLine, bool &isUninitialized)
     {
         if (trimmedLine.empty() || trimmedLine.back() == ':')
@@ -258,6 +550,15 @@ private:
     // Handle mov instruction, dealing with memory-to-memory moves
     void handleMov(const string &dest, const string &src, const string &sizeHint = "dword")
     {
+        ValueType destType = getValueType(dest);
+        ValueType srcType = getValueType(src);
+
+        if (isFloatType(destType) || isFloatType(srcType) || detectLiteralType(src) == ValueType::Float)
+        {
+            handleFloatMov(dest, src);
+            return;
+        }
+
         string normDest = normalizeMemRef(dest);
         string normSrc = normalizeMemRef(src);
 
@@ -284,10 +585,89 @@ private:
         }
     }
 
+    void handleFloatMov(const string &dest, const string &src)
+    {
+        string trimmedDest = trim(dest);
+        string normDest = normalizeMemRef(trimmedDest);
+
+        bool destIsDeref = !trimmedDest.empty() && trimmedDest[0] == '*';
+
+        bool srcIsLiteral = detectLiteralType(src) == ValueType::Float || isFloatLiteral(src);
+
+        if (srcIsLiteral)
+        {
+            string hexValue = floatLiteralToHex(src);
+            if (destIsDeref)
+            {
+                string addrOperand = trim(trimmedDest.substr(1));
+                string normAddr = normalizeMemRef(addrOperand);
+                emit("mov eax, " + normAddr);
+                emit("mov dword [eax], " + hexValue);
+            }
+            else if (isMemoryReference(normDest))
+            {
+                emit("mov dword " + normDest + ", " + hexValue);
+            }
+            else if (isRegister(normDest))
+            {
+                emit("mov eax, " + hexValue);
+                emit("movd " + normDest + ", eax");
+            }
+            else
+            {
+                emit("mov dword [" + normDest + "], " + hexValue);
+            }
+            return;
+        }
+
+        loadFloatIntoXmm(src, "xmm0");
+        storeXmmToOperand(dest, "xmm0");
+    }
+
+    void handleFloatBinaryOp(const string &dest, const string &op1,
+                             const string &operation, const string &op2)
+    {
+        loadFloatIntoXmm(op1, "xmm0");
+        loadFloatIntoXmm(op2, "xmm1");
+
+        if (operation == "+")
+        {
+            emit("addss xmm0, xmm1");
+        }
+        else if (operation == "-")
+        {
+            emit("subss xmm0, xmm1");
+        }
+        else if (operation == "*")
+        {
+            emit("mulss xmm0, xmm1");
+        }
+        else if (operation == "/")
+        {
+            emit("divss xmm0, xmm1");
+        }
+        else
+        {
+            emitComment("Unsupported float operation: " + operation);
+        }
+
+        storeXmmToOperand(dest, "xmm0");
+    }
+
     // Handle binary arithmetic/logical operations
     void handleBinaryOp(const string &dest, const string &op1,
                         const string &operation, const string &op2)
     {
+        ValueType destType = getValueType(dest);
+        ValueType op1Type = getValueType(op1);
+        ValueType op2Type = getValueType(op2);
+
+        if (isFloatType(destType) || isFloatType(op1Type) || isFloatType(op2Type))
+        {
+            handleFloatBinaryOp(dest, op1, operation, op2);
+            return;
+        }
+
         string normDest = normalizeMemRef(dest);
         string normOp1 = normalizeMemRef(op1);
         string normOp2 = normalizeMemRef(op2);
@@ -598,24 +978,67 @@ private:
         if (trimmedLine.find(" = -") != string::npos || trimmedLine.find(" = 0 - ") != string::npos)
         {
             size_t eqPos = trimmedLine.find(" = ");
-            string dest = normalizeMemRef(trim(trimmedLine.substr(0, eqPos)));
+            string destRaw = trim(trimmedLine.substr(0, eqPos));
             string rhs = trim(trimmedLine.substr(eqPos + 3));
 
             if (rhs.find(" - ") != string::npos)
             {
                 // Format: dest = 0 - src
                 size_t minusPos = rhs.find(" - ");
-                string src = normalizeMemRef(trim(rhs.substr(minusPos + 3)));
+                string srcRaw = trim(rhs.substr(minusPos + 3));
+                ValueType destType = getValueType(destRaw);
+                ValueType srcType = getValueType(srcRaw);
 
-                handleMov(dest, src);
-                emit("neg " + dest);
+                if (srcType != ValueType::Unknown)
+                {
+                    setValueType(destRaw, srcType);
+                    destType = mergeTypes(destType, srcType);
+                }
+
+                if (isFloatType(destType) || isFloatType(srcType) || detectLiteralType(srcRaw) == ValueType::Float)
+                {
+                    loadFloatIntoXmm(srcRaw, "xmm0");
+                    emit("mov eax, 0x80000000");
+                    emit("movd xmm1, eax");
+                    emit("xorps xmm0, xmm1");
+                    storeXmmToOperand(destRaw, "xmm0");
+                }
+                else
+                {
+                    string dest = normalizeMemRef(destRaw);
+                    string src = normalizeMemRef(srcRaw);
+                    handleMov(dest, src);
+                    emit("neg " + dest);
+                }
             }
             else if (rhs[0] == '-')
             {
                 // Format: dest = -src
-                string src = normalizeMemRef(trim(rhs.substr(1)));
-                handleMov(dest, src);
-                emit("neg " + dest);
+                string srcRaw = trim(rhs.substr(1));
+                ValueType destType = getValueType(destRaw);
+                ValueType srcType = getValueType(srcRaw);
+
+                if (srcType != ValueType::Unknown)
+                {
+                    setValueType(destRaw, srcType);
+                    destType = mergeTypes(destType, srcType);
+                }
+
+                if (isFloatType(destType) || isFloatType(srcType) || detectLiteralType(srcRaw) == ValueType::Float)
+                {
+                    loadFloatIntoXmm(srcRaw, "xmm0");
+                    emit("mov eax, 0x80000000");
+                    emit("movd xmm1, eax");
+                    emit("xorps xmm0, xmm1");
+                    storeXmmToOperand(destRaw, "xmm0");
+                }
+                else
+                {
+                    string dest = normalizeMemRef(destRaw);
+                    string src = normalizeMemRef(srcRaw);
+                    handleMov(dest, src);
+                    emit("neg " + dest);
+                }
             }
         }
         // Bitwise NOT: dest = ~src
@@ -651,7 +1074,7 @@ private:
         if (eqPos == string::npos)
             return;
 
-        string dest = normalizeMemRef(trim(trimmedLine.substr(0, eqPos)));
+        string destRaw = trim(trimmedLine.substr(0, eqPos));
         string rhs = trim(trimmedLine.substr(eqPos + 3));
 
         // Find the conversion pattern: type1_to_type2 src
@@ -660,7 +1083,20 @@ private:
             return;
 
         string conversion = trim(rhs.substr(0, spacePos));
-        string src = normalizeMemRef(trim(rhs.substr(spacePos + 1)));
+        string srcRaw = trim(rhs.substr(spacePos + 1));
+        string dest = normalizeMemRef(destRaw);
+        string src = normalizeMemRef(srcRaw);
+
+        size_t arrowPos = conversion.find("_to_");
+        string fromType = arrowPos != string::npos ? conversion.substr(0, arrowPos) : "";
+        string toType = arrowPos != string::npos ? conversion.substr(arrowPos + 4) : "";
+
+        ValueType targetType = valueTypeFromName(toType);
+        ValueType sourceType = valueTypeFromName(fromType);
+        if (targetType != ValueType::Unknown)
+            setValueType(destRaw, targetType);
+        if (sourceType != ValueType::Unknown)
+            setValueType(srcRaw, sourceType);
 
         // For now, simple conversions just move the value
         // char_to_int: sign-extend byte to dword
@@ -668,6 +1104,18 @@ private:
         {
             handleMov("al", src);
             emit("movsx eax, al");
+            handleMov(dest, "eax");
+        }
+        else if (conversion.find("int_to_float") != string::npos)
+        {
+            handleMov("eax", src);
+            emit("cvtsi2ss xmm0, eax");
+            storeXmmToOperand(destRaw, "xmm0");
+        }
+        else if (conversion.find("float_to_int") != string::npos)
+        {
+            loadFloatIntoXmm(srcRaw, "xmm0");
+            emit("cvttss2si eax, xmm0");
             handleMov(dest, "eax");
         }
         else
@@ -704,19 +1152,35 @@ private:
 
         emit("lea eax, [" + addrSrc + "]");
         handleMov(normDest, "eax");
+        setValueType(dest, ValueType::Pointer);
     }
 
     // Handle dereference: dest = *src
     void handleDereference(const string &dest, const string &src)
     {
-        string normDest = normalizeMemRef(dest);
-        string normSrc = normalizeMemRef(src);
+        string destRaw = trim(dest);
+        string srcRaw = trim(src);
+        string normSrc = normalizeMemRef(srcRaw);
+        ValueType destType = getValueType(destRaw);
+        ValueType pointerValueType = getValueType("*" + srcRaw);
+        if (pointerValueType != ValueType::Unknown)
+        {
+            setValueType(destRaw, pointerValueType);
+            destType = mergeTypes(destType, pointerValueType);
+        }
 
-        // Load pointer value into register
         handleMov("eax", normSrc);
-        // Dereference it
-        emit("mov eax, [eax]");
-        handleMov(normDest, "eax");
+
+        if (isFloatType(destType))
+        {
+            emit("movss xmm0, [eax]");
+            storeXmmToOperand(destRaw, "xmm0");
+        }
+        else
+        {
+            emit("mov eax, [eax]");
+            handleMov(normalizeMemRef(destRaw), "eax");
+        }
     }
 
     // Handle conditional jumps
@@ -781,11 +1245,13 @@ private:
 
         bool hasReturn = (callPos != string::npos && callPos > 0);
         string dest;
+        string destRaw;
 
         if (hasReturn)
         {
             size_t eqPos = trimmedLine.find(" = ");
-            dest = normalizeMemRef(trim(trimmedLine.substr(0, eqPos)));
+            destRaw = trim(trimmedLine.substr(0, eqPos));
+            dest = normalizeMemRef(destRaw);
             callPos = trimmedLine.find(" call ");
         }
         else
@@ -827,6 +1293,10 @@ private:
 
         if (hasReturn && !dest.empty())
         {
+            if (getValueType(destRaw) == ValueType::Unknown)
+            {
+                setValueType(destRaw, ValueType::Int);
+            }
             handleMov(dest, "eax");
         }
     }
@@ -844,30 +1314,74 @@ private:
                 return;
 
             string dest = normalizeMemRef(trim(trimmedLine.substr(6, commaPos - 6)));
-            string value = trim(trimmedLine.substr(commaPos + 1));
+            string valueRaw = trim(trimmedLine.substr(commaPos + 1));
 
             // Handle dereference in parameter: *[ebp - offset]
-            if (value.length() > 0 && value[0] == '*')
+            if (valueRaw.length() > 0 && valueRaw[0] == '*')
             {
-                string addr = normalizeMemRef(trim(value.substr(1)));
-                // Load the address, then dereference it
+                string addrRaw = trim(valueRaw.substr(1));
+                string addr = normalizeMemRef(addrRaw);
+                string canonicalAddr = canonicalizeOperand(addrRaw);
+                string pointerKey = "*" + canonicalAddr;
+                ValueType derefType = getValueType(valueRaw);
+                if (derefType == ValueType::Unknown)
+                {
+                    derefType = getValueType(pointerKey);
+                }
+                if (derefType == ValueType::Unknown)
+                {
+                    ValueType basePointerType = getValueType(canonicalAddr);
+                    if (basePointerType == ValueType::Pointer || basePointerType == ValueType::Unknown)
+                    {
+                        derefType = ValueType::Float;
+                        setValueType(valueRaw, ValueType::Float);
+                        setValueType(pointerKey, ValueType::Float);
+                    }
+                }
+
                 handleMov("eax", addr);
-                emit("mov eax, [eax]");
-                emit("push eax");
+
+                if (isFloatType(derefType))
+                {
+                    emit("sub esp, 8");
+                    emit("movss xmm0, [eax]");
+                    emit("cvtss2sd xmm0, xmm0");
+                    emit("movsd [esp], xmm0");
+                    pendingFloatExtraBytes += 4;
+                }
+                else
+                {
+                    emit("mov eax, [eax]");
+                    emit("push eax");
+                }
                 return;
             }
 
-            value = normalizeMemRef(value);
+            ValueType valueType = getValueType(valueRaw);
+            bool treatAsFloat = isFloatType(valueType) || detectLiteralType(valueRaw) == ValueType::Float || isFloatLiteral(valueRaw);
 
-            // Push parameter onto stack
-            if (isImmediate(value) || isRegister(value))
+            string value = normalizeMemRef(valueRaw);
+
+            if (treatAsFloat)
             {
-                emit("push " + value);
+                emit("sub esp, 8");
+                loadFloatIntoXmm(valueRaw, "xmm0");
+                emit("cvtss2sd xmm0, xmm0");
+                emit("movsd [esp], xmm0");
+                pendingFloatExtraBytes += 4;
             }
             else
             {
-                handleMov("eax", value);
-                emit("push eax");
+                // Push parameter onto stack
+                if (isImmediate(value) || isRegister(value))
+                {
+                    emit("push " + value);
+                }
+                else
+                {
+                    handleMov("eax", value);
+                    emit("push eax");
+                }
             }
         }
     }
@@ -1017,7 +1531,22 @@ private:
         }
 
         // Stack adjustment
-        if (trimmedLine.find("sub esp") == 0 || trimmedLine.find("add esp") == 0)
+        if (trimmedLine.find("add esp") == 0)
+        {
+            size_t commaPos = trimmedLine.find(",");
+            int amount = 0;
+            if (commaPos != string::npos)
+            {
+                string amountStr = trim(trimmedLine.substr(commaPos + 1));
+                amount = stoi(amountStr);
+            }
+            amount += pendingFloatExtraBytes;
+            emit("add esp, " + to_string(amount));
+            pendingFloatExtraBytes = 0;
+            return;
+        }
+
+        if (trimmedLine.find("sub esp") == 0)
         {
             emit(trimmedLine);
             return;
@@ -1088,14 +1617,36 @@ private:
             if (eqPos != string::npos)
             {
                 // Extract pointer and value
-                string ptrAddr = normalizeMemRef(trim(trimmedLine.substr(1, eqPos - 1)));
+                string ptrOperand = trim(trimmedLine.substr(1, eqPos - 1));
+                string ptrAddr = normalizeMemRef(ptrOperand);
                 string value = trim(trimmedLine.substr(eqPos + 3));
 
                 // Load the address from ptrAddr
                 handleMov("eax", ptrAddr);
 
                 // Load or prepare the value
-                if (isImmediate(value))
+                ValueType valueType = getValueType(value);
+                ValueType literalType = detectLiteralType(value);
+                ValueType storedType = literalType != ValueType::Unknown ? literalType : valueType;
+                if (storedType != ValueType::Unknown)
+                {
+                    setValueType("*" + ptrOperand, storedType);
+                }
+
+                if (literalType == ValueType::Float || isFloatType(valueType))
+                {
+                    if (literalType == ValueType::Float)
+                    {
+                        string hexValue = floatLiteralToHex(value);
+                        emit("mov dword [eax], " + hexValue);
+                    }
+                    else
+                    {
+                        loadFloatIntoXmm(value, "xmm0");
+                        emit("movss [eax], xmm0");
+                    }
+                }
+                else if (isImmediate(value))
                 {
                     emit("mov dword [eax], " + value);
                 }
@@ -1175,6 +1726,10 @@ private:
         // Binary operations
         if (parseBinaryOp(trimmedLine, dest, op1, operation, op2))
         {
+            ValueType op1Type = getValueType(op1);
+            ValueType op2Type = getValueType(op2);
+            ValueType resultType = determineBinaryResultType(operation, op1Type, op2Type);
+            setValueType(dest, resultType);
             handleBinaryOp(dest, op1, operation, op2);
             return;
         }
@@ -1182,6 +1737,12 @@ private:
         // Simple assignment
         if (parseSimpleAssignment(trimmedLine, dest, src))
         {
+            ValueType srcType = getValueType(src);
+            if (srcType == ValueType::Unknown)
+            {
+                srcType = detectLiteralType(src);
+            }
+            setValueType(dest, srcType);
             handleMov(dest, src);
             return;
         }
@@ -1256,6 +1817,9 @@ public:
         x86Code.push_back("    global main");
         x86Code.push_back("    extern printf");
         x86Code.push_back("    extern scanf");
+        x86Code.push_back("    extern malloc");
+        x86Code.push_back("    extern free");
+        x86Code.push_back("    extern nullptr");
         x86Code.push_back("");
 
         // Second pass: emit code section

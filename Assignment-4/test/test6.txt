@@ -1,4 +1,4 @@
-typedef double flt;
+typedef float flt;
 
 int main() {
     int n;
@@ -15,7 +15,7 @@ int main() {
     }
     printf("Enter %d numbers:\n", n);
     for (int i = 0; i < n; i++) {
-        scanf("%lf", &arr[i]);
+        scanf("%f", &arr[i]);
         sum += arr[i];
     }
 
@@ -23,9 +23,9 @@ int main() {
 
     printf("\nYou entered: ");
     for (int i = 0; i < n; i++) {
-        printf("%lf ", arr[i]);
+        printf("%f ", arr[i]);
     }
-    printf("\nSum = %lf\nAverage = %lf\n", sum, avg);
+    printf("\nSum = %f\nAverage = %f\n", sum, avg);
     free(arr);
 
     return 0;

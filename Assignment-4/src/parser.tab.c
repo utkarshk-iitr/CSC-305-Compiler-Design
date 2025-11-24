@@ -1074,17 +1074,17 @@ static const yytype_int16 yyrline[] =
     1675,  1678,  1696,  1701,  1744,  1750,  1801,  1804,  1807,  1810,
     1813,  1816,  1819,  1822,  1825,  1828,  1831,  1838,  1843,  1856,
     1865,  1881,  1888,  1893,  1898,  1907,  1913,  1924,  1930,  1938,
-    1943,  1952,  2093,  2254,  2376,  2520,  2644,  2870,  2879,  2890,
-    2912,  2926,  2954,  2957,  2960,  2963,  2966,  2969,  2975,  2997,
-    3002,  3018,  3017,  3044,  3050,  3061,  3066,  3077,  3084,  3094,
-    3102,  3109,  3258,  3262,  3273,  3286,  3289,  3292,  3295,  3298,
-    3301,  3308,  3322,  3328,  3327,  3379,  3382,  3392,  3395,  3401,
-    3404,  3410,  3432,  3465,  3493,  3493,  3506,  3511,  3522,  3548,
-    3571,  3571,  3607,  3607,  3644,  3644,  3679,  3679,  3721,  3721,
-    3769,  3778,  3781,  3789,  3795,  3801,  3807,  3815,  3858,  3857,
-    3870,  3869,  3884,  3883,  3897,  3896,  3909,  3908,  3922,  3928,
-    3934,  3943,  3942,  3953,  3952,  3963,  3962,  3976,  3975,  4053,
-    4052,  4244,  4350
+    1943,  1952,  2143,  2357,  2532,  2737,  2917,  3196,  3205,  3216,
+    3238,  3252,  3280,  3283,  3286,  3289,  3292,  3295,  3301,  3323,
+    3328,  3344,  3343,  3370,  3376,  3387,  3392,  3403,  3410,  3420,
+    3428,  3435,  3584,  3588,  3599,  3612,  3615,  3618,  3621,  3624,
+    3627,  3634,  3648,  3654,  3653,  3705,  3708,  3718,  3721,  3727,
+    3730,  3736,  3758,  3791,  3819,  3819,  3832,  3837,  3848,  3874,
+    3897,  3897,  3933,  3933,  3970,  3970,  4005,  4005,  4047,  4047,
+    4095,  4104,  4107,  4115,  4121,  4127,  4133,  4141,  4184,  4183,
+    4196,  4195,  4210,  4209,  4223,  4222,  4235,  4234,  4248,  4254,
+    4260,  4269,  4268,  4279,  4278,  4289,  4288,  4302,  4301,  4379,
+    4378,  4570,  4676
 };
 #endif
 
@@ -3843,7 +3843,7 @@ yyreduce:
                 w = "[ecx + " + to_string(classOffset) + "]";
                 classTable[lastClassType][n->place].offset = classOffset;
                 dbg("offset of " + n->place + " is " + to_string(classOffset));
-                classOffset += typeSize[n->type];
+                classOffset += getTypeSize(n->type);
                 sym->printName = w;
                 classTable[lastClassType][n->place].type = n->type;
                 classTable[lastClassType][n->place].kind = lastUsage;
@@ -3867,6 +3867,12 @@ yyreduce:
             yyerror("Variable '" + n->place + "' cannot be of type void.");
         }
 
+        if(n->kind.find("static") != string::npos)
+        {
+            yyerror("Static variable '" + n->place + "' must be initialized.");
+            // globalCode.push_back(n->place + " = 0;");
+        }
+
         dbg("");
         if(classTable.find(n->type) != classTable.end())
         {
@@ -3874,52 +3880,96 @@ yyreduce:
             // n->code.push_back(w1 + " = &" + w + ";");
             // n->code.push_back("param " + w1 + ";");
             // n->code.push_back("call " + n->type + ", 1;");
-            for(const auto& member : classTable[n->type])
+            if(lastClassType == "")
             {
-                if(member.second.kind == "function")
+                for(const auto& member : classTable[n->type])
                 {
-                    string name = n->place + "." + member.first;
-                    string original = n->place + "." + member.second.method.original;
-                    if(lookupSymbol(original) == nullptr)
-                        declareSymbol(original, "function","function",vector<string>(),true);
-                    dbg(original);
-                    funcInfo f = member.second.method;
-                    f.place = n->place + "." + f.place;
-                    dbg("zz");
-                    dbg(f.place);
-                    funcTable[name] = f;
-                    dbg("Function '" + name + "' with return type '" + funcTable[name].returnType + "' declared.");
-                }
-                else if(member.second.kind.find("static") == string::npos)
-                {
-                    string name = n->place + "." + member.first;
-                    bool ok = declareSymbol(name, member.second.type, member.second.kind);
-
-                    if (!ok) {
-                        yyerror("Duplicate declaration of '" + name + "' in same scope.");
+                    if(member.second.kind == "function")
+                    {
+                        string name = n->place + "." + member.first;
+                        string original = n->place + "." + member.second.method.original;
+                        if(lookupSymbol(original) == nullptr)
+                            declareSymbol(original, "function","function",vector<string>(),true);
+                        dbg(original);
+                        funcInfo f = member.second.method;
+                        f.place = n->place + "." + f.place;
+                        dbg("zz");
+                        dbg(f.place);
+                        funcTable[name] = f;
+                        dbg("Function '" + name + "' with return type '" + funcTable[name].returnType + "' declared.");
                     }
+                    else if(member.second.kind.find("static") == string::npos)
+                    {
+                        string name = n->place + "." + member.first;
+                        bool ok = declareSymbol(name, member.second.type, member.second.kind);
 
-                    Symbol* sym = lookupSymbol(name);
-                    string w = currentFunction + currentScope + name;
-                    sym->printName = "[ebp - " + to_string(functionOffset - member.second.offset) + "]";
+                        if (!ok) {
+                            yyerror("Duplicate declaration of '" + name + "' in same scope.");
+                        }
 
-                    dbg("offset of " + name + " is " + to_string(member.second.offset));
+                        Symbol* sym = lookupSymbol(name);
+                        string w = currentFunction + currentScope + name;
+                        sym->printName = "[ebp - " + to_string(functionOffset - member.second.offset) + "]";
 
-                    dbg("mmm");
-                    dbg(w);
-                    dbg("Variable '" + name + "' with type '" + member.second.type + "' declared.");
+                        dbg("offset of " + name + " is " + to_string(member.second.offset));
+
+                        dbg("mmm");
+                        dbg(w);
+                        dbg("Variable '" + name + "' with type '" + member.second.type + "' declared.");
+                    }
                 }
+            }
+            else
+            {
+                // classOffset -= getTypeSize(n->type);
+                for(const auto& member : classTable[n->type])
+                {
+                    if(member.second.kind == "function")
+                    {
+                        string name = n->place + "." + member.first;
+                        string original = n->place + "." + member.second.method.original;
+                        if(lookupSymbol(original) == nullptr)
+                            declareSymbol(original, "function","function",vector<string>(),true);
+                        dbg(original);
+                        funcInfo f = member.second.method;
+                        f.place = n->place + "." + f.place;
+                        dbg("zz");
+                        dbg(f.place);
+                        funcTable[name] = f;
+                        dbg("Function '" + name + "' with return type '" + funcTable[name].returnType + "' declared.");
+                    }
+                    else if(member.second.kind.find("static") == string::npos)
+                    {
+                        string name = n->place + "." + member.first;
+                        bool ok = declareSymbol(name, member.second.type, member.second.kind);
+
+                        if (!ok) {
+                            yyerror("Duplicate declaration of '" + name + "' in same scope.");
+                        }
+
+                        Symbol* sym = lookupSymbol(name);
+                        string w = currentFunction + currentScope + name;
+                        classOffset -= getTypeSize(member.second.type);
+                        sym->printName = "[ecx + " + to_string(classOffset) + "]";
+
+                        dbg("offset of " + name + " is " + to_string(member.second.offset));
+                        dbg("mmm");
+                        dbg(w);
+                        dbg("Variable '" + name + "' with type '" + member.second.type + "' declared.");
+                    }
+                }
+                classOffset += getTypeSize(n->type);
             }
         }
         dbg("");
         n->place = w;
         (yyval.node) = n;
     }
-#line 3919 "src/parser.tab.c"
+#line 3969 "src/parser.tab.c"
     break;
 
   case 102: /* init_declarator: IDENTIFIER square_list  */
-#line 2094 "src/parser.y"
+#line 2144 "src/parser.y"
     {    
         dbg("init_declarator -> IDENTIFIER square_list ");
         if(lastDeclType.find("const")!=string::npos){
@@ -4039,52 +4089,105 @@ yyreduce:
             yyerror("Variable '" + n->place + "' cannot be of type void.");
         }
 
+        if(n->kind.find("static") != string::npos)
+        {
+            yyerror("Array '" + n->place + "' cannot be declared static.");
+            // globalCode.push_back(n->place + " = 0;");
+        }
+
         dbg("");
         if(classTable.find(n->type) != classTable.end())
         {
-            for(const auto& member : classTable[n->type])
+            if(lastClassType == "")
             {
-                if(member.second.kind == "function")
+                for(const auto& member : classTable[n->type])
                 {
-                    string name = n->place + "." + member.first;
-                    string original = n->place + "." + member.second.method.original;
-                    if(lookupSymbol(original) == nullptr)
-                        declareSymbol(original, "function","function",vector<string>(),true);
-                    dbg(original);
-                    funcInfo f = member.second.method;
-                    f.place = n->place + "." + f.place;
-                    dbg("zaz");
-                    dbg(f.place);
-                    funcTable[name] = f;
-                    dbg("Function '" + name + "' with return type '" + funcTable[name].returnType + "' declared.");
-                }
-                else if(member.second.kind.find("static") == string::npos)
-                {
-                    string name = n->place + "." + member.first;
-                    bool ok = declareSymbol(name, member.second.type, member.second.kind);
-
-                    if (!ok) {
-                        yyerror("Duplicate declaration of '" + name + "' in same scope.");
+                    if(member.second.kind == "function")
+                    {
+                        string name = n->place + "." + member.first;
+                        string original = n->place + "." + member.second.method.original;
+                        if(lookupSymbol(original) == nullptr)
+                            declareSymbol(original, "function","function",vector<string>(),true);
+                        dbg(original);
+                        funcInfo f = member.second.method;
+                        f.place = n->place + "." + f.place;
+                        dbg("zz");
+                        dbg(f.place);
+                        funcTable[name] = f;
+                        dbg("Function '" + name + "' with return type '" + funcTable[name].returnType + "' declared.");
                     }
+                    else if(member.second.kind.find("static") == string::npos)
+                    {
+                        string name = n->place + "." + member.first;
+                        bool ok = declareSymbol(name, member.second.type, member.second.kind);
 
-                    Symbol* sym = lookupSymbol(name);
-                    string w = currentFunction + currentScope + name;
+                        if (!ok) {
+                            yyerror("Duplicate declaration of '" + name + "' in same scope.");
+                        }
 
-                    sym->printName = "[ebp - " + to_string(functionOffset - member.second.offset) + "]";
+                        Symbol* sym = lookupSymbol(name);
+                        string w = currentFunction + currentScope + name;
+                        sym->printName = "[ebp - " + to_string(functionOffset - member.second.offset) + "]";
 
-                    dbg("Variable '" + name + "' with type '" + member.second.type + "' declared.");
+                        dbg("offset of " + name + " is " + to_string(member.second.offset));
+
+                        dbg("mmm");
+                        dbg(w);
+                        dbg("Variable '" + name + "' with type '" + member.second.type + "' declared.");
+                    }
                 }
+            }
+            else
+            {
+                // classOffset -= getTypeSize(n->type);
+                for(const auto& member : classTable[n->type])
+                {
+                    if(member.second.kind == "function")
+                    {
+                        string name = n->place + "." + member.first;
+                        string original = n->place + "." + member.second.method.original;
+                        if(lookupSymbol(original) == nullptr)
+                            declareSymbol(original, "function","function",vector<string>(),true);
+                        dbg(original);
+                        funcInfo f = member.second.method;
+                        f.place = n->place + "." + f.place;
+                        dbg("zz");
+                        dbg(f.place);
+                        funcTable[name] = f;
+                        dbg("Function '" + name + "' with return type '" + funcTable[name].returnType + "' declared.");
+                    }
+                    else if(member.second.kind.find("static") == string::npos)
+                    {
+                        string name = n->place + "." + member.first;
+                        bool ok = declareSymbol(name, member.second.type, member.second.kind);
+
+                        if (!ok) {
+                            yyerror("Duplicate declaration of '" + name + "' in same scope.");
+                        }
+
+                        Symbol* sym = lookupSymbol(name);
+                        string w = currentFunction + currentScope + name;
+                        classOffset -= getTypeSize(member.second.type);
+                        sym->printName = "[ecx + " + to_string(classOffset) + "]";
+
+                        dbg("offset of " + name + " is " + to_string(member.second.offset));
+                        dbg("mmm");
+                        dbg(w);
+                        dbg("Variable '" + name + "' with type '" + member.second.type + "' declared.");
+                    }
+                }
+                classOffset += getTypeSize(n->type);
             }
         }
         dbg("");
         n->place = w;
         (yyval.node) = n;
     }
-#line 4084 "src/parser.tab.c"
+#line 4187 "src/parser.tab.c"
     break;
 
   case 103: /* init_declarator: pointer_list IDENTIFIER  */
-#line 2255 "src/parser.y"
+#line 2358 "src/parser.y"
     {    
         dbg("init_declarator -> pointer_list IDENTIFIER ");
 
@@ -4161,55 +4264,108 @@ yyreduce:
             yyerror("Variable '" + n->place + "' cannot be of type void.");
         }
 
+        if(n->kind.find("static") != string::npos)
+        {
+            yyerror("Static variable '" + n->place + "' must be initialized.");
+            // globalCode.push_back(n->place + " = 0;");
+        }
+
         if(classTable.find(lastDeclType) != classTable.end())
         {
             // string w1 = newTemp();
             // n->code.push_back(w1 + " = " + w + ";");
             // n->code.push_back("param " + w1 + ";");
             // n->code.push_back("call " + lastDeclType + ", 1;");
-            for(const auto& member : classTable[lastDeclType])
+            if(lastClassType == "")
             {
-                if(member.second.kind == "function")
+                for(const auto& member : classTable[n->type])
                 {
-                    string name = stars + n->place + "." + member.first;
-                    string original = stars + n->place + "." + member.second.method.original;
-                    if(lookupSymbol(original) == nullptr)
-                        declareSymbol(original, "function","function",vector<string>(),true);
-                    dbg(original);
-                    funcInfo f = member.second.method;
-                    f.place = stars + n->place + "." + f.place;
-                    dbg("zzw");
-                    dbg(f.place);
-                    funcTable[name] = f;
-                    dbg("Function '" + name + "' with return type '" + funcTable[name].returnType + "' declared.");
-                }
-                else if(member.second.kind.find("static") == string::npos)
-                {
-                    string name = stars + n->place + "." + member.first;
-                    bool ok = declareSymbol(name, member.second.type, member.second.kind);
-
-                    if (!ok) {
-                        yyerror("Duplicate declaration of '" + name + "' in same scope.");
+                    if(member.second.kind == "function")
+                    {
+                        string name = n->place + "." + member.first;
+                        string original = n->place + "." + member.second.method.original;
+                        if(lookupSymbol(original) == nullptr)
+                            declareSymbol(original, "function","function",vector<string>(),true);
+                        dbg(original);
+                        funcInfo f = member.second.method;
+                        f.place = n->place + "." + f.place;
+                        dbg("zz");
+                        dbg(f.place);
+                        funcTable[name] = f;
+                        dbg("Function '" + name + "' with return type '" + funcTable[name].returnType + "' declared.");
                     }
+                    else if(member.second.kind.find("static") == string::npos)
+                    {
+                        string name = n->place + "." + member.first;
+                        bool ok = declareSymbol(name, member.second.type, member.second.kind);
 
-                    Symbol* sym = lookupSymbol(name);
-                    string w = lastClassType+currentFunction+currentScope + name;
-                    sym->printName = "[ebp - " + to_string(functionOffset - member.second.offset) + "]";
-                    dbg("mmm");
-                    dbg(w);
-                    dbg("Variable '" + name + "' with type '" + member.second.type + "' declared.");
+                        if (!ok) {
+                            yyerror("Duplicate declaration of '" + name + "' in same scope.");
+                        }
+
+                        Symbol* sym = lookupSymbol(name);
+                        string w = currentFunction + currentScope + name;
+                        sym->printName = "[ebp - " + to_string(functionOffset - member.second.offset) + "]";
+
+                        dbg("offset of " + name + " is " + to_string(member.second.offset));
+
+                        dbg("mmm");
+                        dbg(w);
+                        dbg("Variable '" + name + "' with type '" + member.second.type + "' declared.");
+                    }
                 }
+            }
+            else
+            {
+                // classOffset -= getTypeSize(n->type);
+                for(const auto& member : classTable[n->type])
+                {
+                    if(member.second.kind == "function")
+                    {
+                        string name = n->place + "." + member.first;
+                        string original = n->place + "." + member.second.method.original;
+                        if(lookupSymbol(original) == nullptr)
+                            declareSymbol(original, "function","function",vector<string>(),true);
+                        dbg(original);
+                        funcInfo f = member.second.method;
+                        f.place = n->place + "." + f.place;
+                        dbg("zz");
+                        dbg(f.place);
+                        funcTable[name] = f;
+                        dbg("Function '" + name + "' with return type '" + funcTable[name].returnType + "' declared.");
+                    }
+                    else if(member.second.kind.find("static") == string::npos)
+                    {
+                        string name = n->place + "." + member.first;
+                        bool ok = declareSymbol(name, member.second.type, member.second.kind);
+
+                        if (!ok) {
+                            yyerror("Duplicate declaration of '" + name + "' in same scope.");
+                        }
+
+                        Symbol* sym = lookupSymbol(name);
+                        string w = currentFunction + currentScope + name;
+                        classOffset -= getTypeSize(member.second.type);
+                        sym->printName = "[ecx + " + to_string(classOffset) + "]";
+
+                        dbg("offset of " + name + " is " + to_string(member.second.offset));
+                        dbg("mmm");
+                        dbg(w);
+                        dbg("Variable '" + name + "' with type '" + member.second.type + "' declared.");
+                    }
+                }
+                classOffset += getTypeSize(n->type);
             }
         }
         dbg("");
         n->place = w;
         (yyval.node) = n;
     }
-#line 4209 "src/parser.tab.c"
+#line 4365 "src/parser.tab.c"
     break;
 
   case 104: /* init_declarator: IDENTIFIER ASSIGN assignment_expression  */
-#line 2377 "src/parser.y"
+#line 2533 "src/parser.y"
     {
         dbg("init_declarator -> IDENTIFIER = assignment_expression ");
         Node* n = new Node();
@@ -4247,12 +4403,12 @@ yyreduce:
         }
         Symbol* sym = lookupSymbol(n->place);
         string w;
-        // if(lastClassType=="")
-        //     w = lastClassType+currentFunction+currentScope+n->place;
-        // else if(lastClassType!="" && currentFunction!="")
-        //     w = lastClassType+"."+currentFunction+currentScope+n->place;
-        // else
-        //     w = "obj."+currentScope+n->place;
+        if(lastClassType=="")
+            w = lastClassType+currentFunction+currentScope+n->place;
+        else if(lastClassType!="" && currentFunction!="")
+            w = lastClassType+"."+currentFunction+currentScope+n->place;
+        else
+            w = "obj."+currentScope+n->place;
         sym->printName = w;
         
         if(lastClassType == "" && currentFunction == "")
@@ -4292,12 +4448,28 @@ yyreduce:
             w = "[ebp - " + to_string(p) + "]";
             sym->printName = w;
         }
-        if(!(lastClassType == "" && currentFunction == "")){
-            if((yyvsp[0].node)->kind == "rvalue"){
-                n->code.push_back(sym->printName + " = " + (yyvsp[0].node)->place);
+        if(!(lastClassType == "" && currentFunction == ""))
+        {
+            if(n->kind.find("static") == string::npos)
+            {
+                if((yyvsp[0].node)->kind == "rvalue"){
+                    n->code.push_back(sym->printName + " = " + (yyvsp[0].node)->place);
+                }
+                else{
+                    n->code.push_back(sym->printName + " = " + (yyvsp[0].node)->printName);
+                }
             }
-            else{
-                n->code.push_back(sym->printName + " = " + (yyvsp[0].node)->printName);
+            else
+            {
+                w = currentFunction+currentScope+n->place;
+                sym->printName = "[" + w + "]";
+                sym->name = w;
+                if((yyvsp[0].node)->kind == "rvalue"){
+                    n->code.push_back(w + " dd " + (yyvsp[0].node)->place);
+                }
+                else{
+                    n->code.push_back(w + " dd " + (yyvsp[0].node)->printName);
+                }                
             }
         }
 
@@ -4312,51 +4484,96 @@ yyreduce:
         dbg("nmnmn");
         if(classTable.find(n->type) != classTable.end())
         {
-            for(const auto& member : classTable[n->type])
+            if(lastClassType == "")
             {
-                if(member.second.kind == "function")
+                for(const auto& member : classTable[n->type])
                 {
-                    string name = n->place + "." + member.first;
-                    string original = n->place + "." + member.second.method.original;
-                    if(lookupSymbol(original) == nullptr)
-                        declareSymbol(original, "function","function",vector<string>(),true);
-                    dbg(original);
-                    funcInfo f = member.second.method;
-                    f.place = n->place + "." + f.place;
-                    dbg("zz");
-                    dbg(f.place);
-                    funcTable[name] = f;
-                    dbg("Function '" + name + "' with return type '" + funcTable[name].returnType + "' declared.");
-                }
-                else if(member.second.kind.find("static") == string::npos)
-                {
-                    string name = n->place + "." + member.first;
-                    bool ok = declareSymbol(name, member.second.type, member.second.kind);
-
-                    if (!ok) {
-                        yyerror("Duplicate declaration of '" + name + "' in same scope.");
+                    if(member.second.kind == "function")
+                    {
+                        string name = n->place + "." + member.first;
+                        string original = n->place + "." + member.second.method.original;
+                        if(lookupSymbol(original) == nullptr)
+                            declareSymbol(original, "function","function",vector<string>(),true);
+                        dbg(original);
+                        funcInfo f = member.second.method;
+                        f.place = n->place + "." + f.place;
+                        dbg("zz");
+                        dbg(f.place);
+                        funcTable[name] = f;
+                        dbg("Function '" + name + "' with return type '" + funcTable[name].returnType + "' declared.");
                     }
+                    else if(member.second.kind.find("static") == string::npos)
+                    {
+                        string name = n->place + "." + member.first;
+                        bool ok = declareSymbol(name, member.second.type, member.second.kind);
 
-                    Symbol* sym = lookupSymbol(name);
-                    string w = lastClassType+currentFunction+currentScope+name;
+                        if (!ok) {
+                            yyerror("Duplicate declaration of '" + name + "' in same scope.");
+                        }
 
-                    sym->printName = "[ebp - " + to_string(functionOffset - member.second.offset) + "]";
+                        Symbol* sym = lookupSymbol(name);
+                        string w = currentFunction + currentScope + name;
+                        sym->printName = "[ebp - " + to_string(functionOffset - member.second.offset) + "]";
 
-                    dbg("mmm");
-                    dbg(w);
-                    dbg("Variable '" + name + "' with type '" + member.second.type + "' declared.");
+                        dbg("offset of " + name + " is " + to_string(member.second.offset));
+
+                        dbg("mmm");
+                        dbg(w);
+                        dbg("Variable '" + name + "' with type '" + member.second.type + "' declared.");
+                    }
                 }
+            }
+            else
+            {
+                // classOffset -= getTypeSize(n->type);
+                for(const auto& member : classTable[n->type])
+                {
+                    if(member.second.kind == "function")
+                    {
+                        string name = n->place + "." + member.first;
+                        string original = n->place + "." + member.second.method.original;
+                        if(lookupSymbol(original) == nullptr)
+                            declareSymbol(original, "function","function",vector<string>(),true);
+                        dbg(original);
+                        funcInfo f = member.second.method;
+                        f.place = n->place + "." + f.place;
+                        dbg("zz");
+                        dbg(f.place);
+                        funcTable[name] = f;
+                        dbg("Function '" + name + "' with return type '" + funcTable[name].returnType + "' declared.");
+                    }
+                    else if(member.second.kind.find("static") == string::npos)
+                    {
+                        string name = n->place + "." + member.first;
+                        bool ok = declareSymbol(name, member.second.type, member.second.kind);
+
+                        if (!ok) {
+                            yyerror("Duplicate declaration of '" + name + "' in same scope.");
+                        }
+
+                        Symbol* sym = lookupSymbol(name);
+                        string w = currentFunction + currentScope + name;
+                        classOffset -= getTypeSize(member.second.type);
+                        sym->printName = "[ecx + " + to_string(classOffset) + "]";
+
+                        dbg("offset of " + name + " is " + to_string(member.second.offset));
+                        dbg("mmm");
+                        dbg(w);
+                        dbg("Variable '" + name + "' with type '" + member.second.type + "' declared.");
+                    }
+                }
+                classOffset += getTypeSize(n->type);
             }
         }
         dbg("");
         n->place = w;
         (yyval.node) = n;
     }
-#line 4356 "src/parser.tab.c"
+#line 4573 "src/parser.tab.c"
     break;
 
   case 105: /* init_declarator: pointer_list IDENTIFIER ASSIGN assignment_expression  */
-#line 2521 "src/parser.y"
+#line 2738 "src/parser.y"
     {
         dbg("init_declarator -> pointer_list IDENTIFIER = assignment_expression ");
         Node* n = new Node();
@@ -4427,8 +4644,18 @@ yyreduce:
             sym->printName = w;
         }
         if(!(lastClassType == "" && currentFunction == ""))
-            n->code.push_back(w + " = " + (yyvsp[0].node)->printName);
-
+        {
+            if(n->type.find("static") == string::npos)
+            {
+                n->code.push_back(w + " = " + (yyvsp[0].node)->printName);
+            }
+            else {
+                w = currentFunction+currentScope+n->place;
+                sym->printName = "[" + w + "]";
+                sym->name = w;
+                n->code.push_back(w + " dd " + (yyvsp[0].node)->printName);              
+            }
+        }
         dbg("");
         dbg("Declared pointer: " + n->place + " of type: " + n->type + " and kind: " + n->kind);
         dbg("");
@@ -4440,50 +4667,96 @@ yyreduce:
         dbg("");
         if(classTable.find(lastDeclType) != classTable.end())
         {
-            for(const auto& member : classTable[lastDeclType])
+            if(lastClassType == "")
             {
-                if(member.second.kind == "function")
+                for(const auto& member : classTable[n->type])
                 {
-                    string name = stars + n->place + "." + member.first;
-                    string original = stars + n->place + "." + member.second.method.original;
-                    if(lookupSymbol(original) == nullptr)
-                        declareSymbol(original, "function","function",vector<string>(),true);
-                    dbg(original);
-                    funcInfo f = member.second.method;
-                    f.place = stars + n->place + "." + f.place;
-                    dbg("zzw");
-                    dbg(f.place);
-                    funcTable[name] = f;
-                    dbg("Function '" + name + "' with return type '" + funcTable[name].returnType + "' declared.");
-                }
-                else if(member.second.kind.find("static") == string::npos)
-                {
-                    string name = stars + n->place + "." + member.first;
-                    bool ok = declareSymbol(name, member.second.type, member.second.kind);
-
-                    if (!ok) {
-                        yyerror("Duplicate declaration of '" + name + "' in same scope.");
+                    if(member.second.kind == "function")
+                    {
+                        string name = n->place + "." + member.first;
+                        string original = n->place + "." + member.second.method.original;
+                        if(lookupSymbol(original) == nullptr)
+                            declareSymbol(original, "function","function",vector<string>(),true);
+                        dbg(original);
+                        funcInfo f = member.second.method;
+                        f.place = n->place + "." + f.place;
+                        dbg("zz");
+                        dbg(f.place);
+                        funcTable[name] = f;
+                        dbg("Function '" + name + "' with return type '" + funcTable[name].returnType + "' declared.");
                     }
+                    else if(member.second.kind.find("static") == string::npos)
+                    {
+                        string name = n->place + "." + member.first;
+                        bool ok = declareSymbol(name, member.second.type, member.second.kind);
 
-                    Symbol* sym = lookupSymbol(name);
-                    string w = lastClassType+currentFunction+currentScope + name;
-                    sym->printName = "[ebp - " + to_string(functionOffset - member.second.offset) + "]";
+                        if (!ok) {
+                            yyerror("Duplicate declaration of '" + name + "' in same scope.");
+                        }
 
-                    dbg("mmm");
-                    dbg(w);
-                    dbg("Variable '" + name + "' with type '" + member.second.type + "' declared.");
+                        Symbol* sym = lookupSymbol(name);
+                        string w = currentFunction + currentScope + name;
+                        sym->printName = "[ebp - " + to_string(functionOffset - member.second.offset) + "]";
+
+                        dbg("offset of " + name + " is " + to_string(member.second.offset));
+
+                        dbg("mmm");
+                        dbg(w);
+                        dbg("Variable '" + name + "' with type '" + member.second.type + "' declared.");
+                    }
                 }
+            }
+            else
+            {
+                // classOffset -= getTypeSize(n->type);
+                for(const auto& member : classTable[n->type])
+                {
+                    if(member.second.kind == "function")
+                    {
+                        string name = n->place + "." + member.first;
+                        string original = n->place + "." + member.second.method.original;
+                        if(lookupSymbol(original) == nullptr)
+                            declareSymbol(original, "function","function",vector<string>(),true);
+                        dbg(original);
+                        funcInfo f = member.second.method;
+                        f.place = n->place + "." + f.place;
+                        dbg("zz");
+                        dbg(f.place);
+                        funcTable[name] = f;
+                        dbg("Function '" + name + "' with return type '" + funcTable[name].returnType + "' declared.");
+                    }
+                    else if(member.second.kind.find("static") == string::npos)
+                    {
+                        string name = n->place + "." + member.first;
+                        bool ok = declareSymbol(name, member.second.type, member.second.kind);
+
+                        if (!ok) {
+                            yyerror("Duplicate declaration of '" + name + "' in same scope.");
+                        }
+
+                        Symbol* sym = lookupSymbol(name);
+                        string w = currentFunction + currentScope + name;
+                        classOffset -= getTypeSize(member.second.type);
+                        sym->printName = "[ecx + " + to_string(classOffset) + "]";
+
+                        dbg("offset of " + name + " is " + to_string(member.second.offset));
+                        dbg("mmm");
+                        dbg(w);
+                        dbg("Variable '" + name + "' with type '" + member.second.type + "' declared.");
+                    }
+                }
+                classOffset += getTypeSize(n->type);
             }
         }
         dbg("");
         n->place = w;
         (yyval.node) = n;
     }
-#line 4483 "src/parser.tab.c"
+#line 4756 "src/parser.tab.c"
     break;
 
   case 106: /* init_declarator: IDENTIFIER square_list ASSIGN initializer  */
-#line 2645 "src/parser.y"
+#line 2918 "src/parser.y"
     {
         dbg("init_declarator -> IDENTIFIER square_list = initializer ");
         Node* n = new Node();
@@ -4598,60 +4871,113 @@ yyreduce:
             yyerror("Variable '" + n->place + "' cannot be of type void.");
         }
 
+        if(n->kind.find("static") != string::npos)
+        {
+            yyerror("Static array initialization not supported");
+            // globalCode.push_back(n->place + " = 0;");
+        }
         dbg("");
         if(classTable.find(n->type) != classTable.end())
         {
-            for(const auto& member : classTable[n->type])
+            if(lastClassType == "")
             {
-                if(member.second.kind == "function")
+                for(const auto& member : classTable[n->type])
                 {
-                    string name = n->place + "." + member.first;
-                    string original = n->place + "." + member.second.method.original;
-                    if(lookupSymbol(original) == nullptr)
-                        declareSymbol(original, "function","function",vector<string>(),true);
-                    dbg(original);
-                    funcInfo f = member.second.method;
-                    f.place = n->place + "." + f.place;
-                    dbg("zz");
-                    dbg(f.place);
-                    funcTable[name] = f;
-                    dbg("Function '" + name + "' with return type '" + funcTable[name].returnType + "' declared.");
-                }
-                else if(member.second.kind.find("static") == string::npos)
-                {
-                    string name = n->place + "." + member.first;
-                    bool ok = declareSymbol(name, member.second.type, member.second.kind);
-
-                    if (!ok) {
-                        yyerror("Duplicate declaration of '" + name + "' in same scope.");
+                    if(member.second.kind == "function")
+                    {
+                        string name = n->place + "." + member.first;
+                        string original = n->place + "." + member.second.method.original;
+                        if(lookupSymbol(original) == nullptr)
+                            declareSymbol(original, "function","function",vector<string>(),true);
+                        dbg(original);
+                        funcInfo f = member.second.method;
+                        f.place = n->place + "." + f.place;
+                        dbg("zz");
+                        dbg(f.place);
+                        funcTable[name] = f;
+                        dbg("Function '" + name + "' with return type '" + funcTable[name].returnType + "' declared.");
                     }
+                    else if(member.second.kind.find("static") == string::npos)
+                    {
+                        string name = n->place + "." + member.first;
+                        bool ok = declareSymbol(name, member.second.type, member.second.kind);
 
-                    Symbol* sym = lookupSymbol(name);
-                    string w = currentFunction + currentScope + name;
-                    sym->printName = "[ebp - " + to_string(functionOffset - member.second.offset) + "]";
+                        if (!ok) {
+                            yyerror("Duplicate declaration of '" + name + "' in same scope.");
+                        }
 
-                    dbg("Variable '" + name + "' with type '" + member.second.type + "' declared.");
+                        Symbol* sym = lookupSymbol(name);
+                        string w = currentFunction + currentScope + name;
+                        sym->printName = "[ebp - " + to_string(functionOffset - member.second.offset) + "]";
+
+                        dbg("offset of " + name + " is " + to_string(member.second.offset));
+
+                        dbg("mmm");
+                        dbg(w);
+                        dbg("Variable '" + name + "' with type '" + member.second.type + "' declared.");
+                    }
                 }
+            }
+            else
+            {
+                // classOffset -= getTypeSize(n->type);
+                for(const auto& member : classTable[n->type])
+                {
+                    if(member.second.kind == "function")
+                    {
+                        string name = n->place + "." + member.first;
+                        string original = n->place + "." + member.second.method.original;
+                        if(lookupSymbol(original) == nullptr)
+                            declareSymbol(original, "function","function",vector<string>(),true);
+                        dbg(original);
+                        funcInfo f = member.second.method;
+                        f.place = n->place + "." + f.place;
+                        dbg("zz");
+                        dbg(f.place);
+                        funcTable[name] = f;
+                        dbg("Function '" + name + "' with return type '" + funcTable[name].returnType + "' declared.");
+                    }
+                    else if(member.second.kind.find("static") == string::npos)
+                    {
+                        string name = n->place + "." + member.first;
+                        bool ok = declareSymbol(name, member.second.type, member.second.kind);
+
+                        if (!ok) {
+                            yyerror("Duplicate declaration of '" + name + "' in same scope.");
+                        }
+
+                        Symbol* sym = lookupSymbol(name);
+                        string w = currentFunction + currentScope + name;
+                        classOffset -= getTypeSize(member.second.type);
+                        sym->printName = "[ecx + " + to_string(classOffset) + "]";
+
+                        dbg("offset of " + name + " is " + to_string(member.second.offset));
+                        dbg("mmm");
+                        dbg(w);
+                        dbg("Variable '" + name + "' with type '" + member.second.type + "' declared.");
+                    }
+                }
+                classOffset += getTypeSize(n->type);
             }
         }
         dbg("");
         n->place = w;
         (yyval.node) = n;
     }
-#line 4642 "src/parser.tab.c"
+#line 4968 "src/parser.tab.c"
     break;
 
   case 107: /* initializer: LCURLY initializer_list RCURLY  */
-#line 2871 "src/parser.y"
+#line 3197 "src/parser.y"
     { 
         dbg("initializer -> { initializer_list }");
         (yyval.node) = (yyvsp[-1].node);
     }
-#line 4651 "src/parser.tab.c"
+#line 4977 "src/parser.tab.c"
     break;
 
   case 108: /* initializer_list: assignment_expression  */
-#line 2880 "src/parser.y"
+#line 3206 "src/parser.y"
     { 
         dbg("initializer_list -> assignment_expression");
         Node * n = (yyvsp[0].node);
@@ -4662,11 +4988,11 @@ yyreduce:
         n->syn.push_back(n->place);
         (yyval.node) = n;
     }
-#line 4666 "src/parser.tab.c"
+#line 4992 "src/parser.tab.c"
     break;
 
   case 109: /* initializer_list: initializer_list COMMA assignment_expression  */
-#line 2891 "src/parser.y"
+#line 3217 "src/parser.y"
     {
         dbg("initializer_list -> initializer_list , assignment_expression");
         Node* n = (yyvsp[-2].node); 
@@ -4684,11 +5010,11 @@ yyreduce:
         n->argCount = n->argCount + 1;
         (yyval.node) = n;
     }
-#line 4688 "src/parser.tab.c"
+#line 5014 "src/parser.tab.c"
     break;
 
   case 110: /* square_list: square_list LSQUARE constant_expression RSQUARE  */
-#line 2913 "src/parser.y"
+#line 3239 "src/parser.y"
     {
         dbg("square_list -> square_list [ constant_expression ]");
         Node* n = (yyvsp[-3].node);
@@ -4702,11 +5028,11 @@ yyreduce:
 
         (yyval.node) = n;
     }
-#line 4706 "src/parser.tab.c"
+#line 5032 "src/parser.tab.c"
     break;
 
   case 111: /* square_list: LSQUARE constant_expression RSQUARE  */
-#line 2927 "src/parser.y"
+#line 3253 "src/parser.y"
     {
         dbg("square_opt -> [ constant_expression ]");
         Node* n = new Node();
@@ -4719,59 +5045,59 @@ yyreduce:
         }
         (yyval.node) = n;
     }
-#line 4723 "src/parser.tab.c"
+#line 5049 "src/parser.tab.c"
     break;
 
   case 112: /* type_specifier: VOID  */
-#line 2954 "src/parser.y"
+#line 3280 "src/parser.y"
                  { 
         dbg("type_specifier -> VOID");
         (yyval.str) = strdup("void"); lastDeclType = "void"; }
-#line 4731 "src/parser.tab.c"
+#line 5057 "src/parser.tab.c"
     break;
 
   case 113: /* type_specifier: CHAR  */
-#line 2957 "src/parser.y"
+#line 3283 "src/parser.y"
                  { 
         dbg("type_specifier -> CHAR");
         (yyval.str) = strdup("char"); lastDeclType = "char"; }
-#line 4739 "src/parser.tab.c"
+#line 5065 "src/parser.tab.c"
     break;
 
   case 114: /* type_specifier: INT  */
-#line 2960 "src/parser.y"
+#line 3286 "src/parser.y"
                  { 
         dbg("type_specifier -> INT");
         (yyval.str) = strdup("int"); lastDeclType = "int"; }
-#line 4747 "src/parser.tab.c"
+#line 5073 "src/parser.tab.c"
     break;
 
   case 115: /* type_specifier: LONG  */
-#line 2963 "src/parser.y"
+#line 3289 "src/parser.y"
                  { 
         dbg("type_specifier -> LONG");
         (yyval.str) = strdup("long"); lastDeclType = "long"; }
-#line 4755 "src/parser.tab.c"
+#line 5081 "src/parser.tab.c"
     break;
 
   case 116: /* type_specifier: FLOAT  */
-#line 2966 "src/parser.y"
+#line 3292 "src/parser.y"
                  { 
         dbg("type_specifier -> FLOAT");
         (yyval.str) = strdup("float"); lastDeclType = "float"; }
-#line 4763 "src/parser.tab.c"
+#line 5089 "src/parser.tab.c"
     break;
 
   case 117: /* type_specifier: BOOL  */
-#line 2969 "src/parser.y"
+#line 3295 "src/parser.y"
                  { 
         dbg("type_specifier -> BOOL");
         (yyval.str) = strdup("bool"); lastDeclType = "bool"; }
-#line 4771 "src/parser.tab.c"
+#line 5097 "src/parser.tab.c"
     break;
 
   case 118: /* type_specifier: TYPE_NAME  */
-#line 2976 "src/parser.y"
+#line 3302 "src/parser.y"
     { 
         dbg("type_specifier -> TYPE_NAME");
         (yyval.str) = (yyvsp[0].str);
@@ -4789,20 +5115,20 @@ yyreduce:
             yyerror("Unknown type '" + string((yyvsp[0].str)) + "'.");    
         }
     }
-#line 4793 "src/parser.tab.c"
+#line 5119 "src/parser.tab.c"
     break;
 
   case 119: /* translation_unit: external_declaration  */
-#line 2998 "src/parser.y"
+#line 3324 "src/parser.y"
     { 
         dbg("translation_unit -> external_declaration");
         finalRoot = (yyvsp[0].node); (yyval.node) = (yyvsp[0].node); 
     }
-#line 4802 "src/parser.tab.c"
+#line 5128 "src/parser.tab.c"
     break;
 
   case 120: /* translation_unit: translation_unit external_declaration  */
-#line 3003 "src/parser.y"
+#line 3329 "src/parser.y"
     {
         dbg("translation_unit -> translation_unit external_declaration");
         Node* a = (yyvsp[-1].node); Node* b = (yyvsp[0].node);
@@ -4813,11 +5139,11 @@ yyreduce:
         }
         else { finalRoot = b; (yyval.node) = b; }
     }
-#line 4817 "src/parser.tab.c"
+#line 5143 "src/parser.tab.c"
     break;
 
   case 121: /* $@1: %empty  */
-#line 3018 "src/parser.y"
+#line 3344 "src/parser.y"
     { 
         lastClassType = string((yyvsp[-1].str)); 
         if(typeSize.find(lastClassType) != typeSize.end()){
@@ -4828,11 +5154,11 @@ yyreduce:
         classOffset = 0;
         pushScope();
     }
-#line 4832 "src/parser.tab.c"
+#line 5158 "src/parser.tab.c"
     break;
 
   case 122: /* struct_or_class_specifier: struct_or_class IDENTIFIER LCURLY $@1 struct_or_class_member_list RCURLY  */
-#line 3029 "src/parser.y"
+#line 3355 "src/parser.y"
     { 
         dbg("struct_or_class_specifier -> struct_or_class IDENTIFIER { struct_or_class_member_list }");
         popScope();
@@ -4844,41 +5170,41 @@ yyreduce:
         typeSize[lastClassType] = classOffset;   // NEW: store computed size
         lastClassType.clear(); 
     }
-#line 4848 "src/parser.tab.c"
+#line 5174 "src/parser.tab.c"
     break;
 
   case 123: /* struct_or_class: STRUCT  */
-#line 3045 "src/parser.y"
+#line 3371 "src/parser.y"
     { 
         dbg("struct_or_class -> STRUCT");
         (yyval.node) = new Node(); 
         lastUsage = "public";
     }
-#line 4858 "src/parser.tab.c"
+#line 5184 "src/parser.tab.c"
     break;
 
   case 124: /* struct_or_class: CLASS  */
-#line 3051 "src/parser.y"
+#line 3377 "src/parser.y"
     { 
         dbg("struct_or_class -> CLASS");
         (yyval.node) = new Node(); 
         lastUsage = "private";
     }
-#line 4868 "src/parser.tab.c"
+#line 5194 "src/parser.tab.c"
     break;
 
   case 125: /* struct_or_class_member_list: %empty  */
-#line 3061 "src/parser.y"
+#line 3387 "src/parser.y"
     { 
         dbg("struct_or_class_member_list -> <empty>");
         dbg("lastClassType: " + lastClassType);
         (yyval.node) = new Node(); 
     }
-#line 4878 "src/parser.tab.c"
+#line 5204 "src/parser.tab.c"
     break;
 
   case 126: /* struct_or_class_member_list: struct_or_class_member_list struct_or_class_member  */
-#line 3067 "src/parser.y"
+#line 3393 "src/parser.y"
     { 
         dbg("struct_or_class_member_list -> struct_or_class_member_list struct_or_class_member");
         dbg("lastClassType: " + lastClassType);
@@ -4886,33 +5212,33 @@ yyreduce:
         n->code.insert(n->code.end(), (yyvsp[0].node)->code.begin(), (yyvsp[0].node)->code.end()); 
         (yyval.node) = n; 
     }
-#line 4890 "src/parser.tab.c"
+#line 5216 "src/parser.tab.c"
     break;
 
   case 127: /* struct_or_class_member: access_specifier_label  */
-#line 3078 "src/parser.y"
+#line 3404 "src/parser.y"
     { 
         dbg("struct_or_class_member -> access_specifier_label");
         dbg("lastClassType: " + lastClassType);
         lastUsage = string((yyvsp[0].node)->place);
         (yyval.node) = (yyvsp[0].node); 
     }
-#line 4901 "src/parser.tab.c"
+#line 5227 "src/parser.tab.c"
     break;
 
   case 128: /* struct_or_class_member: external_declare  */
-#line 3085 "src/parser.y"
+#line 3411 "src/parser.y"
     {
         dbg("struct_or_class_member -> external_declare");
         dbg("lastClassType: " + lastClassType);
         dbg("");
         (yyval.node) = (yyvsp[0].node); 
     }
-#line 4912 "src/parser.tab.c"
+#line 5238 "src/parser.tab.c"
     break;
 
   case 129: /* access_specifier_label: PUBLIC COLON  */
-#line 3095 "src/parser.y"
+#line 3421 "src/parser.y"
     { 
         dbg("access_specifier_label -> PUBLIC :");
         dbg("lastClassType: " + lastClassType);
@@ -4920,53 +5246,53 @@ yyreduce:
         n->place = "public";
         (yyval.node) = n; 
     }
-#line 4924 "src/parser.tab.c"
+#line 5250 "src/parser.tab.c"
     break;
 
   case 130: /* access_specifier_label: PRIVATE COLON  */
-#line 3103 "src/parser.y"
+#line 3429 "src/parser.y"
     { 
         dbg("access_specifier_label -> PRIVATE :");
         Node* n=new Node(); 
         n->place = "private";
         (yyval.node) = n; 
     }
-#line 4935 "src/parser.tab.c"
+#line 5261 "src/parser.tab.c"
     break;
 
   case 131: /* access_specifier_label: PROTECTED COLON  */
-#line 3110 "src/parser.y"
+#line 3436 "src/parser.y"
     { 
         dbg("access_specifier_label -> PROTECTED :");
         Node* n=new Node(); 
         n->place = "protected";
         (yyval.node) = n; 
     }
-#line 4946 "src/parser.tab.c"
+#line 5272 "src/parser.tab.c"
     break;
 
   case 132: /* parameter_list: parameter_declaration  */
-#line 3258 "src/parser.y"
+#line 3584 "src/parser.y"
                                 { 
             dbg("parameter_list -> parameter_declaration");
             (yyval.node) = (yyvsp[0].node); 
         }
-#line 4955 "src/parser.tab.c"
+#line 5281 "src/parser.tab.c"
     break;
 
   case 133: /* parameter_list: parameter_list COMMA parameter_declaration  */
-#line 3263 "src/parser.y"
+#line 3589 "src/parser.y"
         {
             dbg("parameter_list -> parameter_list , parameter_declaration");
             Node* n = (yyvsp[-2].node);
             n->syn.insert(n->syn.end(), (yyvsp[0].node)->syn.begin(), (yyvsp[0].node)->syn.end()); 
             (yyval.node) = n;
         }
-#line 4966 "src/parser.tab.c"
+#line 5292 "src/parser.tab.c"
     break;
 
   case 134: /* parameter_declaration: return_type IDENTIFIER  */
-#line 3274 "src/parser.y"
+#line 3600 "src/parser.y"
         {
             dbg("parameter_declaration -> return_type IDENTIFIER");
             Node* n = new Node();
@@ -4975,59 +5301,59 @@ yyreduce:
             dbg("Parameter: " + string((yyvsp[0].str)) + " of type which is: " + string((yyvsp[-1].str)));
             (yyval.node) = n;
         }
-#line 4979 "src/parser.tab.c"
+#line 5305 "src/parser.tab.c"
     break;
 
   case 135: /* statement: labeled_statement  */
-#line 3286 "src/parser.y"
+#line 3612 "src/parser.y"
                             { 
         dbg("statement -> labeled_statement");
         (yyval.node) = (yyvsp[0].node); }
-#line 4987 "src/parser.tab.c"
+#line 5313 "src/parser.tab.c"
     break;
 
   case 136: /* statement: compound_statement  */
-#line 3289 "src/parser.y"
+#line 3615 "src/parser.y"
                              { 
         dbg("statement -> compound_statement");
         (yyval.node) = (yyvsp[0].node); }
-#line 4995 "src/parser.tab.c"
+#line 5321 "src/parser.tab.c"
     break;
 
   case 137: /* statement: expression_statement  */
-#line 3292 "src/parser.y"
+#line 3618 "src/parser.y"
                                { 
         dbg("statement -> expression_statement");
         (yyval.node) = (yyvsp[0].node); }
-#line 5003 "src/parser.tab.c"
+#line 5329 "src/parser.tab.c"
     break;
 
   case 138: /* statement: selection_statement  */
-#line 3295 "src/parser.y"
+#line 3621 "src/parser.y"
                               { 
         dbg("statement -> selection_statement");
         (yyval.node) = (yyvsp[0].node); }
-#line 5011 "src/parser.tab.c"
+#line 5337 "src/parser.tab.c"
     break;
 
   case 139: /* statement: iteration_statement  */
-#line 3298 "src/parser.y"
+#line 3624 "src/parser.y"
                               { 
         dbg("statement -> iteration_statement");
         (yyval.node) = (yyvsp[0].node); }
-#line 5019 "src/parser.tab.c"
+#line 5345 "src/parser.tab.c"
     break;
 
   case 140: /* statement: jump_statement  */
-#line 3301 "src/parser.y"
+#line 3627 "src/parser.y"
                          { 
         dbg("statement -> jump_statement");
         (yyval.node) = (yyvsp[0].node); }
-#line 5027 "src/parser.tab.c"
+#line 5353 "src/parser.tab.c"
     break;
 
   case 141: /* labeled_statement: IDENTIFIER COLON  */
-#line 3308 "src/parser.y"
+#line 3634 "src/parser.y"
                            {
             dbg("labeled_statement -> IDENTIFIER :");
             if(!declareSymbol(string((yyvsp[-1].str)),string("label"))){
@@ -5038,21 +5364,21 @@ yyreduce:
             s->code.push_back(label + ":");
           (yyval.node) = s;
         }
-#line 5042 "src/parser.tab.c"
+#line 5368 "src/parser.tab.c"
     break;
 
   case 142: /* compound_statement: LCURLY RCURLY  */
-#line 3322 "src/parser.y"
+#line 3648 "src/parser.y"
                         {
             dbg("compound_statement -> { }");
           Node* n = new Node();
           (yyval.node) = n;
       }
-#line 5052 "src/parser.tab.c"
+#line 5378 "src/parser.tab.c"
     break;
 
   case 143: /* $@5: %empty  */
-#line 3328 "src/parser.y"
+#line 3654 "src/parser.y"
     {
         currentScope += ".";
         if(funcOnce == false)
@@ -5066,11 +5392,11 @@ yyreduce:
         dbg(to_string(functionOffset));
         functionOffset = 0;
     }
-#line 5070 "src/parser.tab.c"
+#line 5396 "src/parser.tab.c"
     break;
 
   case 144: /* compound_statement: LCURLY $@5 statement_list RCURLY  */
-#line 3341 "src/parser.y"
+#line 3667 "src/parser.y"
     {
         dbg("compound_statement -> { statement_list }");
         Node* n = (yyvsp[-1].node);
@@ -5105,62 +5431,62 @@ yyreduce:
         else functionOffset = 0;
         offset.pop_back();
     }
-#line 5109 "src/parser.tab.c"
+#line 5435 "src/parser.tab.c"
     break;
 
   case 145: /* statement_list: block_item  */
-#line 3379 "src/parser.y"
+#line 3705 "src/parser.y"
                      { 
         dbg("statement_list -> block_item");
         (yyval.node) = (yyvsp[0].node); }
-#line 5117 "src/parser.tab.c"
+#line 5443 "src/parser.tab.c"
     break;
 
   case 146: /* statement_list: statement_list block_item  */
-#line 3382 "src/parser.y"
+#line 3708 "src/parser.y"
                                     {
             dbg("statement_list -> statement_list block_item");
           Node* n = (yyvsp[-1].node);
           if ((yyvsp[0].node)) n->code.insert(n->code.end(), (yyvsp[0].node)->code.begin(), (yyvsp[0].node)->code.end());
           (yyval.node) = n;
       }
-#line 5128 "src/parser.tab.c"
+#line 5454 "src/parser.tab.c"
     break;
 
   case 147: /* block_item: statement  */
-#line 3392 "src/parser.y"
+#line 3718 "src/parser.y"
                 { 
         dbg("block_item -> statement");
         (yyval.node) = (yyvsp[0].node); }
-#line 5136 "src/parser.tab.c"
+#line 5462 "src/parser.tab.c"
     break;
 
   case 148: /* block_item: declaration  */
-#line 3395 "src/parser.y"
+#line 3721 "src/parser.y"
                   { 
         dbg("block_item -> declaration");
         (yyval.node) = (yyvsp[0].node); }
-#line 5144 "src/parser.tab.c"
+#line 5470 "src/parser.tab.c"
     break;
 
   case 149: /* expression_statement: SEMICOLON  */
-#line 3401 "src/parser.y"
+#line 3727 "src/parser.y"
                     { 
         dbg("expression_statement -> ;");
         Node* n = new Node(); (yyval.node) = n; }
-#line 5152 "src/parser.tab.c"
+#line 5478 "src/parser.tab.c"
     break;
 
   case 150: /* expression_statement: expression SEMICOLON  */
-#line 3404 "src/parser.y"
+#line 3730 "src/parser.y"
                                { 
         dbg("expression_statement -> expression ;");
         (yyval.node) = (yyvsp[-1].node); }
-#line 5160 "src/parser.tab.c"
+#line 5486 "src/parser.tab.c"
     break;
 
   case 151: /* selection_statement: IF LROUND expression RROUND statement  */
-#line 3410 "src/parser.y"
+#line 3736 "src/parser.y"
                                                                   {
           dbg("selection_statement -> if ( expression ) statement");
           Node* e = (yyvsp[-2].node);
@@ -5183,11 +5509,11 @@ yyreduce:
           
           (yyval.node) = n;
       }
-#line 5187 "src/parser.tab.c"
+#line 5513 "src/parser.tab.c"
     break;
 
   case 152: /* selection_statement: IF LROUND expression RROUND statement ELSE statement  */
-#line 3432 "src/parser.y"
+#line 3758 "src/parser.y"
                                                            {
           dbg("selection_statement -> if ( expression ) statement else statement");
           Node* e = (yyvsp[-4].node);
@@ -5221,11 +5547,11 @@ yyreduce:
           backpatch(n->code, endList, Lend);
           (yyval.node) = n;
       }
-#line 5225 "src/parser.tab.c"
+#line 5551 "src/parser.tab.c"
     break;
 
   case 153: /* selection_statement: switch_head LCURLY case_list RCURLY  */
-#line 3465 "src/parser.y"
+#line 3791 "src/parser.y"
                                           {
         dbg("selection_statement -> switch_head { case_list }");
         Node* switchExpr = (yyvsp[-3].node);
@@ -5251,17 +5577,17 @@ yyreduce:
         (yyval.node) = n;
         inloop=false;
       }
-#line 5255 "src/parser.tab.c"
+#line 5581 "src/parser.tab.c"
     break;
 
   case 154: /* $@6: %empty  */
-#line 3493 "src/parser.y"
+#line 3819 "src/parser.y"
             {inloop=true;}
-#line 5261 "src/parser.tab.c"
+#line 5587 "src/parser.tab.c"
     break;
 
   case 155: /* switch_head: SWITCH $@6 LROUND assignment_expression RROUND  */
-#line 3493 "src/parser.y"
+#line 3819 "src/parser.y"
                                                                {
         dbg("switch_head -> SWITCH ( expression )");
         Node* e = (yyvsp[-1].node);
@@ -5272,21 +5598,21 @@ yyreduce:
         switchVar = e->printName;
         (yyval.node) = n;
       }
-#line 5276 "src/parser.tab.c"
+#line 5602 "src/parser.tab.c"
     break;
 
   case 156: /* case_list: %empty  */
-#line 3506 "src/parser.y"
+#line 3832 "src/parser.y"
        {
         dbg("case_list -> <empty>");
         Node* n = new Node();
         (yyval.node) = n;
       }
-#line 5286 "src/parser.tab.c"
+#line 5612 "src/parser.tab.c"
     break;
 
   case 157: /* case_list: case_list case_item  */
-#line 3511 "src/parser.y"
+#line 3837 "src/parser.y"
                           {
         dbg("case_list -> case_list case_item");
         Node* prev = (yyvsp[-1].node);
@@ -5295,11 +5621,11 @@ yyreduce:
         prev->code.insert(prev->code.end(), curr->code.begin(), curr->code.end());
         (yyval.node) = prev;
       }
-#line 5299 "src/parser.tab.c"
+#line 5625 "src/parser.tab.c"
     break;
 
   case 158: /* case_item: CASE constant_expression statement  */
-#line 3522 "src/parser.y"
+#line 3848 "src/parser.y"
                                          {
         dbg("case_item -> CASE constant_expression : statement");
         Node* caseVal = (yyvsp[-1].node);
@@ -5326,11 +5652,11 @@ yyreduce:
         
         (yyval.node) = n;
       }
-#line 5330 "src/parser.tab.c"
+#line 5656 "src/parser.tab.c"
     break;
 
   case 159: /* case_item: DEFAULT statement  */
-#line 3548 "src/parser.y"
+#line 3874 "src/parser.y"
                         {
         dbg("case_item -> DEFAULT : statement");
         Node* stmt = (yyvsp[0].node);
@@ -5350,17 +5676,17 @@ yyreduce:
         // n->code.push_back("goto __");        
         (yyval.node) = n;
       }
-#line 5354 "src/parser.tab.c"
+#line 5680 "src/parser.tab.c"
     break;
 
   case 160: /* $@7: %empty  */
-#line 3571 "src/parser.y"
+#line 3897 "src/parser.y"
                                      {inloop=true;}
-#line 5360 "src/parser.tab.c"
+#line 5686 "src/parser.tab.c"
     break;
 
   case 161: /* iteration_statement: WHILE LROUND expression RROUND $@7 statement  */
-#line 3571 "src/parser.y"
+#line 3897 "src/parser.y"
                                                              {
         dbg("iteration_statement -> WHILE ( expression ) statement");
         Node* cond = (yyvsp[-3].node); 
@@ -5397,17 +5723,17 @@ yyreduce:
         (yyval.node) = n;
         inloop=false;
     }
-#line 5401 "src/parser.tab.c"
+#line 5727 "src/parser.tab.c"
     break;
 
   case 162: /* $@8: %empty  */
-#line 3607 "src/parser.y"
+#line 3933 "src/parser.y"
                                      {inloop=true;}
-#line 5407 "src/parser.tab.c"
+#line 5733 "src/parser.tab.c"
     break;
 
   case 163: /* iteration_statement: UNTIL LROUND expression RROUND $@8 statement  */
-#line 3607 "src/parser.y"
+#line 3933 "src/parser.y"
                                                              {
         dbg("iteration_statement -> UNTIL ( expression ) statement");
         Node* cond = (yyvsp[-3].node); 
@@ -5445,17 +5771,17 @@ yyreduce:
         (yyval.node) = n;
         inloop=false;
     }
-#line 5449 "src/parser.tab.c"
+#line 5775 "src/parser.tab.c"
     break;
 
   case 164: /* $@9: %empty  */
-#line 3644 "src/parser.y"
+#line 3970 "src/parser.y"
         {inloop=true;}
-#line 5455 "src/parser.tab.c"
+#line 5781 "src/parser.tab.c"
     break;
 
   case 165: /* iteration_statement: DO $@9 statement WHILE LROUND expression RROUND SEMICOLON  */
-#line 3644 "src/parser.y"
+#line 3970 "src/parser.y"
                                                                           {
         dbg("iteration_statement -> DO statement WHILE ( expression ) ;");
         Node* body = (yyvsp[-5].node);
@@ -5491,17 +5817,17 @@ yyreduce:
         (yyval.node) = n;
         inloop=false;
     }
-#line 5495 "src/parser.tab.c"
+#line 5821 "src/parser.tab.c"
     break;
 
   case 166: /* $@10: %empty  */
-#line 3679 "src/parser.y"
+#line 4005 "src/parser.y"
                                                                      {inloop=true;}
-#line 5501 "src/parser.tab.c"
+#line 5827 "src/parser.tab.c"
     break;
 
   case 167: /* iteration_statement: for_start LROUND for_init_statement expression_statement RROUND $@10 statement  */
-#line 3679 "src/parser.y"
+#line 4005 "src/parser.y"
                                                                                               {
         dbg("iteration_statement -> FOR ( for_init_statement expression_statement ) statement");
         Node* init = (yyvsp[-4].node);
@@ -5544,17 +5870,17 @@ yyreduce:
         inloop=false;
         popScope();
     }
-#line 5548 "src/parser.tab.c"
+#line 5874 "src/parser.tab.c"
     break;
 
   case 168: /* $@11: %empty  */
-#line 3721 "src/parser.y"
+#line 4047 "src/parser.y"
                                                                                 {inloop=true;}
-#line 5554 "src/parser.tab.c"
+#line 5880 "src/parser.tab.c"
     break;
 
   case 169: /* iteration_statement: for_start LROUND for_init_statement expression_statement expression RROUND $@11 statement  */
-#line 3721 "src/parser.y"
+#line 4047 "src/parser.y"
                                                                                                         {
         dbg("iteration_statement -> FOR ( for_init_statement expression_statement expression ) statement");
         Node* init = (yyvsp[-5].node);
@@ -5600,71 +5926,71 @@ yyreduce:
         inloop=false;
         popScope();
     }
-#line 5604 "src/parser.tab.c"
+#line 5930 "src/parser.tab.c"
     break;
 
   case 170: /* for_start: FOR  */
-#line 3769 "src/parser.y"
+#line 4095 "src/parser.y"
           {
         dbg("for_start -> FOR");
         pushScope();
         Node* n = new Node();
         (yyval.node) = n;
     }
-#line 5615 "src/parser.tab.c"
+#line 5941 "src/parser.tab.c"
     break;
 
   case 171: /* for_init_statement: expression_statement  */
-#line 3778 "src/parser.y"
+#line 4104 "src/parser.y"
                                { 
         dbg("for_init_statement -> expression_statement");
         (yyval.node) = (yyvsp[0].node); }
-#line 5623 "src/parser.tab.c"
+#line 5949 "src/parser.tab.c"
     break;
 
   case 172: /* for_init_statement: declaration  */
-#line 3782 "src/parser.y"
+#line 4108 "src/parser.y"
     { 
         dbg("for_init_statement -> declaration");
         (yyval.node) = (yyvsp[0].node); }
-#line 5631 "src/parser.tab.c"
+#line 5957 "src/parser.tab.c"
     break;
 
   case 173: /* jump_statement: GOTO IDENTIFIER SEMICOLON  */
-#line 3789 "src/parser.y"
+#line 4115 "src/parser.y"
                                     {
             dbg("jump_statement -> GOTO IDENTIFIER ;");
           Node* n = new Node();
           n->code.push_back("goto " + string((yyvsp[-1].str)));
           (yyval.node) = n;
       }
-#line 5642 "src/parser.tab.c"
+#line 5968 "src/parser.tab.c"
     break;
 
   case 174: /* jump_statement: CONTINUE SEMICOLON  */
-#line 3795 "src/parser.y"
+#line 4121 "src/parser.y"
                              {
             dbg("jump_statement -> CONTINUE ;");
           Node* n = new Node(); 
           n->code.push_back("continue"); 
           (yyval.node) = n;
       }
-#line 5653 "src/parser.tab.c"
+#line 5979 "src/parser.tab.c"
     break;
 
   case 175: /* jump_statement: BREAK SEMICOLON  */
-#line 3801 "src/parser.y"
+#line 4127 "src/parser.y"
                           {
             dbg("jump_statement -> BREAK ;");
           Node* n = new Node(); 
           n->code.push_back("break"); 
           (yyval.node) = n;
       }
-#line 5664 "src/parser.tab.c"
+#line 5990 "src/parser.tab.c"
     break;
 
   case 176: /* jump_statement: RETURN SEMICOLON  */
-#line 3807 "src/parser.y"
+#line 4133 "src/parser.y"
                            {
             dbg("jump_statement -> RETURN ;");
           Node* n = new Node(); 
@@ -5673,11 +5999,11 @@ yyreduce:
           n->code.push_back("return"); 
           (yyval.node) = n;
       }
-#line 5677 "src/parser.tab.c"
+#line 6003 "src/parser.tab.c"
     break;
 
   case 177: /* jump_statement: RETURN expression SEMICOLON  */
-#line 3816 "src/parser.y"
+#line 4142 "src/parser.y"
     {
         dbg("jump_statement -> RETURN expression ;");
         Node* expr = (yyvsp[-1].node);
@@ -5715,31 +6041,31 @@ yyreduce:
         }
         (yyval.node) = n;
     }
-#line 5719 "src/parser.tab.c"
+#line 6045 "src/parser.tab.c"
     break;
 
   case 178: /* $@12: %empty  */
-#line 3858 "src/parser.y"
+#line 4184 "src/parser.y"
     {
         dbg("external_declare -> type_specifier");
         lastDeclType = string((yyvsp[0].str));
         dbg("lastDeclType in external_declare: " + lastDeclType);
         lastFnType = lastDeclType;
     }
-#line 5730 "src/parser.tab.c"
+#line 6056 "src/parser.tab.c"
     break;
 
   case 179: /* external_declare: type_specifier $@12 external  */
-#line 3865 "src/parser.y"
+#line 4191 "src/parser.y"
     { 
         dbg("external_declare -> type_specifier external");
         (yyval.node) = (yyvsp[0].node); 
     }
-#line 5739 "src/parser.tab.c"
+#line 6065 "src/parser.tab.c"
     break;
 
   case 180: /* $@13: %empty  */
-#line 3870 "src/parser.y"
+#line 4196 "src/parser.y"
     {
         dbg("external_declare -> type_specifier pointer_list");
         lastDeclType = string((yyvsp[-1].str))+string((yyvsp[0].str));
@@ -5748,58 +6074,58 @@ yyreduce:
         dbg("lastDeclType in external_declare: " + lastDeclType);
         dbg("");
     }
-#line 5752 "src/parser.tab.c"
+#line 6078 "src/parser.tab.c"
     break;
 
   case 181: /* external_declare: type_specifier pointer_list $@13 external  */
-#line 3879 "src/parser.y"
+#line 4205 "src/parser.y"
     { 
         dbg("external_declare -> type_specifier pointer_list external");
         (yyval.node) = (yyvsp[0].node); 
     }
-#line 5761 "src/parser.tab.c"
+#line 6087 "src/parser.tab.c"
     break;
 
   case 182: /* $@14: %empty  */
-#line 3884 "src/parser.y"
+#line 4210 "src/parser.y"
     {
         dbg("external_declare -> const type_specifier");
         lastDeclType = string((yyvsp[-1].str))+string((yyvsp[0].str));
     }
-#line 5770 "src/parser.tab.c"
+#line 6096 "src/parser.tab.c"
     break;
 
   case 183: /* external_declare: CONST type_specifier $@14 init_declarator_list SEMICOLON  */
-#line 3889 "src/parser.y"
+#line 4215 "src/parser.y"
     {
         dbg("external_declare -> const type_specifier init_declarator_list ;");
         (yyval.node) = (yyvsp[-1].node);
     }
-#line 5779 "src/parser.tab.c"
+#line 6105 "src/parser.tab.c"
     break;
 
   case 184: /* $@15: %empty  */
-#line 3897 "src/parser.y"
+#line 4223 "src/parser.y"
     {
         dbg("external_declaration -> type_specifier");
         lastDeclType = string((yyvsp[0].str));
         dbg("lastDeclType in external_declaration: " + lastDeclType);
         lastFnType = lastDeclType;
     }
-#line 5790 "src/parser.tab.c"
+#line 6116 "src/parser.tab.c"
     break;
 
   case 185: /* external_declaration: type_specifier $@15 external  */
-#line 3904 "src/parser.y"
+#line 4230 "src/parser.y"
     { 
         dbg("external_declaration -> type_specifier external");
         (yyval.node) = (yyvsp[0].node); 
     }
-#line 5799 "src/parser.tab.c"
+#line 6125 "src/parser.tab.c"
     break;
 
   case 186: /* $@16: %empty  */
-#line 3909 "src/parser.y"
+#line 4235 "src/parser.y"
     {
         dbg("external_declaration -> type_specifier pointer_list");
         lastDeclType = string((yyvsp[-1].str))+string((yyvsp[0].str));
@@ -5808,105 +6134,105 @@ yyreduce:
         dbg("lastDeclType in external_declaration: " + lastDeclType);
         dbg("");
     }
-#line 5812 "src/parser.tab.c"
+#line 6138 "src/parser.tab.c"
     break;
 
   case 187: /* external_declaration: type_specifier pointer_list $@16 external  */
-#line 3918 "src/parser.y"
+#line 4244 "src/parser.y"
     { 
         dbg("external_declaration -> type_specifier pointer_list external");
         (yyval.node) = (yyvsp[0].node); 
     }
-#line 5821 "src/parser.tab.c"
+#line 6147 "src/parser.tab.c"
     break;
 
   case 188: /* external_declaration: struct_or_class_specifier SEMICOLON  */
-#line 3923 "src/parser.y"
+#line 4249 "src/parser.y"
     { 
         dbg("external_declaration -> struct_or_class_specifier ;");
         classOffset = 0;
         (yyval.node) = (yyvsp[-1].node); 
     }
-#line 5831 "src/parser.tab.c"
+#line 6157 "src/parser.tab.c"
     break;
 
   case 189: /* external_declaration: TYPEDEF return_type IDENTIFIER SEMICOLON  */
-#line 3928 "src/parser.y"
+#line 4254 "src/parser.y"
                                                {
         dbg("external_declaration -> TYPEDEF return_type IDENTIFIER ;");
         typeSize[string((yyvsp[-1].str))] = typeSize[string((yyvsp[-2].str))];
         typeDefTable[string((yyvsp[-1].str))] = string((yyvsp[-2].str));
         (yyval.node) = new Node();
     }
-#line 5842 "src/parser.tab.c"
+#line 6168 "src/parser.tab.c"
     break;
 
   case 190: /* external_declaration: declare  */
-#line 3934 "src/parser.y"
+#line 4260 "src/parser.y"
               {
         dbg("external_declaration -> declare");
         globalCode.insert(globalCode.end(), (yyvsp[0].node)->code.begin(), (yyvsp[0].node)->code.end());
         (yyval.node) = new Node();
     }
-#line 5852 "src/parser.tab.c"
+#line 6178 "src/parser.tab.c"
     break;
 
   case 191: /* $@17: %empty  */
-#line 3943 "src/parser.y"
+#line 4269 "src/parser.y"
     {
         dbg("declaration_specifiers -> const type_specifier");
         lastDeclType = string((yyvsp[-1].str))+string((yyvsp[0].str));
     }
-#line 5861 "src/parser.tab.c"
+#line 6187 "src/parser.tab.c"
     break;
 
   case 192: /* declare: CONST type_specifier $@17 init_declarator_list SEMICOLON  */
-#line 3948 "src/parser.y"
+#line 4274 "src/parser.y"
     {
         dbg("declaration_specifiers -> const type_specifier init_declarator_list ;");
         (yyval.node) = (yyvsp[-1].node);
     }
-#line 5870 "src/parser.tab.c"
+#line 6196 "src/parser.tab.c"
     break;
 
   case 193: /* $@18: %empty  */
-#line 3953 "src/parser.y"
+#line 4279 "src/parser.y"
     {
         dbg("declaration_specifiers -> static const type_specifier");
         lastDeclType = string((yyvsp[-2].str))+string((yyvsp[-1].str))+string((yyvsp[0].str));
     }
-#line 5879 "src/parser.tab.c"
+#line 6205 "src/parser.tab.c"
     break;
 
   case 194: /* declare: STATIC CONST type_specifier $@18 init_declarator_list SEMICOLON  */
-#line 3958 "src/parser.y"
+#line 4284 "src/parser.y"
     {
         dbg("declaration_specifiers -> static const type_specifier init_declarator_list ;");
         (yyval.node) = (yyvsp[-1].node);
     }
-#line 5888 "src/parser.tab.c"
+#line 6214 "src/parser.tab.c"
     break;
 
   case 195: /* $@19: %empty  */
-#line 3963 "src/parser.y"
+#line 4289 "src/parser.y"
     {
         dbg("declaration_specifiers -> static type_specifier");
         lastDeclType = string((yyvsp[-1].str))+string((yyvsp[0].str));
     }
-#line 5897 "src/parser.tab.c"
+#line 6223 "src/parser.tab.c"
     break;
 
   case 196: /* declare: STATIC type_specifier $@19 init_declarator_list SEMICOLON  */
-#line 3968 "src/parser.y"
+#line 4294 "src/parser.y"
     {
         dbg("declaration_specifiers -> static type_specifier init_declarator_list ;");
         (yyval.node) = (yyvsp[-1].node);
     }
-#line 5906 "src/parser.tab.c"
+#line 6232 "src/parser.tab.c"
     break;
 
   case 197: /* $@20: %empty  */
-#line 3976 "src/parser.y"
+#line 4302 "src/parser.y"
     {
         dbg("");
         dbg("lastFnType in external: " + lastFnType);
@@ -5956,11 +6282,11 @@ yyreduce:
 
         pushScope();
     }
-#line 5960 "src/parser.tab.c"
+#line 6286 "src/parser.tab.c"
     break;
 
   case 198: /* external: IDENTIFIER LROUND RROUND $@20 compound_statement  */
-#line 4026 "src/parser.y"
+#line 4352 "src/parser.y"
     {
         dbg("external -> IDENTIFIER ( ) compound_statement");
         Node* n = new Node();
@@ -5987,11 +6313,11 @@ yyreduce:
         inFunction = false;
         (yyval.node) = n;
     }
-#line 5991 "src/parser.tab.c"
+#line 6317 "src/parser.tab.c"
     break;
 
   case 199: /* $@21: %empty  */
-#line 4053 "src/parser.y"
+#line 4379 "src/parser.y"
     {
         dbg("");
         dbg("lastDeclType in external: " + lastFnType);
@@ -6141,11 +6467,11 @@ yyreduce:
             if(!ok) yyerror("Duplicate parameter name '" + pname + "' in function '" + fname + "'.");
         }
     }
-#line 6145 "src/parser.tab.c"
+#line 6471 "src/parser.tab.c"
     break;
 
   case 200: /* external: IDENTIFIER LROUND parameter_list RROUND $@21 compound_statement  */
-#line 4203 "src/parser.y"
+#line 4529 "src/parser.y"
     {
         dbg("external -> IDENTIFIER ( parameter_list ) compound_statement");
         Node* n = new Node();
@@ -6187,11 +6513,11 @@ yyreduce:
         lastFnType="int";
         (yyval.node) = n;
     }
-#line 6191 "src/parser.tab.c"
+#line 6517 "src/parser.tab.c"
     break;
 
   case 201: /* external: init_declarator_list SEMICOLON  */
-#line 4245 "src/parser.y"
+#line 4571 "src/parser.y"
     { 
         dbg("external -> init_declarator_list ;");
         Node* n = new Node();
@@ -6206,20 +6532,20 @@ yyreduce:
         } 
         (yyval.node) = n;
     }
-#line 6210 "src/parser.tab.c"
+#line 6536 "src/parser.tab.c"
     break;
 
   case 202: /* return_type: type_specifier pointer_opt  */
-#line 4351 "src/parser.y"
+#line 4677 "src/parser.y"
     { 
         dbg("return_type -> type_specifier pointer_opt");
         (yyval.str) = strdup( (string((yyvsp[-1].str)) + string((yyvsp[0].str))).c_str() );
     }
-#line 6219 "src/parser.tab.c"
+#line 6545 "src/parser.tab.c"
     break;
 
 
-#line 6223 "src/parser.tab.c"
+#line 6549 "src/parser.tab.c"
 
       default: break;
     }
@@ -6412,7 +6738,7 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 4357 "src/parser.y"
+#line 4683 "src/parser.y"
 
 
 
