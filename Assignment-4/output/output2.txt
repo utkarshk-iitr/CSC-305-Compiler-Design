@@ -1,4 +1,4 @@
-    
+section .data
     str_1 db "%d", 0
     str_2 db "%s", 0
     str_3 db "passed", 0
@@ -12,102 +12,116 @@
     str_11 db "promoted", 0
     str_12 db "%s", 0
     str_13 db "failed", 0
-    
+
+section .text
+    global main
+    extern printf
+    extern scanf
+    extern malloc
+    extern free
+    extern nullptr
+
 main:
     push ebp
     mov ebp, esp
-    sub esp, 32
-    sub esp, 8
-    param [esp] , str_1
-    [ebp - 12] = &[ebp - 4]
-    sub esp, 8
-    param [esp] , [ebp - 12]
-    [ebp - 16] = call scanf, 2
+    sub esp, 40
+    lea eax, [ebp-4]
+    mov [ebp-8], eax
+    mov eax, [ebp-8]
+    push eax
+    mov eax, str_1
+    push eax
+    call scanf
+    mov [ebp-12], eax
     add esp, 8
-    [ebp - 17] = [ebp - 4] >= 6
-    ifFalse [ebp - 17] goto main.L3
+    mov eax, [ebp-16]
+    test eax, eax
+    jz main.L3
     sub esp, 4
-    sub esp, 8
-    param [esp] , str_2
-    sub esp, 8
-    param [esp] , str_3
-    [ebp - 21] = call printf, 2
+    mov eax, str_3
+    push eax
+    mov eax, str_2
+    push eax
+    call printf
+    mov [ebp-20], eax
     add esp, 8
-    add esp, 4
-    goto main.L4
+    jmp main.L4
 main.L3:
-    [ebp - 18] = [ebp - 4] >= 4
-    ifFalse [ebp - 18] goto main.L1
+    mov eax, [ebp-20]
+    test eax, eax
+    jz main.L1
     sub esp, 4
-    sub esp, 8
-    param [esp] , str_4
-    sub esp, 8
-    param [esp] , str_5
-    [ebp - 22] = call printf, 2
+    mov eax, str_5
+    push eax
+    mov eax, str_4
+    push eax
+    call printf
+    mov [ebp-24], eax
     add esp, 8
-    add esp, 4
-    goto main.L2
+    jmp main.L2
 main.L1:
     sub esp, 4
-    sub esp, 8
-    param [esp] , str_6
-    sub esp, 8
-    param [esp] , str_7
-    [ebp - 22] = call printf, 2
+    mov eax, str_7
+    push eax
+    mov eax, str_6
+    push eax
+    call printf
+    mov [ebp-24], eax
     add esp, 8
-    add esp, 4
 main.L2:
 main.L4:
-    [ebp - 19] = [ebp - 4] >= 6
-    ifFalse [ebp - 19] goto main.L7
-    [ebp - 28] = 2
-    goto main.L8
+    mov eax, [ebp-24]
+    test eax, eax
+    jz main.L7
+    jmp main.L8
 main.L7:
-    [ebp - 20] = [ebp - 4] >= 4
-    ifFalse [ebp - 20] goto main.L5
-    [ebp - 24] = 1
-    goto main.L6
+    mov eax, [ebp-28]
+    test eax, eax
+    jz main.L5
+    jmp main.L6
 main.L5:
-    [ebp - 24] = 0
 main.L6:
-    [ebp - 28] = [ebp - 24]
 main.L8:
-    [ebp - 32] = [ebp - 28]
-    if [ebp - 32] == 2 goto main.L9
-    if [ebp - 32] == 1 goto main.L10
-    goto main.L11
-    goto main.L12
+    mov eax, [ebp-40]
+    cmp eax, 2
+    je main.L9
+    mov eax, [ebp-40]
+    cmp eax, 1
+    je main.L10
+    jmp main.L11
+    jmp main.L12
 main.L9:
     sub esp, 4
-    sub esp, 8
-    param [esp] , str_8
-    sub esp, 8
-    param [esp] , str_9
-    [ebp - 36] = call printf, 2
+    mov eax, str_9
+    push eax
+    mov eax, str_8
+    push eax
+    call printf
+    mov [ebp-44], eax
     add esp, 8
-    goto main.L12
-    add esp, 4
+    jmp main.L12
 main.L10:
     sub esp, 4
-    sub esp, 8
-    param [esp] , str_10
-    sub esp, 8
-    param [esp] , str_11
-    [ebp - 36] = call printf, 2
+    mov eax, str_11
+    push eax
+    mov eax, str_10
+    push eax
+    call printf
+    mov [ebp-44], eax
     add esp, 8
-    goto main.L12
-    add esp, 4
+    jmp main.L12
 main.L11:
     sub esp, 4
-    sub esp, 8
-    param [esp] , str_12
-    sub esp, 8
-    param [esp] , str_13
-    [ebp - 36] = call printf, 2
+    mov eax, str_13
+    push eax
+    mov eax, str_12
+    push eax
+    call printf
+    mov [ebp-44], eax
     add esp, 8
-    goto main.L12
-    add esp, 4
+    jmp main.L12
 main.L12:
-    add esp, 32
-    return 0
-    
+    xor eax, eax
+    mov esp, ebp
+    pop ebp
+    ret

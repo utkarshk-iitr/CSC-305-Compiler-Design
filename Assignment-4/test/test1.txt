@@ -33,5 +33,8 @@ int main()
     int p = a.getx();
     int q = a.gety();
 
+    printf("%d\n", p);
+    printf("%d\n", q);
+
     return 0;
 }

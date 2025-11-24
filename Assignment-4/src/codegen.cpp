@@ -4,14 +4,323 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include <unordered_set>
 #include <algorithm>
 #include <cctype>
 #include <cstring>
 #include <cstdint>
 #include <iomanip>
 #include <limits>
+#include <set>
 
 using namespace std;
+
+// ==================== TAC OPTIMIZER WITH NEXT-USE ALGORITHM ====================
+
+struct TACInstruction {
+    string original;     // Original TAC line
+    string opcode;       // Operation: =, +, -, *, /, call, return, goto, if, etc.
+    string dest;         // Destination operand
+    string src1;         // First source operand
+    string src2;         // Second source operand
+    bool isLabel;        // Is this a label?
+    bool isDead;         // Mark for dead code elimination
+    int lineNum;         // Line number for debugging
+    
+    // Liveness information
+    unordered_map<string, bool> liveVars;
+    unordered_map<string, int> nextUse;
+    
+    TACInstruction() : isLabel(false), isDead(false), lineNum(0) {}
+};
+
+class TACOptimizer {
+private:
+    vector<TACInstruction> instructions;
+    unordered_map<string, bool> symbolLive;
+    unordered_map<string, int> symbolNextUse;
+    bool debugMode = false;
+    
+    // Helper: Trim whitespace
+    string trim(const string& str) {
+        size_t first = str.find_first_not_of(" \t\n\r");
+        if (first == string::npos) return "";
+        size_t last = str.find_last_not_of(" \t\n\r");
+        string result = str.substr(first, last - first + 1);
+        
+        // Remove trailing semicolon
+        if (!result.empty() && result.back() == ';') {
+            result = result.substr(0, result.length() - 1);
+            last = result.find_last_not_of(" \t\n\r");
+            if (last != string::npos) {
+                result = result.substr(0, last + 1);
+            }
+        }
+        return result;
+    }
+    
+    // Check if operand is a constant or register that shouldn't be tracked
+    bool isConstantOrSpecial(const string& op) {
+        if (op.empty()) return true;
+        
+        // Check for numbers
+        if (isdigit(op[0]) || (op[0] == '-' && op.length() > 1 && isdigit(op[1]))) return true;
+        
+        // Check for string literals
+        if (op.find("str_") == 0) return true;
+        
+        // Check for specific registers that are not tracked
+        if (op == "esp" || op == "ebp" || op == "eax" || op == "ebx" || 
+            op == "ecx" || op == "edx" || op == "esi" || op == "edi") return true;
+        
+        // Check for character literals
+        if (op.length() >= 3 && op[0] == '\'' && op[2] == '\'') return true;
+        
+        return false;
+    }
+    
+    // Parse a TAC instruction
+    TACInstruction parseInstruction(const string& line, int lineNum) {
+        TACInstruction instr;
+        instr.original = line;
+        instr.lineNum = lineNum;
+        string trimmedLine = trim(line);
+        
+        if (trimmedLine.empty()) {
+            return instr;
+        }
+        
+        // Check for labels
+        if (trimmedLine.back() == ':') {
+            instr.isLabel = true;
+            instr.opcode = "label";
+            instr.dest = trimmedLine.substr(0, trimmedLine.length() - 1);
+            return instr;
+        }
+        
+        // Check for return statement
+        if (trimmedLine.find("return") == 0) {
+            instr.opcode = "return";
+            size_t spacePos = trimmedLine.find(' ');
+            if (spacePos != string::npos) {
+                instr.src1 = trim(trimmedLine.substr(spacePos + 1));
+            }
+            return instr;
+        }
+        
+        // Check for goto
+        if (trimmedLine.find("goto") == 0) {
+            instr.opcode = "goto";
+            size_t spacePos = trimmedLine.find(' ');
+            if (spacePos != string::npos) {
+                instr.dest = trim(trimmedLine.substr(spacePos + 1));
+            }
+            return instr;
+        }
+        
+        // Check for if statements
+        if (trimmedLine.find("if ") == 0 || trimmedLine.find("ifFalse") == 0) {
+            instr.opcode = "if";
+            // Extract condition variables (simplified)
+            size_t gotoPos = trimmedLine.find("goto");
+            if (gotoPos != string::npos) {
+                string condition = trim(trimmedLine.substr(0, gotoPos));
+                instr.src1 = condition;  // Store entire condition
+                instr.dest = trim(trimmedLine.substr(gotoPos + 4));
+            }
+            return instr;
+        }
+        
+        // Check for call
+        if (trimmedLine.find("call") != string::npos) {
+            instr.opcode = "call";
+            size_t eqPos = trimmedLine.find(" = ");
+            if (eqPos != string::npos) {
+                instr.dest = trim(trimmedLine.substr(0, eqPos));
+            }
+            // Don't mark call instructions as dead
+            return instr;
+        }
+        
+        // Check for param
+        if (trimmedLine.find("param") == 0) {
+            instr.opcode = "param";
+            size_t commaPos = trimmedLine.find(",");
+            if (commaPos != string::npos) {
+                instr.dest = trim(trimmedLine.substr(5, commaPos - 5));
+                instr.src1 = trim(trimmedLine.substr(commaPos + 1));
+            }
+            return instr;
+        }
+        
+        // Check for assignment with operation
+        size_t eqPos = trimmedLine.find(" = ");
+        if (eqPos != string::npos) {
+            instr.dest = trim(trimmedLine.substr(0, eqPos));
+            string rhs = trim(trimmedLine.substr(eqPos + 3));
+            
+            // Check for binary operations
+            vector<string> binOps = {" + ", " - ", " * ", " / ", " % ", " & ", " | ", " ^ ",
+                                    " << ", " >> ", " == ", " != ", " < ", " > ", " <= ", " >= ",
+                                    " && ", " || "};
+            
+            for (const auto& op : binOps) {
+                size_t opPos = rhs.find(op);
+                if (opPos != string::npos) {
+                    instr.opcode = trim(op);
+                    instr.src1 = trim(rhs.substr(0, opPos));
+                    instr.src2 = trim(rhs.substr(opPos + op.length()));
+                    return instr;
+                }
+            }
+            
+            // Simple assignment
+            instr.opcode = "=";
+            instr.src1 = rhs;
+        }
+        
+        return instr;
+    }
+    
+    // Extract variables used in an instruction
+    void getUsedVariables(const TACInstruction& instr, set<string>& vars) {
+        if (!instr.src1.empty() && !isConstantOrSpecial(instr.src1)) {
+            // Handle memory references like [ebp-4]
+            if (instr.src1.find("[ebp") != string::npos || instr.src1.find("[ecx") != string::npos) {
+                vars.insert(instr.src1);
+            } else {
+                vars.insert(instr.src1);
+            }
+        }
+        if (!instr.src2.empty() && !isConstantOrSpecial(instr.src2)) {
+            if (instr.src2.find("[ebp") != string::npos || instr.src2.find("[ecx") != string::npos) {
+                vars.insert(instr.src2);
+            } else {
+                vars.insert(instr.src2);
+            }
+        }
+    }
+    
+    // Get defined variable
+    string getDefinedVariable(const TACInstruction& instr) {
+        if (instr.opcode == "call" || instr.opcode == "param") return "";
+        if (!instr.dest.empty() && !isConstantOrSpecial(instr.dest)) {
+            return instr.dest;
+        }
+        return "";
+    }
+    
+    // Perform backward liveness analysis
+    void performLivenessAnalysis() {
+        // Clear symbol table
+        symbolLive.clear();
+        symbolNextUse.clear();
+        
+        // Backward scan through instructions
+        for (int i = instructions.size() - 1; i >= 0; i--) {
+            TACInstruction& instr = instructions[i];
+            
+            // Skip labels and empty lines
+            if (instr.isLabel || instr.original.empty()) continue;
+            
+            // Save current liveness info for this instruction
+            instr.liveVars = symbolLive;
+            instr.nextUse = symbolNextUse;
+            
+            string def = getDefinedVariable(instr);
+            set<string> uses;
+            getUsedVariables(instr, uses);
+            
+            // For the defined variable: mark as not live, no next use
+            if (!def.empty()) {
+                // Check if this is a dead assignment
+                if (symbolLive.find(def) == symbolLive.end() || !symbolLive[def]) {
+                    // Variable is not live after this point - potential dead code
+                    if (instr.opcode != "call" && instr.opcode != "param" && 
+                        instr.opcode != "return" && instr.opcode != "goto" && instr.opcode != "if") {
+                        instr.isDead = true;
+                    }
+                }
+                symbolLive[def] = false;
+                symbolNextUse[def] = -1;  // NONE
+            }
+            
+            // For used variables: mark as live, set next use
+            for (const string& var : uses) {
+                symbolLive[var] = true;
+                symbolNextUse[var] = i;
+            }
+            
+            // Special handling for control flow
+            if (instr.opcode == "return" && !instr.src1.empty()) {
+                if (!isConstantOrSpecial(instr.src1)) {
+                    symbolLive[instr.src1] = true;
+                    symbolNextUse[instr.src1] = i;
+                }
+            }
+            
+            if (instr.opcode == "if") {
+                // Mark condition variables as live
+                // Parse condition to extract variables (simplified)
+                string condition = instr.src1;
+                // Extract variables from condition (basic approach)
+                for (const auto& pair : symbolLive) {
+                    if (condition.find(pair.first) != string::npos) {
+                        symbolLive[pair.first] = true;
+                        symbolNextUse[pair.first] = i;
+                    }
+                }
+            }
+        }
+    }
+    
+public:
+    TACOptimizer(bool debug = false) : debugMode(debug) {}
+    
+    vector<string> optimize(const vector<string>& tacCode) {
+        // Parse all instructions
+        for (size_t i = 0; i < tacCode.size(); i++) {
+            instructions.push_back(parseInstruction(tacCode[i], i));
+        }
+        
+        // Perform liveness analysis
+        performLivenessAnalysis();
+        
+        // Build optimized output
+        vector<string> optimizedTAC;
+        int eliminatedCount = 0;
+        
+        for (const auto& instr : instructions) {
+            if (instr.isDead) {
+                if (debugMode) {
+                    cerr << "ELIMINATED (dead): " << instr.original << endl;
+                }
+                eliminatedCount++;
+                continue;
+            }
+            
+            if (debugMode && !instr.isLabel && !instr.original.empty()) {
+                cerr << "Line " << instr.lineNum << ": " << instr.original << endl;
+                cerr << "  Live vars: ";
+                for (const auto& pair : instr.liveVars) {
+                    if (pair.second) cerr << pair.first << " ";
+                }
+                cerr << endl;
+            }
+            
+            optimizedTAC.push_back(instr.original);
+        }
+        
+        if (debugMode) {
+            cerr << "\n=== Optimization Summary ===" << endl;
+            cerr << "Total instructions: " << tacCode.size() << endl;
+            cerr << "Eliminated: " << eliminatedCount << endl;
+            cerr << "Remaining: " << optimizedTAC.size() << endl;
+        }
+        
+        return optimizedTAC;
+    }
+};
 
 class CodeGenerator
 {
@@ -21,6 +330,11 @@ private:
     unordered_map<string, int> labelMap;
     int tempCounter = 0;
     int pendingFloatExtraBytes = 0;
+    string lastEcxValue = "";  // Track the last value loaded into ecx for member function calls
+    bool inMemberFunction = false;  // Track if we're currently inside a member function
+    bool ecxValid = false;  // Track if ecx currently contains a valid this pointer
+    bool pendingEcxRestore = false;  // Track if we need to restore ecx after parameter cleanup
+    int pendingRestoreBytes = 0;  // How many bytes to clean up before restoring ecx
 
     enum class ValueType
     {
@@ -1324,7 +1638,26 @@ private:
 
         funcName = trim(funcName);
 
+        // Check if this is a member function call (contains a dot or looks like Class.method)
+        bool isCallingMemberFunction = (funcName.find('.') != string::npos) || (funcName.find("::") != string::npos);
+        
+        // If calling a member function and ecx is not currently valid, restore it
+        if (isCallingMemberFunction && !ecxValid && !lastEcxValue.empty())
+        {
+            // Restore ecx before the member function call
+            emit("lea ecx, " + lastEcxValue);
+            ecxValid = true;
+        }
+
         emit("call " + funcName);
+        
+        // External functions can corrupt ecx
+        bool isExternalFunc = (funcName == "printf" || funcName == "scanf" || 
+                              funcName == "malloc" || funcName == "free");
+        if (isExternalFunc && !inMemberFunction)
+        {
+            ecxValid = false;  // External calls may corrupt ecx
+        }
 
         if (hasReturn && !dest.empty())
         {
@@ -1440,6 +1773,13 @@ private:
         // Normalize the source memory reference
         src = normalizeMemRef(src);
 
+        // Track lea ecx for member function calls
+        if (dest == "ecx")
+        {
+            lastEcxValue = src;
+            ecxValid = true;  // ecx now contains a valid this pointer
+        }
+
         emit("lea " + dest + ", " + src);
     }
 
@@ -1539,7 +1879,18 @@ private:
         // Labels
         if (trimmedLine.back() == ':')
         {
-            emitLabel(trimmedLine.substr(0, trimmedLine.length() - 1));
+            string label = trimmedLine.substr(0, trimmedLine.length() - 1);
+            emitLabel(label);
+            
+            // Check if entering a member function (has a dot in the label)
+            if (label.find('.') != string::npos && label.find("main") == string::npos)
+            {
+                inMemberFunction = true;
+            }
+            else if (label == "main" || label.find(".L") != string::npos)
+            {
+                inMemberFunction = false;
+            }
             return;
         }
 
@@ -1578,6 +1929,14 @@ private:
             amount += pendingFloatExtraBytes;
             emit("add esp, " + to_string(amount));
             pendingFloatExtraBytes = 0;
+            
+            // If we have a pending ecx restore, do it now after cleaning up parameters
+            if (pendingEcxRestore && amount == pendingRestoreBytes)
+            {
+                emit("pop ecx");
+                pendingEcxRestore = false;
+                pendingRestoreBytes = 0;
+            }
             return;
         }
 
@@ -1884,6 +2243,17 @@ public:
 
         for (size_t i = 0; i < tac.size(); i++)
         {
+            // Check for semicolon BEFORE trimming (trim() removes it)
+            string originalLine = tac[i];
+            string originalTrimmed = originalLine;
+            // Remove leading/trailing whitespace but keep semicolon for detection
+            size_t first = originalTrimmed.find_first_not_of(" \t\n\r");
+            if (first != string::npos) {
+                size_t last = originalTrimmed.find_last_not_of(" \t\n\r");
+                originalTrimmed = originalTrimmed.substr(first, last - first + 1);
+            }
+            bool endsWithSemicolon = !originalTrimmed.empty() && originalTrimmed.back() == ';';
+            
             string trimmedLine = trim(tac[i]);
 
             // Skip data declarations in code section
@@ -1908,15 +2278,44 @@ public:
             // When we hit a call, push all collected params in reverse order
             if (trimmedLine.find(" call ") != string::npos || trimmedLine.find("call ") == 0)
             {
-                // Push parameters in reverse order (right-to-left for x86)
-                for (int j = paramStack.size() - 1; j >= 0; j--)
+                // Check if this is a member function call (ends with semicolon)
+                // Member function calls use ecx for 'this' and don't consume params from stack
+                bool isMemberCall = endsWithSemicolon;
+                
+                // Extract function name to check if it's an external function
+                size_t callPos = trimmedLine.find(" call ");
+                if (callPos == string::npos) callPos = trimmedLine.find("call ") - 1;
+                size_t funcStart = callPos + 6;
+                size_t commaPos = trimmedLine.find(",", funcStart);
+                string funcName = commaPos != string::npos ? 
+                    trim(trimmedLine.substr(funcStart, commaPos - funcStart)) :
+                    trim(trimmedLine.substr(funcStart));
+                
+                bool isExternalFunc = (funcName == "printf" || funcName == "scanf" || 
+                                      funcName == "malloc" || funcName == "free");
+                
+                // If inside member function calling external function, save ecx BEFORE params
+                if (inMemberFunction && isExternalFunc)
                 {
-                    processLine(paramStack[j]);
+                    emit("push ecx");
+                    pendingEcxRestore = true;
+                    pendingRestoreBytes = paramStack.size() * 4;  // Each param is 4 bytes
                 }
-                paramStack.clear();
+                
+                if (!isMemberCall)
+                {
+                    // Push parameters in reverse order (right-to-left for x86)
+                    for (int j = paramStack.size() - 1; j >= 0; j--)
+                    {
+                        processLine(paramStack[j]);
+                    }
+                    paramStack.clear();
+                }
 
-                // Now process the call
+                // Now process the call (but don't push/pop ecx again in handleFunctionCall)
                 processLine(tac[i]);
+                
+                // Don't restore ecx yet - wait for the add esp instruction
                 continue;
             }
 
@@ -1958,7 +2357,28 @@ extern "C"
 
 void run_code_gen(vector<string> &tacCode)
 {
-    CodeGenerator codeGen(tacCode);
+    // Enable debug mode by checking environment variable or just set to false
+    bool enableOptimization = true;  // Set to false to disable optimization
+    bool debugOptimizer = false;      // Set to true to see optimization details
+    
+    vector<string> optimizedTAC = tacCode;
+    
+    if (enableOptimization) {
+        // Run TAC optimizer with Next-Use algorithm
+        TACOptimizer optimizer(debugOptimizer);
+        optimizedTAC = optimizer.optimize(tacCode);
+        
+        if (debugOptimizer) {
+            cerr << "\n=== OPTIMIZED TAC ===" << endl;
+            for (const auto& line : optimizedTAC) {
+                cerr << line << endl;
+            }
+            cerr << "===================" << endl << endl;
+        }
+    }
+    
+    // Generate x86 code from optimized TAC
+    CodeGenerator codeGen(optimizedTAC);
     codeGen.generate();
     codeGen.printCode();
 }
