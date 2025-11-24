@@ -4092,18 +4092,22 @@ iteration_statement
             falseList = makeList(jumpIndex);
         }
 
+        string updateLabel = newLabel();    
         for(size_t i = 0; i < body->code.size(); i++) {
             if (body->code[i] == "break") {
                 body->code[i] = "goto __";
                 falseList.push_back(n->code.size() + i);
             }
             if (body->code[i] == "continue") {
-                body->code[i] = "goto " + Lbegin;
+                body->code[i] = "goto " + updateLabel;
             }
         }
         
         n->code.insert(n->code.end(), body->code.begin(), body->code.end());
-        if (iter) n->code.insert(n->code.end(), iter->code.begin(), iter->code.end());
+        if (iter){
+            n->code.push_back(updateLabel + ":");   
+            n->code.insert(n->code.end(), iter->code.begin(), iter->code.end());
+        }
         n->code.push_back("goto " + Lbegin);
         
         string Lend = newLabel();
