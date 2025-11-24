@@ -1973,37 +1973,49 @@ public:
     }
 };
 
-int main(int argc, char *argv[])
+extern "C"
 {
-    if (argc < 2)
-    {
-        cerr << "Usage: " << argv[0] << " <input_tac_file> [output_asm_file]" << endl;
-        return 1;
-    }
+    void run_code_gen(vector<string> &tacCode);
+}
 
-    string inputFile = argv[1];
-    string outputFile = (argc >= 3) ? argv[2] : "output.asm";
-
-    // Read TAC file
-    ifstream inFile(inputFile);
-    if (!inFile.is_open())
-    {
-        cerr << "Error: Cannot open input file " << inputFile << endl;
-        return 1;
-    }
-
-    vector<string> tacCode;
-    string line;
-    while (getline(inFile, line))
-    {
-        tacCode.push_back(line);
-    }
-    inFile.close();
-
-    // Generate x86 code
+void run_code_gen(vector<string> &tacCode)
+{
     CodeGenerator codeGen(tacCode);
     codeGen.generate();
-    codeGen.writeToFile(outputFile);
-
-    return 0;
+    codeGen.printCode();
 }
+
+// int main(int argc, char *argv[])
+// {
+//     if (argc < 2)
+//     {
+//         cerr << "Usage: " << argv[0] << " <input_tac_file> [output_asm_file]" << endl;
+//         return 1;
+//     }
+
+//     string inputFile = argv[1];
+//     string outputFile = (argc >= 3) ? argv[2] : "output.asm";
+
+//     // Read TAC file
+//     ifstream inFile(inputFile);
+//     if (!inFile.is_open())
+//     {
+//         cerr << "Error: Cannot open input file " << inputFile << endl;
+//         return 1;
+//     }
+
+//     vector<string> tacCode;
+//     string line;
+//     while (getline(inFile, line))
+//     {
+//         tacCode.push_back(line);
+//     }
+//     inFile.close();
+
+//     // Generate x86 code
+//     CodeGenerator codeGen(tacCode);
+//     codeGen.generate();
+//     codeGen.writeToFile(outputFile);
+
+//     return 0;
+// }

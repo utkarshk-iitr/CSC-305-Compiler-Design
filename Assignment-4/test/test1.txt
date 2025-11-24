@@ -1,23 +1,17 @@
+void setRoll(int *s, int r) 
+{
+    *s = r;
+    return;
+}
 
+int main() 
+{
+    int x = 5;
+    int *ptr = &x;
 
-int main() {
-    int *arr;
-    int n = 5;
+    setRoll(ptr, 10);
 
-    arr = (int *)malloc(5 * sizeof(int));
+    printf("%d\n", x);
 
-    printf("Allocated array elements:\n");
-    for (int i = 0; i < 5; i++) {
-        scanf("%d ", &arr[i]);
-        printf("%d ", arr[i]);
-    }
-    printf("\n");
-    
-
-    free(arr);
-
-    arr = nullptr;
-
-    printf("Memory successfully deallocated.\n");
     return 0;
 }

@@ -1,29 +1,32 @@
-int main(){
-    int x;
-    scanf("%d", &x);
-    if(x>=6){
-        printf("%s", "passed");
-    } else if(x>=4){
-        printf("%s", "promoted");
-    } else {
-        printf("%s", "failed");
-    }
+int fib(int n) {
+    static int call_count = 0;
+    call_count++;
+    printf("fib called %d times\n", call_count);
+    if (n <= 1) 
+    {
+        return 1; 
+    }         
+    return fib(n - 1) + fib(n - 2); 
+}
 
-    int tag = (x >= 6) ? 2 : (x >= 4) ? 1 : 0;
-    switch (tag) {
-        case 2{
-            printf("%s", "passed");
-            break;
-        }
-        case 1{
-            printf("%s", "promoted");
-            break;
-        }
-        default{
-            printf("%s", "failed");
-            break;
-        }
+int arr_prod(int* arr, int size) {
+    int prod = 1;
+    for (int i = 0; i < size; i++) {
+        prod *= arr[i];
     }
+    return prod;
+}
 
+int main() {
+    int n = 5;
+    int result = fib(n);
+    fib(1);
+    fib(0);
+    printf("Fibonacci of %d is %d\n", n, result);
+    
+    int arr[4] = {1, 2, 3, 4};
+    int size = 4;
+    int product = arr_prod(arr, size);
+    printf("Product of array elements is %d\n", product);
     return 0;
 }

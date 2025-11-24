@@ -16,6 +16,14 @@
     #include <cstdlib>
     using namespace std;
 
+    #ifdef __cplusplus
+    extern "C" {
+    #endif
+        void run_code_gen(vector<string> &tacCode);
+    #ifdef __cplusplus
+    }
+    #endif
+
     struct Node {
         vector<string> code;
         string printName;
@@ -786,7 +794,15 @@ postfix_expression
         for(int i = 0; i < args->argCount;i++)
         {
             dbg("type is " + args->syn[i]);
-            name += "_" + args->syn[i];
+            string s = "";
+            for(int j=0;j<string(args->syn[i]).length();j++)
+            {
+                if(string(args->syn[i])[j]=='*') 
+                    s += "ptr";
+                else 
+                    s += string(1,string(args->syn[i])[j]);
+            }
+            name += "_" + s;
             
         }
         dbg("name is: " + name);
@@ -4397,11 +4413,18 @@ external
         {
             if(lookupSymbol(fname) == nullptr)
                 declareSymbol(fname,"function","function",vector<string>(),true);
-            
             for (int i=0;i<$3->syn.size();i+=2)
             {
-                fname += "_" + $3->syn[i];
+                fname += "_";
+                for(int j=0;j<string($3->syn[i]).length();j++)
+                {
+                    if($3->syn[i][j] == '*')
+                        fname += "ptr";
+                    else
+                        fname += $3->syn[i][j];
+                }
             }
+            dbg("fname with params: " + fname);
 
             if(funcTable.find(fname) != funcTable.end())
                 yyerror("Function redeclaration: " + fname);
@@ -4541,7 +4564,14 @@ external
         string fname = string($1);
         for (int i=0;i<$3->syn.size();i+=2)
         {
-            fname += "_" + $3->syn[i];
+            fname += "_";
+            for(int j=0;j<string($3->syn[i]).length();j++)
+            {
+                if($3->syn[i][j] == '*')
+                    fname += "ptr";
+                else
+                    fname += $3->syn[i][j];
+            }
         }
 
         n->place = fname;
@@ -4717,8 +4747,9 @@ int main(int argc, char** argv){
         for(int i=0;i<finalRoot->code.size();i++) {
             if(finalRoot->code[i].back()==':') indent="";
             else indent="    ";
-            cout<<indent<<finalRoot->code[i]<<"\n";
+            finalRoot->code[i] = indent + finalRoot->code[i];
         }
+        run_code_gen(finalRoot->code);
     }
 
     return 0;

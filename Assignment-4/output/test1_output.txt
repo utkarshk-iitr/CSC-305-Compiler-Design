@@ -1,65 +1,31 @@
     
-    str_1 db "Allocated array elements:\n", 0
-    str_2 db "%d ", 0
-    str_3 db "%d ", 0
-    str_4 db "\n", 0
-    str_5 db "Memory successfully deallocated.\n", 0
+    str_1 db "%d\n", 0
+    
+setRoll_int*_int:
+    push ebp
+    mov ebp, esp
+    sub esp, 0
+    *[ebp + 8] = [ebp + 12]
+    return
     
 main:
     push ebp
     mov ebp, esp
-    sub esp, 48
-    [ebp - 8] = 5
-    [ebp - 12] = 4
-    [ebp - 16] = 5 * [ebp - 12]
+    sub esp, 16
+    [ebp - 4] = 5
+    [ebp - 8] = &[ebp - 4]
+    [ebp - 12] = [ebp - 8]
     sub esp, 4
-    param [esp] , [ebp - 16]
-    [ebp - 20] = call malloc, 1
-    add esp, 4
-    [ebp - 24] = void*_to_int* [ebp - 20]
-    [ebp - 4] = [ebp - 24]
+    param [esp] , [ebp - 12]
+    sub esp, 4
+    param [esp] , 10
+    call setRoll_int*_int, 2
+    add esp, 8
     sub esp, 4
     param [esp] , str_1
-    [ebp - 28] = call printf, 1
-    add esp, 4
-    [ebp - 32] = 0
-main.L1:
-    [ebp - 36] = [ebp - 32] < 5
-    ifFalse [ebp - 36] goto main.L2
-    sub esp, 28
-    sub esp, 4
-    param [esp] , str_2
-    [ebp - 44] = [ebp - 32] * 4
-    [ebp - 48] = [ebp - 4] + [ebp - 44]
-    [ebp - 52] = &*[ebp - 48]
-    sub esp, 4
-    param [esp] , [ebp - 52]
-    [ebp - 56] = call scanf, 2
-    add esp, 8
-    sub esp, 4
-    param [esp] , str_3
-    [ebp - 60] = [ebp - 32] * 4
-    [ebp - 64] = [ebp - 4] + [ebp - 60]
-    sub esp, 4
-    param [esp] , *[ebp - 64]
-    [ebp - 68] = call printf, 2
-    add esp, 8
-    [ebp - 40] = [ebp - 32]
-    [ebp - 32] = [ebp - 40] + 1;
-    goto main.L1
-main.L2:
-    sub esp, 4
-    param [esp] , str_4
-    [ebp - 44] = call printf, 1
-    add esp, 4
     sub esp, 4
     param [esp] , [ebp - 4]
-    call free, 1
-    add esp, 4
-    [ebp - 4] = 0
-    sub esp, 4
-    param [esp] , str_5
-    [ebp - 48] = call printf, 1
-    add esp, 4
+    [ebp - 16] = call printf, 2
+    add esp, 8
     return 0
     
