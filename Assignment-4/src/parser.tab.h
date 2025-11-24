@@ -122,7 +122,7 @@ extern int yydebug;
     UNTIL = 316,                   /* UNTIL  */
     VOID = 317,                    /* VOID  */
     INT = 318,                     /* INT  */
-    DOUBLE = 319,                  /* DOUBLE  */
+    FLOAT = 319,                   /* FLOAT  */
     CHAR = 320,                    /* CHAR  */
     BOOL = 321,                    /* BOOL  */
     LONG = 322,                    /* LONG  */
@@ -142,7 +142,7 @@ extern int yydebug;
     IDENTIFIER = 336,              /* IDENTIFIER  */
     INVALID_IDENTIFIER = 337,      /* INVALID_IDENTIFIER  */
     DECIMAL_LITERAL = 338,         /* DECIMAL_LITERAL  */
-    DOUBLE_LITERAL = 339,          /* DOUBLE_LITERAL  */
+    FLOAT_LITERAL = 339,           /* FLOAT_LITERAL  */
     EXPONENT_LITERAL = 340,        /* EXPONENT_LITERAL  */
     CHARACTER_LITERAL = 341,       /* CHARACTER_LITERAL  */
     LOWER_THAN_ELSE = 342          /* LOWER_THAN_ELSE  */

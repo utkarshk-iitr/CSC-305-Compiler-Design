@@ -75,7 +75,7 @@ Grammar
     5 constant: DECIMAL_LITERAL
     6         | CHARACTER_LITERAL
     7         | EXPONENT_LITERAL
-    8         | DOUBLE_LITERAL
+    8         | FLOAT_LITERAL
     9         | NULLPTR
    10         | TRUE
    11         | FALSE
@@ -114,7 +114,7 @@ Grammar
    37                    | CHAR
    38                    | INT
    39                    | LONG
-   40                    | DOUBLE
+   40                    | FLOAT
    41                    | BOOL
    42                    | TYPE_NAME
 
@@ -214,7 +214,7 @@ Grammar
   112               | CHAR
   113               | INT
   114               | LONG
-  115               | DOUBLE
+  115               | FLOAT
   116               | BOOL
   117               | TYPE_NAME
 
@@ -424,7 +424,7 @@ Terminals, with rules where they appear
     UNTIL <str> (316) 162
     VOID <str> (317) 36 111
     INT <str> (318) 38 113
-    DOUBLE <str> (319) 40 115
+    FLOAT <str> (319) 40 115
     CHAR <str> (320) 37 112
     BOOL <str> (321) 41 116
     LONG <str> (322) 39 114
@@ -444,7 +444,7 @@ Terminals, with rules where they appear
     IDENTIFIER <str> (336) 1 16 100 101 102 103 104 105 121 133 140 172 188 197 199
     INVALID_IDENTIFIER <str> (337)
     DECIMAL_LITERAL <str> (338) 5
-    DOUBLE_LITERAL <str> (339) 8
+    FLOAT_LITERAL <str> (339) 8
     EXPONENT_LITERAL <str> (340) 7
     CHARACTER_LITERAL <str> (341) 6
     LOWER_THAN_ELSE (342)
@@ -701,7 +701,7 @@ State 0
     TYPE_NAME  shift, and go to state 2
     VOID       shift, and go to state 3
     INT        shift, and go to state 4
-    DOUBLE     shift, and go to state 5
+    FLOAT      shift, and go to state 5
     CHAR       shift, and go to state 6
     BOOL       shift, and go to state 7
     LONG       shift, and go to state 8
@@ -725,7 +725,7 @@ State 1
     TYPE_NAME  shift, and go to state 2
     VOID       shift, and go to state 3
     INT        shift, and go to state 4
-    DOUBLE     shift, and go to state 5
+    FLOAT      shift, and go to state 5
     CHAR       shift, and go to state 6
     BOOL       shift, and go to state 7
     LONG       shift, and go to state 8
@@ -757,7 +757,7 @@ State 4
 
 State 5
 
-  115 type_specifier: DOUBLE •
+  115 type_specifier: FLOAT •
 
     $default  reduce using rule 115 (type_specifier)
 
@@ -791,7 +791,7 @@ State 9
     TYPE_NAME  shift, and go to state 2
     VOID       shift, and go to state 3
     INT        shift, and go to state 4
-    DOUBLE     shift, and go to state 5
+    FLOAT      shift, and go to state 5
     CHAR       shift, and go to state 6
     BOOL       shift, and go to state 7
     LONG       shift, and go to state 8
@@ -807,7 +807,7 @@ State 10
     TYPE_NAME  shift, and go to state 2
     VOID       shift, and go to state 3
     INT        shift, and go to state 4
-    DOUBLE     shift, and go to state 5
+    FLOAT      shift, and go to state 5
     CHAR       shift, and go to state 6
     BOOL       shift, and go to state 7
     LONG       shift, and go to state 8
@@ -853,7 +853,7 @@ State 14
     TYPE_NAME  shift, and go to state 2
     VOID       shift, and go to state 3
     INT        shift, and go to state 4
-    DOUBLE     shift, and go to state 5
+    FLOAT      shift, and go to state 5
     CHAR       shift, and go to state 6
     BOOL       shift, and go to state 7
     LONG       shift, and go to state 8
@@ -923,7 +923,7 @@ State 21
     TYPE_NAME  shift, and go to state 2
     VOID       shift, and go to state 3
     INT        shift, and go to state 4
-    DOUBLE     shift, and go to state 5
+    FLOAT      shift, and go to state 5
     CHAR       shift, and go to state 6
     BOOL       shift, and go to state 7
     LONG       shift, and go to state 8
@@ -1226,7 +1226,7 @@ State 51
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
-    DOUBLE_LITERAL     shift, and go to state 78
+    FLOAT_LITERAL      shift, and go to state 78
     EXPONENT_LITERAL   shift, and go to state 79
     CHARACTER_LITERAL  shift, and go to state 80
 
@@ -1259,7 +1259,7 @@ State 52
     RROUND     shift, and go to state 99
     VOID       shift, and go to state 3
     INT        shift, and go to state 4
-    DOUBLE     shift, and go to state 5
+    FLOAT      shift, and go to state 5
     CHAR       shift, and go to state 6
     BOOL       shift, and go to state 7
     LONG       shift, and go to state 8
@@ -1290,7 +1290,7 @@ State 53
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
-    DOUBLE_LITERAL     shift, and go to state 78
+    FLOAT_LITERAL      shift, and go to state 78
     EXPONENT_LITERAL   shift, and go to state 79
     CHARACTER_LITERAL  shift, and go to state 80
 
@@ -1427,7 +1427,7 @@ State 65
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
-    DOUBLE_LITERAL     shift, and go to state 78
+    FLOAT_LITERAL      shift, and go to state 78
     EXPONENT_LITERAL   shift, and go to state 79
     CHARACTER_LITERAL  shift, and go to state 80
 
@@ -1458,7 +1458,7 @@ State 66
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
-    DOUBLE_LITERAL     shift, and go to state 78
+    FLOAT_LITERAL      shift, and go to state 78
     EXPONENT_LITERAL   shift, and go to state 79
     CHARACTER_LITERAL  shift, and go to state 80
 
@@ -1499,7 +1499,7 @@ State 69
     LROUND             shift, and go to state 69
     VOID               shift, and go to state 116
     INT                shift, and go to state 117
-    DOUBLE             shift, and go to state 118
+    FLOAT              shift, and go to state 118
     CHAR               shift, and go to state 119
     BOOL               shift, and go to state 120
     LONG               shift, and go to state 121
@@ -1511,7 +1511,7 @@ State 69
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
-    DOUBLE_LITERAL     shift, and go to state 78
+    FLOAT_LITERAL      shift, and go to state 78
     EXPONENT_LITERAL   shift, and go to state 79
     CHARACTER_LITERAL  shift, and go to state 80
 
@@ -1597,7 +1597,7 @@ State 77
 
 State 78
 
-    8 constant: DOUBLE_LITERAL •
+    8 constant: FLOAT_LITERAL •
 
     $default  reduce using rule 8 (constant)
 
@@ -1694,7 +1694,7 @@ State 85
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
-    DOUBLE_LITERAL     shift, and go to state 78
+    FLOAT_LITERAL      shift, and go to state 78
     EXPONENT_LITERAL   shift, and go to state 79
     CHARACTER_LITERAL  shift, and go to state 80
 
@@ -1931,7 +1931,7 @@ State 107
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
-    DOUBLE_LITERAL     shift, and go to state 78
+    FLOAT_LITERAL      shift, and go to state 78
     EXPONENT_LITERAL   shift, and go to state 79
     CHARACTER_LITERAL  shift, and go to state 80
 
@@ -1982,7 +1982,7 @@ State 109
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
-    DOUBLE_LITERAL     shift, and go to state 78
+    FLOAT_LITERAL      shift, and go to state 78
     EXPONENT_LITERAL   shift, and go to state 79
     CHARACTER_LITERAL  shift, and go to state 80
 
@@ -2015,7 +2015,7 @@ State 110
     RCURLY     shift, and go to state 173
     VOID       shift, and go to state 3
     INT        shift, and go to state 4
-    DOUBLE     shift, and go to state 5
+    FLOAT      shift, and go to state 5
     CHAR       shift, and go to state 6
     BOOL       shift, and go to state 7
     LONG       shift, and go to state 8
@@ -2057,7 +2057,7 @@ State 112
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
-    DOUBLE_LITERAL     shift, and go to state 78
+    FLOAT_LITERAL      shift, and go to state 78
     EXPONENT_LITERAL   shift, and go to state 79
     CHARACTER_LITERAL  shift, and go to state 80
 
@@ -2119,7 +2119,7 @@ State 117
 
 State 118
 
-   40 cast_type_specifier: DOUBLE •
+   40 cast_type_specifier: FLOAT •
 
     $default  reduce using rule 40 (cast_type_specifier)
 
@@ -2196,7 +2196,7 @@ State 126
     LROUND             shift, and go to state 112
     VOID               shift, and go to state 116
     INT                shift, and go to state 117
-    DOUBLE             shift, and go to state 118
+    FLOAT              shift, and go to state 118
     CHAR               shift, and go to state 119
     BOOL               shift, and go to state 120
     LONG               shift, and go to state 121
@@ -2208,7 +2208,7 @@ State 126
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
-    DOUBLE_LITERAL     shift, and go to state 78
+    FLOAT_LITERAL      shift, and go to state 78
     EXPONENT_LITERAL   shift, and go to state 79
     CHARACTER_LITERAL  shift, and go to state 80
 
@@ -2257,7 +2257,7 @@ State 129
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
-    DOUBLE_LITERAL     shift, and go to state 78
+    FLOAT_LITERAL      shift, and go to state 78
     EXPONENT_LITERAL   shift, and go to state 79
     CHARACTER_LITERAL  shift, and go to state 80
 
@@ -2302,7 +2302,7 @@ State 130
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
-    DOUBLE_LITERAL     shift, and go to state 78
+    FLOAT_LITERAL      shift, and go to state 78
     EXPONENT_LITERAL   shift, and go to state 79
     CHARACTER_LITERAL  shift, and go to state 80
 
@@ -2431,7 +2431,7 @@ State 143
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
-    DOUBLE_LITERAL     shift, and go to state 78
+    FLOAT_LITERAL      shift, and go to state 78
     EXPONENT_LITERAL   shift, and go to state 79
     CHARACTER_LITERAL  shift, and go to state 80
 
@@ -2482,7 +2482,7 @@ State 145
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
-    DOUBLE_LITERAL     shift, and go to state 78
+    FLOAT_LITERAL      shift, and go to state 78
     EXPONENT_LITERAL   shift, and go to state 79
     CHARACTER_LITERAL  shift, and go to state 80
 
@@ -2514,7 +2514,7 @@ State 146
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
-    DOUBLE_LITERAL     shift, and go to state 78
+    FLOAT_LITERAL      shift, and go to state 78
     EXPONENT_LITERAL   shift, and go to state 79
     CHARACTER_LITERAL  shift, and go to state 80
 
@@ -2546,7 +2546,7 @@ State 147
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
-    DOUBLE_LITERAL     shift, and go to state 78
+    FLOAT_LITERAL      shift, and go to state 78
     EXPONENT_LITERAL   shift, and go to state 79
     CHARACTER_LITERAL  shift, and go to state 80
 
@@ -2578,7 +2578,7 @@ State 148
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
-    DOUBLE_LITERAL     shift, and go to state 78
+    FLOAT_LITERAL      shift, and go to state 78
     EXPONENT_LITERAL   shift, and go to state 79
     CHARACTER_LITERAL  shift, and go to state 80
 
@@ -2611,7 +2611,7 @@ State 149
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
-    DOUBLE_LITERAL     shift, and go to state 78
+    FLOAT_LITERAL      shift, and go to state 78
     EXPONENT_LITERAL   shift, and go to state 79
     CHARACTER_LITERAL  shift, and go to state 80
 
@@ -2644,7 +2644,7 @@ State 150
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
-    DOUBLE_LITERAL     shift, and go to state 78
+    FLOAT_LITERAL      shift, and go to state 78
     EXPONENT_LITERAL   shift, and go to state 79
     CHARACTER_LITERAL  shift, and go to state 80
 
@@ -2678,7 +2678,7 @@ State 151
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
-    DOUBLE_LITERAL     shift, and go to state 78
+    FLOAT_LITERAL      shift, and go to state 78
     EXPONENT_LITERAL   shift, and go to state 79
     CHARACTER_LITERAL  shift, and go to state 80
 
@@ -2712,7 +2712,7 @@ State 152
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
-    DOUBLE_LITERAL     shift, and go to state 78
+    FLOAT_LITERAL      shift, and go to state 78
     EXPONENT_LITERAL   shift, and go to state 79
     CHARACTER_LITERAL  shift, and go to state 80
 
@@ -2747,7 +2747,7 @@ State 153
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
-    DOUBLE_LITERAL     shift, and go to state 78
+    FLOAT_LITERAL      shift, and go to state 78
     EXPONENT_LITERAL   shift, and go to state 79
     CHARACTER_LITERAL  shift, and go to state 80
 
@@ -2782,7 +2782,7 @@ State 154
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
-    DOUBLE_LITERAL     shift, and go to state 78
+    FLOAT_LITERAL      shift, and go to state 78
     EXPONENT_LITERAL   shift, and go to state 79
     CHARACTER_LITERAL  shift, and go to state 80
 
@@ -2817,7 +2817,7 @@ State 155
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
-    DOUBLE_LITERAL     shift, and go to state 78
+    FLOAT_LITERAL      shift, and go to state 78
     EXPONENT_LITERAL   shift, and go to state 79
     CHARACTER_LITERAL  shift, and go to state 80
 
@@ -2852,7 +2852,7 @@ State 156
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
-    DOUBLE_LITERAL     shift, and go to state 78
+    FLOAT_LITERAL      shift, and go to state 78
     EXPONENT_LITERAL   shift, and go to state 79
     CHARACTER_LITERAL  shift, and go to state 80
 
@@ -2888,7 +2888,7 @@ State 157
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
-    DOUBLE_LITERAL     shift, and go to state 78
+    FLOAT_LITERAL      shift, and go to state 78
     EXPONENT_LITERAL   shift, and go to state 79
     CHARACTER_LITERAL  shift, and go to state 80
 
@@ -2924,7 +2924,7 @@ State 158
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
-    DOUBLE_LITERAL     shift, and go to state 78
+    FLOAT_LITERAL      shift, and go to state 78
     EXPONENT_LITERAL   shift, and go to state 79
     CHARACTER_LITERAL  shift, and go to state 80
 
@@ -2961,7 +2961,7 @@ State 159
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
-    DOUBLE_LITERAL     shift, and go to state 78
+    FLOAT_LITERAL      shift, and go to state 78
     EXPONENT_LITERAL   shift, and go to state 79
     CHARACTER_LITERAL  shift, and go to state 80
 
@@ -2999,7 +2999,7 @@ State 160
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
-    DOUBLE_LITERAL     shift, and go to state 78
+    FLOAT_LITERAL      shift, and go to state 78
     EXPONENT_LITERAL   shift, and go to state 79
     CHARACTER_LITERAL  shift, and go to state 80
 
@@ -3038,7 +3038,7 @@ State 161
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
-    DOUBLE_LITERAL     shift, and go to state 78
+    FLOAT_LITERAL      shift, and go to state 78
     EXPONENT_LITERAL   shift, and go to state 79
     CHARACTER_LITERAL  shift, and go to state 80
 
@@ -3078,7 +3078,7 @@ State 162
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
-    DOUBLE_LITERAL     shift, and go to state 78
+    FLOAT_LITERAL      shift, and go to state 78
     EXPONENT_LITERAL   shift, and go to state 79
     CHARACTER_LITERAL  shift, and go to state 80
 
@@ -3119,7 +3119,7 @@ State 163
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
-    DOUBLE_LITERAL     shift, and go to state 78
+    FLOAT_LITERAL      shift, and go to state 78
     EXPONENT_LITERAL   shift, and go to state 79
     CHARACTER_LITERAL  shift, and go to state 80
 
@@ -3169,7 +3169,7 @@ State 166
     TYPE_NAME  shift, and go to state 2
     VOID       shift, and go to state 3
     INT        shift, and go to state 4
-    DOUBLE     shift, and go to state 5
+    FLOAT      shift, and go to state 5
     CHAR       shift, and go to state 6
     BOOL       shift, and go to state 7
     LONG       shift, and go to state 8
@@ -3213,7 +3213,7 @@ State 169
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
-    DOUBLE_LITERAL     shift, and go to state 78
+    FLOAT_LITERAL      shift, and go to state 78
     EXPONENT_LITERAL   shift, and go to state 79
     CHARACTER_LITERAL  shift, and go to state 80
 
@@ -3273,7 +3273,7 @@ State 174
     TYPE_NAME  shift, and go to state 2
     VOID       shift, and go to state 3
     INT        shift, and go to state 4
-    DOUBLE     shift, and go to state 5
+    FLOAT      shift, and go to state 5
     CHAR       shift, and go to state 6
     BOOL       shift, and go to state 7
     LONG       shift, and go to state 8
@@ -3357,7 +3357,7 @@ State 182
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
-    DOUBLE_LITERAL     shift, and go to state 78
+    FLOAT_LITERAL      shift, and go to state 78
     EXPONENT_LITERAL   shift, and go to state 79
     CHARACTER_LITERAL  shift, and go to state 80
 
@@ -3403,7 +3403,7 @@ State 185
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
-    DOUBLE_LITERAL     shift, and go to state 78
+    FLOAT_LITERAL      shift, and go to state 78
     EXPONENT_LITERAL   shift, and go to state 79
     CHARACTER_LITERAL  shift, and go to state 80
 
@@ -3870,7 +3870,7 @@ State 231
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
-    DOUBLE_LITERAL     shift, and go to state 78
+    FLOAT_LITERAL      shift, and go to state 78
     EXPONENT_LITERAL   shift, and go to state 79
     CHARACTER_LITERAL  shift, and go to state 80
 
@@ -3921,7 +3921,7 @@ State 233
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
-    DOUBLE_LITERAL     shift, and go to state 78
+    FLOAT_LITERAL      shift, and go to state 78
     EXPONENT_LITERAL   shift, and go to state 79
     CHARACTER_LITERAL  shift, and go to state 80
 
@@ -3978,7 +3978,7 @@ State 235
     UNTIL              shift, and go to state 254
     VOID               shift, and go to state 3
     INT                shift, and go to state 4
-    DOUBLE             shift, and go to state 5
+    FLOAT              shift, and go to state 5
     CHAR               shift, and go to state 6
     BOOL               shift, and go to state 7
     LONG               shift, and go to state 8
@@ -3992,7 +3992,7 @@ State 235
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 257
     DECIMAL_LITERAL    shift, and go to state 77
-    DOUBLE_LITERAL     shift, and go to state 78
+    FLOAT_LITERAL      shift, and go to state 78
     EXPONENT_LITERAL   shift, and go to state 79
     CHARACTER_LITERAL  shift, and go to state 80
 
@@ -4065,7 +4065,7 @@ State 238
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
-    DOUBLE_LITERAL     shift, and go to state 78
+    FLOAT_LITERAL      shift, and go to state 78
     EXPONENT_LITERAL   shift, and go to state 79
     CHARACTER_LITERAL  shift, and go to state 80
 
@@ -4225,7 +4225,7 @@ State 253
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
-    DOUBLE_LITERAL     shift, and go to state 78
+    FLOAT_LITERAL      shift, and go to state 78
     EXPONENT_LITERAL   shift, and go to state 79
     CHARACTER_LITERAL  shift, and go to state 80
 
@@ -4265,7 +4265,7 @@ State 255
     TYPE_NAME  shift, and go to state 2
     VOID       shift, and go to state 3
     INT        shift, and go to state 4
-    DOUBLE     shift, and go to state 5
+    FLOAT      shift, and go to state 5
     CHAR       shift, and go to state 6
     BOOL       shift, and go to state 7
     LONG       shift, and go to state 8
@@ -4281,7 +4281,7 @@ State 256
     TYPE_NAME  shift, and go to state 2
     VOID       shift, and go to state 3
     INT        shift, and go to state 4
-    DOUBLE     shift, and go to state 5
+    FLOAT      shift, and go to state 5
     CHAR       shift, and go to state 6
     BOOL       shift, and go to state 7
     LONG       shift, and go to state 8
@@ -4384,7 +4384,7 @@ State 265
     UNTIL              shift, and go to state 254
     VOID               shift, and go to state 3
     INT                shift, and go to state 4
-    DOUBLE             shift, and go to state 5
+    FLOAT              shift, and go to state 5
     CHAR               shift, and go to state 6
     BOOL               shift, and go to state 7
     LONG               shift, and go to state 8
@@ -4398,7 +4398,7 @@ State 265
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 257
     DECIMAL_LITERAL    shift, and go to state 77
-    DOUBLE_LITERAL     shift, and go to state 78
+    FLOAT_LITERAL      shift, and go to state 78
     EXPONENT_LITERAL   shift, and go to state 79
     CHARACTER_LITERAL  shift, and go to state 80
 
@@ -4530,7 +4530,7 @@ State 276
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
-    DOUBLE_LITERAL     shift, and go to state 78
+    FLOAT_LITERAL      shift, and go to state 78
     EXPONENT_LITERAL   shift, and go to state 79
     CHARACTER_LITERAL  shift, and go to state 80
 
@@ -4582,7 +4582,7 @@ State 278
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
-    DOUBLE_LITERAL     shift, and go to state 78
+    FLOAT_LITERAL      shift, and go to state 78
     EXPONENT_LITERAL   shift, and go to state 79
     CHARACTER_LITERAL  shift, and go to state 80
 
@@ -4639,7 +4639,7 @@ State 279
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 257
     DECIMAL_LITERAL    shift, and go to state 77
-    DOUBLE_LITERAL     shift, and go to state 78
+    FLOAT_LITERAL      shift, and go to state 78
     EXPONENT_LITERAL   shift, and go to state 79
     CHARACTER_LITERAL  shift, and go to state 80
 
@@ -4730,7 +4730,7 @@ State 285
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
-    DOUBLE_LITERAL     shift, and go to state 78
+    FLOAT_LITERAL      shift, and go to state 78
     EXPONENT_LITERAL   shift, and go to state 79
     CHARACTER_LITERAL  shift, and go to state 80
 
@@ -4762,7 +4762,7 @@ State 286
     TYPE_NAME  shift, and go to state 2
     VOID       shift, and go to state 3
     INT        shift, and go to state 4
-    DOUBLE     shift, and go to state 5
+    FLOAT      shift, and go to state 5
     CHAR       shift, and go to state 6
     BOOL       shift, and go to state 7
     LONG       shift, and go to state 8
@@ -4847,7 +4847,7 @@ State 295
     SEMICOLON          shift, and go to state 244
     VOID               shift, and go to state 3
     INT                shift, and go to state 4
-    DOUBLE             shift, and go to state 5
+    FLOAT              shift, and go to state 5
     CHAR               shift, and go to state 6
     BOOL               shift, and go to state 7
     LONG               shift, and go to state 8
@@ -4861,7 +4861,7 @@ State 295
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
-    DOUBLE_LITERAL     shift, and go to state 78
+    FLOAT_LITERAL      shift, and go to state 78
     EXPONENT_LITERAL   shift, and go to state 79
     CHARACTER_LITERAL  shift, and go to state 80
 
@@ -4928,7 +4928,7 @@ State 298
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
-    DOUBLE_LITERAL     shift, and go to state 78
+    FLOAT_LITERAL      shift, and go to state 78
     EXPONENT_LITERAL   shift, and go to state 79
     CHARACTER_LITERAL  shift, and go to state 80
 
@@ -5053,7 +5053,7 @@ State 309
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
-    DOUBLE_LITERAL     shift, and go to state 78
+    FLOAT_LITERAL      shift, and go to state 78
     EXPONENT_LITERAL   shift, and go to state 79
     CHARACTER_LITERAL  shift, and go to state 80
 
@@ -5112,7 +5112,7 @@ State 310
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 257
     DECIMAL_LITERAL    shift, and go to state 77
-    DOUBLE_LITERAL     shift, and go to state 78
+    FLOAT_LITERAL      shift, and go to state 78
     EXPONENT_LITERAL   shift, and go to state 79
     CHARACTER_LITERAL  shift, and go to state 80
 
@@ -5205,7 +5205,7 @@ State 316
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
-    DOUBLE_LITERAL     shift, and go to state 78
+    FLOAT_LITERAL      shift, and go to state 78
     EXPONENT_LITERAL   shift, and go to state 79
     CHARACTER_LITERAL  shift, and go to state 80
 
@@ -5261,7 +5261,7 @@ State 317
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 257
     DECIMAL_LITERAL    shift, and go to state 77
-    DOUBLE_LITERAL     shift, and go to state 78
+    FLOAT_LITERAL      shift, and go to state 78
     EXPONENT_LITERAL   shift, and go to state 79
     CHARACTER_LITERAL  shift, and go to state 80
 
@@ -5324,7 +5324,7 @@ State 319
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
-    DOUBLE_LITERAL     shift, and go to state 78
+    FLOAT_LITERAL      shift, and go to state 78
     EXPONENT_LITERAL   shift, and go to state 79
     CHARACTER_LITERAL  shift, and go to state 80
 
@@ -5398,7 +5398,7 @@ State 322
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 257
     DECIMAL_LITERAL    shift, and go to state 77
-    DOUBLE_LITERAL     shift, and go to state 78
+    FLOAT_LITERAL      shift, and go to state 78
     EXPONENT_LITERAL   shift, and go to state 79
     CHARACTER_LITERAL  shift, and go to state 80
 
@@ -5452,7 +5452,7 @@ State 323
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 76
     DECIMAL_LITERAL    shift, and go to state 77
-    DOUBLE_LITERAL     shift, and go to state 78
+    FLOAT_LITERAL      shift, and go to state 78
     EXPONENT_LITERAL   shift, and go to state 79
     CHARACTER_LITERAL  shift, and go to state 80
 
@@ -5509,7 +5509,7 @@ State 324
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 257
     DECIMAL_LITERAL    shift, and go to state 77
-    DOUBLE_LITERAL     shift, and go to state 78
+    FLOAT_LITERAL      shift, and go to state 78
     EXPONENT_LITERAL   shift, and go to state 79
     CHARACTER_LITERAL  shift, and go to state 80
 
@@ -5575,7 +5575,7 @@ State 325
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 257
     DECIMAL_LITERAL    shift, and go to state 77
-    DOUBLE_LITERAL     shift, and go to state 78
+    FLOAT_LITERAL      shift, and go to state 78
     EXPONENT_LITERAL   shift, and go to state 79
     CHARACTER_LITERAL  shift, and go to state 80
 
@@ -5666,7 +5666,7 @@ State 329
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 257
     DECIMAL_LITERAL    shift, and go to state 77
-    DOUBLE_LITERAL     shift, and go to state 78
+    FLOAT_LITERAL      shift, and go to state 78
     EXPONENT_LITERAL   shift, and go to state 79
     CHARACTER_LITERAL  shift, and go to state 80
 
@@ -5762,7 +5762,7 @@ State 334
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 257
     DECIMAL_LITERAL    shift, and go to state 77
-    DOUBLE_LITERAL     shift, and go to state 78
+    FLOAT_LITERAL      shift, and go to state 78
     EXPONENT_LITERAL   shift, and go to state 79
     CHARACTER_LITERAL  shift, and go to state 80
 
@@ -5858,7 +5858,7 @@ State 339
     STRING_LITERAL     shift, and go to state 75
     IDENTIFIER         shift, and go to state 257
     DECIMAL_LITERAL    shift, and go to state 77
-    DOUBLE_LITERAL     shift, and go to state 78
+    FLOAT_LITERAL      shift, and go to state 78
     EXPONENT_LITERAL   shift, and go to state 79
     CHARACTER_LITERAL  shift, and go to state 80
 

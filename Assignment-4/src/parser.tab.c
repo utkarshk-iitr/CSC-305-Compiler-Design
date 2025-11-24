@@ -130,7 +130,7 @@
     unordered_map<string,string> typeDefTable;
 
     unordered_map<string,int> typeSize = {
-        {"int", 4}, {"char", 4}, {"bool", 4}, {"double", 4}, {"long", 4}, {"nullptr", 4}
+        {"int", 4}, {"char", 4}, {"bool", 4}, {"float", 4}, {"long", 4}, {"nullptr", 4}
     };
 
     int getTypeSize(const string &type) {
@@ -346,7 +346,7 @@
         if(baseop=="*" || baseop=="/"){
             if(t1=="int" && t2=="int") return true;
             if(t1=="long" && t2=="long") return true;
-            if(t1=="double" && t2=="double") return true;
+            if(t1=="float" && t2=="float") return true;
             return false;
         }
 
@@ -366,7 +366,7 @@
         if(baseop=="+"){
             if(t1=="int" && t2=="int") return true;
             if(t1=="long" && t2=="long") return true;
-            if(t1=="double" && t2=="double") return true;
+            if(t1=="float" && t2=="float") return true;
             if(t1=="string" && t2=="string") return true;
             if(t1.back()=='*' && t2=="int") return true;
             return false;
@@ -375,7 +375,7 @@
         if(baseop=="-"){
             if(t1=="int" && t2=="int") return true;
             if(t1=="long" && t2=="long") return true;
-            if(t1=="double" && t2=="double") return true;
+            if(t1=="float" && t2=="float") return true;
             if(t1.back()=='*' && t2=="int") return true;
             return false;
         }
@@ -389,7 +389,7 @@
             return false;
         }
         if(op=="+" || op=="-"){
-            if(t=="int" || t=="long" || t=="double") return true;
+            if(t=="int" || t=="long" || t=="float") return true;
             return false;
         }
         if(op=="~"){
@@ -401,7 +401,7 @@
             return false;
         }
         if(op=="++" || op=="--"){
-            if(t=="int" || t=="long" || t=="double") return true;
+            if(t=="int" || t=="long" || t=="float") return true;
             return false;
         }
         return true;
@@ -410,23 +410,23 @@
     bool check_casting(const string &from, const string &to, const string &s="") {
         if(from==to) return true;
         if(from=="int"){
-            if(to=="double" || to=="char" || to=="bool" || to=="string" || to=="long") return true;
+            if(to=="float" || to=="char" || to=="bool" || to=="string" || to=="long") return true;
             return false;
         } 
-        if(from=="double"){
+        if(from=="float"){
             if(to=="int" || to=="char" || to=="bool" || to=="string" || to=="long") return true;
             return false;
         }
         if(from=="long"){
-            if(to=="int" || to=="char" || to=="bool" || to=="string" || to=="double") return true;
+            if(to=="int" || to=="char" || to=="bool" || to=="string" || to=="float") return true;
             return false;
         }
         if(from=="char"){
-            if(to=="int" || to=="bool" || to=="string" || to=="double" || to=="long") return true;
+            if(to=="int" || to=="bool" || to=="string" || to=="float" || to=="long") return true;
             return false;
         }   
         if(from=="bool"){
-            if(to=="int" || to=="char" || to=="string" || to=="double" || to=="long") return true;
+            if(to=="int" || to=="char" || to=="string" || to=="float" || to=="long") return true;
             return false;
         }
         if(from=="string"){
@@ -440,7 +440,7 @@
                     return false;
                 }
             }
-            if(to=="double"){
+            if(to=="float"){
                 try {
                     size_t pos;
                     stod(s, &pos);
@@ -566,7 +566,7 @@ enum yysymbol_kind_t
   YYSYMBOL_UNTIL = 61,                     /* UNTIL  */
   YYSYMBOL_VOID = 62,                      /* VOID  */
   YYSYMBOL_INT = 63,                       /* INT  */
-  YYSYMBOL_DOUBLE = 64,                    /* DOUBLE  */
+  YYSYMBOL_FLOAT = 64,                     /* FLOAT  */
   YYSYMBOL_CHAR = 65,                      /* CHAR  */
   YYSYMBOL_BOOL = 66,                      /* BOOL  */
   YYSYMBOL_LONG = 67,                      /* LONG  */
@@ -586,7 +586,7 @@ enum yysymbol_kind_t
   YYSYMBOL_IDENTIFIER = 81,                /* IDENTIFIER  */
   YYSYMBOL_INVALID_IDENTIFIER = 82,        /* INVALID_IDENTIFIER  */
   YYSYMBOL_DECIMAL_LITERAL = 83,           /* DECIMAL_LITERAL  */
-  YYSYMBOL_DOUBLE_LITERAL = 84,            /* DOUBLE_LITERAL  */
+  YYSYMBOL_FLOAT_LITERAL = 84,             /* FLOAT_LITERAL  */
   YYSYMBOL_EXPONENT_LITERAL = 85,          /* EXPONENT_LITERAL  */
   YYSYMBOL_CHARACTER_LITERAL = 86,         /* CHARACTER_LITERAL  */
   YYSYMBOL_LOWER_THAN_ELSE = 87,           /* LOWER_THAN_ELSE  */
@@ -1111,10 +1111,10 @@ static const char *const yytname[] =
   "RCURLY", "LSQUARE", "RSQUARE", "SEMICOLON", "COLON", "COMMA", "DOT",
   "QUESTION_MARK", "IF", "ELSE", "SWITCH", "CASE", "DEFAULT", "WHILE",
   "DO", "FOR", "GOTO", "CONTINUE", "BREAK", "RETURN", "UNTIL", "VOID",
-  "INT", "DOUBLE", "CHAR", "BOOL", "LONG", "TRUE", "FALSE", "NULLPTR",
+  "INT", "FLOAT", "CHAR", "BOOL", "LONG", "TRUE", "FALSE", "NULLPTR",
   "TILDE", "STATIC", "CONST", "SIZEOF", "STRING_LITERAL", "CLASS",
   "STRUCT", "PUBLIC", "PRIVATE", "PROTECTED", "IDENTIFIER",
-  "INVALID_IDENTIFIER", "DECIMAL_LITERAL", "DOUBLE_LITERAL",
+  "INVALID_IDENTIFIER", "DECIMAL_LITERAL", "FLOAT_LITERAL",
   "EXPONENT_LITERAL", "CHARACTER_LITERAL", "LOWER_THAN_ELSE", "$accept",
   "primary_expression", "constant", "postfix_expression",
   "argument_expression_list", "unary_expression", "unary_operator",
@@ -2133,7 +2133,7 @@ yyreduce:
 #line 585 "src/parser.y"
     {
         dbg("constant -> EXPONENT_LITERAL");
-        Node* n = new Node(string((yyvsp[0].str)), "double", "const");
+        Node* n = new Node(string((yyvsp[0].str)), "float", "const");
         n->kind = "rvalue";
         n->printName = string((yyvsp[0].str));
         (yyval.node) = n;
@@ -2141,11 +2141,11 @@ yyreduce:
 #line 2142 "src/parser.tab.c"
     break;
 
-  case 9: /* constant: DOUBLE_LITERAL  */
+  case 9: /* constant: FLOAT_LITERAL  */
 #line 593 "src/parser.y"
     {
-        dbg("constant -> DOUBLE_LITERAL");
-        Node* n = new Node(string((yyvsp[0].str)), "double", "const");
+        dbg("constant -> FLOAT_LITERAL");
+        Node* n = new Node(string((yyvsp[0].str)), "float", "const");
         n->kind = "rvalue";
         n->printName = string((yyvsp[0].str));
         (yyval.node) = n;
@@ -2942,11 +2942,11 @@ yyreduce:
 #line 2943 "src/parser.tab.c"
     break;
 
-  case 41: /* cast_type_specifier: DOUBLE  */
+  case 41: /* cast_type_specifier: FLOAT  */
 #line 1317 "src/parser.y"
                  { 
-        dbg("cast_type_specifier -> DOUBLE");
-        (yyval.str) = strdup("double"); }
+        dbg("cast_type_specifier -> FLOAT");
+        (yyval.str) = strdup("float"); }
 #line 2951 "src/parser.tab.c"
     break;
 
@@ -3826,7 +3826,7 @@ yyreduce:
                 uglobalCode.push_back(n->place + " resd 1");
             else if(n->type == "long")
                 uglobalCode.push_back(n->place + " resd 1");
-            else if(n->type == "double")
+            else if(n->type == "float")
                 uglobalCode.push_back(n->place + " resd 1");
             else
                 uglobalCode.push_back(n->place + " resd 1");
@@ -3989,7 +3989,7 @@ yyreduce:
                 uglobalCode.push_back(n->place + " resd " + to_string(p));
             else if(n->type.substr(0, n->type.size() - n->argCount) == "long")
                 uglobalCode.push_back(n->place + " resd " + to_string(p));
-            else if(n->type.substr(0, n->type.size() - n->argCount) == "double")
+            else if(n->type.substr(0, n->type.size() - n->argCount) == "float")
                 uglobalCode.push_back(n->place + " resd " + to_string(p));
         }
         else if(lastClassType != "" && currentFunction == "")
@@ -4754,11 +4754,11 @@ yyreduce:
 #line 4755 "src/parser.tab.c"
     break;
 
-  case 116: /* type_specifier: DOUBLE  */
+  case 116: /* type_specifier: FLOAT  */
 #line 2966 "src/parser.y"
                  { 
-        dbg("type_specifier -> DOUBLE");
-        (yyval.str) = strdup("double"); lastDeclType = "double"; }
+        dbg("type_specifier -> FLOAT");
+        (yyval.str) = strdup("float"); lastDeclType = "float"; }
 #line 4763 "src/parser.tab.c"
     break;
 

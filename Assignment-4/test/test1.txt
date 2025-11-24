@@ -1,15 +1,6 @@
-
-int *p;
-
-
 int main() 
 {
-    int a = 5;
-    p = &a;
-    int **p1 = &p;
-    *p = 8;
-    printf("%d\n", a);
-    a = 11;
-    printf("%d\n", *p);
+    float f = 1.2;
+    printf("%f", f);
     return 0;
 }

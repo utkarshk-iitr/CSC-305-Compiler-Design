@@ -67,7 +67,7 @@
     unordered_map<string,string> typeDefTable;
 
     unordered_map<string,int> typeSize = {
-        {"int", 4}, {"char", 4}, {"bool", 4}, {"double", 4}, {"long", 4}, {"nullptr", 4}
+        {"int", 4}, {"char", 4}, {"bool", 4}, {"float", 4}, {"long", 4}, {"nullptr", 4}
     };
 
     int getTypeSize(const string &type) {
@@ -283,7 +283,7 @@
         if(baseop=="*" || baseop=="/"){
             if(t1=="int" && t2=="int") return true;
             if(t1=="long" && t2=="long") return true;
-            if(t1=="double" && t2=="double") return true;
+            if(t1=="float" && t2=="float") return true;
             return false;
         }
 
@@ -303,7 +303,7 @@
         if(baseop=="+"){
             if(t1=="int" && t2=="int") return true;
             if(t1=="long" && t2=="long") return true;
-            if(t1=="double" && t2=="double") return true;
+            if(t1=="float" && t2=="float") return true;
             if(t1=="string" && t2=="string") return true;
             if(t1.back()=='*' && t2=="int") return true;
             return false;
@@ -312,7 +312,7 @@
         if(baseop=="-"){
             if(t1=="int" && t2=="int") return true;
             if(t1=="long" && t2=="long") return true;
-            if(t1=="double" && t2=="double") return true;
+            if(t1=="float" && t2=="float") return true;
             if(t1.back()=='*' && t2=="int") return true;
             return false;
         }
@@ -326,7 +326,7 @@
             return false;
         }
         if(op=="+" || op=="-"){
-            if(t=="int" || t=="long" || t=="double") return true;
+            if(t=="int" || t=="long" || t=="float") return true;
             return false;
         }
         if(op=="~"){
@@ -338,7 +338,7 @@
             return false;
         }
         if(op=="++" || op=="--"){
-            if(t=="int" || t=="long" || t=="double") return true;
+            if(t=="int" || t=="long" || t=="float") return true;
             return false;
         }
         return true;
@@ -347,23 +347,23 @@
     bool check_casting(const string &from, const string &to, const string &s="") {
         if(from==to) return true;
         if(from=="int"){
-            if(to=="double" || to=="char" || to=="bool" || to=="string" || to=="long") return true;
+            if(to=="float" || to=="char" || to=="bool" || to=="string" || to=="long") return true;
             return false;
         } 
-        if(from=="double"){
+        if(from=="float"){
             if(to=="int" || to=="char" || to=="bool" || to=="string" || to=="long") return true;
             return false;
         }
         if(from=="long"){
-            if(to=="int" || to=="char" || to=="bool" || to=="string" || to=="double") return true;
+            if(to=="int" || to=="char" || to=="bool" || to=="string" || to=="float") return true;
             return false;
         }
         if(from=="char"){
-            if(to=="int" || to=="bool" || to=="string" || to=="double" || to=="long") return true;
+            if(to=="int" || to=="bool" || to=="string" || to=="float" || to=="long") return true;
             return false;
         }   
         if(from=="bool"){
-            if(to=="int" || to=="char" || to=="string" || to=="double" || to=="long") return true;
+            if(to=="int" || to=="char" || to=="string" || to=="float" || to=="long") return true;
             return false;
         }
         if(from=="string"){
@@ -377,7 +377,7 @@
                     return false;
                 }
             }
-            if(to=="double"){
+            if(to=="float"){
                 try {
                     size_t pos;
                     stod(s, &pos);
@@ -433,13 +433,13 @@
 
 %token<str> IF ELSE SWITCH CASE DEFAULT WHILE DO FOR GOTO CONTINUE BREAK RETURN UNTIL
 
-%token<str> VOID INT DOUBLE CHAR BOOL LONG
+%token<str> VOID INT FLOAT CHAR BOOL LONG
 %token<str> TRUE FALSE NULLPTR TILDE
 %token<str> STATIC CONST SIZEOF STRING_LITERAL
 %token<str> CLASS STRUCT PUBLIC PRIVATE PROTECTED
 
 %token<str> IDENTIFIER INVALID_IDENTIFIER
-%token<str> DECIMAL_LITERAL DOUBLE_LITERAL EXPONENT_LITERAL CHARACTER_LITERAL
+%token<str> DECIMAL_LITERAL FLOAT_LITERAL EXPONENT_LITERAL CHARACTER_LITERAL
 
 %left LOGICAL_OR
 %left LOGICAL_AND
@@ -584,15 +584,15 @@ constant
     | EXPONENT_LITERAL      
     {
         dbg("constant -> EXPONENT_LITERAL");
-        Node* n = new Node(string($1), "double", "const");
+        Node* n = new Node(string($1), "float", "const");
         n->kind = "rvalue";
         n->printName = string($1);
         $$ = n;
     }
-    | DOUBLE_LITERAL       
+    | FLOAT_LITERAL       
     {
-        dbg("constant -> DOUBLE_LITERAL");
-        Node* n = new Node(string($1), "double", "const");
+        dbg("constant -> FLOAT_LITERAL");
+        Node* n = new Node(string($1), "float", "const");
         n->kind = "rvalue";
         n->printName = string($1);
         $$ = n;
@@ -1314,9 +1314,9 @@ cast_type_specifier
 	| LONG   { 
         dbg("cast_type_specifier -> LONG");
         $$ = strdup("long"); }
-	| DOUBLE { 
-        dbg("cast_type_specifier -> DOUBLE");
-        $$ = strdup("double"); }
+	| FLOAT  { 
+        dbg("cast_type_specifier -> FLOAT");
+        $$ = strdup("float"); }
 	| BOOL   { 
         dbg("cast_type_specifier -> BOOL");
         $$ = strdup("bool"); }
@@ -2001,7 +2001,7 @@ init_declarator
                 uglobalCode.push_back(n->place + " resd 1");
             else if(n->type == "long")
                 uglobalCode.push_back(n->place + " resd 1");
-            else if(n->type == "double")
+            else if(n->type == "float")
                 uglobalCode.push_back(n->place + " resd 1");
             else
                 uglobalCode.push_back(n->place + " resd 1");
@@ -2160,7 +2160,7 @@ init_declarator
                 uglobalCode.push_back(n->place + " resd " + to_string(p));
             else if(n->type.substr(0, n->type.size() - n->argCount) == "long")
                 uglobalCode.push_back(n->place + " resd " + to_string(p));
-            else if(n->type.substr(0, n->type.size() - n->argCount) == "double")
+            else if(n->type.substr(0, n->type.size() - n->argCount) == "float")
                 uglobalCode.push_back(n->place + " resd " + to_string(p));
         }
         else if(lastClassType != "" && currentFunction == "")
@@ -2963,9 +2963,9 @@ type_specifier
 	| LONG   { 
         dbg("type_specifier -> LONG");
         $$ = strdup("long"); lastDeclType = "long"; }
-	| DOUBLE { 
-        dbg("type_specifier -> DOUBLE");
-        $$ = strdup("double"); lastDeclType = "double"; }
+	| FLOAT  { 
+        dbg("type_specifier -> FLOAT");
+        $$ = strdup("float"); lastDeclType = "float"; }
 	| BOOL   { 
         dbg("type_specifier -> BOOL");
         $$ = strdup("bool"); lastDeclType = "bool"; }

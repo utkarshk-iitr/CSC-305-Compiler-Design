@@ -99,7 +99,7 @@ TYPEDEF          "typedef"
 INT              "int"
 BOOL             "bool"
 CHAR             "char"
-DOUBLE           "double"
+FLOAT           "float"
 LONG             "long"
 VOID             "void"
 CONST            "const"
@@ -123,7 +123,7 @@ EXPONENT         [Ee][+-]?{DIGIT}+
 IDENTIFIER       ({LETTER}|_)({LETTER}|_|{DIGIT})*
 DECIMAL_LITERAL  {DIGIT}+
 EXPONENT_LITERAL {DIGIT}+[Ee][+-]?{DIGIT}+
-DOUBLE_LITERAL   {DIGIT}+"."{DIGIT}+({EXPONENT})?
+FLOAT_LITERAL   {DIGIT}+"."{DIGIT}+({EXPONENT})?
 CHARACTER_LITERAL '((\\.)|[^'\\])'
 STRING_LITERAL  \"(\\.|[^"\\])*\"
 INVALID_IDENTIFIER ({DIGIT}+({LETTER}|_)+({DIGIT}|{LETTER}|_)*(\.{DIGIT}*)?)
@@ -204,7 +204,7 @@ INVALID_IDENTIFIER ({DIGIT}+({LETTER}|_)+({DIGIT}|{LETTER}|_)*(\.{DIGIT}*)?)
 {INT}                  { yylval.str = strdup(yytext); return INT; }
 {BOOL}                 { yylval.str = strdup(yytext); return BOOL; }
 {CHAR}                 { yylval.str = strdup(yytext); return CHAR; }
-{DOUBLE}               { yylval.str = strdup(yytext); return DOUBLE; }
+{FLOAT}                { yylval.str = strdup(yytext); return FLOAT; }
 {LONG}                 { yylval.str = strdup(yytext); return LONG; }
 {VOID}                 { yylval.str = strdup(yytext); return VOID; }
 {CONST}                { yylval.str = strdup(yytext); return CONST; }
@@ -231,7 +231,7 @@ INVALID_IDENTIFIER ({DIGIT}+({LETTER}|_)+({DIGIT}|{LETTER}|_)*(\.{DIGIT}*)?)
                        }
 {DECIMAL_LITERAL}      { yylval.str = strdup(yytext); return DECIMAL_LITERAL; }
 {EXPONENT_LITERAL}     { yylval.str = strdup(yytext); return EXPONENT_LITERAL; }
-{DOUBLE_LITERAL}       { yylval.str = strdup(yytext); return DOUBLE_LITERAL; }
+{FLOAT_LITERAL}        { yylval.str = strdup(yytext); return FLOAT_LITERAL; }
 {CHARACTER_LITERAL}    { yylval.str = strdup(yytext); return CHARACTER_LITERAL; }
 {STRING_LITERAL}    { yylval.str = strdup(yytext); return STRING_LITERAL; }
 {INVALID_IDENTIFIER}   { return INVALID_IDENTIFIER; }
