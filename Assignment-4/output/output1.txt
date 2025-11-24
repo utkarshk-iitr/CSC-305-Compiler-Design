@@ -1,5 +1,9 @@
 section .data
-    str_1 db `%d\n`, 0
+    str_1 db `Public = %d\n`, 0
+    str_2 db `Private = %d\n`, 0
+    str_3 db `Protected = %d\n`, 0
+    str_4 db `=== Public / Private / Protected: No Inheritance ===\n`, 0
+    str_5 db "%d", 0
 
 section .text
     global main
@@ -9,37 +13,97 @@ section .text
     extern free
     extern nullptr
 
-setRoll_intptr_int:
+Demo.setPrivate_int:
     push ebp
     mov ebp, esp
     sub esp, 0
     mov eax, [ebp+8]
-    mov ebx, [ebp+12]
-    mov [eax], ebx
+    mov [ecx+4], eax
+    mov esp, ebp
+    pop ebp
+    ret
+Demo.getPrivate:
+    push ebp
+    mov ebp, esp
+    sub esp, 0
+    mov eax, [ecx+4]
+    mov esp, ebp
+    pop ebp
+    ret
+Demo.setProtected_int:
+    push ebp
+    mov ebp, esp
+    sub esp, 0
+    mov eax, [ebp+8]
+    mov [ecx+8], eax
+    mov esp, ebp
+    pop ebp
+    ret
+Demo.getProtected:
+    push ebp
+    mov ebp, esp
+    sub esp, 0
+    mov eax, [ecx+8]
+    mov esp, ebp
+    pop ebp
+    ret
+Demo.showAll:
+    push ebp
+    mov ebp, esp
+    sub esp, 12
+    mov eax, [ecx+0]
+    push eax
+    mov eax, str_1
+    push eax
+    call printf
+    mov [ebp-4], eax
+    add esp, 8
+    mov eax, [ecx+4]
+    push eax
+    mov eax, str_2
+    push eax
+    call printf
+    mov [ebp-8], eax
+    add esp, 8
+    mov eax, [ecx+8]
+    push eax
+    mov eax, str_3
+    push eax
+    call printf
+    mov [ebp-12], eax
+    add esp, 8
     mov esp, ebp
     pop ebp
     ret
 main:
     push ebp
     mov ebp, esp
-    sub esp, 16
-    mov dword [ebp-4], 5
-    lea eax, [ebp-4]
-    mov [ebp-8], eax
-    mov eax, [ebp-8]
-    mov [ebp-12], eax
-    push 10
-    mov eax, [ebp-12]
-    push eax
-    call setRoll_intptr_int
-    add esp, 8
-    mov eax, [ebp-4]
-    push eax
-    mov eax, str_1
+    sub esp, 28
+    mov eax, str_4
     push eax
     call printf
-    mov [ebp-16], eax
+    mov [ebp-4], eax
+    add esp, 4
+    mov dword [ebp-16], 10
+    lea ecx, [ebp-16]
+    push 20
+    call Demo.setPrivate_int
+    add esp, 4
+    lea ecx, [ebp-16]
+    push 30
+    call Demo.setProtected_int
+    add esp, 4
+    mov eax, str_5
+    push eax
+    call Demo.getPrivate
+    mov [ebp-20], eax
+    mov eax, [ebp-20]
+    push eax
+    call printf
+    mov [ebp-24], eax
     add esp, 8
+    call Demo.getProtected
+    mov [ebp-28], eax
     xor eax, eax
     mov esp, ebp
     pop ebp

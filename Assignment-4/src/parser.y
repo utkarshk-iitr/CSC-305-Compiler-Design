@@ -1077,12 +1077,12 @@ argument_expression_list
         n->argCount = 1;
         if(e->kind == "rvalue"){
             // functionOffset += typeSize[e->type];
-            n->code.push_back("sub esp, " + to_string(getTypeSize(e->type)));
+            // n->code.push_back("sub esp, " + to_string(getTypeSize(e->type)));
             n->code.push_back("param [esp] , " + e->place);
         }
         else{
             // functionOffset += typeSize[e->type];
-            n->code.push_back("sub esp, " + to_string(getTypeSize(e->type)));
+            // n->code.push_back("sub esp, " + to_string(getTypeSize(e->type)));
             n->code.push_back("param [esp] , " + e->printName);
         }
         n->type = e->type;
@@ -1104,12 +1104,12 @@ argument_expression_list
         n->syn.push_back(e->type);
         if(e->kind == "rvalue"){
             // functionOffset += typeSize[e->type];
-            n->code.push_back("sub esp, " + to_string(getTypeSize(e->type)));
+            // n->code.push_back("sub esp, " + to_string(getTypeSize(e->type)));
             n->code.push_back("param [esp] , " + e->place);
         }
         else{
             // functionOffset += typeSize[e->type];
-            n->code.push_back("sub esp, " + to_string(getTypeSize(e->type)));
+            // n->code.push_back("sub esp, " + to_string(getTypeSize(e->type)));
             n->code.push_back("param [esp] , " + e->printName);
         }
         dbg("argcount is " + to_string(n->argCount) + ", type is " + e->type);
@@ -4452,7 +4452,14 @@ external
         {
             for (int i=0;i<$3->syn.size();i+=2)
             {
-                fname += "_" + $3->syn[i];
+                fname += "_";
+                for(int j=0;j<string($3->syn[i]).length();j++)
+                {
+                    if($3->syn[i][j] == '*')
+                        fname += "ptr";
+                    else
+                        fname += $3->syn[i][j];
+                }
             }
             string methodName = fname;
             if(classTable[lastClassType].find(methodName) != classTable[lastClassType].end())

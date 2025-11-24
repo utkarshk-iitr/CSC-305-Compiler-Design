@@ -1893,31 +1893,9 @@ public:
                 continue;
             }
 
-            // Skip "sub esp" if followed by param (directly or after more sub esp)
-            if (trimmedLine.find("sub esp") == 0)
-            {
-                // Look ahead to see if there's a param coming
-                bool foundParam = false;
-                for (size_t j = i + 1; j < tac.size() && j < i + 10; j++)
-                {
-                    string lookAhead = trim(tac[j]);
-                    if (lookAhead.find("param") == 0)
-                    {
-                        foundParam = true;
-                        break;
-                    }
-                    // Stop looking if we hit something that's not sub esp
-                    if (lookAhead.find("sub esp") != 0 && !lookAhead.empty())
-                    {
-                        break;
-                    }
-                }
-
-                if (foundParam)
-                {
-                    continue; // Skip this sub esp (don't track amount)
-                }
-            }
+            // Process "sub esp" instructions normally
+            // The TAC generator knows when to reserve stack space
+            // Don't skip them even if followed by params
 
             // Collect parameters until we hit a call instruction
             if (trimmedLine.find("param") == 0)

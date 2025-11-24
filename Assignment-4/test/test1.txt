@@ -1,17 +1,59 @@
-void setRoll(int *s, int r) 
-{
-    *s = r;
-    return;
-}
+class Demo {
 
-int main() 
-{
-    int x = 5;
-    int *ptr = &x;
+public:
+    int pubValue;                // public
 
-    setRoll(ptr, 10);
+private:
+    int privValue;               // private
 
-    printf("%d\n", x);
+protected:
+    int protValue;               // protected
 
+public:
+
+    // PUBLIC methods to access private + protected
+
+    void setPrivate(int v) {
+        privValue = v;           // allowed
+        return;
+    }
+
+    int getPrivate() {
+        return privValue;
+    }
+
+    void setProtected(int v) {
+        protValue = v;           // allowed
+        return;
+    }
+
+    int getProtected() {
+        return protValue;
+    }
+
+    void showAll() {
+        printf("Public = %d\n", pubValue);
+        printf("Private = %d\n", privValue);
+        printf("Protected = %d\n", protValue);
+        return;
+    }
+};
+
+int main() {
+
+    printf("=== Public / Private / Protected: No Inheritance ===\n");
+
+    Demo d;
+
+    d.pubValue = 10;          // OK: public
+
+    // d.privValue = 20;      // ERROR: private (cannot access)
+    // d.protValue = 30;      // ERROR: protected (cannot access)
+
+    d.setPrivate(20);         // OK via setter
+    d.setProtected(30);       // OK via setter
+
+    printf("%d",d.getPrivate()) ;
+    d.getProtected();
     return 0;
 }
