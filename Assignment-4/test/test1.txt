@@ -1,59 +1,37 @@
-class Demo {
-
-public:
-    int pubValue;                // public
-
+class ABCD
+{
 private:
-    int privValue;               // private
-
-protected:
-    int protValue;               // protected
-
+    int x;
+    int y;
 public:
-
-    // PUBLIC methods to access private + protected
-
-    void setPrivate(int v) {
-        privValue = v;           // allowed
+    void setter(int a){
+        x = a;
         return;
     }
 
-    int getPrivate() {
-        return privValue;
-    }
-
-    void setProtected(int v) {
-        protValue = v;           // allowed
+    void setter(int a, int b){
+        x = a;
+        y = b;
         return;
     }
 
-    int getProtected() {
-        return protValue;
+    int getx(){
+        return x;
     }
 
-    void showAll() {
-        printf("Public = %d\n", pubValue);
-        printf("Private = %d\n", privValue);
-        printf("Protected = %d\n", protValue);
-        return;
+    int gety(){
+        return y;
     }
 };
 
-int main() {
+int main()
+{
+    ABCD a;
+    a.setter(7);
+    a.setter(7, 8);
 
-    printf("=== Public / Private / Protected: No Inheritance ===\n");
+    int p = a.getx();
+    int q = a.gety();
 
-    Demo d;
-
-    d.pubValue = 10;          // OK: public
-
-    // d.privValue = 20;      // ERROR: private (cannot access)
-    // d.protValue = 30;      // ERROR: protected (cannot access)
-
-    d.setPrivate(20);         // OK via setter
-    d.setProtected(30);       // OK via setter
-
-    printf("%d",d.getPrivate()) ;
-    d.getProtected();
     return 0;
 }
