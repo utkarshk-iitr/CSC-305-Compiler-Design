@@ -510,6 +510,8 @@ private:
 
         if (base == "float")
             return ValueType::Float;
+        if (base == "double")
+            return ValueType::Float;
         if (base == "bool")
             return ValueType::Bool;
 
@@ -1098,6 +1100,20 @@ private:
         if (sourceType != ValueType::Unknown)
             setValueType(srcRaw, sourceType);
 
+        if (!toType.empty() && toType.back() == '*')
+        {
+            string baseTypeName = toType;
+            while (!baseTypeName.empty() && baseTypeName.back() == '*')
+            {
+                baseTypeName.pop_back();
+            }
+            ValueType elementType = valueTypeFromName(baseTypeName);
+            if (elementType != ValueType::Unknown)
+            {
+                setValueType("*" + canonicalizeOperand(destRaw), elementType);
+            }
+        }
+
         // For now, simple conversions just move the value
         // char_to_int: sign-extend byte to dword
         if (conversion.find("char_to_int") != string::npos)
@@ -1129,16 +1145,35 @@ private:
     void handleAddressOf(const string &dest, const string &src)
     {
         string normDest = normalizeMemRef(dest);
-        string addrSrc = src;
+        string trimmedSrc = trim(src);
+
+        if (!trimmedSrc.empty() && trimmedSrc[0] == '*')
+        {
+            string inner = trim(trimmedSrc.substr(1));
+            string normInner = normalizeMemRef(inner);
+
+            handleMov("eax", normInner);
+            handleMov(normDest, "eax");
+            setValueType(dest, ValueType::Pointer);
+
+            ValueType elementType = getValueType(trimmedSrc);
+            if (elementType != ValueType::Unknown)
+            {
+                setValueType("*" + canonicalizeOperand(dest), elementType);
+            }
+            return;
+        }
+
+        string addrSrc = trimmedSrc;
 
         // If src is a memory reference, extract the address expression
-        if (isMemoryReference(src))
+        if (isMemoryReference(trimmedSrc))
         {
-            size_t start = src.find('[');
-            size_t end = src.find(']');
+            size_t start = trimmedSrc.find('[');
+            size_t end = trimmedSrc.find(']');
             if (start != string::npos && end != string::npos)
             {
-                addrSrc = src.substr(start + 1, end - start - 1);
+                addrSrc = trimmedSrc.substr(start + 1, end - start - 1);
                 // Remove all spaces
                 string cleaned;
                 for (char c : addrSrc)
@@ -1628,9 +1663,11 @@ private:
                 ValueType valueType = getValueType(value);
                 ValueType literalType = detectLiteralType(value);
                 ValueType storedType = literalType != ValueType::Unknown ? literalType : valueType;
+                string canonicalPtr = canonicalizeOperand(ptrOperand);
                 if (storedType != ValueType::Unknown)
                 {
-                    setValueType("*" + ptrOperand, storedType);
+                    setValueType("*" + canonicalPtr, storedType);
+                    setValueType("*" + canonicalizeOperand(ptrAddr), storedType);
                 }
 
                 if (literalType == ValueType::Float || isFloatType(valueType))
@@ -1730,6 +1767,18 @@ private:
             ValueType op2Type = getValueType(op2);
             ValueType resultType = determineBinaryResultType(operation, op1Type, op2Type);
             setValueType(dest, resultType);
+            if (resultType == ValueType::Pointer)
+            {
+                ValueType pointedType = getValueType("*" + canonicalizeOperand(op1));
+                if (pointedType == ValueType::Unknown)
+                {
+                    pointedType = getValueType("*" + canonicalizeOperand(op2));
+                }
+                if (pointedType != ValueType::Unknown)
+                {
+                    setValueType("*" + canonicalizeOperand(dest), pointedType);
+                }
+            }
             handleBinaryOp(dest, op1, operation, op2);
             return;
         }
@@ -1743,6 +1792,14 @@ private:
                 srcType = detectLiteralType(src);
             }
             setValueType(dest, srcType);
+            if (srcType == ValueType::Pointer)
+            {
+                ValueType elementType = getValueType("*" + canonicalizeOperand(src));
+                if (elementType != ValueType::Unknown)
+                {
+                    setValueType("*" + canonicalizeOperand(dest), elementType);
+                }
+            }
             handleMov(dest, src);
             return;
         }

@@ -1,24 +1,41 @@
-Debug: type_specifier -> VOID
+Debug: type_specifier -> INT
 Debug: external_declaration -> type_specifier
-Debug: lastDeclType in external_declaration: void
+Debug: lastDeclType in external_declaration: int
 Debug: 
-Debug: lastFnType in external: void
+Debug: lastFnType in external: int
 Debug: 
 Debug: external -> IDENTIFIER ( )
-Debug: Function 'incrementCallCount' with return type 'void' declared.
+Debug: Function 'main' with return type 'int' declared.
 Debug: 12qwr
 Debug: 0
 Debug: type_specifier -> INT
-Debug: declaration_specifiers -> static type_specifier
+Debug: declaration_specifiers -> type_specifier
+Debug: int
+Debug: pointer_list -> *
+Debug: init_declarator -> pointer_list IDENTIFIER 
+Debug: utkar
+Debug: 
+Debug: Declared pointer: arr of type: int* and kind: pointer
+Debug: 
+Debug: 
+Debug: init_declarator_list -> init_declarator
+Debug: int
+Debug: declaration -> declaration_specifiers init_declarator_list ;
+Debug: int
+Debug: block_item -> declaration
+Debug: statement_list -> block_item
+Debug: type_specifier -> INT
+Debug: declaration_specifiers -> type_specifier
+Debug: int
 Debug: constant -> DECIMAL_LITERAL
 Debug: 
-Debug: Integer constant value: 0
+Debug: Integer constant value: 5
 Debug: 
 Debug: primary_expression -> constant
 Debug: postfix_expression -> primary_expression
 Debug: unary_expression -> postfix_expression
 Debug: cast_expression -> unary_expression
-Debug: staticint
+Debug: int
 Debug: multiplicative_expression -> cast_expression
 Debug: additive_expression -> multiplicative_expression
 Debug: shift_expression -> additive_expression
@@ -32,72 +49,72 @@ Debug: logical_or_expression -> logical_and_expression
 Debug: conditional_expression -> logical_or_expression
 Debug: assignment_expression -> conditional_expression
 Debug: init_declarator -> IDENTIFIER = assignment_expression 
-Debug: staticint
-Debug: 333callCount
+Debug: int
+Debug: 333n
 Debug: Type of assignment expression: int
 Debug: Type of variable: int
 Debug: 
-Debug: Declared variable: callCount of type: int and kind: static
+Debug: Declared variable: n of type: int and kind: 
 Debug: 
 Debug: nmnmn
 Debug: 
 Debug: init_declarator_list -> init_declarator
-Debug: staticint
+Debug: int
 Debug: declaration -> declaration_specifiers init_declarator_list ;
-Debug: staticint
+Debug: int
 Debug: block_item -> declaration
-Debug: statement_list -> block_item
-Debug: primary_expression -> IDENTIFIER
-Debug: callCount
-Debug: lksajdlajdkadn
-Debug: 
-Debug: Looking up symbol: callCount
-Debug: 
-Debug: 
-Debug: Found symbol: callCount
-Debug: Type: int
-Debug: Kind: static
-Debug: Dimensions: 0
-Debug: 
-Debug: [incrementCallCount.callCount] [incrementCallCount.callCount]
-Debug: postfix_expression -> primary_expression
-Debug: postfix_expression -> postfix_expression ++
-Debug: New temp: [ebp - 8]
-Debug: sym->name: [ebp - 8]
-Debug: sym->printName: [ebp - 8]
-Debug: unary_expression -> postfix_expression
-Debug: cast_expression -> unary_expression
-Debug: staticint
-Debug: multiplicative_expression -> cast_expression
-Debug: additive_expression -> multiplicative_expression
-Debug: shift_expression -> additive_expression
-Debug: relational_expression -> shift_expression
-Debug: equality_expression -> relational_expression
-Debug: and_expression -> equality_expression
-Debug: exclusive_or_expression -> and_expression
-Debug: inclusive_or_expression -> exclusive_or_expression
-Debug: logical_and_expression -> inclusive_or_expression
-Debug: logical_or_expression -> logical_and_expression
-Debug: conditional_expression -> logical_or_expression
-Debug: assignment_expression -> conditional_expression
-Debug: expression -> assignment_expression
-Debug: expression_statement -> expression ;
-Debug: statement -> expression_statement
-Debug: block_item -> statement
 Debug: statement_list -> statement_list block_item
 Debug: primary_expression -> IDENTIFIER
-Debug: printf
+Debug: arr
 Debug: lksajdlajdkadn
 Debug: 
-Debug: Looking up symbol: printf
+Debug: Looking up symbol: arr
+Debug: 
+Debug: 
+Debug: Found symbol: arr
+Debug: Type: int*
+Debug: Kind: pointer
+Debug: Dimensions: 0
+Debug: 
+Debug: [ebp - 4] [ebp - 4]
+Debug: postfix_expression -> primary_expression
+Debug: unary_expression -> postfix_expression
+Debug: assignment_operator -> =
+Debug: cast_type_specifier -> INT
+Debug: pointer_list -> *
+Debug: pointer_opt -> pointer_list
+Debug: return_type -> type_specifier pointer_opt
+Debug: primary_expression -> IDENTIFIER
+Debug: malloc
+Debug: lksajdlajdkadn
+Debug: 
+Debug: Looking up symbol: malloc
 Debug: 
 Debug: postfix_expression -> primary_expression
-Debug: constant -> STRING_LITERAL
+Debug: constant -> DECIMAL_LITERAL
+Debug: 
+Debug: Integer constant value: 5
+Debug: 
+Debug: primary_expression -> constant
 Debug: postfix_expression -> primary_expression
 Debug: unary_expression -> postfix_expression
 Debug: cast_expression -> unary_expression
-Debug: staticint
+Debug: int
 Debug: multiplicative_expression -> cast_expression
+Debug: cast_type_specifier -> INT
+Debug: pointer_opt -> <empty>
+Debug: return_type -> type_specifier pointer_opt
+Debug: unary_expression -> sizeof ( type_name )
+Debug: New temp: [ebp - 12]
+Debug: sym->name: [ebp - 12]
+Debug: sym->printName: [ebp - 12]
+Debug: Sizeof type: int is 4
+Debug: cast_expression -> unary_expression
+Debug: int
+Debug: multiplicative_expression -> multiplicative_expression * cast_expression
+Debug: New temp: [ebp - 16]
+Debug: sym->name: [ebp - 16]
+Debug: sym->printName: [ebp - 16]
 Debug: additive_expression -> multiplicative_expression
 Debug: shift_expression -> additive_expression
 Debug: relational_expression -> shift_expression
@@ -111,54 +128,27 @@ Debug: conditional_expression -> logical_or_expression
 Debug: assignment_expression -> conditional_expression
 Debug: argument_expression_list -> assignment_expression
 Debug: 
-Debug: argcount is 1, type is char*
+Debug: argcount is 1, type is int
 Debug: 
-Debug: primary_expression -> IDENTIFIER
-Debug: callCount
-Debug: lksajdlajdkadn
-Debug: 
-Debug: Looking up symbol: callCount
-Debug: 
-Debug: 
-Debug: Found symbol: callCount
-Debug: Type: int
-Debug: Kind: static
-Debug: Dimensions: 0
-Debug: 
-Debug: [incrementCallCount.callCount] [incrementCallCount.callCount]
-Debug: postfix_expression -> primary_expression
-Debug: unary_expression -> postfix_expression
-Debug: cast_expression -> unary_expression
-Debug: staticint
-Debug: multiplicative_expression -> cast_expression
-Debug: additive_expression -> multiplicative_expression
-Debug: shift_expression -> additive_expression
-Debug: relational_expression -> shift_expression
-Debug: equality_expression -> relational_expression
-Debug: and_expression -> equality_expression
-Debug: exclusive_or_expression -> and_expression
-Debug: inclusive_or_expression -> exclusive_or_expression
-Debug: logical_and_expression -> inclusive_or_expression
-Debug: logical_or_expression -> logical_and_expression
-Debug: conditional_expression -> logical_or_expression
-Debug: assignment_expression -> conditional_expression
-Debug: argument_expression_list -> argument_expression_list , assignment_expression
-Debug: argcount is 2, type is int
-Debug: incrementCallCount.callCount-[incrementCallCount.callCount]
 Debug: postfix_expression -> postfix_expression ( argument_expression_list )
 Debug: 133
-Debug: printf
+Debug: malloc
 Debug: 
-Debug: argCount is:2
-Debug: type is char*
+Debug: argCount is:1
 Debug: type is int
-Debug: name is: printf_char*_int
-Debug: New temp: [ebp - 12]
-Debug: sym->name: [ebp - 12]
-Debug: sym->printName: [ebp - 12]
+Debug: name is: malloc_int
+Debug: New temp: [ebp - 20]
+Debug: sym->name: [ebp - 20]
+Debug: sym->printName: [ebp - 20]
 Debug: unary_expression -> postfix_expression
 Debug: cast_expression -> unary_expression
-Debug: staticint
+Debug: int
+Debug: cast_expression -> ( cast_type ) cast_expression
+Debug: ww
+Debug: Casting from void* to int*
+Debug: New temp: [ebp - 24]
+Debug: sym->name: [ebp - 24]
+Debug: sym->printName: [ebp - 24]
 Debug: multiplicative_expression -> cast_expression
 Debug: additive_expression -> multiplicative_expression
 Debug: shift_expression -> additive_expression
@@ -171,29 +161,15 @@ Debug: logical_and_expression -> inclusive_or_expression
 Debug: logical_or_expression -> logical_and_expression
 Debug: conditional_expression -> logical_or_expression
 Debug: assignment_expression -> conditional_expression
+Debug: assignment_expression -> unary_expression assignment_operator assignment_expression
+Debug: 11:
+Debug: abcdefgh
+Debug: [ebp - 4]
 Debug: expression -> assignment_expression
 Debug: expression_statement -> expression ;
 Debug: statement -> expression_statement
 Debug: block_item -> statement
 Debug: statement_list -> statement_list block_item
-Debug: jump_statement -> RETURN ;
-Debug: statement -> jump_statement
-Debug: block_item -> statement
-Debug: statement_list -> statement_list block_item
-Debug: compound_statement -> { statement_list }
-Debug: external -> IDENTIFIER ( ) compound_statement
-Debug: external_declaration -> type_specifier external
-Debug: translation_unit -> external_declaration
-Debug: type_specifier -> INT
-Debug: external_declaration -> type_specifier
-Debug: lastDeclType in external_declaration: int
-Debug: 
-Debug: lastFnType in external: int
-Debug: 
-Debug: external -> IDENTIFIER ( )
-Debug: Function 'main' with return type 'int' declared.
-Debug: 12qwr
-Debug: 0
 Debug: primary_expression -> IDENTIFIER
 Debug: printf
 Debug: lksajdlajdkadn
@@ -229,9 +205,267 @@ Debug:
 Debug: argCount is:1
 Debug: type is char*
 Debug: name is: printf_char*
-Debug: New temp: [ebp - 4]
-Debug: sym->name: [ebp - 4]
-Debug: sym->printName: [ebp - 4]
+Debug: New temp: [ebp - 28]
+Debug: sym->name: [ebp - 28]
+Debug: sym->printName: [ebp - 28]
+Debug: unary_expression -> postfix_expression
+Debug: cast_expression -> unary_expression
+Debug: int
+Debug: multiplicative_expression -> cast_expression
+Debug: additive_expression -> multiplicative_expression
+Debug: shift_expression -> additive_expression
+Debug: relational_expression -> shift_expression
+Debug: equality_expression -> relational_expression
+Debug: and_expression -> equality_expression
+Debug: exclusive_or_expression -> and_expression
+Debug: inclusive_or_expression -> exclusive_or_expression
+Debug: logical_and_expression -> inclusive_or_expression
+Debug: logical_or_expression -> logical_and_expression
+Debug: conditional_expression -> logical_or_expression
+Debug: assignment_expression -> conditional_expression
+Debug: expression -> assignment_expression
+Debug: expression_statement -> expression ;
+Debug: statement -> expression_statement
+Debug: block_item -> statement
+Debug: statement_list -> statement_list block_item
+Debug: for_start -> FOR
+Debug: type_specifier -> INT
+Debug: declaration_specifiers -> type_specifier
+Debug: int
+Debug: constant -> DECIMAL_LITERAL
+Debug: 
+Debug: Integer constant value: 0
+Debug: 
+Debug: primary_expression -> constant
+Debug: postfix_expression -> primary_expression
+Debug: unary_expression -> postfix_expression
+Debug: cast_expression -> unary_expression
+Debug: int
+Debug: multiplicative_expression -> cast_expression
+Debug: additive_expression -> multiplicative_expression
+Debug: shift_expression -> additive_expression
+Debug: relational_expression -> shift_expression
+Debug: equality_expression -> relational_expression
+Debug: and_expression -> equality_expression
+Debug: exclusive_or_expression -> and_expression
+Debug: inclusive_or_expression -> exclusive_or_expression
+Debug: logical_and_expression -> inclusive_or_expression
+Debug: logical_or_expression -> logical_and_expression
+Debug: conditional_expression -> logical_or_expression
+Debug: assignment_expression -> conditional_expression
+Debug: init_declarator -> IDENTIFIER = assignment_expression 
+Debug: int
+Debug: 333i
+Debug: Type of assignment expression: int
+Debug: Type of variable: int
+Debug: 
+Debug: Declared variable: i of type: int and kind: 
+Debug: 
+Debug: nmnmn
+Debug: 
+Debug: init_declarator_list -> init_declarator
+Debug: int
+Debug: declaration -> declaration_specifiers init_declarator_list ;
+Debug: int
+Debug: for_init_statement -> declaration
+Debug: primary_expression -> IDENTIFIER
+Debug: i
+Debug: lksajdlajdkadn
+Debug: 
+Debug: Looking up symbol: i
+Debug: 
+Debug: 
+Debug: Found symbol: i
+Debug: Type: int
+Debug: Kind: 
+Debug: Dimensions: 0
+Debug: 
+Debug: [ebp - 32] [ebp - 32]
+Debug: postfix_expression -> primary_expression
+Debug: unary_expression -> postfix_expression
+Debug: cast_expression -> unary_expression
+Debug: int
+Debug: multiplicative_expression -> cast_expression
+Debug: additive_expression -> multiplicative_expression
+Debug: shift_expression -> additive_expression
+Debug: relational_expression -> shift_expression
+Debug: constant -> DECIMAL_LITERAL
+Debug: 
+Debug: Integer constant value: 5
+Debug: 
+Debug: primary_expression -> constant
+Debug: postfix_expression -> primary_expression
+Debug: unary_expression -> postfix_expression
+Debug: cast_expression -> unary_expression
+Debug: int
+Debug: multiplicative_expression -> cast_expression
+Debug: additive_expression -> multiplicative_expression
+Debug: shift_expression -> additive_expression
+Debug: relational_expression -> relational_expression < shift_expression
+Debug: New temp: [ebp - 36]
+Debug: sym->name: [ebp - 36]
+Debug: sym->printName: [ebp - 36]
+Debug: equality_expression -> relational_expression
+Debug: and_expression -> equality_expression
+Debug: exclusive_or_expression -> and_expression
+Debug: inclusive_or_expression -> exclusive_or_expression
+Debug: logical_and_expression -> inclusive_or_expression
+Debug: logical_or_expression -> logical_and_expression
+Debug: conditional_expression -> logical_or_expression
+Debug: assignment_expression -> conditional_expression
+Debug: expression -> assignment_expression
+Debug: expression_statement -> expression ;
+Debug: primary_expression -> IDENTIFIER
+Debug: i
+Debug: lksajdlajdkadn
+Debug: 
+Debug: Looking up symbol: i
+Debug: 
+Debug: 
+Debug: Found symbol: i
+Debug: Type: int
+Debug: Kind: 
+Debug: Dimensions: 0
+Debug: 
+Debug: [ebp - 32] [ebp - 32]
+Debug: postfix_expression -> primary_expression
+Debug: postfix_expression -> postfix_expression ++
+Debug: New temp: [ebp - 40]
+Debug: sym->name: [ebp - 40]
+Debug: sym->printName: [ebp - 40]
+Debug: unary_expression -> postfix_expression
+Debug: cast_expression -> unary_expression
+Debug: int
+Debug: multiplicative_expression -> cast_expression
+Debug: additive_expression -> multiplicative_expression
+Debug: shift_expression -> additive_expression
+Debug: relational_expression -> shift_expression
+Debug: equality_expression -> relational_expression
+Debug: and_expression -> equality_expression
+Debug: exclusive_or_expression -> and_expression
+Debug: inclusive_or_expression -> exclusive_or_expression
+Debug: logical_and_expression -> inclusive_or_expression
+Debug: logical_or_expression -> logical_and_expression
+Debug: conditional_expression -> logical_or_expression
+Debug: assignment_expression -> conditional_expression
+Debug: expression -> assignment_expression
+Debug: 12qwr
+Debug: 40
+Debug: primary_expression -> IDENTIFIER
+Debug: scanf
+Debug: lksajdlajdkadn
+Debug: 
+Debug: Looking up symbol: scanf
+Debug: 
+Debug: postfix_expression -> primary_expression
+Debug: constant -> STRING_LITERAL
+Debug: postfix_expression -> primary_expression
+Debug: unary_expression -> postfix_expression
+Debug: cast_expression -> unary_expression
+Debug: int
+Debug: multiplicative_expression -> cast_expression
+Debug: additive_expression -> multiplicative_expression
+Debug: shift_expression -> additive_expression
+Debug: relational_expression -> shift_expression
+Debug: equality_expression -> relational_expression
+Debug: and_expression -> equality_expression
+Debug: exclusive_or_expression -> and_expression
+Debug: inclusive_or_expression -> exclusive_or_expression
+Debug: logical_and_expression -> inclusive_or_expression
+Debug: logical_or_expression -> logical_and_expression
+Debug: conditional_expression -> logical_or_expression
+Debug: assignment_expression -> conditional_expression
+Debug: argument_expression_list -> assignment_expression
+Debug: 
+Debug: argcount is 1, type is char*
+Debug: 
+Debug: unary_operator -> &
+Debug: primary_expression -> IDENTIFIER
+Debug: arr
+Debug: lksajdlajdkadn
+Debug: 
+Debug: Looking up symbol: arr
+Debug: 
+Debug: 
+Debug: Found symbol: arr
+Debug: Type: int*
+Debug: Kind: pointer
+Debug: Dimensions: 0
+Debug: 
+Debug: [ebp - 4] [ebp - 4]
+Debug: postfix_expression -> primary_expression
+Debug: primary_expression -> IDENTIFIER
+Debug: i
+Debug: lksajdlajdkadn
+Debug: 
+Debug: Looking up symbol: i
+Debug: 
+Debug: 
+Debug: Found symbol: i
+Debug: Type: int
+Debug: Kind: 
+Debug: Dimensions: 0
+Debug: 
+Debug: [ebp - 32] [ebp - 32]
+Debug: postfix_expression -> primary_expression
+Debug: unary_expression -> postfix_expression
+Debug: cast_expression -> unary_expression
+Debug: int
+Debug: multiplicative_expression -> cast_expression
+Debug: additive_expression -> multiplicative_expression
+Debug: shift_expression -> additive_expression
+Debug: relational_expression -> shift_expression
+Debug: equality_expression -> relational_expression
+Debug: and_expression -> equality_expression
+Debug: exclusive_or_expression -> and_expression
+Debug: inclusive_or_expression -> exclusive_or_expression
+Debug: logical_and_expression -> inclusive_or_expression
+Debug: logical_or_expression -> logical_and_expression
+Debug: conditional_expression -> logical_or_expression
+Debug: assignment_expression -> conditional_expression
+Debug: expression -> assignment_expression
+Debug: postfix_expression -> postfix_expression [ expression ]
+Debug: New temp: [ebp - 44]
+Debug: sym->name: [ebp - 44]
+Debug: sym->printName: [ebp - 44]
+Debug: New temp: [ebp - 48]
+Debug: sym->name: [ebp - 48]
+Debug: sym->printName: [ebp - 48]
+Debug: unary_expression -> postfix_expression
+Debug: cast_expression -> unary_expression
+Debug: int
+Debug: unary_expression -> unary_operator cast_expression
+Debug: New temp: [ebp - 52]
+Debug: sym->name: [ebp - 52]
+Debug: sym->printName: [ebp - 52]
+Debug: cast_expression -> unary_expression
+Debug: int
+Debug: multiplicative_expression -> cast_expression
+Debug: additive_expression -> multiplicative_expression
+Debug: shift_expression -> additive_expression
+Debug: relational_expression -> shift_expression
+Debug: equality_expression -> relational_expression
+Debug: and_expression -> equality_expression
+Debug: exclusive_or_expression -> and_expression
+Debug: inclusive_or_expression -> exclusive_or_expression
+Debug: logical_and_expression -> inclusive_or_expression
+Debug: logical_or_expression -> logical_and_expression
+Debug: conditional_expression -> logical_or_expression
+Debug: assignment_expression -> conditional_expression
+Debug: argument_expression_list -> argument_expression_list , assignment_expression
+Debug: argcount is 2, type is int*
+Debug: [ebp - 52]-[ebp - 52]
+Debug: postfix_expression -> postfix_expression ( argument_expression_list )
+Debug: 133
+Debug: scanf
+Debug: 
+Debug: argCount is:2
+Debug: type is char*
+Debug: type is int*
+Debug: name is: scanf_char*_int*
+Debug: New temp: [ebp - 56]
+Debug: sym->name: [ebp - 56]
+Debug: sym->printName: [ebp - 56]
 Debug: unary_expression -> postfix_expression
 Debug: cast_expression -> unary_expression
 Debug: int
@@ -253,168 +487,6 @@ Debug: statement -> expression_statement
 Debug: block_item -> statement
 Debug: statement_list -> block_item
 Debug: primary_expression -> IDENTIFIER
-Debug: incrementCallCount
-Debug: lksajdlajdkadn
-Debug: 
-Debug: Looking up symbol: incrementCallCount
-Debug: 
-Debug: 
-Debug: Found symbol: incrementCallCount
-Debug: Type: function
-Debug: Kind: function
-Debug: Dimensions: 0
-Debug: 
-Debug:  
-Debug: postfix_expression -> primary_expression
-Debug: postfix_expression -> postfix_expression ( )
-Debug: 2123
-Debug: incrementCallCount
-Debug: 18
-Debug: New temp: [ebp - 4]
-Debug: sym->name: [ebp - 4]
-Debug: sym->printName: [ebp - 4]
-Debug: unary_expression -> postfix_expression
-Debug: cast_expression -> unary_expression
-Debug: int
-Debug: multiplicative_expression -> cast_expression
-Debug: additive_expression -> multiplicative_expression
-Debug: shift_expression -> additive_expression
-Debug: relational_expression -> shift_expression
-Debug: equality_expression -> relational_expression
-Debug: and_expression -> equality_expression
-Debug: exclusive_or_expression -> and_expression
-Debug: inclusive_or_expression -> exclusive_or_expression
-Debug: logical_and_expression -> inclusive_or_expression
-Debug: logical_or_expression -> logical_and_expression
-Debug: conditional_expression -> logical_or_expression
-Debug: assignment_expression -> conditional_expression
-Debug: expression -> assignment_expression
-Debug: expression_statement -> expression ;
-Debug: statement -> expression_statement
-Debug: block_item -> statement
-Debug: statement_list -> statement_list block_item
-Debug: primary_expression -> IDENTIFIER
-Debug: incrementCallCount
-Debug: lksajdlajdkadn
-Debug: 
-Debug: Looking up symbol: incrementCallCount
-Debug: 
-Debug: 
-Debug: Found symbol: incrementCallCount
-Debug: Type: function
-Debug: Kind: function
-Debug: Dimensions: 0
-Debug: 
-Debug:  
-Debug: postfix_expression -> primary_expression
-Debug: postfix_expression -> postfix_expression ( )
-Debug: 2123
-Debug: incrementCallCount
-Debug: 18
-Debug: New temp: [ebp - 4]
-Debug: sym->name: [ebp - 4]
-Debug: sym->printName: [ebp - 4]
-Debug: unary_expression -> postfix_expression
-Debug: cast_expression -> unary_expression
-Debug: int
-Debug: multiplicative_expression -> cast_expression
-Debug: additive_expression -> multiplicative_expression
-Debug: shift_expression -> additive_expression
-Debug: relational_expression -> shift_expression
-Debug: equality_expression -> relational_expression
-Debug: and_expression -> equality_expression
-Debug: exclusive_or_expression -> and_expression
-Debug: inclusive_or_expression -> exclusive_or_expression
-Debug: logical_and_expression -> inclusive_or_expression
-Debug: logical_or_expression -> logical_and_expression
-Debug: conditional_expression -> logical_or_expression
-Debug: assignment_expression -> conditional_expression
-Debug: expression -> assignment_expression
-Debug: expression_statement -> expression ;
-Debug: statement -> expression_statement
-Debug: block_item -> statement
-Debug: statement_list -> statement_list block_item
-Debug: primary_expression -> IDENTIFIER
-Debug: incrementCallCount
-Debug: lksajdlajdkadn
-Debug: 
-Debug: Looking up symbol: incrementCallCount
-Debug: 
-Debug: 
-Debug: Found symbol: incrementCallCount
-Debug: Type: function
-Debug: Kind: function
-Debug: Dimensions: 0
-Debug: 
-Debug:  
-Debug: postfix_expression -> primary_expression
-Debug: postfix_expression -> postfix_expression ( )
-Debug: 2123
-Debug: incrementCallCount
-Debug: 18
-Debug: New temp: [ebp - 4]
-Debug: sym->name: [ebp - 4]
-Debug: sym->printName: [ebp - 4]
-Debug: unary_expression -> postfix_expression
-Debug: cast_expression -> unary_expression
-Debug: int
-Debug: multiplicative_expression -> cast_expression
-Debug: additive_expression -> multiplicative_expression
-Debug: shift_expression -> additive_expression
-Debug: relational_expression -> shift_expression
-Debug: equality_expression -> relational_expression
-Debug: and_expression -> equality_expression
-Debug: exclusive_or_expression -> and_expression
-Debug: inclusive_or_expression -> exclusive_or_expression
-Debug: logical_and_expression -> inclusive_or_expression
-Debug: logical_or_expression -> logical_and_expression
-Debug: conditional_expression -> logical_or_expression
-Debug: assignment_expression -> conditional_expression
-Debug: expression -> assignment_expression
-Debug: expression_statement -> expression ;
-Debug: statement -> expression_statement
-Debug: block_item -> statement
-Debug: statement_list -> statement_list block_item
-Debug: type_specifier -> INT
-Debug: declaration_specifiers -> static type_specifier
-Debug: constant -> DECIMAL_LITERAL
-Debug: 
-Debug: Integer constant value: 100
-Debug: 
-Debug: primary_expression -> constant
-Debug: postfix_expression -> primary_expression
-Debug: unary_expression -> postfix_expression
-Debug: cast_expression -> unary_expression
-Debug: staticint
-Debug: multiplicative_expression -> cast_expression
-Debug: additive_expression -> multiplicative_expression
-Debug: shift_expression -> additive_expression
-Debug: relational_expression -> shift_expression
-Debug: equality_expression -> relational_expression
-Debug: and_expression -> equality_expression
-Debug: exclusive_or_expression -> and_expression
-Debug: inclusive_or_expression -> exclusive_or_expression
-Debug: logical_and_expression -> inclusive_or_expression
-Debug: logical_or_expression -> logical_and_expression
-Debug: conditional_expression -> logical_or_expression
-Debug: assignment_expression -> conditional_expression
-Debug: init_declarator -> IDENTIFIER = assignment_expression 
-Debug: staticint
-Debug: 333localStatic
-Debug: Type of assignment expression: int
-Debug: Type of variable: int
-Debug: 
-Debug: Declared variable: localStatic of type: int and kind: static
-Debug: 
-Debug: nmnmn
-Debug: 
-Debug: init_declarator_list -> init_declarator
-Debug: staticint
-Debug: declaration -> declaration_specifiers init_declarator_list ;
-Debug: staticint
-Debug: block_item -> declaration
-Debug: statement_list -> statement_list block_item
-Debug: primary_expression -> IDENTIFIER
 Debug: printf
 Debug: lksajdlajdkadn
 Debug: 
@@ -425,7 +497,7 @@ Debug: constant -> STRING_LITERAL
 Debug: postfix_expression -> primary_expression
 Debug: unary_expression -> postfix_expression
 Debug: cast_expression -> unary_expression
-Debug: staticint
+Debug: int
 Debug: multiplicative_expression -> cast_expression
 Debug: additive_expression -> multiplicative_expression
 Debug: shift_expression -> additive_expression
@@ -443,22 +515,59 @@ Debug:
 Debug: argcount is 1, type is char*
 Debug: 
 Debug: primary_expression -> IDENTIFIER
-Debug: localStatic
+Debug: arr
 Debug: lksajdlajdkadn
 Debug: 
-Debug: Looking up symbol: localStatic
+Debug: Looking up symbol: arr
 Debug: 
 Debug: 
-Debug: Found symbol: localStatic
-Debug: Type: int
-Debug: Kind: static
+Debug: Found symbol: arr
+Debug: Type: int*
+Debug: Kind: pointer
 Debug: Dimensions: 0
 Debug: 
-Debug: [main.localStatic] [main.localStatic]
+Debug: [ebp - 4] [ebp - 4]
+Debug: postfix_expression -> primary_expression
+Debug: primary_expression -> IDENTIFIER
+Debug: i
+Debug: lksajdlajdkadn
+Debug: 
+Debug: Looking up symbol: i
+Debug: 
+Debug: 
+Debug: Found symbol: i
+Debug: Type: int
+Debug: Kind: 
+Debug: Dimensions: 0
+Debug: 
+Debug: [ebp - 32] [ebp - 32]
 Debug: postfix_expression -> primary_expression
 Debug: unary_expression -> postfix_expression
 Debug: cast_expression -> unary_expression
-Debug: staticint
+Debug: int
+Debug: multiplicative_expression -> cast_expression
+Debug: additive_expression -> multiplicative_expression
+Debug: shift_expression -> additive_expression
+Debug: relational_expression -> shift_expression
+Debug: equality_expression -> relational_expression
+Debug: and_expression -> equality_expression
+Debug: exclusive_or_expression -> and_expression
+Debug: inclusive_or_expression -> exclusive_or_expression
+Debug: logical_and_expression -> inclusive_or_expression
+Debug: logical_or_expression -> logical_and_expression
+Debug: conditional_expression -> logical_or_expression
+Debug: assignment_expression -> conditional_expression
+Debug: expression -> assignment_expression
+Debug: postfix_expression -> postfix_expression [ expression ]
+Debug: New temp: [ebp - 60]
+Debug: sym->name: [ebp - 60]
+Debug: sym->printName: [ebp - 60]
+Debug: New temp: [ebp - 64]
+Debug: sym->name: [ebp - 64]
+Debug: sym->printName: [ebp - 64]
+Debug: unary_expression -> postfix_expression
+Debug: cast_expression -> unary_expression
+Debug: int
 Debug: multiplicative_expression -> cast_expression
 Debug: additive_expression -> multiplicative_expression
 Debug: shift_expression -> additive_expression
@@ -473,7 +582,7 @@ Debug: conditional_expression -> logical_or_expression
 Debug: assignment_expression -> conditional_expression
 Debug: argument_expression_list -> argument_expression_list , assignment_expression
 Debug: argcount is 2, type is int
-Debug: main.localStatic-[main.localStatic]
+Debug: *[ebp - 64]-*[ebp - 64]
 Debug: postfix_expression -> postfix_expression ( argument_expression_list )
 Debug: 133
 Debug: printf
@@ -482,12 +591,76 @@ Debug: argCount is:2
 Debug: type is char*
 Debug: type is int
 Debug: name is: printf_char*_int
-Debug: New temp: [ebp - 12]
-Debug: sym->name: [ebp - 12]
-Debug: sym->printName: [ebp - 12]
+Debug: New temp: [ebp - 68]
+Debug: sym->name: [ebp - 68]
+Debug: sym->printName: [ebp - 68]
 Debug: unary_expression -> postfix_expression
 Debug: cast_expression -> unary_expression
-Debug: staticint
+Debug: int
+Debug: multiplicative_expression -> cast_expression
+Debug: additive_expression -> multiplicative_expression
+Debug: shift_expression -> additive_expression
+Debug: relational_expression -> shift_expression
+Debug: equality_expression -> relational_expression
+Debug: and_expression -> equality_expression
+Debug: exclusive_or_expression -> and_expression
+Debug: inclusive_or_expression -> exclusive_or_expression
+Debug: logical_and_expression -> inclusive_or_expression
+Debug: logical_or_expression -> logical_and_expression
+Debug: conditional_expression -> logical_or_expression
+Debug: assignment_expression -> conditional_expression
+Debug: expression -> assignment_expression
+Debug: expression_statement -> expression ;
+Debug: statement -> expression_statement
+Debug: block_item -> statement
+Debug: statement_list -> statement_list block_item
+Debug: compound_statement -> { statement_list }
+Debug: statement -> compound_statement
+Debug: iteration_statement -> FOR ( for_init_statement expression_statement expression ) statement
+Debug: statement -> iteration_statement
+Debug: block_item -> statement
+Debug: statement_list -> statement_list block_item
+Debug: primary_expression -> IDENTIFIER
+Debug: printf
+Debug: lksajdlajdkadn
+Debug: 
+Debug: Looking up symbol: printf
+Debug: 
+Debug: postfix_expression -> primary_expression
+Debug: constant -> STRING_LITERAL
+Debug: postfix_expression -> primary_expression
+Debug: unary_expression -> postfix_expression
+Debug: cast_expression -> unary_expression
+Debug: int
+Debug: multiplicative_expression -> cast_expression
+Debug: additive_expression -> multiplicative_expression
+Debug: shift_expression -> additive_expression
+Debug: relational_expression -> shift_expression
+Debug: equality_expression -> relational_expression
+Debug: and_expression -> equality_expression
+Debug: exclusive_or_expression -> and_expression
+Debug: inclusive_or_expression -> exclusive_or_expression
+Debug: logical_and_expression -> inclusive_or_expression
+Debug: logical_or_expression -> logical_and_expression
+Debug: conditional_expression -> logical_or_expression
+Debug: assignment_expression -> conditional_expression
+Debug: argument_expression_list -> assignment_expression
+Debug: 
+Debug: argcount is 1, type is char*
+Debug: 
+Debug: postfix_expression -> postfix_expression ( argument_expression_list )
+Debug: 133
+Debug: printf
+Debug: 
+Debug: argCount is:1
+Debug: type is char*
+Debug: name is: printf_char*
+Debug: New temp: [ebp - 44]
+Debug: sym->name: [ebp - 44]
+Debug: sym->printName: [ebp - 44]
+Debug: unary_expression -> postfix_expression
+Debug: cast_expression -> unary_expression
+Debug: int
 Debug: multiplicative_expression -> cast_expression
 Debug: additive_expression -> multiplicative_expression
 Debug: shift_expression -> additive_expression
@@ -506,54 +679,96 @@ Debug: statement -> expression_statement
 Debug: block_item -> statement
 Debug: statement_list -> statement_list block_item
 Debug: primary_expression -> IDENTIFIER
-Debug: localStatic
+Debug: free
 Debug: lksajdlajdkadn
 Debug: 
-Debug: Looking up symbol: localStatic
+Debug: Looking up symbol: free
 Debug: 
-Debug: 
-Debug: Found symbol: localStatic
-Debug: Type: int
-Debug: Kind: static
-Debug: Dimensions: 0
-Debug: 
-Debug: [main.localStatic] [main.localStatic]
 Debug: postfix_expression -> primary_expression
-Debug: unary_expression -> postfix_expression
-Debug: assignment_operator -> =
 Debug: primary_expression -> IDENTIFIER
-Debug: localStatic
+Debug: arr
 Debug: lksajdlajdkadn
 Debug: 
-Debug: Looking up symbol: localStatic
+Debug: Looking up symbol: arr
 Debug: 
 Debug: 
-Debug: Found symbol: localStatic
-Debug: Type: int
-Debug: Kind: static
+Debug: Found symbol: arr
+Debug: Type: int*
+Debug: Kind: pointer
 Debug: Dimensions: 0
 Debug: 
-Debug: [main.localStatic] [main.localStatic]
+Debug: [ebp - 4] [ebp - 4]
 Debug: postfix_expression -> primary_expression
 Debug: unary_expression -> postfix_expression
 Debug: cast_expression -> unary_expression
-Debug: staticint
+Debug: int
 Debug: multiplicative_expression -> cast_expression
 Debug: additive_expression -> multiplicative_expression
-Debug: constant -> DECIMAL_LITERAL
+Debug: shift_expression -> additive_expression
+Debug: relational_expression -> shift_expression
+Debug: equality_expression -> relational_expression
+Debug: and_expression -> equality_expression
+Debug: exclusive_or_expression -> and_expression
+Debug: inclusive_or_expression -> exclusive_or_expression
+Debug: logical_and_expression -> inclusive_or_expression
+Debug: logical_or_expression -> logical_and_expression
+Debug: conditional_expression -> logical_or_expression
+Debug: assignment_expression -> conditional_expression
+Debug: argument_expression_list -> assignment_expression
 Debug: 
-Debug: Integer constant value: 10
+Debug: argcount is 1, type is int*
 Debug: 
+Debug: postfix_expression -> postfix_expression ( argument_expression_list )
+Debug: 133
+Debug: free
+Debug: 
+Debug: argCount is:1
+Debug: type is int*
+Debug: name is: free_int*
+Debug: unary_expression -> postfix_expression
+Debug: cast_expression -> unary_expression
+Debug: int
+Debug: multiplicative_expression -> cast_expression
+Debug: additive_expression -> multiplicative_expression
+Debug: shift_expression -> additive_expression
+Debug: relational_expression -> shift_expression
+Debug: equality_expression -> relational_expression
+Debug: and_expression -> equality_expression
+Debug: exclusive_or_expression -> and_expression
+Debug: inclusive_or_expression -> exclusive_or_expression
+Debug: logical_and_expression -> inclusive_or_expression
+Debug: logical_or_expression -> logical_and_expression
+Debug: conditional_expression -> logical_or_expression
+Debug: assignment_expression -> conditional_expression
+Debug: expression -> assignment_expression
+Debug: expression_statement -> expression ;
+Debug: statement -> expression_statement
+Debug: block_item -> statement
+Debug: statement_list -> statement_list block_item
+Debug: primary_expression -> IDENTIFIER
+Debug: arr
+Debug: lksajdlajdkadn
+Debug: 
+Debug: Looking up symbol: arr
+Debug: 
+Debug: 
+Debug: Found symbol: arr
+Debug: Type: int*
+Debug: Kind: pointer
+Debug: Dimensions: 0
+Debug: 
+Debug: [ebp - 4] [ebp - 4]
+Debug: postfix_expression -> primary_expression
+Debug: unary_expression -> postfix_expression
+Debug: assignment_operator -> =
+Debug: constant -> NULLPTR
 Debug: primary_expression -> constant
 Debug: postfix_expression -> primary_expression
 Debug: unary_expression -> postfix_expression
 Debug: cast_expression -> unary_expression
-Debug: staticint
+Debug: int
 Debug: multiplicative_expression -> cast_expression
-Debug: additive_expression -> additive_expression + multiplicative_expression
-Debug: New temp: [ebp - 16]
-Debug: sym->name: [ebp - 16]
-Debug: sym->printName: [ebp - 16]
+Debug: additive_expression -> multiplicative_expression
 Debug: shift_expression -> additive_expression
 Debug: relational_expression -> shift_expression
 Debug: equality_expression -> relational_expression
@@ -567,7 +782,7 @@ Debug: assignment_expression -> conditional_expression
 Debug: assignment_expression -> unary_expression assignment_operator assignment_expression
 Debug: 11:
 Debug: abcdefgh
-Debug: [main.localStatic]
+Debug: [ebp - 4]
 Debug: expression -> assignment_expression
 Debug: expression_statement -> expression ;
 Debug: statement -> expression_statement
@@ -584,7 +799,7 @@ Debug: constant -> STRING_LITERAL
 Debug: postfix_expression -> primary_expression
 Debug: unary_expression -> postfix_expression
 Debug: cast_expression -> unary_expression
-Debug: staticint
+Debug: int
 Debug: multiplicative_expression -> cast_expression
 Debug: additive_expression -> multiplicative_expression
 Debug: shift_expression -> additive_expression
@@ -601,52 +816,19 @@ Debug: argument_expression_list -> assignment_expression
 Debug: 
 Debug: argcount is 1, type is char*
 Debug: 
-Debug: primary_expression -> IDENTIFIER
-Debug: localStatic
-Debug: lksajdlajdkadn
-Debug: 
-Debug: Looking up symbol: localStatic
-Debug: 
-Debug: 
-Debug: Found symbol: localStatic
-Debug: Type: int
-Debug: Kind: static
-Debug: Dimensions: 0
-Debug: 
-Debug: [main.localStatic] [main.localStatic]
-Debug: postfix_expression -> primary_expression
-Debug: unary_expression -> postfix_expression
-Debug: cast_expression -> unary_expression
-Debug: staticint
-Debug: multiplicative_expression -> cast_expression
-Debug: additive_expression -> multiplicative_expression
-Debug: shift_expression -> additive_expression
-Debug: relational_expression -> shift_expression
-Debug: equality_expression -> relational_expression
-Debug: and_expression -> equality_expression
-Debug: exclusive_or_expression -> and_expression
-Debug: inclusive_or_expression -> exclusive_or_expression
-Debug: logical_and_expression -> inclusive_or_expression
-Debug: logical_or_expression -> logical_and_expression
-Debug: conditional_expression -> logical_or_expression
-Debug: assignment_expression -> conditional_expression
-Debug: argument_expression_list -> argument_expression_list , assignment_expression
-Debug: argcount is 2, type is int
-Debug: main.localStatic-[main.localStatic]
 Debug: postfix_expression -> postfix_expression ( argument_expression_list )
 Debug: 133
 Debug: printf
 Debug: 
-Debug: argCount is:2
+Debug: argCount is:1
 Debug: type is char*
-Debug: type is int
-Debug: name is: printf_char*_int
-Debug: New temp: [ebp - 20]
-Debug: sym->name: [ebp - 20]
-Debug: sym->printName: [ebp - 20]
+Debug: name is: printf_char*
+Debug: New temp: [ebp - 48]
+Debug: sym->name: [ebp - 48]
+Debug: sym->printName: [ebp - 48]
 Debug: unary_expression -> postfix_expression
 Debug: cast_expression -> unary_expression
-Debug: staticint
+Debug: int
 Debug: multiplicative_expression -> cast_expression
 Debug: additive_expression -> multiplicative_expression
 Debug: shift_expression -> additive_expression
@@ -672,7 +854,7 @@ Debug: primary_expression -> constant
 Debug: postfix_expression -> primary_expression
 Debug: unary_expression -> postfix_expression
 Debug: cast_expression -> unary_expression
-Debug: staticint
+Debug: int
 Debug: multiplicative_expression -> cast_expression
 Debug: additive_expression -> multiplicative_expression
 Debug: shift_expression -> additive_expression
@@ -689,7 +871,7 @@ Debug: expression -> assignment_expression
 Debug: jump_statement -> RETURN expression ;
 Debug: Return type: int, Expected type: int
 Debug: 
-Debug: lastDeclType: staticint
+Debug: lastDeclType: int
 Debug: currentFunction: main
 Debug: 
 Debug: Function 'main' has return statement returning '0'.
@@ -699,4 +881,4 @@ Debug: statement_list -> statement_list block_item
 Debug: compound_statement -> { statement_list }
 Debug: external -> IDENTIFIER ( ) compound_statement
 Debug: external_declaration -> type_specifier external
-Debug: translation_unit -> translation_unit external_declaration
+Debug: translation_unit -> external_declaration

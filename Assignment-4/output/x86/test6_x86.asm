@@ -12,6 +12,9 @@ section .text
     global main
     extern printf
     extern scanf
+    extern malloc
+    extern free
+    extern nullptr
 
 main:
     push ebp
@@ -92,7 +95,7 @@ main.L2:
     mov ebx, [ebp-94]
     add eax, ebx
     mov [ebp-102], eax
-    lea eax, [ebp-102]
+    mov eax, [ebp-102]
     mov [ebp-110], eax
     mov eax, [ebp-110]
     push eax
@@ -121,8 +124,8 @@ main.L2:
     mov [ebp-81], eax
     jmp main.L2
 main.L3:
-    mov eax, [ebp-4]
-    mov [ebp-94], eax
+    movss xmm0, [ebp-4]
+    movss [ebp-94], xmm0
     movss xmm0, [ebp-12]
     movss xmm1, [ebp-94]
     divss xmm0, xmm1

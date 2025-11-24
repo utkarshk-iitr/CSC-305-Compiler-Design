@@ -277,7 +277,16 @@
 
     bool check_compatibility(const string &t1, const string &t2, const string &baseop) {
         if(baseop==""){
-            return t1==t2;
+            if(t1==t2) return true;
+
+            bool t1Pointer = !t1.empty() && t1.back()=='*';
+            bool t2Pointer = !t2.empty() && t2.back()=='*';
+
+            if(t1Pointer && (t2Pointer || t2=="void*")) return true;
+            if(t1=="void*" && t2Pointer) return true;
+            if(t1Pointer && t2=="nullptr") return true;
+
+            return false;
         }
         
         if(baseop=="*" || baseop=="/"){

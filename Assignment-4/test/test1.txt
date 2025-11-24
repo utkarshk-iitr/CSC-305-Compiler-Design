@@ -1,21 +1,23 @@
-void incrementCallCount() {
-    static int callCount = 0;
-    callCount++;
-    printf("Inside incrementCallCount, callCount = %d\n", callCount);
-    return;
-}
+
 
 int main() {
-    printf("Static variable test:\n");
+    int *arr;
+    int n = 5;
 
-    incrementCallCount();
-    incrementCallCount();
-    incrementCallCount();
+    arr = (int *)malloc(5 * sizeof(int));
 
-    static int localStatic = 100;
-    printf("Local static variable: %d\n", localStatic);
-    localStatic = localStatic + 10;
-    printf("Modified local static: %d\n", localStatic);
+    printf("Allocated array elements:\n");
+    for (int i = 0; i < 5; i++) {
+        scanf("%d ", &arr[i]);
+        printf("%d ", arr[i]);
+    }
+    printf("\n");
+    
 
+    free(arr);
+
+    arr = nullptr;
+
+    printf("Memory successfully deallocated.\n");
     return 0;
 }

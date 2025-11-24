@@ -1,49 +1,65 @@
     
-    incrementCallCount.callCount dd 0
-    str_1 db "Inside incrementCallCount, callCount = %d\n", 0
-    str_2 db "Static variable test:\n", 0
-    main.localStatic dd 100
-    str_3 db "Local static variable: %d\n", 0
-    str_4 db "Modified local static: %d\n", 0
-    
-incrementCallCount:
-    push ebp
-    mov ebp, esp
-    sub esp, 12
-    [ebp - 8] = [incrementCallCount.callCount]
-    [incrementCallCount.callCount] = [ebp - 8] + 1;
-    sub esp, 4
-    param [esp] , str_1
-    sub esp, 4
-    param [esp] , [incrementCallCount.callCount]
-    [ebp - 12] = call printf, 2
-    add esp, 8
-    return
+    str_1 db "Allocated array elements:\n", 0
+    str_2 db "%d ", 0
+    str_3 db "%d ", 0
+    str_4 db "\n", 0
+    str_5 db "Memory successfully deallocated.\n", 0
     
 main:
     push ebp
     mov ebp, esp
-    sub esp, 20
+    sub esp, 48
+    [ebp - 8] = 5
+    [ebp - 12] = 4
+    [ebp - 16] = 5 * [ebp - 12]
+    sub esp, 4
+    param [esp] , [ebp - 16]
+    [ebp - 20] = call malloc, 1
+    add esp, 4
+    [ebp - 24] = void*_to_int* [ebp - 20]
+    [ebp - 4] = [ebp - 24]
+    sub esp, 4
+    param [esp] , str_1
+    [ebp - 28] = call printf, 1
+    add esp, 4
+    [ebp - 32] = 0
+main.L1:
+    [ebp - 36] = [ebp - 32] < 5
+    ifFalse [ebp - 36] goto main.L2
+    sub esp, 28
     sub esp, 4
     param [esp] , str_2
-    [ebp - 4] = call printf, 1
-    add esp, 4
-    [ebp - 4] = call incrementCallCount, 0;
-    [ebp - 4] = call incrementCallCount, 0;
-    [ebp - 4] = call incrementCallCount, 0;
+    [ebp - 44] = [ebp - 32] * 4
+    [ebp - 48] = [ebp - 4] + [ebp - 44]
+    [ebp - 52] = &*[ebp - 48]
+    sub esp, 4
+    param [esp] , [ebp - 52]
+    [ebp - 56] = call scanf, 2
+    add esp, 8
     sub esp, 4
     param [esp] , str_3
+    [ebp - 60] = [ebp - 32] * 4
+    [ebp - 64] = [ebp - 4] + [ebp - 60]
     sub esp, 4
-    param [esp] , [main.localStatic]
-    [ebp - 12] = call printf, 2
+    param [esp] , *[ebp - 64]
+    [ebp - 68] = call printf, 2
     add esp, 8
-    [ebp - 16] = [main.localStatic] + 10
-    [main.localStatic] = [ebp - 16]
+    [ebp - 40] = [ebp - 32]
+    [ebp - 32] = [ebp - 40] + 1;
+    goto main.L1
+main.L2:
     sub esp, 4
     param [esp] , str_4
+    [ebp - 44] = call printf, 1
+    add esp, 4
     sub esp, 4
-    param [esp] , [main.localStatic]
-    [ebp - 20] = call printf, 2
-    add esp, 8
+    param [esp] , [ebp - 4]
+    call free, 1
+    add esp, 4
+    [ebp - 4] = 0
+    sub esp, 4
+    param [esp] , str_5
+    [ebp - 48] = call printf, 1
+    add esp, 4
     return 0
     
