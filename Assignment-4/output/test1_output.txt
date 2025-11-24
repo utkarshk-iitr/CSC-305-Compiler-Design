@@ -1,47 +1,30 @@
-    b resd 1
-    e resd 1
+    p resd 1
     
-    a dd 10
-    c dd 10
-    d dd 11
     str_1 db "%d\n", 0
     str_2 db "%d\n", 0
-    str_3 db "%d\n", 0
     
 main:
     push ebp
     mov ebp, esp
-    sub esp, 52
+    sub esp, 24
     [ebp - 4] = 5
     [ebp - 8] = &[ebp - 4]
-    [ebp - 12] = [ebp - 8]
-    [ebp - 16] = &[ebp - 12]
-    p1 = [ebp - 16]
-    [ebp - 20] = &p1
-    [ebp - 24] = [ebp - 20]
+    [p] = [ebp - 8]
+    [ebp - 12] = &[p]
+    [ebp - 16] = [ebp - 12]
+    *[p] = 8
     sub esp, 4
     param [esp] , str_1
     sub esp, 4
     param [esp] , [ebp - 4]
-    [ebp - 28] = call printf, 2
+    [ebp - 20] = call printf, 2
     add esp, 8
-    [ebp - 32] = *[ebp - 24]
-    [ebp - 36] = *[ebp - 32]
-    *[ebp - 36] = 13
+    [ebp - 4] = 11
     sub esp, 4
     param [esp] , str_2
     sub esp, 4
-    param [esp] , [ebp - 4]
-    [ebp - 40] = call printf, 2
-    add esp, 8
-    [ebp - 4] = 7
-    [ebp - 44] = *p1
-    [ebp - 48] = *[ebp - 44]
-    sub esp, 4
-    param [esp] , str_3
-    sub esp, 4
-    param [esp] , [ebp - 48]
-    [ebp - 52] = call printf, 2
+    param [esp] , *[p]
+    [ebp - 24] = call printf, 2
     add esp, 8
     return 0
     

@@ -1983,6 +1983,7 @@ init_declarator
 
         Symbol* sym = lookupSymbol(n->place);
         string w;
+        dbg("utla");
         // if(lastClassType=="")
         //     w = lastClassType+currentFunction+currentScope+n->place;
         // else if(lastClassType!="" && currentFunction!="")
@@ -1991,7 +1992,7 @@ init_declarator
         //     w = "obj."+currentScope+n->place;
         if(lastClassType == "" && currentFunction == "")
         {
-            sym->printName = n->place;
+            sym->printName = "[" + n->place + "]";
             if(n->type == "bool")
                 uglobalCode.push_back(n->place + " resd 1");
             else if(n->type == "char")
@@ -2001,6 +2002,8 @@ init_declarator
             else if(n->type == "long")
                 uglobalCode.push_back(n->place + " resd 1");
             else if(n->type == "double")
+                uglobalCode.push_back(n->place + " resd 1");
+            else
                 uglobalCode.push_back(n->place + " resd 1");
         }
         else if(lastClassType != "" && currentFunction == "")
@@ -2286,9 +2289,10 @@ init_declarator
         // else
         //     w = "obj."+currentScope+n->place;
         sym->printName = w;
+        dbg("utkar");
         if(lastClassType == "" && currentFunction == "")
         {
-            sym->printName = n->place;
+            sym->printName = "[" + n->place + "]";
             uglobalCode.push_back(n->place + " resd 1");
         }
         else if(lastClassType != "" && currentFunction == "")
